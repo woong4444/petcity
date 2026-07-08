@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel="stylesheet" th:href="@{/css/common/head.css}">
+</head>
+<body>
+
+<header th:fragment="head" class="site-header">
+
+    <div class="top-header">
+        <div class="header-inner top-header-inner">
+
+            <div class="top-left">
+                <div class="sns-list">
+                    <span class="sns-icon">K</span>
+                    <span class="sns-icon">F</span>
+                    <span class="sns-icon">I</span>
+                    <span class="sns-icon">N</span>
+                </div>
+
+                <span class="top-message">
+                    동물병원 찾기부터 우리 아이 병원 기록까지, PetCity
+                </span>
+            </div>
+
+            <div class="top-menu">
+                <a href="/member/login">로그인</a>
+                <span>|</span>
+                <a href="/member/signup">회원가입</a>
+                <span>|</span>
+                <a href="/member/mypage">마이페이지</a>
+                <span>|</span>
+                <a href="/pet/list">내 반려동물</a>
+                <span>|</span>
+                <a href="/board/list">고객센터</a>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="middle-header">
+        <div class="header-inner middle-header-inner">
+
+            <div class="logo-area">
+                <a href="/" class="logo-link">
+                    <div class="logo-icon">🐾</div>
+                    <div>
+                        <div class="logo-text">PetCity</div>
+                        <div class="logo-sub-text">Animal Hospital Finder</div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="search-area">
+                <div class="notice-line">
+                    <strong>NOTICE</strong>
+                    <a href="/board/list">우리 아이에게 맞는 동물병원을 찾아보세요!</a>
+                </div>
+
+                <form action="/hospital/list" method="get" class="search-form">
+                    <input
+                            type="text"
+                            name="keyword"
+                            placeholder="병원명, 지역, 동물 종류를 검색하세요"
+                            class="search-input"
+                    >
+                    <button type="submit" class="search-button">검색</button>
+                </form>
+
+                <div class="popular-keywords">
+                    <span>인기검색어 :</span>
+                    <a href="/hospital/list?keyword=강아지">강아지</a>
+                    <a href="/hospital/list?keyword=고양이">고양이</a>
+                    <a href="/hospital/list?keyword=24시">24시병원</a>
+                    <a href="/hospital/list?keyword=건강검진">건강검진</a>
+                </div>
+            </div>
+
+            <div class="banner-area">
+                <div class="mini-banner">
+                    <div class="mini-banner-icon">🏥</div>
+                    <div>
+                        <p class="mini-banner-title">가까운 동물병원 찾기</p>
+                        <p class="mini-banner-desc">지도 기반 병원 검색 서비스</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="header-inner bottom-nav-inner">
+
+            <a href="/hospital/list" class="category-button">
+                <span class="category-icon">☰</span>
+                <span>전체 카테고리</span>
+            </a>
+
+            <div class="main-menu">
+                <a href="/hospital/list">동물병원</a>
+                <a href="/hospital/search">맞춤검색</a>
+                <a href="/pet/list">내 반려동물</a>
+                <a href="/board/list">게시판</a>
+                <a href="/event/list">이벤트</a>
+            </div>
+
+            <div class="right-menu">
+                <a href="/board/notice">고객센터</a>
+                <span>|</span>
+                <a href="/owner/request">병원장 문의</a>
+            </div>
+
+        </div>
+    </nav>
+
+</header>
+
+</body>
+</html>
