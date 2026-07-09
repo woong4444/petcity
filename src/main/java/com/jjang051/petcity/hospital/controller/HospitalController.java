@@ -22,7 +22,7 @@ public class HospitalController {
     public String hospitalList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer animalId,
-            @RequestParam(required = false) List<Integer> serviceIds, // 수정
+            @RequestParam(required = false) List<Integer> serviceIds,
             @RequestParam(required = false) List<String> districts,
             @RequestParam(required = false) String keyword,
             Model model
@@ -37,7 +37,7 @@ public class HospitalController {
     public String hospitalListAjax(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer animalId,
-            @RequestParam(required = false) List<Integer> serviceIds, // 수정
+            @RequestParam(required = false) List<Integer> serviceIds,
             @RequestParam(required = false) List<String> districts,
             @RequestParam(required = false) String keyword,
             Model model
@@ -55,7 +55,7 @@ public class HospitalController {
         model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList());
 
         model.addAttribute("animalId", pageDto.getAnimalId());
-        model.addAttribute("serviceIds", pageDto.getServiceIds()); // 수정
+        model.addAttribute("serviceIds", pageDto.getServiceIds());
         model.addAttribute("districts", pageDto.getDistricts());
         model.addAttribute("keyword", pageDto.getKeyword());
         model.addAttribute("pageDto", pageDto);

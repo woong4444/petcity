@@ -16,7 +16,6 @@ public class HospitalService {
 
     private final HospitalDao hospitalDao;
 
-    // 파라미터 serviceId -> List<Integer> serviceIds로 수정
     public HospitalListPageDto getHospitalListPage(int page, Integer animalId, List<Integer> serviceIds,
                                                    List<String> districts, String keyword) {
 
@@ -46,7 +45,7 @@ public class HospitalService {
                 .animalTypeList(animalTypeList)
                 .medicalServiceList(medicalServiceList)
                 .animalId(animalId)
-                .serviceIds(serviceIds) // 수정
+                .serviceIds(serviceIds)
                 .districts(districts)
                 .keyword(keyword)
                 .page(page)

@@ -13,7 +13,7 @@ public interface HospitalDao {
 
     List<HospitalDto> findHospitalList(
             @Param("animalId") Integer animalId,
-            @Param("serviceIds") List<Integer> serviceIds, // 수정
+            @Param("serviceIds") List<Integer> serviceIds,
             @Param("districts") List <String> districts,
             @Param("keyword") String keyword,
             @Param("offset") int offset,
@@ -22,14 +22,12 @@ public interface HospitalDao {
 
     int countHospitalList(
             @Param("animalId") Integer animalId,
-            @Param("serviceIds") List<Integer> serviceIds, // 수정
+            @Param("serviceIds") List<Integer> serviceIds,
             @Param("districts") List <String> districts,
             @Param("keyword") String keyword
     );
 
     List<String> findDistrictList();
-
     List<AnimalTypeDto> findAnimalTypeList();
-
     List<MedicalServiceDto> findMedicalServiceList();
 }

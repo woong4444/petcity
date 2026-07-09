@@ -41,7 +41,6 @@
             <div class="filter-title-row">
                 <h3>동물 분류</h3><span>하나만 선택 가능 (검색 버튼 클릭 시 적용 / 다시 누르면 해제)</span>
             </div>
-
             <div class="filter-content-wrap">
                 <div class="radio-group">
                     <label class="filter-radio">
@@ -64,7 +63,6 @@
             <div class="filter-title-row">
                 <h3>진료 과목</h3><span>선택한 과목을 모두 제공하는 곳만 검색됩니다. (선택 시 즉시 적용)</span>
             </div>
-
             <div class="filter-content-wrap">
                 <div class="checkbox-group">
                     <label class="filter-check service-all-check">
@@ -87,7 +85,6 @@
             <div class="filter-title-row">
                 <h3>지역 분류</h3><span>여러 개 선택 가능 (선택 시 즉시 적용)</span>
             </div>
-
             <div class="filter-content-wrap">
                 <div class="checkbox-group region-checkbox-group">
                     <label class="filter-check seoul-all-check">
@@ -147,13 +144,21 @@
                     <div class="hospital-title-row">
                         <div>
                             <span class="district-badge" th:text="${hospital.district}">강남구</span>
+
+                            <th:block th:if="${pageDto.serviceIds != null and pageDto.serviceIds.size() > 1}">
+                                <span class="match-badge perfect" th:if="${hospital.matchCount == pageDto.serviceIds.size()}">⭐ 모든 조건 일치</span>
+                                <span class="match-badge partial" th:if="${hospital.matchCount > 0 and hospital.matchCount < pageDto.serviceIds.size()}">✔️ 부분 일치</span>
+                            </th:block>
+
                             <h2 class="hospital-name" th:text="${hospital.name}">병원명</h2>
                         </div>
                     </div>
                     <div class="hospital-detail-list">
-                        <p><span class="detail-label">주소</span><span class="txt-ellipsis" th:text="${hospital.address}">서울시 강남구...</span></p>
-                        <p><span class="detail-label">전화</span><span th:text="${hospital.phone != null and hospital.phone != '' ? hospital.phone : '정보 없음'}">정보 없음</span></p>
-                        <p><span class="detail-label">시간</span><span th:text="${hospital.openTime != null and hospital.openTime != '' ? hospital.openTime : '정보 없음'}">정보 없음</span></p>
+                        <p><span class="detail-label">진료동물</span><span class="txt-ellipsis" th:text="${hospital.animalNames != null ? hospital.animalNames : '정보 없음'}"></span></p>
+                        <p><span class="detail-label">진료과목</span><span class="txt-ellipsis" th:text="${hospital.serviceNames != null ? hospital.serviceNames : '정보 없음'}"></span></p>
+                        <p><span class="detail-label">주소</span><span class="txt-ellipsis" th:text="${hospital.address}"></span></p>
+                        <p><span class="detail-label">전화</span><span th:text="${hospital.phone != null and hospital.phone != '' ? hospital.phone : '정보 없음'}"></span></p>
+                        <p><span class="detail-label">시간</span><span th:text="${hospital.openTime != null and hospital.openTime != '' ? hospital.openTime : '정보 없음'}"></span></p>
                     </div>
 
                     <div class="hospital-actions">
@@ -171,16 +176,28 @@
 
         <div class="pagination-wrap" th:if="${pageDto != null and pageDto.totalPages > 1}">
             <ul class="pagination">
+
                 <li th:class="${pageDto.page == 1} ? 'page-item disabled' : 'page-item'">
-                    <a class="page-link" href="#" th:data-page="${pageDto.page - 1}">&lt;</a>
+                    <a class="page-link double-arrow" href="#" data-page="1">&lt;&lt;</a>
                 </li>
+
+                <li th:class="${pageDto.startPage == 1} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link single-arrow" href="#" th:data-page="${pageDto.startPage - 1}">&lt;</a>
+                </li>
+
                 <li th:each="p : ${#numbers.sequence(pageDto.startPage, pageDto.endPage)}"
                     th:class="${p == pageDto.page} ? 'page-item active' : 'page-item'">
                     <a class="page-link" href="#" th:data-page="${p}" th:text="${p}">1</a>
                 </li>
-                <li th:class="${pageDto.page == pageDto.totalPages} ? 'page-item disabled' : 'page-item'">
-                    <a class="page-link" href="#" th:data-page="${pageDto.page + 1}">&gt;</a>
+
+                <li th:class="${pageDto.endPage >= pageDto.totalPages} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link single-arrow" href="#" th:data-page="${pageDto.endPage + 1}">&gt;</a>
                 </li>
+
+                <li th:class="${pageDto.page == pageDto.totalPages} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link double-arrow" href="#" th:data-page="${pageDto.totalPages}">&gt;&gt;</a>
+                </li>
+
             </ul>
         </div>
 

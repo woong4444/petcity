@@ -13,14 +13,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HospitalListPageDto {
-
     private List<HospitalDto> hospitalList;
     private List<String> districtList;
     private List<AnimalTypeDto> animalTypeList;
     private List<MedicalServiceDto> medicalServiceList;
 
     private Integer animalId;
-    private List<Integer> serviceIds; // 수정: 단일 Integer에서 List로 변경 (다중 선택)
+    private List<Integer> serviceIds; // 진료과목 다중 선택
     private List<String> districts;
     private String keyword;
 
