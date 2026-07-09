@@ -99,7 +99,6 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 
 /* ================================
    Pagination
-================================ */
 .pagination-wrap { margin-top: 40px; display: flex; justify-content: center; }
 .pagination { display: flex; list-style: none; padding: 0; margin: 0; gap: 6px; }
 .page-item .page-link { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #ffffff; color: #374151; font-weight: 700; text-decoration: none; transition: all 0.2s; }

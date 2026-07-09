@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${boardTitle}">게시판</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 공통 헤더 CSS -->
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+
+    <!-- 게시판 목록 CSS -->
+    <link rel="stylesheet" th:href="@{/css/board/list.css}">
+</head>
+<body>
+
+<!-- 공통 헤더 -->
+<div th:replace="~{common/head :: head}"></div>
+
+<main class="board-wrap">
+
+    <div class="board-layout">
+
+        <!-- 왼쪽 커뮤니티 메뉴 -->
+        <aside class="community-sidebar">
+
+            <div class="community-box">
+                <p>COMMUNITY</p>
+                <h2>커뮤니티</h2>
+            </div>
+
+            <nav class="community-menu">
+                <a th:href="@{/board/list(type='QNA')}"
+                   th:classappend="${boardType == 'QNA'} ? ' active' : ''">
+                    <span>수의사상담</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='FREE')}"
+                   th:classappend="${boardType == 'FREE'} ? ' active' : ''">
+                    <span>자유토크</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='INFO')}"
+                   th:classappend="${boardType == 'INFO'} ? ' active' : ''">
+                    <span>멍냥백서</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='NOTICE')}"
+                   th:classappend="${boardType == 'NOTICE'} ? ' active' : ''">
+                    <span>공지사항</span>
+                    <strong>›</strong>
+                </a>
+            </nav>
+
+        </aside>
+
+        <!-- 오른쪽 게시판 메인 -->
+        <section class="board-content">
+
+            <!-- 게시판 상단 타이틀 영역 -->
+            <section class="board-hero">
+
+                <div class="board-hero-title">
+                    <h1 th:text="${boardTitle}">자유토크</h1>
+
+                    <p th:switch="${boardType}">
+                        <span th:case="'QNA'">
+                            의료 전문 상담이 필요한 분들께 수의사가 직접 답변드립니다!
+                        </span>
+                        <span th:case="'FREE'">
+                            반려동물 이야기 및 마이펫 자랑 등 자유로운 토크방입니다!
+                        </span>
+                        <span th:case="'INFO'">
+                            반려견, 반려묘 보호자분들을 위한 꿀팁 정보입니다!
+                        </span>
+                        <span th:case="'NOTICE'">
+                            PetCity의 중요한 소식과 안내사항을 확인해 주세요.
+                        </span>
+                        <span th:case="*">
+                            PetCity 커뮤니티 게시판입니다.
+                        </span>
+                    </p>
+                </div>
+
+                <div class="board-hero-image">
+                    <div class="pet pet-cat">🐱</div>
+                    <div class="pet pet-dog">🐶</div>
+                    <div class="pet pet-bird">🐥</div>
+                    <div class="pet pet-puppy">🐕</div>
+                </div>
+
+            </section>
+
+            <!-- 검색 영역 -->
+            <section class="board-search-area">
+                <form th:action="@{/board/list}" method="get" class="board-search-form">
+
+                    <!-- 현재 게시판 타입 유지 -->
+                    <input type="hidden" name="type" th:value="${boardType}">
+
+                    <div class="search-label">게시글 검색</div>
+
+                    <select name="searchType">
+                        <option value="titleContent">제목 + 내용</option>
+                        <option value="title">제목</option>
+                        <option value="content">내용</option>
+                        <option value="writer">작성자</option>
+                    </select>
+
+                    <input type="text"
+                           name="keyword"
+                           placeholder="검색어를 입력하세요.">
+
+                    <button type="submit">조회하기</button>
+
+                    <label class="my-board-check">
+                        <input type="checkbox" name="myPost" value="Y">
+                        <span>나의 게시글 보기</span>
+                    </label>
+                </form>
+            </section>
+
+            <!-- 게시판 테이블 -->
+            <section class="board-table-area">
+
+                <table class="board-table">
+                    <thead>
+                    <tr>
+                        <th class="col-no">No</th>
+                        <th class="col-type">분류</th>
+                        <th class="col-title">제목</th>
+                        <th class="col-writer">작성자</th>
+                        <th class="col-date">날짜</th>
+                        <th class="col-comment">댓글수</th>
+                        <th class="col-hit">조회수</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="board : ${boardList}"
+                        th:classappend="${board.boardType == 'NOTICE'} ? ' notice-row' : ''">
+
+                        <!-- 번호 -->
+                        <td class="col-no" th:text="${board.boardId}">1</td>
+
+                        <!-- 분류 -->
+                        <td class="col-type">
+                            <span class="type-badge" th:switch="${board.boardType}">
+                                <span th:case="'NOTICE'">공지</span>
+                                <span th:case="'QNA'">상담</span>
+                                <span th:case="'FREE'">자유토크</span>
+                                <span th:case="'INFO'">멍냥백서</span>
+                                <span th:case="'MISSING'">실종제보</span>
+                                <span th:case="*">게시판</span>
+                            </span>
+                        </td>
+
+                        <!-- 제목 -->
+                        <td class="col-title title-cell">
+                            <a th:href="@{/board/view(boardId=${board.boardId})}"
+                               th:text="${board.title}">
+                                게시글 제목
+                            </a>
+
+                            <span th:if="${board.imageCount > 0}"
+                                  class="image-mark"
+                                  title="첨부 이미지 있음">
+                                        📷
+                            </span>
+                        </td>
+
+                        <!-- 작성자 -->
+                        <td class="col-writer" th:text="${board.writerNickname}">
+                            작성자
+                        </td>
+
+                        <!-- 날짜 -->
+                        <td class="col-date"
+                            th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd')}">
+                            2026.07.09
+                        </td>
+
+                        <!-- 댓글수: 아직 댓글 count 연결 전이라 0으로 표시 -->
+                        <td class="col-comment" th:text="${board.commentCount}">0</td>
+
+                        <!-- 조회수 -->
+                        <td class="col-hit" th:text="${board.hit}">0</td>
+                    </tr>
+
+                    <!-- 게시글이 없을 때 -->
+                    <tr th:if="${#lists.isEmpty(boardList)}">
+                        <td colspan="7" class="empty-board">
+                            등록된 게시글이 없습니다.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </section>
+
+            <!-- 하단 버튼 영역 -->
+            <div class="board-bottom">
+
+                <div class="board-page-dummy">
+                    <button type="button">‹</button>
+                    <button type="button" class="active">1</button>
+                    <button type="button">›</button>
+                </div>
+
+                <a th:href="@{/board/write(type=${boardType})}" class="write-button">
+                    글쓰기
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+</body>
+</html>

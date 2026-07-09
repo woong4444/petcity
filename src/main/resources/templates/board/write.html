@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${boardTitle} + ' 글쓰기'">게시글 작성</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/board/write.css}">
+</head>
+<body>
+
+<div th:replace="~{common/head :: head}"></div>
+
+<main class="board-write-wrap">
+
+    <div class="board-write-layout">
+
+        <aside class="community-sidebar">
+
+            <div class="community-box">
+                <p>COMMUNITY</p>
+                <h2>커뮤니티</h2>
+            </div>
+
+            <nav class="community-menu">
+                <a th:href="@{/board/list(type='QNA')}"
+                   th:classappend="${boardType == 'QNA'} ? ' active' : ''">
+                    <span>수의사상담</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='FREE')}"
+                   th:classappend="${boardType == 'FREE'} ? ' active' : ''">
+                    <span>자유토크</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='INFO')}"
+                   th:classappend="${boardType == 'INFO'} ? ' active' : ''">
+                    <span>멍냥백서</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='NOTICE')}"
+                   th:classappend="${boardType == 'NOTICE'} ? ' active' : ''">
+                    <span>공지사항</span>
+                    <strong>›</strong>
+                </a>
+            </nav>
+
+        </aside>
+
+        <section class="board-write-content">
+
+            <section class="board-write-hero">
+                <div>
+                    <h1>글쓰기</h1>
+                    <p th:text="${boardTitle} + '에 게시글을 작성해 주세요.'">
+                        PetCity 커뮤니티에 게시글을 작성해 주세요.
+                    </p>
+                </div>
+
+                <div class="board-write-pet">
+                    <span>🐶</span>
+                    <span>🐱</span>
+                </div>
+            </section>
+
+            <form th:action="@{/board/write}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="write-form">
+
+                <input type="hidden" name="boardType" th:value="${boardType}">
+
+                <div class="form-row">
+                    <label>게시판</label>
+
+                    <div class="board-type-text" th:switch="${boardType}">
+                        <span th:case="'NOTICE'">공지사항</span>
+                        <span th:case="'QNA'">상담 게시판</span>
+                        <span th:case="'FREE'">자유 게시판</span>
+                        <span th:case="'INFO'">멍냥백서</span>
+                        <span th:case="'MISSING'">실종/제보 게시판</span>
+                        <span th:case="*">게시판</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="title">제목</label>
+                    <input type="text"
+                           id="title"
+                           name="title"
+                           placeholder="제목을 입력하세요."
+                           required>
+                </div>
+
+                <div class="form-row content-row">
+                    <label for="content">내용</label>
+                    <textarea id="content"
+                              name="content"
+                              placeholder="내용을 입력하세요."
+                              required></textarea>
+                </div>
+
+                <div class="form-row file-row" th:if="${boardType == 'INFO'}">
+                    <label for="infoImage">대표 이미지</label>
+                    <div class="file-box">
+                        <input type="file"
+                               id="infoImage"
+                               name="imageFiles"
+                               accept="image/*">
+                        <p>멍냥백서는 대표 이미지 1장만 등록할 수 있습니다.</p>
+                    </div>
+                </div>
+
+                <div class="form-row" th:if="${boardType == 'INFO'}">
+                    <label for="linkUrl">이미지 링크</label>
+                    <input type="url"
+                           id="linkUrl"
+                           name="linkUrl"
+                           placeholder="이미지를 클릭했을 때 이동할 URL을 입력하세요.">
+                </div>
+
+                <div class="form-row file-row" th:unless="${boardType == 'INFO'}">
+                    <label for="normalImages">첨부 이미지</label>
+                    <div class="file-box">
+                        <input type="file"
+                               id="normalImages"
+                               name="imageFiles"
+                               accept="image/*"
+                               multiple>
+                        <p>이미지를 여러 장 첨부할 수 있습니다.</p>
+                    </div>
+                </div>
+
+                <div class="write-buttons">
+                    <a th:href="@{/board/list(type=${boardType})}" class="cancel-button">
+                        취소
+                    </a>
+
+                    <button type="submit" class="submit-button">
+                        등록하기
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+
+</main>
+
+</body>
+</html>
