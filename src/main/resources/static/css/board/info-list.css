@@ -1,0 +1,352 @@
+@charset "UTF-8";
+
+body {
+    margin: 0;
+    background-color: #ffffff;
+    color: #222222;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+.info-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 54px 20px 80px;
+}
+
+.info-layout {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 34px;
+    align-items: start;
+}
+
+/* 왼쪽 메뉴 */
+
+.community-sidebar {
+    width: 100%;
+}
+
+.community-box {
+    height: 150px;
+    padding: 26px 24px;
+    border: 8px solid #eef1f4;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.community-box::after {
+    content: "";
+    position: absolute;
+    right: 20px;
+    top: 18px;
+    width: 42px;
+    height: 42px;
+    border-top: 1px solid #d9dee5;
+    border-right: 1px solid #d9dee5;
+    transform: skew(-5deg);
+}
+
+.community-box p {
+    margin: 24px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #9ca3af;
+}
+
+.community-box h2 {
+    margin: 0;
+    font-size: 33px;
+    font-weight: 900;
+    color: #000000;
+    line-height: 1.1;
+    letter-spacing: -2px;
+}
+
+.community-menu {
+    margin-top: 24px;
+    border-top: 1px solid #d9dee5;
+}
+
+.community-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    border-bottom: 1px solid #d9dee5;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.community-menu a strong {
+    color: #0f9ca8;
+    font-size: 22px;
+}
+
+.community-menu a:hover,
+.community-menu a.active {
+    color: #0f9ca8;
+    padding-left: 8px;
+}
+
+/* 오른쪽 */
+
+.info-content {
+    min-width: 0;
+}
+
+.info-hero {
+    min-height: 170px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    border-bottom: 1px solid #d9dee5;
+    padding-bottom: 18px;
+}
+
+.info-hero h1 {
+    margin: 0;
+    font-size: 46px;
+    font-weight: 300;
+    color: #333333;
+    letter-spacing: -2px;
+}
+
+.info-hero p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    color: #555555;
+    font-weight: 600;
+}
+
+.info-pet-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.info-pet-banner span {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background-color: #f2eee7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+}
+
+.info-pet-banner span:nth-child(2) {
+    width: 76px;
+    height: 76px;
+    background-color: #fff3dc;
+    font-size: 44px;
+}
+
+/* 카드 목록 */
+
+.info-card-list {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px 18px;
+}
+
+.info-card {
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    transition: all 0.18s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.info-image-link {
+    display: block;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background-color: #f1f5f9;
+    text-decoration: none;
+}
+
+.info-image-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.18s ease;
+}
+
+.info-card:hover .info-image-link img {
+    transform: scale(1.04);
+}
+
+.no-info-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-weight: 800;
+}
+
+.info-card-body {
+    padding: 16px 14px 18px;
+}
+
+.info-card-body h2 {
+    margin: 0;
+    min-height: 48px;
+    font-size: 17px;
+    line-height: 1.45;
+    font-weight: 900;
+    color: #111827;
+}
+
+.info-card-body h2 a {
+    color: #111827;
+    text-decoration: none;
+}
+
+.info-card-body h2 a:hover {
+    color: #4f6fc8;
+    text-decoration: underline;
+}
+
+.info-card-body p {
+    margin: 12px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.empty-info {
+    grid-column: 1 / -1;
+    padding: 80px 20px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    color: #64748b;
+    font-weight: 800;
+}
+
+.info-bottom {
+    margin-top: 28px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.write-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 20px;
+    background-color: #111827;
+    color: #ffffff;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.write-button:hover {
+    background-color: #374151;
+}
+
+/* 반응형 */
+
+@media (max-width: 1024px) {
+    .info-layout {
+        grid-template-columns: 200px 1fr;
+        gap: 26px;
+    }
+
+    .info-card-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .info-wrap {
+        padding: 34px 16px 60px;
+    }
+
+    .info-layout {
+        display: block;
+    }
+
+    .community-sidebar {
+        margin-bottom: 30px;
+    }
+
+    .community-box {
+        height: auto;
+        padding: 22px;
+    }
+
+    .community-box p {
+        margin-top: 0;
+    }
+
+    .community-menu {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        border-top: none;
+        margin-top: 14px;
+    }
+
+    .community-menu a {
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #d9dee5;
+        border-radius: 6px;
+    }
+
+    .info-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: auto;
+    }
+
+    .info-hero h1 {
+        font-size: 34px;
+    }
+
+    .info-card-list {
+        grid-template-columns: 1fr;
+    }
+
+    .info-image-link {
+        height: 240px;
+    }
+}
+
+@media (max-width: 480px) {
+    .community-menu {
+        grid-template-columns: 1fr;
+    }
+
+    .info-hero h1 {
+        font-size: 30px;
+    }
+
+    .info-pet-banner span {
+        width: 48px;
+        height: 48px;
+        font-size: 28px;
+    }
+
+    .info-pet-banner span:nth-child(2) {
+        width: 60px;
+        height: 60px;
+        font-size: 34px;
+    }
+}
