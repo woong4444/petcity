@@ -5,9 +5,7 @@
 
 <mapper namespace="com.jjang051.petcity.hospital.dao.HospitalDao">
 
-    <select id="findHospitalList"
-            resultType="HospitalDto">
-
+    <select id="findHospitalList" resultType="HospitalDto">
         SELECT DISTINCT
         H.HOSPITAL_ID AS hospitalId,
         H.NAME AS name,
@@ -27,10 +25,7 @@
         H.UPDATED_AT AS updatedAt
 
         FROM HOSPITAL H
-        LEFT JOIN HOSPITAL_ANIMAL HA
-        ON H.HOSPITAL_ID = HA.HOSPITAL_ID
-        LEFT JOIN HOSPITAL_SERVICE HS
-        ON H.HOSPITAL_ID = HS.HOSPITAL_ID
+        LEFT JOIN HOSPITAL_ANIMAL HA ON H.HOSPITAL_ID = HA.HOSPITAL_ID
 
         WHERE 1 = 1
 
@@ -38,8 +33,14 @@
             AND HA.ANIMAL_ID = #{animalId}
         </if>
 
-        <if test="serviceId != null">
-            AND HS.SERVICE_ID = #{serviceId}
+        <if test="serviceIds != null and serviceIds.size() > 0">
+            <foreach collection="serviceIds" item="svcId">
+                AND EXISTS (
+                SELECT 1 FROM HOSPITAL_SERVICE HS
+                WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID
+                AND HS.SERVICE_ID = #{svcId}
+                )
+            </foreach>
         </if>
 
         <if test="districts != null and districts.size() > 0">
@@ -61,24 +62,34 @@
         OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
     </select>
 
+
     <select id="countHospitalList" resultType="int">
         SELECT COUNT(DISTINCT H.HOSPITAL_ID)
         FROM HOSPITAL H
         LEFT JOIN HOSPITAL_ANIMAL HA ON H.HOSPITAL_ID = HA.HOSPITAL_ID
-        LEFT JOIN HOSPITAL_SERVICE HS ON H.HOSPITAL_ID = HS.HOSPITAL_ID
         WHERE 1 = 1
+
         <if test="animalId != null">
             AND HA.ANIMAL_ID = #{animalId}
         </if>
-        <if test="serviceId != null">
-            AND HS.SERVICE_ID = #{serviceId}
+
+        <if test="serviceIds != null and serviceIds.size() > 0">
+            <foreach collection="serviceIds" item="svcId">
+                AND EXISTS (
+                SELECT 1 FROM HOSPITAL_SERVICE HS
+                WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID
+                AND HS.SERVICE_ID = #{svcId}
+                )
+            </foreach>
         </if>
+
         <if test="districts != null and districts.size() > 0">
             AND TRIM(H.DISTRICT) IN
             <foreach collection="districts" item="district" open="(" separator="," close=")">
                 #{district}
             </foreach>
         </if>
+
         <if test="keyword != null and keyword != ''">
             AND (
             H.NAME LIKE '%' || #{keyword} || '%'
@@ -88,18 +99,15 @@
         </if>
     </select>
 
+
     <select id="findDistrictList" resultType="string">
-        SELECT DISTINCT
-        TRIM(DISTRICT) AS district
+        SELECT DISTINCT TRIM(DISTRICT) AS district
         FROM HOSPITAL
         WHERE DISTRICT IS NOT NULL
         ORDER BY TRIM(DISTRICT)
     </select>
 
-
-    <select id="findAnimalTypeList"
-            resultType="AnimalTypeDto">
-
+    <select id="findAnimalTypeList" resultType="AnimalTypeDto">
         SELECT
         ANIMAL_ID AS animalId,
         ANIMAL_NAME AS animalName,

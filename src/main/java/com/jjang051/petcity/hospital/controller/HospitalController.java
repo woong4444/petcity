@@ -20,30 +20,30 @@ public class HospitalController {
 
     @GetMapping("/list")
     public String hospitalList(
-            @RequestParam(defaultValue = "1") int page, // 추가: 페이지 번호
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer animalId,
-            @RequestParam(required = false) Integer serviceId, // 추가: 진료과목 번호
+            @RequestParam(required = false) List<Integer> serviceIds, // 수정
             @RequestParam(required = false) List<String> districts,
             @RequestParam(required = false) String keyword,
             Model model
     ) {
         HospitalListPageDto pageDto =
-                hospitalService.getHospitalListPage(page, animalId, serviceId, districts, keyword);
+                hospitalService.getHospitalListPage(page, animalId, serviceIds, districts, keyword);
         addHospitalListModel(model, pageDto);
         return "hospital/list";
     }
 
     @GetMapping("/list/ajax")
     public String hospitalListAjax(
-            @RequestParam(defaultValue = "1") int page, // 추가: 페이지 번호
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer animalId,
-            @RequestParam(required = false) Integer serviceId, // 추가: 진료과목 번호
+            @RequestParam(required = false) List<Integer> serviceIds, // 수정
             @RequestParam(required = false) List<String> districts,
             @RequestParam(required = false) String keyword,
             Model model
     ) {
         HospitalListPageDto pageDto =
-                hospitalService.getHospitalListPage(page, animalId, serviceId, districts, keyword);
+                hospitalService.getHospitalListPage(page, animalId, serviceIds, districts, keyword);
         addHospitalListModel(model, pageDto);
         return "hospital/list :: hospitalResultArea";
     }
@@ -52,12 +52,12 @@ public class HospitalController {
         model.addAttribute("hospitalList", pageDto.getHospitalList());
         model.addAttribute("districtList", pageDto.getDistrictList());
         model.addAttribute("animalTypeList", pageDto.getAnimalTypeList());
-        model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList()); // 추가
+        model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList());
 
         model.addAttribute("animalId", pageDto.getAnimalId());
-        model.addAttribute("serviceId", pageDto.getServiceId()); // 추가
+        model.addAttribute("serviceIds", pageDto.getServiceIds()); // 수정
         model.addAttribute("districts", pageDto.getDistricts());
         model.addAttribute("keyword", pageDto.getKeyword());
-        model.addAttribute("pageDto", pageDto); // 추가: 페이징 처리를 위해 통째로 넘김
+        model.addAttribute("pageDto", pageDto);
     }
 }

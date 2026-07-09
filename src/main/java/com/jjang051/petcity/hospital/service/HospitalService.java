@@ -16,17 +16,16 @@ public class HospitalService {
 
     private final HospitalDao hospitalDao;
 
-    public HospitalListPageDto getHospitalListPage(int page, Integer animalId, Integer serviceId,
+    // 파라미터 serviceId -> List<Integer> serviceIds로 수정
+    public HospitalListPageDto getHospitalListPage(int page, Integer animalId, List<Integer> serviceIds,
                                                    List<String> districts, String keyword) {
 
-        int limit = 12; // 페이지당 12개씩 가져옴
+        int limit = 12;
         int offset = (page - 1) * limit;
 
-        // DB에서 병원 목록 및 총 개수 조회
-        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(animalId, serviceId, districts, keyword, offset, limit);
-        int totalCount = hospitalDao.countHospitalList(animalId, serviceId, districts, keyword);
+        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(animalId, serviceIds, districts, keyword, offset, limit);
+        int totalCount = hospitalDao.countHospitalList(animalId, serviceIds, districts, keyword);
 
-        // 페이징 하단 번호 계산 로직
         int totalPages = (int) Math.ceil((double) totalCount / limit);
         if (totalPages == 0) totalPages = 1;
 
@@ -47,7 +46,7 @@ public class HospitalService {
                 .animalTypeList(animalTypeList)
                 .medicalServiceList(medicalServiceList)
                 .animalId(animalId)
-                .serviceId(serviceId)
+                .serviceIds(serviceIds) // 수정
                 .districts(districts)
                 .keyword(keyword)
                 .page(page)

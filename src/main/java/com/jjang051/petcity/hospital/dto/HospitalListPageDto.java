@@ -17,14 +17,13 @@ public class HospitalListPageDto {
     private List<HospitalDto> hospitalList;
     private List<String> districtList;
     private List<AnimalTypeDto> animalTypeList;
-    private List<MedicalServiceDto> medicalServiceList; // 추가: 진료 과목 리스트
+    private List<MedicalServiceDto> medicalServiceList;
 
     private Integer animalId;
-    private Integer serviceId; // 추가: 선택된 진료 과목
+    private List<Integer> serviceIds; // 수정: 단일 Integer에서 List로 변경 (다중 선택)
     private List<String> districts;
     private String keyword;
 
-    // 추가: 페이징 처리를 위한 변수들
     private int page;
     private int totalCount;
     private int totalPages;
