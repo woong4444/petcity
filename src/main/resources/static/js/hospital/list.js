@@ -1,45 +1,50 @@
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("hospitalFilterForm");
-
-    if (!form) {
-        return;
-    }
+    if (!form) return;
 
     const ajaxUrl = form.dataset.ajaxUrl || "/hospital/list/ajax";
     const pageUrl = form.dataset.pageUrl || "/hospital/list";
 
     const keywordInput = form.querySelector("input[name='keyword']");
+    const pageInput = document.getElementById("pageInput");
+
     const seoulAll = document.getElementById("seoulAll");
+    const serviceAll = document.getElementById("serviceAll");
+
+    const districtChecks = form.querySelectorAll("input[name='districts']");
+    const serviceChecks = form.querySelectorAll("input[name='serviceIds']");
+    const animalRadios = form.querySelectorAll("input[name='animalId']");
+
     const resetButton = document.getElementById("resetButton");
 
     let abortController = null;
 
-    /*
-        현재 선택된 동물, 지역, 검색어를 URLSearchParams로 만든다.
-
-        includeKeyword가 true일 때만 검색어를 포함한다.
-        그래서 검색어는 검색 버튼을 눌렀을 때만 적용된다.
-    */
     function makeParams(includeKeyword) {
         const params = new URLSearchParams();
 
-        // 동물 분류
-        const checkedAnimal = form.querySelector("input[name='animalId']:checked");
+        if (pageInput && pageInput.value) {
+            params.append("page", pageInput.value);
+        }
 
+        const checkedAnimal = form.querySelector("input[name='animalId']:checked");
         if (checkedAnimal && checkedAnimal.value !== "") {
             params.append("animalId", checkedAnimal.value);
         }
 
-        // 지역 분류
-        const checkedDistricts = form.querySelectorAll("input[name='districts']:checked");
+        if (serviceAll && !serviceAll.checked) {
+            const checkedServices = form.querySelectorAll("input[name='serviceIds']:checked");
+            checkedServices.forEach(function (svc) {
+                if (svc.value !== "") params.append("serviceIds", svc.value);
+            });
+        }
 
-        checkedDistricts.forEach(function (district) {
-            if (district.value !== "") {
-                params.append("districts", district.value);
-            }
-        });
+        if (seoulAll && !seoulAll.checked) {
+            const checkedDistricts = form.querySelectorAll("input[name='districts']:checked");
+            checkedDistricts.forEach(function (district) {
+                if (district.value !== "") params.append("districts", district.value);
+            });
+        }
 
-        // 검색어
         if (includeKeyword && keywordInput && keywordInput.value.trim() !== "") {
             params.append("keyword", keywordInput.value.trim());
         }
@@ -47,185 +52,151 @@ document.addEventListener("DOMContentLoaded", function () {
         return params;
     }
 
-    /*
-        Ajax로 병원 목록 영역만 다시 가져온다.
-    */
     function loadHospitalList(includeKeyword) {
         const params = makeParams(includeKeyword);
         const queryString = params.toString();
 
-        const requestUrl = queryString
-            ? ajaxUrl + "?" + queryString
-            : ajaxUrl;
-
-        const browserUrl = queryString
-            ? pageUrl + "?" + queryString
-            : pageUrl;
-
+        const requestUrl = queryString ? ajaxUrl + "?" + queryString : ajaxUrl;
+        const browserUrl = queryString ? pageUrl + "?" + queryString : pageUrl;
         const resultArea = document.getElementById("hospitalResultArea");
 
-        if (resultArea) {
-            resultArea.classList.add("is-loading");
-        }
+        if (resultArea) resultArea.classList.add("is-loading");
 
-        // 이전 요청이 끝나기 전에 또 클릭하면 이전 요청 취소
-        if (abortController) {
-            abortController.abort();
-        }
-
+        if (abortController) abortController.abort();
         abortController = new AbortController();
 
         fetch(requestUrl, {
             method: "GET",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
-            },
+            headers: { "X-Requested-With": "XMLHttpRequest" },
             signal: abortController.signal
         })
-            .then(function (response) {
-                if (!response.ok) {
-                    throw new Error("병원 목록을 불러오지 못했습니다.");
-                }
-
+            .then(response => {
+                if (!response.ok) throw new Error("병원 목록을 불러오지 못했습니다.");
                 return response.text();
             })
-            .then(function (html) {
+            .then(html => {
                 const oldResultArea = document.getElementById("hospitalResultArea");
-
-                if (oldResultArea) {
-                    oldResultArea.outerHTML = html;
-                }
-
-                // 주소창도 현재 필터 상태에 맞게 바꿔줌
+                if (oldResultArea) oldResultArea.outerHTML = html;
                 window.history.pushState(null, "", browserUrl);
             })
-            .catch(function (error) {
-                if (error.name === "AbortError") {
-                    return;
-                }
-
+            .catch(error => {
+                if (error.name === "AbortError") return;
                 console.error(error);
-                alert("병원 목록을 불러오는 중 오류가 발생했습니다.");
+                alert("병원 목록을 갱신하는 중 오류가 발생했습니다.");
             })
-            .finally(function () {
+            .finally(() => {
                 const newResultArea = document.getElementById("hospitalResultArea");
-
-                if (newResultArea) {
-                    newResultArea.classList.remove("is-loading");
-                }
+                if (newResultArea) newResultArea.classList.remove("is-loading");
             });
     }
 
-    /*
-        카테고리 선택 시에는 검색어를 자동 적용하지 않음.
-        그래서 keyword input 값을 비우고 병원 목록을 갱신한다.
-    */
-    function loadByCategory() {
-        if (keywordInput) {
-            keywordInput.value = "";
-        }
+    animalRadios.forEach(radio => {
+        if (radio.checked) radio.dataset.wasChecked = "true";
 
-        loadHospitalList(false);
-    }
-
-    /*
-        동물 라디오 버튼 변경 시 바로 Ajax 검색
-    */
-    const animalRadios = form.querySelectorAll("input[name='animalId']");
-
-    animalRadios.forEach(function (radio) {
-        radio.addEventListener("change", function () {
-            loadByCategory();
+        radio.addEventListener("click", function () {
+            if (this.dataset.wasChecked === "true") {
+                this.checked = false;
+                this.dataset.wasChecked = "false";
+            } else {
+                animalRadios.forEach(r => r.dataset.wasChecked = "false");
+                this.dataset.wasChecked = "true";
+            }
         });
     });
 
-    /*
-        서울 전체 클릭 시:
-        - 모든 지역 체크 해제
-        - 전체 지역으로 Ajax 검색
-    */
     if (seoulAll) {
         seoulAll.addEventListener("change", function () {
-            const districtChecks = form.querySelectorAll("input[name='districts']");
-
-            if (seoulAll.checked) {
-                districtChecks.forEach(function (check) {
-                    check.checked = false;
-                });
-            }
-
-            loadByCategory();
+            districtChecks.forEach(c => c.checked = this.checked);
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList(true);
         });
     }
-
-    /*
-        지역 체크박스 변경 시:
-        - 서울 전체 체크 해제
-        - 선택된 지역이 하나도 없으면 서울 전체 체크
-        - 바로 Ajax 검색
-    */
-    const districtChecks = form.querySelectorAll("input[name='districts']");
 
     districtChecks.forEach(function (check) {
         check.addEventListener("change", function () {
             if (seoulAll) {
-                seoulAll.checked = false;
+                const total = districtChecks.length;
+                const checkedCount = form.querySelectorAll("input[name='districts']:checked").length;
+                seoulAll.checked = (total === checkedCount);
             }
-
-            const checkedDistrictCount =
-                form.querySelectorAll("input[name='districts']:checked").length;
-
-            if (checkedDistrictCount === 0 && seoulAll) {
-                seoulAll.checked = true;
-            }
-
-            loadByCategory();
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList(true);
         });
     });
 
-    /*
-        검색 버튼 눌렀을 때만 검색어 포함해서 Ajax 검색
-    */
+    if (serviceAll) {
+        serviceAll.addEventListener("change", function () {
+            serviceChecks.forEach(c => c.checked = this.checked);
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList(true);
+        });
+    }
+
+    serviceChecks.forEach(function (check) {
+        check.addEventListener("change", function () {
+            if (serviceAll) {
+                const total = serviceChecks.length;
+                const checkedCount = form.querySelectorAll("input[name='serviceIds']:checked").length;
+                serviceAll.checked = (total === checkedCount);
+            }
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList(true);
+        });
+    });
+
     form.addEventListener("submit", function (event) {
         event.preventDefault();
+        if (pageInput) pageInput.value = 1;
         loadHospitalList(true);
     });
 
-    /*
-        초기화도 Ajax로 처리
-    */
     if (resetButton) {
         resetButton.addEventListener("click", function (event) {
             event.preventDefault();
 
-            // 동물 전체 선택
-            const allAnimalRadio = form.querySelector("input[name='animalId'][value='']");
-
-            if (allAnimalRadio) {
-                allAnimalRadio.checked = true;
-            }
-
-            // 지역 전체 선택
-            districtChecks.forEach(function (check) {
-                check.checked = false;
+            form.querySelectorAll("input[type='radio'], input[type='checkbox']").forEach(c => {
+                c.checked = false;
+                if (c.type === 'radio') c.dataset.wasChecked = "false";
             });
 
-            if (seoulAll) {
-                seoulAll.checked = true;
-            }
-
-            // 검색어 초기화
-            if (keywordInput) {
-                keywordInput.value = "";
-            }
+            if (keywordInput) keywordInput.value = "";
+            if (pageInput) pageInput.value = 1;
 
             loadHospitalList(false);
         });
     }
 
-    /*
-        뒤로가기/앞으로가기 했을 때는 간단하게 새로고침
-    */
+    document.addEventListener("click", function (event) {
+        const pageLink = event.target.closest(".page-link");
+        if (pageLink) {
+            const parentLi = pageLink.parentElement;
+            if (!parentLi.classList.contains("disabled") && !parentLi.classList.contains("active")) {
+                event.preventDefault();
+                if (pageInput) {
+                    pageInput.value = pageLink.dataset.page;
+                    loadHospitalList(true);
+                }
+            }
+        }
+    });
+
+    const toggleButtons = document.querySelectorAll(".btn-toggle-filter");
+    toggleButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            const contentWrap = this.parentElement.previousElementSibling;
+
+            if(this.dataset.state === "open") {
+                contentWrap.classList.add("is-minimized");
+                this.dataset.state = "closed";
+                this.textContent = "+ 펼치기";
+            } else {
+                contentWrap.classList.remove("is-minimized");
+                this.dataset.state = "open";
+                this.textContent = "- 접기";
+            }
+        });
+    });
+
     window.addEventListener("popstate", function () {
         window.location.reload();
     });
