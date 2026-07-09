@@ -163,6 +163,12 @@
                                th:text="${board.title}">
                                 게시글 제목
                             </a>
+
+                            <span th:if="${board.imageCount > 0}"
+                                  class="image-mark"
+                                  title="첨부 이미지 있음">
+                                        📷
+                            </span>
                         </td>
 
                         <!-- 작성자 -->
@@ -177,7 +183,7 @@
                         </td>
 
                         <!-- 댓글수: 아직 댓글 count 연결 전이라 0으로 표시 -->
-                        <td class="col-comment">0</td>
+                        <td class="col-comment" th:text="${board.commentCount}">0</td>
 
                         <!-- 조회수 -->
                         <td class="col-hit" th:text="${board.hit}">0</td>

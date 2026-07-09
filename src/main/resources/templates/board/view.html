@@ -139,6 +139,31 @@
                     </div>
                 </section>
 
+                <section class="board-image-area"
+                         th:if="${boardImageList != null and !#lists.isEmpty(boardImageList)}">
+
+                    <h3>첨부 이미지</h3>
+
+                    <div class="board-image-list">
+
+                        <div class="board-image-item" th:each="image : ${boardImageList}">
+
+                            <a th:if="${boardDto.boardType == 'INFO' and image.linkUrl != null and image.linkUrl != ''}"
+                               th:href="${image.linkUrl}"
+                               target="_blank">
+                                <img th:src="${image.imageUrl}" alt="첨부 이미지">
+                            </a>
+
+                            <img th:unless="${boardDto.boardType == 'INFO' and image.linkUrl != null and image.linkUrl != ''}"
+                                 th:src="${image.imageUrl}"
+                                 alt="첨부 이미지">
+
+                        </div>
+
+                    </div>
+
+                </section>
+
             </article>
 
             <!-- 하단 버튼 -->

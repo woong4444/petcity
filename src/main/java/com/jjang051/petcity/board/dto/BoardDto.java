@@ -37,7 +37,17 @@ public class BoardDto {
     private LocalDateTime updatedAt;
 
     // APP_MEMBER 테이블에서 가져올 작성자 닉네임
-    // BOARD 테이블 컬럼은 아니고, JOIN 결과용 필드
     private String writerNickname;
 
+    // 댓글 개수
+    private int commentCount;
+
+    // 첨부 이미지 개수
+    private int imageCount;
+
+    // 멍냥백서 카드 목록 대표 이미지
+    private String thumbnailUrl;
+
+    // 멍냥백서 이미지 클릭 URL
+    private String linkUrl;
 }

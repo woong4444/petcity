@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>멍냥백서</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/board/info-list.css}">
+</head>
+<body>
+
+<div th:replace="~{common/head :: head}"></div>
+
+<main class="info-wrap">
+
+    <div class="info-layout">
+
+        <!-- 왼쪽 커뮤니티 메뉴 -->
+        <aside class="community-sidebar">
+
+            <div class="community-box">
+                <p>COMMUNITY</p>
+                <h2>커뮤니티</h2>
+            </div>
+
+            <nav class="community-menu">
+                <a th:href="@{/board/list(type='QNA')}">
+                    <span>수의사상담</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='FREE')}">
+                    <span>자유토크</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='INFO')}" class="active">
+                    <span>멍냥백서</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(type='NOTICE')}">
+                    <span>공지사항</span>
+                    <strong>›</strong>
+                </a>
+            </nav>
+
+        </aside>
+
+        <!-- 오른쪽 멍냥백서 -->
+        <section class="info-content">
+
+            <section class="info-hero">
+                <div>
+                    <h1>멍냥백서</h1>
+                    <p>반려견, 반려묘 보호자분들을 위한 꿀팁 정보입니다!</p>
+                </div>
+
+                <div class="info-pet-banner">
+                    <span>🐱</span>
+                    <span>🐶</span>
+                    <span>🐕</span>
+                    <span>🐾</span>
+                </div>
+            </section>
+
+            <!-- 카드 목록 -->
+            <section class="info-card-list">
+
+                <article class="info-card" th:each="board : ${boardList}">
+
+                    <!-- 링크 URL이 있으면 외부 URL로 이동 -->
+                    <a th:if="${board.linkUrl != null and board.linkUrl != ''}"
+                       th:href="${board.linkUrl}"
+                       target="_blank"
+                       class="info-image-link">
+
+                        <img th:if="${board.thumbnailUrl != null and board.thumbnailUrl != ''}"
+                             th:src="${board.thumbnailUrl}"
+                             alt="멍냥백서 이미지">
+
+                        <div th:if="${board.thumbnailUrl == null or board.thumbnailUrl == ''}"
+                             class="no-info-image">
+                            이미지 없음
+                        </div>
+                    </a>
+
+                    <!-- 링크 URL이 없으면 상세 페이지로 이동 -->
+                    <a th:unless="${board.linkUrl != null and board.linkUrl != ''}"
+                       th:href="@{/board/view(boardId=${board.boardId})}"
+                       class="info-image-link">
+
+                        <img th:if="${board.thumbnailUrl != null and board.thumbnailUrl != ''}"
+                             th:src="${board.thumbnailUrl}"
+                             alt="멍냥백서 이미지">
+
+                        <div th:if="${board.thumbnailUrl == null or board.thumbnailUrl == ''}"
+                             class="no-info-image">
+                            이미지 없음
+                        </div>
+                    </a>
+
+                    <div class="info-card-body">
+                        <h2>
+                            <a th:if="${board.linkUrl != null and board.linkUrl != ''}"
+                               th:href="${board.linkUrl}"
+                               target="_blank"
+                               th:text="${board.title}">
+                                멍냥백서 제목
+                            </a>
+
+                            <a th:unless="${board.linkUrl != null and board.linkUrl != ''}"
+                               th:href="@{/board/view(boardId=${board.boardId})}"
+                               th:text="${board.title}">
+                                멍냥백서 제목
+                            </a>
+                        </h2>
+
+                        <p th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd')}">
+                            2026.07.09
+                        </p>
+                    </div>
+
+                </article>
+
+                <div th:if="${#lists.isEmpty(boardList)}" class="empty-info">
+                    등록된 멍냥백서 글이 없습니다.
+                </div>
+
+            </section>
+
+            <div class="info-bottom">
+                <a th:href="@{/board/write(type='INFO')}" class="write-button">
+                    글쓰기
+                </a>
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+</body>
+</html>

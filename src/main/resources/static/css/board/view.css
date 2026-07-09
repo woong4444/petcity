@@ -485,3 +485,43 @@ body {
         flex-direction: column;
     }
 }
+
+.board-image-area {
+    padding: 28px 22px 42px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.board-image-area h3 {
+    margin: 0 0 18px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #111827;
+}
+
+.board-image-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.board-image-item img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.board-image-item a {
+    display: block;
+}
+
+.board-image-item a:hover img {
+    opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+    .board-image-list {
+        grid-template-columns: 1fr;
+    }
+}

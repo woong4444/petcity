@@ -1,0 +1,357 @@
+@charset "UTF-8";
+
+body {
+    margin: 0;
+    background-color: #ffffff;
+    color: #222222;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+.board-write-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 54px 20px 80px;
+}
+
+.board-write-layout {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 34px;
+    align-items: start;
+}
+
+/* 왼쪽 메뉴 */
+
+.community-sidebar {
+    width: 100%;
+}
+
+.community-box {
+    height: 150px;
+    padding: 26px 24px;
+    border: 8px solid #eef1f4;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.community-box::after {
+    content: "";
+    position: absolute;
+    right: 20px;
+    top: 18px;
+    width: 42px;
+    height: 42px;
+    border-top: 1px solid #d9dee5;
+    border-right: 1px solid #d9dee5;
+    transform: skew(-5deg);
+}
+
+.community-box p {
+    margin: 24px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #9ca3af;
+}
+
+.community-box h2 {
+    margin: 0;
+    font-size: 33px;
+    font-weight: 900;
+    color: #000000;
+    line-height: 1.1;
+    letter-spacing: -2px;
+}
+
+.community-menu {
+    margin-top: 24px;
+    border-top: 1px solid #d9dee5;
+}
+
+.community-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    border-bottom: 1px solid #d9dee5;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.community-menu a strong {
+    color: #0f9ca8;
+    font-size: 22px;
+}
+
+.community-menu a:hover,
+.community-menu a.active {
+    color: #0f9ca8;
+    padding-left: 8px;
+}
+
+/* 오른쪽 영역 */
+
+.board-write-content {
+    min-width: 0;
+}
+
+.board-write-hero {
+    min-height: 150px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    border-bottom: 2px solid #222222;
+    padding-bottom: 22px;
+}
+
+.board-write-hero h1 {
+    margin: 0;
+    font-size: 46px;
+    font-weight: 300;
+    color: #333333;
+    letter-spacing: -2px;
+}
+
+.board-write-hero p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    color: #555555;
+    font-weight: 600;
+}
+
+.board-write-pet {
+    display: flex;
+    gap: 12px;
+}
+
+.board-write-pet span {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: #f2eee7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+.board-write-pet span:first-child {
+    width: 84px;
+    height: 84px;
+    background-color: #fff3dc;
+    font-size: 48px;
+}
+
+/* 글쓰기 폼 */
+
+.write-form {
+    margin-top: 26px;
+    border-top: 1px solid #222222;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    border-bottom: 1px solid #e5e7eb;
+    min-height: 64px;
+}
+
+.form-row label {
+    display: flex;
+    align-items: center;
+    padding-left: 18px;
+    background-color: #f8fafc;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+    border-right: 1px solid #e5e7eb;
+}
+
+.board-type-text {
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #4f6fc8;
+}
+
+.form-row input {
+    border: none;
+    padding: 0 18px;
+    font-size: 15px;
+    outline: none;
+}
+
+.content-row {
+    min-height: 360px;
+}
+
+.content-row label {
+    align-items: flex-start;
+    padding-top: 22px;
+}
+
+.content-row textarea {
+    border: none;
+    resize: vertical;
+    min-height: 320px;
+    padding: 20px 18px;
+    font-size: 15px;
+    line-height: 1.8;
+    outline: none;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+.form-row input:focus,
+.content-row textarea:focus {
+    background-color: #f8fbff;
+}
+
+/* 버튼 */
+
+.write-buttons {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cancel-button,
+.submit-button {
+    height: 40px;
+    padding: 0 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cancel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.cancel-button:hover {
+    background-color: #f3f4f6;
+}
+
+.submit-button {
+    border: none;
+    background-color: #111827;
+    color: #ffffff;
+}
+
+.submit-button:hover {
+    background-color: #374151;
+}
+
+/* 반응형 */
+
+@media (max-width: 768px) {
+    .board-write-layout {
+        display: block;
+    }
+
+    .community-sidebar {
+        margin-bottom: 30px;
+    }
+
+    .community-box {
+        height: auto;
+        padding: 22px;
+    }
+
+    .community-box p {
+        margin-top: 0;
+    }
+
+    .community-menu {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        border-top: none;
+        margin-top: 14px;
+    }
+
+    .community-menu a {
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #d9dee5;
+        border-radius: 6px;
+    }
+
+    .board-write-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: auto;
+    }
+
+    .board-write-hero h1 {
+        font-size: 34px;
+    }
+
+    .form-row {
+        display: block;
+    }
+
+    .form-row label {
+        height: 44px;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-row input {
+        width: 100%;
+        height: 52px;
+        box-sizing: border-box;
+    }
+
+    .board-type-text {
+        height: 52px;
+    }
+
+    .content-row textarea {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .write-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .cancel-button,
+    .submit-button {
+        width: 100%;
+    }
+}
+.file-row {
+    min-height: 86px;
+}
+
+.file-box {
+    padding: 18px;
+}
+
+.file-box input[type="file"] {
+    width: 100%;
+    height: auto;
+    padding: 0;
+}
+
+.file-box p {
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
