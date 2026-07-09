@@ -293,18 +293,19 @@ body {
 }
 
 /* ================================
-   Hospital cards
+   Hospital cards (그리드 레이아웃으로 변경)
 ================================ */
 
 .hospital-card-list {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
 }
 
 .hospital-card {
     display: flex;
-    gap: 22px;
+    flex-direction: column; /* 세로 배치로 변경 */
+    gap: 16px;
     padding: 22px;
     border: 1px solid #e5e7eb;
     border-radius: 22px;
@@ -320,8 +321,8 @@ body {
 }
 
 .hospital-image {
-    width: 170px;
-    height: 132px;
+    width: 100%; /* 너비를 꽉 차게 변경 */
+    height: 190px;
     flex-shrink: 0;
     border-radius: 18px;
     overflow: hidden;
@@ -359,6 +360,8 @@ body {
 .hospital-info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .hospital-title-row {
@@ -383,14 +386,18 @@ body {
 
 .hospital-info h2 {
     margin: 0;
-    font-size: 23px;
+    font-size: 21px;
     font-weight: 800;
     color: #111827;
     letter-spacing: -0.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .hospital-detail-list {
     margin-top: 10px;
+    flex-grow: 1;
 }
 
 .hospital-detail-list p {
@@ -411,8 +418,8 @@ body {
 
 .hospital-actions {
     margin-top: 16px;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
@@ -474,6 +481,10 @@ body {
 ================================ */
 
 @media (max-width: 1024px) {
+    .hospital-card-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .hospital-list-wrap {
         padding: 36px 20px 60px;
     }
@@ -481,18 +492,13 @@ body {
     .hospital-filter-wrap {
         padding: 24px;
     }
-
-    .hospital-card {
-        padding: 20px;
-    }
-
-    .hospital-image {
-        width: 150px;
-        height: 120px;
-    }
 }
 
 @media (max-width: 768px) {
+    .hospital-card-list {
+        grid-template-columns: 1fr;
+    }
+
     .hospital-list-header h1 {
         font-size: 28px;
     }
@@ -527,21 +533,6 @@ body {
         max-width: 100%;
     }
 
-    .hospital-card {
-        flex-direction: column;
-        gap: 16px;
-        border-radius: 18px;
-    }
-
-    .hospital-image {
-        width: 100%;
-        height: 190px;
-    }
-
-    .hospital-info h2 {
-        font-size: 21px;
-    }
-
     .hospital-detail-list p {
         font-size: 14px;
     }
@@ -573,10 +564,6 @@ body {
         border: none;
     }
 
-    .hospital-image {
-        height: 170px;
-    }
-
     .hospital-info h2 {
         font-size: 19px;
     }
@@ -591,8 +578,8 @@ body {
         width: auto;
     }
 
-    .hospital-actions a {
-        flex: 1;
+    .hospital-actions {
+        grid-template-columns: 1fr;
     }
 }
 /* ================================
@@ -619,4 +606,54 @@ body {
     border-color: #0284c7;
     background-color: #0ea5e9;
     color: #ffffff;
+}
+
+/* ================================
+   Pagination (추가)
+================================ */
+.pagination-wrap {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 6px;
+}
+
+.page-item .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.page-item .page-link:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.page-item.active .page-link {
+    background-color: #0ea5e9;
+    border-color: #0ea5e9;
+    color: #ffffff;
+}
+
+.page-item.disabled .page-link {
+    background-color: #f9fafb;
+    color: #d1d5db;
+    pointer-events: none;
+    border-color: #e5e7eb;
 }

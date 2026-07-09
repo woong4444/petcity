@@ -9,13 +9,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const pageUrl = form.dataset.pageUrl || "/hospital/list";
 
     const keywordInput = form.querySelector("input[name='keyword']");
+    const pageInput = document.getElementById("pageInput"); // 추가됨
     const seoulAll = document.getElementById("seoulAll");
     const resetButton = document.getElementById("resetButton");
 
     let abortController = null;
 
     /*
-        현재 선택된 동물, 지역, 검색어를 URLSearchParams로 만든다.
+        현재 선택된 동물, 진료과목, 지역, 검색어를 URLSearchParams로 만든다.
 
         includeKeyword가 true일 때만 검색어를 포함한다.
         그래서 검색어는 검색 버튼을 눌렀을 때만 적용된다.
@@ -23,11 +24,23 @@ document.addEventListener("DOMContentLoaded", function () {
     function makeParams(includeKeyword) {
         const params = new URLSearchParams();
 
+        // 페이지 번호 (추가됨)
+        if (pageInput && pageInput.value) {
+            params.append("page", pageInput.value);
+        }
+
         // 동물 분류
         const checkedAnimal = form.querySelector("input[name='animalId']:checked");
 
         if (checkedAnimal && checkedAnimal.value !== "") {
             params.append("animalId", checkedAnimal.value);
+        }
+
+        // 진료 과목 분류 (추가됨)
+        const checkedService = form.querySelector("input[name='serviceId']:checked");
+
+        if (checkedService && checkedService.value !== "") {
+            params.append("serviceId", checkedService.value);
         }
 
         // 지역 분류
@@ -118,22 +131,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /*
         카테고리 선택 시에는 검색어를 자동 적용하지 않음.
-        그래서 keyword input 값을 비우고 병원 목록을 갱신한다.
+        그래서 keyword input 값을 비우고, 페이지도 1로 초기화하여 병원 목록을 갱신한다.
     */
     function loadByCategory() {
         if (keywordInput) {
             keywordInput.value = "";
         }
 
+        if (pageInput) {
+            pageInput.value = 1; // 필터 변경 시 1페이지로
+        }
+
         loadHospitalList(false);
     }
 
     /*
-        동물 라디오 버튼 변경 시 바로 Ajax 검색
+        동물 & 진료과목 라디오 버튼 변경 시 바로 Ajax 검색
     */
-    const animalRadios = form.querySelectorAll("input[name='animalId']");
+    const radioInputs = form.querySelectorAll("input[name='animalId'], input[name='serviceId']");
 
-    animalRadios.forEach(function (radio) {
+    radioInputs.forEach(function (radio) {
         radio.addEventListener("change", function () {
             loadByCategory();
         });
@@ -188,6 +205,11 @@ document.addEventListener("DOMContentLoaded", function () {
     */
     form.addEventListener("submit", function (event) {
         event.preventDefault();
+
+        if (pageInput) {
+            pageInput.value = 1; // 검색 시 1페이지로
+        }
+
         loadHospitalList(true);
     });
 
@@ -200,9 +222,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // 동물 전체 선택
             const allAnimalRadio = form.querySelector("input[name='animalId'][value='']");
-
             if (allAnimalRadio) {
                 allAnimalRadio.checked = true;
+            }
+
+            // 진료 과목 전체 선택 (추가됨)
+            const allServiceRadio = form.querySelector("input[name='serviceId'][value='']");
+            if (allServiceRadio) {
+                allServiceRadio.checked = true;
             }
 
             // 지역 전체 선택
@@ -214,14 +241,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 seoulAll.checked = true;
             }
 
-            // 검색어 초기화
+            // 검색어 및 페이지 초기화
             if (keywordInput) {
                 keywordInput.value = "";
+            }
+            if (pageInput) {
+                pageInput.value = 1;
             }
 
             loadHospitalList(false);
         });
     }
+
+    /*
+        페이징 버튼 클릭 시 처리 (추가됨)
+    */
+    document.addEventListener("click", function (event) {
+        const pageLink = event.target.closest(".page-link");
+
+        if (pageLink) {
+            const parentLi = pageLink.parentElement;
+
+            // disabled(이전/다음 끝)이거나 active(현재 페이지)가 아닐 때만 이동
+            if (!parentLi.classList.contains("disabled") && !parentLi.classList.contains("active")) {
+                event.preventDefault();
+
+                if (pageInput) {
+                    pageInput.value = pageLink.dataset.page;
+                    loadHospitalList(true); // 현재 검색 상태를 유지한 채 페이지 이동
+                }
+            }
+        }
+    });
 
     /*
         뒤로가기/앞으로가기 했을 때는 간단하게 새로고침

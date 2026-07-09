@@ -8,33 +8,26 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/*
-    병원 목록 페이지에 필요한 데이터를 한 번에 담는 DTO
-
-    Controller에서 hospitalList, districtList, animalTypeList를
-    각각 따로 Service에 요청하지 않게 하려고 만든다.
-*/
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class HospitalListPageDto {
 
-    // 검색 결과 병원 목록
     private List<HospitalDto> hospitalList;
-
-    // 지역 필터 목록
     private List<String> districtList;
-
-    // 동물 분류 필터 목록
     private List<AnimalTypeDto> animalTypeList;
+    private List<MedicalServiceDto> medicalServiceList; // 추가: 진료 과목 리스트
 
-    // 현재 선택된 동물 번호
     private Integer animalId;
-
-    // 현재 선택된 지역 목록
+    private Integer serviceId; // 추가: 선택된 진료 과목
     private List<String> districts;
-
-    // 현재 검색어
     private String keyword;
+
+    // 추가: 페이징 처리를 위한 변수들
+    private int page;
+    private int totalCount;
+    private int totalPages;
+    private int startPage;
+    private int endPage;
 }

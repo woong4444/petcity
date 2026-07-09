@@ -5,27 +5,22 @@
     <title>동물병원 찾기 - PetCity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 공통 헤더 CSS -->
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
 
-    <!-- 병원 목록 CSS -->
     <link rel="stylesheet" th:href="@{/css/hospital/list.css}">
 </head>
 <body>
 
-<!-- 공통 헤더 -->
 <div th:replace="~{common/head :: head}"></div>
 
 <main class="hospital-list-wrap">
 
-    <!-- 페이지 제목 -->
     <section class="hospital-list-header">
         <p class="page-badge">PetCity Hospital Finder</p>
         <h1>동물병원 찾기</h1>
-        <p class="page-desc">반려동물 종류와 지역을 선택해서 우리 아이에게 맞는 병원을 찾아보세요.</p>
+        <p class="page-desc">반려동물 종류, 진료 과목, 지역을 선택해서 우리 아이에게 맞는 병원을 찾아보세요.</p>
     </section>
 
-    <!-- 필터 영역 -->
     <form id="hospitalFilterForm"
           th:action="@{/hospital/list}"
           method="get"
@@ -33,7 +28,8 @@
           th:data-ajax-url="@{/hospital/list/ajax}"
           th:data-page-url="@{/hospital/list}">
 
-        <!-- 동물 분류 -->
+        <input type="hidden" name="page" id="pageInput" th:value="${pageDto != null ? pageDto.page : 1}">
+
         <div class="filter-box">
             <div class="filter-title-row">
                 <h3>동물 분류</h3>
@@ -60,7 +56,32 @@
             </div>
         </div>
 
-        <!-- 지역 분류 -->
+        <div class="filter-box">
+            <div class="filter-title-row">
+                <h3>진료 과목</h3>
+                <span>하나만 선택 가능</span>
+            </div>
+
+            <div class="radio-group">
+                <label class="filter-radio">
+                    <input type="radio"
+                           name="serviceId"
+                           value=""
+                           th:checked="${serviceId == null}">
+                    <span>전체</span>
+                </label>
+
+                <label class="filter-radio"
+                       th:each="svc : ${medicalServiceList}">
+                    <input type="radio"
+                           name="serviceId"
+                           th:value="${svc.serviceId}"
+                           th:checked="${serviceId != null and serviceId == svc.serviceId}">
+                    <span th:text="${svc.serviceName}">내과</span>
+                </label>
+            </div>
+        </div>
+
         <div class="filter-box">
             <div class="filter-title-row">
                 <h3>지역 분류</h3>
@@ -69,7 +90,6 @@
 
             <div class="checkbox-group region-checkbox-group">
 
-                <!-- 서울 전체 -->
                 <label class="filter-check seoul-all-check">
                     <input type="checkbox"
                            id="seoulAll"
@@ -77,7 +97,6 @@
                     <span>서울 전체</span>
                 </label>
 
-                <!-- 지역 목록 -->
                 <label class="filter-check"
                        th:each="item : ${districtList}">
                     <input type="checkbox"
@@ -90,7 +109,6 @@
             </div>
         </div>
 
-        <!-- 검색 영역 -->
         <div class="filter-box filter-search-box">
             <div class="filter-title-row">
                 <h3>검색</h3>
@@ -113,27 +131,23 @@
 
     </form>
 
-    <!-- Ajax로 교체될 영역 시작 -->
     <div id="hospitalResultArea" th:fragment="hospitalResultArea" class="hospital-result-area">
 
-        <!-- 검색 결과 개수 -->
         <section class="hospital-result-top">
             <div>
                 <p class="result-label">검색 결과</p>
                 <p class="result-count">
                     총
-                    <strong th:text="${#lists.size(hospitalList)}">0</strong>
+                    <strong th:text="${pageDto != null ? pageDto.totalCount : 0}">0</strong>
                     개의 병원이 검색되었습니다.
                 </p>
             </div>
         </section>
 
-        <!-- 병원 목록 -->
         <section class="hospital-card-list">
 
             <article class="hospital-card" th:each="hospital : ${hospitalList}">
 
-                <!-- 병원 이미지 -->
                 <div class="hospital-image">
                     <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}"
                          th:src="${hospital.imageUrl}"
@@ -145,7 +159,6 @@
                     </div>
                 </div>
 
-                <!-- 병원 정보 -->
                 <div class="hospital-info">
 
                     <div class="hospital-title-row">
@@ -192,20 +205,33 @@
                 </div>
             </article>
 
-            <!-- 병원 목록이 없을 때 -->
-            <div th:if="${#lists.isEmpty(hospitalList)}" class="empty-list">
+            <div th:if="${#lists.isEmpty(hospitalList)}" class="empty-list" style="grid-column: 1 / -1;">
                 <strong>검색된 병원이 없습니다.</strong>
                 <p>동물 분류, 지역, 검색어 조건을 다시 확인해 주세요.</p>
             </div>
 
         </section>
 
-    </div>
-    <!-- Ajax로 교체될 영역 끝 -->
+        <div class="pagination-wrap" th:if="${pageDto != null and pageDto.totalPages > 1}">
+            <ul class="pagination">
+                <li th:class="${pageDto.page == 1} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link" href="#" th:data-page="${pageDto.page - 1}">&lt;</a>
+                </li>
 
+                <li th:each="p : ${#numbers.sequence(pageDto.startPage, pageDto.endPage)}"
+                    th:class="${p == pageDto.page} ? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="#" th:data-page="${p}" th:text="${p}">1</a>
+                </li>
+
+                <li th:class="${pageDto.page == pageDto.totalPages} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link" href="#" th:data-page="${pageDto.page + 1}">&gt;</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
 </main>
 
-<!-- 병원 목록 JS -->
 <script th:src="@{/js/hospital/list.js}"></script>
 
 </body>
