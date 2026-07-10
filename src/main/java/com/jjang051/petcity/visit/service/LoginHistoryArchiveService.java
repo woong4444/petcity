@@ -16,8 +16,8 @@ import java.util.Set;
 public class LoginHistoryArchiveService {
 
     private final StringRedisTemplate redisTemplate;
-    private ObjectMapper objectMapper;
-    private LoginHistoryDao loginHistoryDao;
+    private final ObjectMapper objectMapper;
+    private final LoginHistoryDao loginHistoryDao;
 
     private static final String LOGIN_WAITING_KEY = "login:history:waiting";
     private static final String LOGIN_DATA_KEY = "login:history:data";
@@ -50,7 +50,7 @@ public class LoginHistoryArchiveService {
                 loginHistoryDao.insertLoginHistory(dto);
 
                 redisTemplate.opsForHash().delete(LOGIN_DATA_KEY, redisLogKey);
-                redisTemplate.opsForHash().delete(LOGIN_WAITING_KEY, redisLogKey);
+                redisTemplate.opsForZSet().remove(LOGIN_WAITING_KEY, redisLogKey);
             } catch (Exception e) {
                 throw new RuntimeException("Redis 로그인 기록 DB 저장중 오류 발생", e);
             }
