@@ -15,13 +15,21 @@ import java.util.List;
 public class HospitalListPageDto {
     private List<HospitalDto> hospitalList;
     private List<String> districtList;
+
     private List<AnimalTypeDto> animalTypeList;
+    // 🌟 수정됨: animal 파트 코드를 건드리지 않기 위해 방금 만든 전용 DTO로 교체
+    private List<HospitalSubAnimalDto> subAnimalTypeList;
+
     private List<MedicalServiceDto> medicalServiceList;
 
     private Integer animalId;
-    private List<Integer> serviceIds; // 진료과목 다중 선택
+    private Integer subAnimalId;
+    private List<Integer> serviceIds;
     private List<String> districts;
     private String keyword;
+
+    private String openStatus;
+    private String sort;
 
     private int page;
     private int totalCount;
