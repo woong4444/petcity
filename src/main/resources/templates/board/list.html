@@ -5,15 +5,11 @@
     <title th:text="${boardTitle}">게시판</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 공통 헤더 CSS -->
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
-
-    <!-- 게시판 목록 CSS -->
     <link rel="stylesheet" th:href="@{/css/board/list.css}">
 </head>
 <body>
 
-<!-- 공통 헤더 -->
 <div th:replace="~{common/head :: head}"></div>
 
 <main class="board-wrap">
@@ -63,7 +59,7 @@
             <section class="board-hero">
 
                 <div class="board-hero-title">
-                    <h1 th:text="${boardTitle}">자유토크</h1>
+                    <h1 th:text="${boardTitle}">자유 게시판</h1>
 
                     <p th:switch="${boardType}">
                         <span th:case="'QNA'">
@@ -93,11 +89,71 @@
 
             </section>
 
+            <!-- 반려동물 필터: 공지사항 제외 -->
+            <section class="animal-filter-area" th:if="${boardType != 'NOTICE'}">
+
+                <div class="animal-filter-head">
+                    <div>
+                        <h3>반려동물별 보기</h3>
+                        <p>우리 아이와 관련된 글만 골라볼 수 있어요.</p>
+                    </div>
+
+                    <a th:href="@{/board/list(type=${boardType})}"
+                       class="animal-reset-link">
+                        전체 글 보기
+                    </a>
+                </div>
+
+                <!-- 반려동물 -->
+                <div class="animal-filter-block">
+                    <div class="animal-filter-label">반려동물</div>
+
+                    <div class="animal-chip-list">
+                        <a th:href="@{/board/list(type=${boardType})}"
+                           class="animal-chip"
+                           th:classappend="${parentAnimalId == null and animalId == null} ? ' active' : ''">
+                            전체
+                        </a>
+
+                        <a th:each="animal : ${parentAnimalList}"
+                           th:href="@{/board/list(type=${boardType}, parentAnimalId=${animal.animalId})}"
+                           th:text="${animal.animalName}"
+                           class="animal-chip"
+                           th:classappend="${parentAnimalId != null and parentAnimalId == animal.animalId} ? ' active' : ''">
+                            강아지
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 품종·종류 -->
+                <div class="animal-filter-block"
+                     th:if="${childAnimalList != null and !#lists.isEmpty(childAnimalList)}">
+
+                    <div class="animal-filter-label">품종·종류</div>
+
+                    <div class="animal-chip-list">
+                        <a th:href="@{/board/list(type=${boardType}, parentAnimalId=${parentAnimalId})}"
+                           class="animal-chip sub"
+                           th:classappend="${animalId == null} ? ' active' : ''">
+                            전체
+                        </a>
+
+                        <a th:each="animal : ${childAnimalList}"
+                           th:href="@{/board/list(type=${boardType}, parentAnimalId=${parentAnimalId}, animalId=${animal.animalId})}"
+                           th:text="${animal.animalName}"
+                           class="animal-chip sub"
+                           th:classappend="${animalId != null and animalId == animal.animalId} ? ' active' : ''">
+                            골든리트리버
+                        </a>
+                    </div>
+                </div>
+
+            </section>
+
             <!-- 검색 영역 -->
             <section class="board-search-area">
                 <form th:action="@{/board/list}" method="get" class="board-search-form">
 
-                    <!-- 현재 게시판 타입 유지 -->
                     <input type="hidden" name="type" th:value="${boardType}">
 
                     <div class="search-label">게시글 검색</div>
@@ -142,10 +198,8 @@
                     <tr th:each="board : ${boardList}"
                         th:classappend="${board.boardType == 'NOTICE'} ? ' notice-row' : ''">
 
-                        <!-- 번호 -->
                         <td class="col-no" th:text="${board.boardId}">1</td>
 
-                        <!-- 분류 -->
                         <td class="col-type">
                             <span class="type-badge" th:switch="${board.boardType}">
                                 <span th:case="'NOTICE'">공지</span>
@@ -157,8 +211,15 @@
                             </span>
                         </td>
 
-                        <!-- 제목 -->
                         <td class="col-title title-cell">
+
+                            <div class="board-animal-name"
+                                 th:if="${board.animalName != null}">
+                                <span th:text="${board.parentAnimalName}">강아지</span>
+                                <strong>›</strong>
+                                <span th:text="${board.animalName}">골든리트리버</span>
+                            </div>
+
                             <a th:href="@{/board/view(boardId=${board.boardId})}"
                                th:text="${board.title}">
                                 게시글 제목
@@ -167,29 +228,24 @@
                             <span th:if="${board.imageCount > 0}"
                                   class="image-mark"
                                   title="첨부 이미지 있음">
-                                        📷
+                                📷
                             </span>
                         </td>
 
-                        <!-- 작성자 -->
                         <td class="col-writer" th:text="${board.writerNickname}">
                             작성자
                         </td>
 
-                        <!-- 날짜 -->
                         <td class="col-date"
                             th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd')}">
                             2026.07.09
                         </td>
 
-                        <!-- 댓글수: 아직 댓글 count 연결 전이라 0으로 표시 -->
                         <td class="col-comment" th:text="${board.commentCount}">0</td>
 
-                        <!-- 조회수 -->
                         <td class="col-hit" th:text="${board.hit}">0</td>
                     </tr>
 
-                    <!-- 게시글이 없을 때 -->
                     <tr th:if="${#lists.isEmpty(boardList)}">
                         <td colspan="7" class="empty-board">
                             등록된 게시글이 없습니다.

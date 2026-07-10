@@ -234,9 +234,9 @@ body {
 ================================ */
 
 .board-view-body {
-    min-height: 320px;
-    padding: 34px 22px 48px;
+    padding: 34px 22px 24px;
 }
+
 
 .content-text {
     color: #333333;
@@ -283,6 +283,10 @@ body {
     gap: 8px;
 }
 
+.right-buttons form{
+    margin: 0;
+}
+
 .sub-button,
 .delete-button {
     display: inline-flex;
@@ -308,6 +312,9 @@ body {
 .delete-button {
     background-color: #ef4444;
     color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .delete-button:hover {
@@ -486,42 +493,107 @@ body {
     }
 }
 
-.board-image-area {
-    padding: 28px 22px 42px;
-    border-top: 1px solid #e5e7eb;
+/* ================================
+   본문 + 본문 이미지
+================================ */
+
+.board-view-body {
+    padding: 34px 22px 42px;
 }
 
-.board-image-area h3 {
-    margin: 0 0 18px;
-    font-size: 18px;
-    font-weight: 900;
-    color: #111827;
+.content-text {
+    color: #333333;
+    font-size: 16px;
+    line-height: 1.9;
+    white-space: pre-line;
+    word-break: break-word;
 }
 
-.board-image-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+.content-image-list {
+    margin-top: 24px;
 }
 
-.board-image-item img {
-    width: 100%;
-    max-height: 420px;
-    object-fit: cover;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+.content-image-item {
+    margin-top: 18px;
 }
 
-.board-image-item a {
+.content-image-item:first-child {
+    margin-top: 0;
+}
+
+.content-image-item img {
     display: block;
+    width: 100%;
+    max-width: 620px;
+    max-height: 520px;
+    object-fit: contain;
+    border-radius: 6px;
 }
 
-.board-image-item a:hover img {
-    opacity: 0.85;
+.content-image-item a {
+    display: inline-block;
+}
+
+.content-image-item a:hover img {
+    opacity: 0.9;
 }
 
 @media (max-width: 768px) {
-    .board-image-list {
-        grid-template-columns: 1fr;
+    .board-view-body {
+        padding: 28px 16px 38px;
+    }
+
+    .content-image-item img {
+        max-width: 100%;
+        max-height: none;
+    }
+}
+
+/* ================================
+   Summernote HTML 본문
+================================ */
+
+.board-view-body {
+    padding: 34px 22px 42px;
+}
+
+.content-html {
+    color: #333333;
+    font-size: 16px;
+    line-height: 1.9;
+    word-break: break-word;
+}
+
+.content-html p {
+    margin: 0 0 16px;
+}
+
+.content-html img {
+    display: block;
+    width: 100%;
+    max-width: 620px;
+    height: auto;
+    margin: 20px 0;
+    border-radius: 6px;
+}
+
+.content-html ul,
+.content-html ol {
+    margin: 12px 0 16px 24px;
+    padding: 0;
+}
+
+.content-html a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .board-view-body {
+        padding: 28px 16px 38px;
+    }
+
+    .content-html img {
+        max-width: 100%;
     }
 }
