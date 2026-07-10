@@ -6,13 +6,69 @@
 
 <mapper namespace="com.jjang051.petcity.member.dao.MemberMapper">
 
+    <!-- 로그인 아이디 조회 -->
     <select id="findByLoginId"
             resultType="com.jjang051.petcity.member.dto.MemberDto">
 
         SELECT *
         FROM APP_MEMBER
-        WHERE LOGIN_ID=#{loginId}
+        WHERE LOGIN_ID = #{loginId}
 
     </select>
+
+    <!-- 회원가입 -->
+    <insert id="insert">
+
+        INSERT INTO APP_MEMBER
+        (
+        MEMBER_ID,
+        LOGIN_ID,
+        PASSWORD,
+        NICKNAME,
+        EMAIL,
+        PHONE,
+        ROLE,
+        EMAIL_VERIFIED,
+        STATUS,
+        MEMBER_STATUS,
+        CREATED_AT
+        )
+        VALUES
+        (
+        -- 시퀀스로 회원번호 생성
+        SEQ_APP_MEMBER.NEXTVAL,
+
+        -- 아이디
+        #{loginId},
+
+        -- 비밀번호
+        #{password},
+
+        -- 닉네임
+        #{nickname},
+
+        -- 이메일
+        #{email},
+
+        -- 전화번호
+        #{phone},
+
+        -- 권한(USER)
+        #{role},
+
+        -- 이메일 인증 여부(N)
+        #{emailVerified},
+
+        -- 회원 상태(ACTIVE)
+        #{status},
+
+        -- 삭제 여부(NORMAL)
+        #{memberStatus},
+
+        -- 가입일
+        SYSDATE
+        )
+
+    </insert>
 
 </mapper>

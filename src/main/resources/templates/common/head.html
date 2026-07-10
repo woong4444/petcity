@@ -24,15 +24,130 @@
             </div>
 
             <div class="top-menu">
-                <a href="/member/login">로그인</a>
-                <span>|</span>
-                <a href="/member/signup">회원가입</a>
-                <span>|</span>
-                <a href="/member/mypage">마이페이지</a>
-                <span>|</span>
+
+                <!-- ========================= -->
+                <!-- 로그인 전 -->
+                <!-- ========================= -->
+                <th:block th:if="${session.loginMember == null}">
+
+                    <a href="/member/login">로그인</a>
+                    <span>|</span>
+
+                    <a href="/member/signup">회원가입</a>
+                    <span>|</span>
+
+                </th:block>
+
+
+                <!-- ========================= -->
+                <!-- 로그인 후 -->
+                <!-- ========================= -->
+                <th:block th:if="${session.loginMember != null}">
+
+                    <!-- 일반회원 -->
+                    <span th:if="${session.loginMember.role == 'USER'}">
+            👤
+            <b th:text="${session.loginMember.nickname}"></b>
+            <span class="badge badge-primary badge-sm">
+                일반회원
+            </span>
+        </span>
+
+                    <!-- 병원장 -->
+                    <span th:if="${session.loginMember.role == 'OWNER'}">
+            🏥
+            <b th:text="${session.loginMember.nickname}"></b>
+            <span class="badge badge-warning badge-sm">
+                병원장
+            </span>
+        </span>
+
+                    <!-- 관리자 -->
+                    <span th:if="${session.loginMember.role == 'ADMIN'}">
+            🛠
+            <b th:text="${session.loginMember.nickname}"></b>
+            <span class="badge badge-error badge-sm">
+                관리자
+            </span>
+        </span>
+
+
+
+                    <!-- ========================= -->
+                    <!-- USER -->
+                    <!-- ========================= -->
+                    <th:block th:if="${session.loginMember.role == 'USER'}">
+
+                        <a href="/member/mypage">
+                            마이페이지
+                        </a>
+
+                        <span>|</span>
+
+                        <a href="/member/logout">
+                            로그아웃
+                        </a>
+
+                        <span>|</span>
+
+                    </th:block>
+
+                    <!-- ========================= -->
+                    <!-- OWNER -->
+                    <!-- ========================= -->
+                    <th:block th:if="${session.loginMember.role == 'OWNER'}">
+
+                        <a href="/owner">
+                            병원관리
+                        </a>
+
+                        <span>|</span>
+
+                        <a href="/member/mypage">
+                            마이페이지
+                        </a>
+
+                        <span>|</span>
+
+                        <a href="/member/logout">
+                            로그아웃
+                        </a>
+
+                        <span>|</span>
+
+                    </th:block>
+
+
+                    <!-- ========================= -->
+                    <!-- ADMIN -->
+                    <!-- ========================= -->
+                    <th:block th:if="${session.loginMember.role == 'ADMIN'}">
+
+                        <a href="/admin">Admin</a>
+
+                        <span>|</span>
+
+                        <a href="/admin/dashboard">Dashboard</a>
+
+                        <span>|</span>
+
+                        <a href="/member/logout">
+                            로그아웃
+                        </a>
+
+                        <span>|</span>
+
+                    </th:block>
+
+                </th:block>
+
+
                 <a href="/pet/list">내 반려동물</a>
+
                 <span>|</span>
+
                 <a href="/board/list">고객센터</a>
+
             </div>
 
         </div>
