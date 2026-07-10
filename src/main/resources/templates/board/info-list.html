@@ -65,6 +65,67 @@
                 </div>
             </section>
 
+            <!-- 반려동물 필터 -->
+            <section class="info-animal-filter">
+
+                <div class="animal-filter-head">
+                    <div>
+                        <h3>반려동물별 보기</h3>
+                        <p>관심 있는 반려동물의 멍냥백서만 모아볼 수 있어요.</p>
+                    </div>
+
+                    <a th:href="@{/board/list(type='INFO')}"
+                       class="animal-reset-link">
+                        전체 글 보기
+                    </a>
+                </div>
+
+                <!-- 반려동물 -->
+                <div class="animal-filter-block">
+                    <div class="animal-filter-label">반려동물</div>
+
+                    <div class="animal-chip-list">
+                        <a th:href="@{/board/list(type='INFO')}"
+                           class="animal-chip"
+                           th:classappend="${parentAnimalId == null and animalId == null} ? ' active' : ''">
+                            전체
+                        </a>
+
+                        <a th:each="animal : ${parentAnimalList}"
+                           th:href="@{/board/list(type='INFO', parentAnimalId=${animal.animalId})}"
+                           th:text="${animal.animalName}"
+                           class="animal-chip"
+                           th:classappend="${parentAnimalId != null and parentAnimalId == animal.animalId} ? ' active' : ''">
+                            강아지
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 품종·종류 -->
+                <div class="animal-filter-block"
+                     th:if="${childAnimalList != null and !#lists.isEmpty(childAnimalList)}">
+
+                    <div class="animal-filter-label">품종·종류</div>
+
+                    <div class="animal-chip-list">
+                        <a th:href="@{/board/list(type='INFO', parentAnimalId=${parentAnimalId})}"
+                           class="animal-chip sub"
+                           th:classappend="${animalId == null} ? ' active' : ''">
+                            전체
+                        </a>
+
+                        <a th:each="animal : ${childAnimalList}"
+                           th:href="@{/board/list(type='INFO', parentAnimalId=${parentAnimalId}, animalId=${animal.animalId})}"
+                           th:text="${animal.animalName}"
+                           class="animal-chip sub"
+                           th:classappend="${animalId != null and animalId == animal.animalId} ? ' active' : ''">
+                            골든리트리버
+                        </a>
+                    </div>
+                </div>
+
+            </section>
+
             <!-- 카드 목록 -->
             <section class="info-card-list">
 
@@ -102,6 +163,14 @@
                     </a>
 
                     <div class="info-card-body">
+
+                        <div class="info-animal-name"
+                             th:if="${board.animalName != null}">
+                            <span th:text="${board.parentAnimalName}">강아지</span>
+                            <strong>›</strong>
+                            <span th:text="${board.animalName}">골든리트리버</span>
+                        </div>
+
                         <h2>
                             <a th:if="${board.linkUrl != null and board.linkUrl != ''}"
                                th:href="${board.linkUrl}"

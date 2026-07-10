@@ -50,4 +50,19 @@ public class BoardDto {
 
     // 멍냥백서 이미지 클릭 URL
     private String linkUrl;
+
+    // 명냥백서 동물 종류 ID
+    private Integer animalId;
+
+    // 선택한 동물 이름
+    private String animalName;
+
+    // 부모 동물 ID
+    private Integer parentAnimalId;
+
+    // 부모 동물 이름
+    private  String parentAnimalName;
+
+
+
 }

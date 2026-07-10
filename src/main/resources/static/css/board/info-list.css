@@ -350,3 +350,158 @@ body {
         font-size: 34px;
     }
 }
+
+/* ================================
+   멍냥백서 동물 필터
+================================ */
+
+.info-animal-filter {
+    margin-top: 24px;
+    padding: 22px;
+    border: 1px solid #dbe4ee;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.animal-filter-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.animal-filter-head h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+.animal-filter-head p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.animal-reset-link {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background-color: #111827;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.animal-reset-link:hover {
+    background-color: #374151;
+}
+
+.animal-filter-block {
+    display: grid;
+    grid-template-columns: 82px 1fr;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.animal-filter-block + .animal-filter-block {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed #cbd5e1;
+}
+
+.animal-filter-label {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    color: #0f766e;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.animal-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.animal-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 15px;
+    border: 1px solid #d4dde8;
+    border-radius: 999px;
+    background-color: #ffffff;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.16s ease;
+}
+
+.animal-chip:hover {
+    border-color: #0f9ca8;
+    color: #0f9ca8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(15, 156, 168, 0.12);
+}
+
+.animal-chip.active {
+    border-color: #0f9ca8;
+    background-color: #0f9ca8;
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(15, 156, 168, 0.2);
+}
+
+.animal-chip.sub {
+    background-color: #f8fafc;
+}
+
+.animal-chip.sub.active {
+    background-color: #4f6fc8;
+    border-color: #4f6fc8;
+    color: #ffffff;
+}
+
+.info-animal-name {
+    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #0f9ca8;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.info-animal-name strong {
+    color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+    .animal-filter-head {
+        display: block;
+    }
+
+    .animal-reset-link {
+        margin-top: 12px;
+    }
+
+    .animal-filter-block {
+        display: block;
+    }
+
+    .animal-filter-label {
+        margin-bottom: 8px;
+    }
+}

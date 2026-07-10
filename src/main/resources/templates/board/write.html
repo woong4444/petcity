@@ -5,8 +5,23 @@
     <title th:text="${boardTitle} + ' 글쓰기'">게시글 작성</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
+
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <link rel="stylesheet" th:href="@{/css/board/write.css}">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/lang/summernote-ko-KR.min.js"></script>
+
+    <script defer th:src="@{/js/board/board-animal.js}"></script>
+    <script defer th:src="@{/js/board/board-image-preview.js}"></script>
+    <script defer th:src="@{/js/board/board-editor.js}"></script>
+    <script defer th:src="@{/js/board/board-write-type.js}"></script>
 </head>
 <body>
 
@@ -56,7 +71,8 @@
             <section class="board-write-hero">
                 <div>
                     <h1>글쓰기</h1>
-                    <p th:text="${boardTitle} + '에 게시글을 작성해 주세요.'">
+                    <p id="boardWriteGuide"
+                       th:text="${boardTitle} + '에 게시글을 작성해 주세요.'">
                         PetCity 커뮤니티에 게시글을 작성해 주세요.
                     </p>
                 </div>
@@ -70,25 +86,54 @@
             <form th:action="@{/board/write}"
                   method="post"
                   enctype="multipart/form-data"
-                  class="write-form">
+                  class="write-form"
+                  id="boardWriteForm">
 
-                <input type="hidden" name="boardType" th:value="${boardType}">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
 
-                <div class="form-row">
-                    <label>게시판</label>
+                <div class="form-row pretty-row">
+                    <label for="boardTypeSelect">게시판 선택</label>
 
-                    <div class="board-type-text" th:switch="${boardType}">
-                        <span th:case="'NOTICE'">공지사항</span>
-                        <span th:case="'QNA'">상담 게시판</span>
-                        <span th:case="'FREE'">자유 게시판</span>
-                        <span th:case="'INFO'">멍냥백서</span>
-                        <span th:case="'MISSING'">실종/제보 게시판</span>
-                        <span th:case="*">게시판</span>
+                    <div class="input-box">
+                        <select id="boardTypeSelect"
+                                name="boardType"
+                                class="form-select"
+                                required>
+
+                            <option value="QNA"
+                                    th:selected="${boardType == 'QNA'}">
+                                수의사상담
+                            </option>
+
+                            <option value="FREE"
+                                    th:selected="${boardType == 'FREE'}">
+                                자유토크
+                            </option>
+
+                            <option value="INFO"
+                                    th:selected="${boardType == 'INFO'}">
+                                멍냥백서
+                            </option>
+
+                            <option value="NOTICE"
+                                    th:if="${isAdmin}"
+                                    th:selected="${boardType == 'NOTICE'}">
+                                공지사항
+                            </option>
+                        </select>
+
+                        <p class="form-help">
+                            작성할 게시판을 선택하세요. 공지사항은 관리자만 작성할 수 있습니다.
+                        </p>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <label for="title">제목</label>
+
                     <input type="text"
                            id="title"
                            name="title"
@@ -96,43 +141,93 @@
                            required>
                 </div>
 
-                <div class="form-row content-row">
+                <div class="form-row content-row editor-row">
                     <label for="content">내용</label>
-                    <textarea id="content"
-                              name="content"
-                              placeholder="내용을 입력하세요."
-                              required></textarea>
-                </div>
 
-                <div class="form-row file-row" th:if="${boardType == 'INFO'}">
-                    <label for="infoImage">대표 이미지</label>
-                    <div class="file-box">
-                        <input type="file"
-                               id="infoImage"
-                               name="imageFiles"
-                               accept="image/*">
-                        <p>멍냥백서는 대표 이미지 1장만 등록할 수 있습니다.</p>
+                    <div class="editor-box">
+                        <textarea id="content"
+                                  name="content"
+                                  class="summernote-editor"></textarea>
+
+                        <p class="form-help">
+                            본문 중간에 이미지를 넣고 싶으면 에디터의 이미지 버튼을 눌러 업로드하세요.
+                        </p>
                     </div>
                 </div>
 
-                <div class="form-row" th:if="${boardType == 'INFO'}">
-                    <label for="linkUrl">이미지 링크</label>
-                    <input type="url"
-                           id="linkUrl"
-                           name="linkUrl"
-                           placeholder="이미지를 클릭했을 때 이동할 URL을 입력하세요.">
+                <div id="animalArea">
+
+                    <div class="form-row pretty-row">
+                        <label for="parentAnimalSelect">반려동물</label>
+
+                        <div class="input-box">
+                            <select id="parentAnimalSelect" class="form-select">
+                                <option value="">반려동물 선택</option>
+
+                                <option th:each="animal : ${parentAnimalList}"
+                                        th:value="${animal.animalId}"
+                                        th:text="${animal.animalName}">
+                                    강아지
+                                </option>
+                            </select>
+
+                            <p class="form-help">
+                                강아지, 고양이, 파충류처럼 어떤 반려동물인지 선택하세요.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-row pretty-row">
+                        <label for="childAnimalSelect">품종·종류</label>
+
+                        <div class="input-box">
+                            <select id="childAnimalSelect"
+                                    name="animalId"
+                                    class="form-select">
+                                <option value="">먼저 반려동물을 선택하세요</option>
+                            </select>
+
+                            <p class="form-help">
+                                선택한 반려동물에 맞는 품종 또는 종류를 선택하세요.
+                            </p>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="form-row file-row" th:unless="${boardType == 'INFO'}">
-                    <label for="normalImages">첨부 이미지</label>
-                    <div class="file-box">
-                        <input type="file"
-                               id="normalImages"
-                               name="imageFiles"
-                               accept="image/*"
-                               multiple>
-                        <p>이미지를 여러 장 첨부할 수 있습니다.</p>
+                <!-- 여기부터 멍냥백서 전용. 처음에는 화면에서 안 보임 -->
+                <div id="infoOnlyArea" style="display: none;">
+
+                    <div class="form-row file-row pretty-row">
+                        <label for="infoImage">대표 이미지</label>
+
+                        <div class="file-box pretty-file-box">
+                            <input type="file"
+                                   id="infoImage"
+                                   name="imageFiles"
+                                   accept="image/*">
+
+                            <p>멍냥백서 카드 목록에 표시될 대표 이미지입니다.</p>
+
+                            <div id="imagePreview" class="image-preview-list"></div>
+                        </div>
                     </div>
+
+                    <div class="form-row pretty-row">
+                        <label for="linkUrl">관련 링크</label>
+
+                        <div class="input-box">
+                            <input type="url"
+                                   id="linkUrl"
+                                   name="linkUrl"
+                                   placeholder="https://blog.naver.com/...">
+
+                            <p class="form-help">
+                                멍냥백서 목록에서 대표 이미지를 클릭했을 때 이동할 링크입니다.
+                            </p>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="write-buttons">
