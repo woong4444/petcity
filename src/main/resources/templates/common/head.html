@@ -123,9 +123,11 @@
                     <!-- ========================= -->
                     <th:block th:if="${session.loginMember.role == 'ADMIN'}">
 
-                        <a href="/admin">
-                            관리자페이지
-                        </a>
+                        <a href="/admin">Admin</a>
+
+                        <span>|</span>
+
+                        <a href="/admin/dashboard">Dashboard</a>
 
                         <span>|</span>
 
