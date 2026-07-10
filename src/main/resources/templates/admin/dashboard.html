@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 대시보드 TEST</title>
+    <link rel="stylesheet" href="/css/admin/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-logo"> PET ADMIN</div>
+        <nav class="admin-menu">
+            <a href="/admin" class="active">대시보드</a>
+            <a href="/admin/hospitals">병원 관리</a>
+            <a href="/admin/members">회원 관리</a>
+            <a href="/admin/owner-requests">병원장 신청</a>
+            <a href="/admin/reviews">리뷰 관리</a>
+            <a href="/admin/boards">게시판 관리</a>
+            <a href="/admin/banners">메인 배너 관리</a>
+        </nav>
+    </aside>
+    <main class="admin-main">
+        <header class="admin-header">
+            <div>
+                <h1>관리자 대시보드</h1>
+                <p>사이트 운영 현황 확인</p>
+            </div>
+            <a href="/" class="site-link">사이트로 이동</a>
+        </header>
+
+        <section class="dashboard-grid">
+
+
+            <article class="dashboard-card">
+                <span>오늘 방문자</span>
+                <strong th:text="${dashboard.todayVisitorCount}">0</strong>
+                <p>방문자 로그 연결 예정</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>활동 회원</span>
+                <strong th:text="${dashboard.memberCount}">0</strong>
+                <p>활동중인 회원</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>등록 병원</span>
+                <strong th:text="${dashboard.hospitalCount}">0</strong>
+                <p>전제 병원 수</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>영업중 병원</span>
+                <strong th:text="${dashboard.openHospitalCount}">0</strong>
+                <p>STATUS = OPEN</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>폐업 병원</span>
+                <strong th:text="${dashboard.closedHospitalCount}">0</strong>
+                <p>STATUS = CLOSED</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>휴업 병원</span>
+                <strong th:text="${dashboard.tempClosedHospitalCount}">0</strong>
+                <p>STATUS = TEMP_CLOSED</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>전체 리뷰</span>
+                <strong th:text="${dashboard.reviewCount}">0</strong>
+                <p>병원 리뷰 수</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>전체 게시글</span>
+                <strong th:text="${dashboard.boardCount}">0</strong>
+                <p>게시판 글 수</p>
+            </article>
+
+            <article class="dashboard-card">
+                <span>병원장 승인 대기</span>
+                <strong th:text="${dashboard.pendingOwnerRequestCount}">0</strong>
+                <p>병원장</p>
+            </article>
+        </section>
+    </main>
+
+
+</div>
+</body>
+</html>
