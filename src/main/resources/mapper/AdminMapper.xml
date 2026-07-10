@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.admin.dao.AdminDao">
+
+    <select id="countMembers" resultType="int">
+        select count(*) from app_member
+        where member_status = 'ACTIVE'
+    </select>
+    <select id="countHospitals" resultType="int">
+        select count(*) from hospital
+    </select>
+    <select id="countHospitalsByStatus" resultType="int">
+        select count(*) from hospital
+        where status = #{status}
+    </select>
+    <select id="countReviews" resultType="int">
+        select count(*) from hospital_review
+    </select>
+    <select id="countBoards" resultType="int">
+        select count(*) from board
+    </select>
+
+    <select id="countPendingOwnerRequests" resultType="int">
+        select count(*) from hospital_owner_request
+        where status = 'pending'
+    </select>
+
+
+
+</mapper>

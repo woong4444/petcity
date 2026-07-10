@@ -2,6 +2,7 @@ package com.jjang051.petcity.member.controller;
 
 import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberService;
+import com.jjang051.petcity.visit.service.LoginHistoryRedisService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,8 @@ public class MemberController {
 
     // MemberService 주입
     private final MemberService memberService;
+
+    private final LoginHistoryRedisService loginHistoryRedisService;
 
     // ===========================
     // 로그인 화면
@@ -107,6 +110,12 @@ public class MemberController {
 
         // 로그인 성공
         session.setAttribute("loginMember", member);
+
+        // 추가부분(레디스에 로그인유저 저장)
+        loginHistoryRedisService.saveLoginHistory(member,session);
+        if ("ADMIN".equals(member.getRole())) {
+            return "redirect:/admin/dashboard";
+        }
 
         return "redirect:/";
 
