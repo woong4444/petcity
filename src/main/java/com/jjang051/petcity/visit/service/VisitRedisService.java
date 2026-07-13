@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -32,13 +34,22 @@ public class VisitRedisService {
         if (loginMember == null) {
             visitorId = "NotLogin:" + sessionId;
         } else {
-            visitorId = "Login:" + loginMember.getMemberId() + ":" + loginMember.getLoginId();
-        }
-        redisTemplate.opsForSet().add(visitorSetKey, sessionId);
-        redisTemplate.opsForHash().put(visitorInfoKey, sessionId, visitorId);
+            String notLoginVisitorId = "NotLogin:" + sessionId;
+            redisTemplate.opsForSet().remove(visitorSetKey, notLoginVisitorId);
 
-        redisTemplate.expire(visitorSetKey, Duration.ofDays(2));
-        redisTemplate.expire(visitorInfoKey, Duration.ofDays(2));
+            redisTemplate.opsForHash().delete(visitorInfoKey, notLoginVisitorId);
+
+            visitorId = "Login:" + loginMember.getMemberId();
+        }
+
+
+        redisTemplate.opsForSet().add(visitorSetKey, visitorId);
+        redisTemplate.opsForHash().put(visitorInfoKey, visitorId, visitorId);
+
+        Date tomorrowMidnight = getTomorrowMidnight();
+
+        redisTemplate.expireAt(visitorSetKey,tomorrowMidnight);
+        redisTemplate.expireAt(visitorInfoKey,tomorrowMidnight);
     }
 
     public long getTodayVisitorCount() {
@@ -56,5 +67,8 @@ public class VisitRedisService {
         return LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
     }
 
-
+    private Date getTomorrowMidnight() {
+        ZoneId zoneId = ZoneId.of("Asia/Seoul");
+        return Date.from(LocalDate.now(zoneId).plusDays(1).atStartOfDay(zoneId).toInstant());
+    }
 }
