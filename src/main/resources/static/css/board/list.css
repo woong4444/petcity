@@ -776,3 +776,91 @@ body {
 .search-reset-button:hover {
     background-color: #f1f5f9;
 }
+
+/* ================================
+   게시판 페이징
+================================ */
+
+.board-pagination {
+    margin-top: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-button {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d6dee8;
+    border-radius: 7px;
+
+    background-color: #ffffff;
+    color: #26364a;
+
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease;
+}
+
+.page-button:hover {
+    border-color: #17a5df;
+    background-color: #edf8fd;
+    color: #078cc5;
+}
+
+.page-button.active {
+    border-color: #18a8e1;
+    background-color: #18a8e1;
+    color: #ffffff;
+}
+
+.page-button.active:hover {
+    border-color: #18a8e1;
+    background-color: #18a8e1;
+    color: #ffffff;
+}
+
+.page-move {
+    font-size: 13px;
+}
+
+.page-disabled {
+    border-color: #e4e9ef;
+    background-color: #f6f8fa;
+    color: #b8c1cc;
+    cursor: default;
+}
+
+.page-disabled:hover {
+    border-color: #e4e9ef;
+    background-color: #f6f8fa;
+    color: #b8c1cc;
+}
+
+@media (max-width: 600px) {
+
+    .board-pagination {
+        gap: 4px;
+    }
+
+    .page-button {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 7px;
+        font-size: 12px;
+    }
+}

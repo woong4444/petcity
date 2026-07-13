@@ -19,8 +19,19 @@ public interface BoardDao {
                                  @Param("parentAnimalId") Integer parentAnimalId,
                                  @Param("animalId") Integer animalId,
                                  @Param("searchType") String searchType,
-                                 @Param("keyword")String keyword
+                                 @Param("keyword")String keyword,
+                                 @Param("offset") int offset,
+                                 @Param("pageSize") int pageSize
                                          );
+
+    // 검색과 필터 조건에 해당하는 전체 게시글 수
+    int countBoardList(
+            @Param("boardType") String boardType,
+            @Param("parentAnimalId") Integer parentAnimalId,
+            @Param("animalId") Integer animalId,
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword
+    );
 
     // 게시글 상세 조회
     BoardDto findBoardView(@Param("boardId") int boardId);

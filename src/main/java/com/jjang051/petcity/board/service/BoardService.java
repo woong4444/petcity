@@ -33,19 +33,49 @@ public class BoardService {
         NOTICE: 동물 필터 사용 안 함
         QNA/FREE/INFO/MISSING: 동물 필터 사용 가능
     */
+   /*
+    한 페이지에 표시할 게시글 수
+*/
+    private static final int PAGE_SIZE = 10;
+
+    /*
+        화면에 표시할 페이지 번호 개수
+
+        1 2 3 4 5
+        6 7 8 9 10
+    */
+    private static final int PAGE_BLOCK_SIZE = 5;
+
+
+    /*
+        게시판 목록 조회
+
+        page를 String으로 받는 이유:
+
+        page=abc
+        page=한글
+        page=-1
+
+        같은 값이 들어와도 오류를 내지 않고
+        안전하게 1페이지로 처리하기 위해서임.
+    */
     public BoardListPageDto getBoardListPage(
             String type,
             Integer parentAnimalId,
             Integer animalId,
             String searchType,
-            String keyword
+            String keyword,
+            String page
     ) {
 
-        String boardType = getValidBoardType(type);
-        String boardTitle = getBoardTitle(boardType);
+        String boardType =
+                getValidBoardType(type);
+
+        String boardTitle =
+                getBoardTitle(boardType);
 
     /*
-        공지사항은 동물 분류를 사용하지 않음
+        공지사항은 동물 필터를 사용하지 않음
     */
         if ("NOTICE".equals(boardType)) {
             parentAnimalId = null;
@@ -53,18 +83,16 @@ public class BoardService {
         }
 
     /*
-        검색 종류가 없거나 잘못 들어오면
-        제목 + 내용 검색으로 처리
+        잘못된 검색 종류는 제목 + 내용으로 처리
     */
-        searchType = getValidSearchType(searchType);
+        searchType =
+                getValidSearchType(searchType);
 
     /*
         검색어 앞뒤 공백 제거
-
-        검색어가 비어 있으면 null로 만들어서
-        전체 게시글을 조회함
     */
         if (keyword != null) {
+
             keyword = keyword.trim();
 
             if (keyword.isBlank()) {
@@ -72,8 +100,21 @@ public class BoardService {
             }
         }
 
-        List<BoardDto> boardList =
-                boardDao.findBoardList(
+    /*
+        페이지 문자열 안전하게 숫자로 변환
+
+        null, 빈 문자열, 음수, 0, 영어, 한글
+        모두 1페이지로 처리
+    */
+        int currentPage =
+                parsePage(page);
+
+    /*
+        검색과 필터 조건에 해당하는
+        전체 게시글 개수
+    */
+        int totalCount =
+                boardDao.countBoardList(
                         boardType,
                         parentAnimalId,
                         animalId,
@@ -81,13 +122,127 @@ public class BoardService {
                         keyword
                 );
 
+    /*
+        전체 페이지 계산
+
+        게시글이 없더라도 화면상 페이지는
+        최소 1페이지로 처리
+    */
+        int totalPage =
+                Math.max(
+                        1,
+                        (int) Math.ceil(
+                                (double) totalCount / PAGE_SIZE
+                        )
+                );
+
+    /*
+        존재하는 마지막 페이지보다 큰 값이면
+        마지막 페이지로 이동
+
+        예:
+        전체 페이지가 10인데 page=999
+        → 10페이지
+    */
+        if (currentPage > totalPage) {
+            currentPage = totalPage;
+        }
+
+    /*
+        DB에서 몇 번째 행부터 가져올지 계산
+
+        1페이지: 0
+        2페이지: 10
+        3페이지: 20
+    */
+        int offset =
+                (currentPage - 1) * PAGE_SIZE;
+
+        List<BoardDto> boardList =
+                boardDao.findBoardList(
+                        boardType,
+                        parentAnimalId,
+                        animalId,
+                        searchType,
+                        keyword,
+                        offset,
+                        PAGE_SIZE
+                );
+
+    /*
+        현재 페이지 묶음의 시작 번호 계산
+
+        현재 1~5페이지  → startPage 1
+        현재 6~10페이지 → startPage 6
+        현재 11~15페이지 → startPage 11
+    */
+        int startPage =
+                ((currentPage - 1) / PAGE_BLOCK_SIZE)
+                        * PAGE_BLOCK_SIZE
+                        + 1;
+
+    /*
+        현재 묶음의 마지막 번호
+
+        전체 페이지보다 커지지 않도록 처리
+    */
+        int endPage =
+                Math.min(
+                        startPage + PAGE_BLOCK_SIZE - 1,
+                        totalPage
+                );
+
+    /*
+        이전 묶음의 첫 페이지
+
+        6~10 묶음에서 <
+        → 1페이지
+
+        11~15 묶음에서 <
+        → 6페이지
+    */
+        int previousBlockPage =
+                Math.max(
+                        1,
+                        startPage - PAGE_BLOCK_SIZE
+                );
+
+    /*
+        다음 묶음의 첫 페이지
+
+        1~5 묶음에서 >
+        → 6페이지
+
+        6~10 묶음에서 >
+        → 11페이지
+    */
+        int nextBlockPage =
+                Math.min(
+                        totalPage,
+                        startPage + PAGE_BLOCK_SIZE
+                );
+
+        boolean hasPreviousBlock =
+                startPage > 1;
+
+        boolean hasNextBlock =
+                endPage < totalPage;
+
         return BoardListPageDto.builder()
                 .boardList(boardList)
                 .boardType(boardType)
                 .boardTitle(boardTitle)
+                .totalCount(totalCount)
+                .currentPage(currentPage)
+                .totalPage(totalPage)
+                .startPage(startPage)
+                .endPage(endPage)
+                .previousBlockPage(previousBlockPage)
+                .nextBlockPage(nextBlockPage)
+                .hasPreviousBlock(hasPreviousBlock)
+                .hasNextBlock(hasNextBlock)
                 .build();
     }
-
     /*
         게시글 상세
     */
@@ -717,5 +872,43 @@ public class BoardService {
             default -> "titleContent";
         };
     }
+    /*
+    페이지 값 검사
+
+    정상 숫자:
+    "1" → 1
+    "6" → 6
+
+    잘못된 값:
+    "-1" → 1
+    "0" → 1
+    "abc" → 1
+    "가나다" → 1
+    "" → 1
+    null → 1
+*/
+    private int parsePage(String page) {
+
+        if (page == null || page.isBlank()) {
+            return 1;
+        }
+
+        try {
+
+            int parsedPage =
+                    Integer.parseInt(page.trim());
+
+            if (parsedPage < 1) {
+                return 1;
+            }
+
+            return parsedPage;
+
+        } catch (NumberFormatException exception) {
+
+            return 1;
+        }
+    }
+
 
 }

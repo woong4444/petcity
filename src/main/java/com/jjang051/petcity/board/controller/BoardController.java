@@ -61,6 +61,15 @@ public class BoardController {
                     required = false
             ) String keyword,
 
+        /*
+            숫자가 아닌 값도 받을 수 있도록
+            String으로 받음
+        */
+            @RequestParam(
+                    value = "page",
+                    required = false
+            ) String page,
+
             Model model
     ) {
 
@@ -70,7 +79,8 @@ public class BoardController {
                         parentAnimalId,
                         animalId,
                         searchType,
-                        keyword
+                        keyword,
+                        page
                 );
 
         model.addAttribute(
@@ -88,8 +98,53 @@ public class BoardController {
                 pageDto.getBoardTitle()
         );
 
+        model.addAttribute(
+                "totalCount",
+                pageDto.getTotalCount()
+        );
+
+        model.addAttribute(
+                "currentPage",
+                pageDto.getCurrentPage()
+        );
+
+        model.addAttribute(
+                "totalPage",
+                pageDto.getTotalPage()
+        );
+
+        model.addAttribute(
+                "startPage",
+                pageDto.getStartPage()
+        );
+
+        model.addAttribute(
+                "endPage",
+                pageDto.getEndPage()
+        );
+
+        model.addAttribute(
+                "previousBlockPage",
+                pageDto.getPreviousBlockPage()
+        );
+
+        model.addAttribute(
+                "nextBlockPage",
+                pageDto.getNextBlockPage()
+        );
+
+        model.addAttribute(
+                "hasPreviousBlock",
+                pageDto.isHasPreviousBlock()
+        );
+
+        model.addAttribute(
+                "hasNextBlock",
+                pageDto.isHasNextBlock()
+        );
+
     /*
-        검색 후에도 선택값과 검색어 유지
+        검색 결과에서도 검색 조건 유지
     */
         model.addAttribute(
                 "searchType",
@@ -102,7 +157,7 @@ public class BoardController {
         );
 
     /*
-        공지사항을 제외한 게시판은 동물 필터 사용
+        공지사항 외 게시판 동물 필터
     */
         if (!"NOTICE".equals(pageDto.getBoardType())) {
 
@@ -132,9 +187,6 @@ public class BoardController {
             }
         }
 
-    /*
-        멍냥백서만 카드형 목록 페이지 사용
-    */
         if ("INFO".equals(pageDto.getBoardType())) {
             return "board/info-list";
         }
