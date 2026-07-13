@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>관리자 대시보드 TEST</title>
-    <link rel="stylesheet" href="/css/admin/admin.css">
 
-    <link rel="stylesheet"
-          th:href="@{/css/admin/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/sidebar.css}">
+    <link rel="stylesheet" href="/css/admin/admin.css">
     <script defer th:src="@{/js/admin/sidebar.js}"></script>
 
 </head>
@@ -15,7 +14,7 @@
 <div class="admin-layout">
 
 
-    <th:block th:replace="~{admin/fragments/sidebar :: sidebar('members')}"></th:block>
+    <th:block th:replace="~{admin/fragments/sidebar :: sidebar('dashboard')}"></th:block>
 
     <main class="admin-main">
         <header class="admin-header">

@@ -411,6 +411,88 @@
 }
 
 /* ========================================
+   전체 회원 선택 안내
+======================================== */
+
+.all-selection-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    margin-bottom: 14px;
+    padding: 12px 16px;
+
+    color: #41506a;
+    background-color: #eef5ff;
+
+    border: 1px solid #cfe0fa;
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/*
+ * hidden 속성이 있을 때
+ * display: flex보다 우선해서 숨김 처리
+ */
+.all-selection-notice[hidden] {
+    display: none;
+}
+
+
+/* ========================================
+   전체 회원 선택 버튼
+======================================== */
+
+.select-every-member-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    min-height: 34px;
+    padding: 0 14px;
+
+    color: #ffffff;
+    background-color: #347fe8;
+
+    border: none;
+    border-radius: 8px;
+
+    box-shadow: 0 4px 10px rgba(52, 127, 232, 0.2);
+
+    font-size: 13px;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.15s ease,
+            box-shadow 0.15s ease,
+            transform 0.15s ease;
+}
+
+.select-every-member-button strong {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 850;
+}
+
+.select-every-member-button:hover {
+    background-color: #246ed5;
+    box-shadow: 0 6px 14px rgba(52, 127, 232, 0.28);
+    transform: translateY(-1px);
+}
+
+.select-every-member-button:active {
+    background-color: #1f61bd;
+    box-shadow: 0 2px 6px rgba(52, 127, 232, 0.2);
+    transform: translateY(0);
+}
+
+/* ========================================
    작은 화면
 ======================================== */
 
