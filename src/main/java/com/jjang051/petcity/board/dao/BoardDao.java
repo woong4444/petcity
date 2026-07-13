@@ -6,6 +6,7 @@ import com.jjang051.petcity.board.dto.BoardDto;
 import com.jjang051.petcity.board.dto.BoardImageDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.net.Inet4Address;
 import java.util.List;
@@ -55,5 +56,19 @@ public interface BoardDao {
 
     //로그인 아이디로 회원 번호 조회
     Integer findMemberIdByLoginId(@Param("loginId") String loginId);
+
+    // 댓글 수정
+    void updateComment(@Param("commentId") int commentId,
+                       @Param("content")String content);
+
+    // 게시글 수정
+    void updateBoard(BoardDto boardDto);
+
+    // 게시글의 대표 이미지 db 정보 삭제
+    void deleteBoardImages(@Param("boardId") int boardId);
+
+    // 기존 대표 이미지의 링크 수정
+    void updateBoardImageLink(@Param("boardId") int boardId,
+                              @Param("linkUrl") String linkUrl);
 
 }

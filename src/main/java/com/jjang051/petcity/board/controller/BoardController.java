@@ -20,6 +20,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/board")
 public class BoardController {
+    // Security 연결 전 댓글 테스트용
+    private static final int TEMP_MEMBER_ID = 1;
+    private static final String TEMP_ROLE = "ADMIN";
 
     private final BoardService boardService;
 
@@ -101,23 +104,27 @@ public class BoardController {
                 boardService.getBoardViewPage(boardId);
 
         BoardDto boardDto = pageDto.getBoardDto();
-
-        // 로그인 여부
-        boolean authenticated =
-                isAuthenticated(authentication);
-
-        // 현재 로그인 회원 권한
-        String role = getRole(authentication);
-
-        // 현재 로그인 회원 번호
-        Integer loginMemberId = null;
-
-        if (authenticated) {
-            loginMemberId =
-                    boardService.findMemberIdByLoginId(
-                            authentication.getName()
-                    );
-        }
+    //보안 o 상태
+//        // 로그인 여부
+//        boolean authenticated =
+//                isAuthenticated(authentication);
+//
+//        // 현재 로그인 회원 권한
+//        String role = getRole(authentication);
+//
+//        // 현재 로그인 회원 번호
+//        Integer loginMemberId = null;
+//
+//        if (authenticated) {
+//            loginMemberId =
+//                    boardService.findMemberIdByLoginId(
+//                            authentication.getName()
+//                    );
+//        }
+        // Security 연결 전 임시 로그인 처리
+        boolean authenticated = true;
+        String role = TEMP_ROLE;
+        Integer loginMemberId = TEMP_MEMBER_ID;
 
         String boardType = boardDto.getBoardType();
 
@@ -293,64 +300,187 @@ public class BoardController {
         INFO, NOTICE:
         - Service에서 작성 차단
     */
+    // 보안 o 상태
+//    @PostMapping("/comment/write")
+//    public String commentWrite(
+//            @RequestParam("boardId") int boardId,
+//            @RequestParam("content") String content,
+//            Authentication authentication
+//    ) {
+//
+//        if (!isAuthenticated(authentication)) {
+//            throw new RuntimeException(
+//                    "로그인 후 댓글을 작성할 수 있습니다."
+//            );
+//        }
+//
+//        Integer memberId =
+//                boardService.findMemberIdByLoginId(
+//                        authentication.getName()
+//                );
+//
+//        if (memberId == null) {
+//            throw new RuntimeException(
+//                    "로그인 회원 정보를 찾을 수 없습니다."
+//            );
+//        }
+//
+//        String role = getRole(authentication);
+//
+//        boardService.insertComment(
+//                boardId,
+//                memberId,
+//                content,
+//                role
+//        );
+//
+//        return "redirect:/board/view?boardId="
+//                + boardId;
+//    }
+
     @PostMapping("/comment/write")
     public String commentWrite(
             @RequestParam("boardId") int boardId,
+            @RequestParam("content") String content
+    ) {
+
+        boardService.insertComment(
+                boardId,
+                TEMP_MEMBER_ID,
+                content,
+                TEMP_ROLE
+        );
+
+        return "redirect:/board/view?boardId=" + boardId;
+    }
+
+    @GetMapping("/update")
+    public String boardUpdate(
+            @RequestParam("boardId") int boardId,
+            Model model,
+            Authentication authentication
+    ) {
+        BoardViewPageDto pageDto =
+                boardService.getBoardUpdatePage(boardId);
+
+        BoardDto boardDto =
+                pageDto.getBoardDto();
+
+        boolean admin =
+                isAdmin(authentication);
+
+         /*
+        공지사항 수정은 관리자만 가능.
+
+        현재 Security를 꺼둔 상태에서는
+        공지사항 수정 화면에 들어갈 수 없음.
+    */
+        if("NOTICE".equals(boardDto.getBoardType())
+        &&!admin) {
+
+            throw new RuntimeException(
+                    "공지사항은 관리자만 수정할 수 있습니다."
+            );
+        }
+
+        model.addAttribute(
+                "boardDto",
+                boardDto
+        );
+        model.addAttribute(
+                "boardTitle",
+                pageDto.getBoardTitle()
+        );
+        model.addAttribute(
+                "boardImageList",
+                pageDto.getBoardImageList()
+        );
+        model.addAttribute(
+                "isAdmin",
+                admin
+        );
+        /* 수정 화면에 기존 대표 이미지 한 장 전달*/
+
+        if(pageDto.getBoardImageList() != null
+        && !pageDto.getBoardImageList().isEmpty()) {
+
+            model.addAttribute(
+                    "currentImage",
+                    pageDto.getBoardImageList().get(0)
+            );
+        }
+        /* 공지사항을 제외한 게시판은 동물 선택 사용*/
+
+        if(!"NOTICE".equals(boardDto.getBoardType())) {
+
+            model.addAttribute(
+                    "parentAnimalList",
+                    boardService.getParentAnimalList()
+            );
+            /*
+            기존 게시글에서 선택한 부모 동물에 해당하는
+            하위 동물 목록을 미리 전달
+        */
+            if(boardDto.getParentAnimalId() !=null) {
+
+                model.addAttribute(
+                        "childAnimalList",
+                        boardService.getChildAnimalList(
+                                boardDto.getParentAnimalId()
+                        )
+                );
+            }
+
+        }
+        return "board/update";
+    }
+    /* 게시글 수정 처리*/
+
+    @PostMapping("/update")
+    public String boardUpdateProcess(
+            @ModelAttribute BoardDto boardDto,
+            @RequestParam(
+                    value = "imageFiles",
+                    required = false
+            ) MultipartFile[] imageFiles,
+            @RequestParam(
+                    value = "linkUrl",
+                    required = false
+            ) String linkUrl,
+            Authentication authentication
+    ) throws IOException {
+
+        boolean admin =
+                isAdmin(authentication);
+
+        boardService.updateBoard(
+                boardDto,
+                imageFiles,
+                linkUrl,
+                admin
+        );
+
+        return "redirect:/board/view?boardId="
+                +boardDto.getBoardId();
+    }
+
+
+
+    /*
+    댓글 수정
+
+    작성자 본인 또는 관리자만 수정 가능.
+    실제 권한 검사는 BoardService에서 처리.
+*/
+    @PostMapping("/comment/update")
+    public String commentUpdate(
+            @RequestParam("commentId") int commentId,
             @RequestParam("content") String content,
             Authentication authentication
     ) {
 
         if (!isAuthenticated(authentication)) {
-            throw new RuntimeException(
-                    "로그인 후 댓글을 작성할 수 있습니다."
-            );
-        }
-
-        Integer memberId =
-                boardService.findMemberIdByLoginId(
-                        authentication.getName()
-                );
-
-        if (memberId == null) {
-            throw new RuntimeException(
-                    "로그인 회원 정보를 찾을 수 없습니다."
-            );
-        }
-
-        String role = getRole(authentication);
-
-        boardService.insertComment(
-                boardId,
-                memberId,
-                content,
-                role
-        );
-
-        return "redirect:/board/view?boardId="
-                + boardId;
-    }
-
-    /*
-        댓글 삭제
-
-        댓글 작성자 본인:
-        - 자신의 댓글 삭제 가능
-
-        관리자:
-        - 모든 댓글 삭제 가능
-
-        실제 권한 검사는 Service에서 처리
-    */
-    @PostMapping("/comment/delete")
-    public String commentDelete(
-            @RequestParam("commentId") int commentId,
-            Authentication authentication
-    ) {
-
-        if (!isAuthenticated(authentication)) {
-            throw new RuntimeException(
-                    "로그인이 필요합니다."
-            );
+            throw new RuntimeException("로그인이 필요합니다.");
         }
 
         Integer memberId =
@@ -367,14 +497,77 @@ public class BoardController {
         String role = getRole(authentication);
 
         int boardId =
-                boardService.deleteComment(
+                boardService.updateComment(
                         commentId,
                         memberId,
+                        content,
                         role
                 );
 
         return "redirect:/board/view?boardId="
                 + boardId;
+    }
+
+    /*
+        댓글 삭제
+
+        댓글 작성자 본인:
+        - 자신의 댓글 삭제 가능
+
+        관리자:
+        - 모든 댓글 삭제 가능
+
+        실제 권한 검사는 Service에서 처리
+    */
+
+    // 보안 o 상태
+//    @PostMapping("/comment/delete")
+//    public String commentDelete(
+//            @RequestParam("commentId") int commentId,
+//            Authentication authentication
+//    ) {
+//
+//        if (!isAuthenticated(authentication)) {
+//            throw new RuntimeException(
+//                    "로그인이 필요합니다."
+//            );
+//        }
+//
+//        Integer memberId =
+//                boardService.findMemberIdByLoginId(
+//                        authentication.getName()
+//                );
+//
+//        if (memberId == null) {
+//            throw new RuntimeException(
+//                    "로그인 회원 정보를 찾을 수 없습니다."
+//            );
+//        }
+//
+//        String role = getRole(authentication);
+//
+//        int boardId =
+//                boardService.deleteComment(
+//                        commentId,
+//                        memberId,
+//                        role
+//                );
+//
+//        return "redirect:/board/view?boardId="
+//                + boardId;
+//    }
+    @PostMapping("/comment/delete")
+    public String commentDelete(
+            @RequestParam("commentId") int commentId
+    ) {
+
+        int boardId = boardService.deleteComment(
+                commentId,
+                TEMP_MEMBER_ID,
+                TEMP_ROLE
+        );
+
+        return "redirect:/board/view?boardId=" + boardId;
     }
 
     /*

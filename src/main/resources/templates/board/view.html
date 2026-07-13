@@ -2,12 +2,26 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${boardDto.title}">게시글 상세</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
-    <link rel="stylesheet" th:href="@{/css/board/view.css}">
+    <title th:text="${boardDto.title}">
+        게시글 상세
+    </title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/board/view.css}">
+
+    <!-- 댓글 수정 기능 -->
+    <script defer
+            th:src="@{/js/board/board-comment.js}">
+    </script>
 </head>
+
 <body>
 
 <div th:replace="~{common/head :: head}"></div>
@@ -16,6 +30,7 @@
 
     <div class="board-view-layout">
 
+        <!-- 왼쪽 커뮤니티 메뉴 -->
         <aside class="community-sidebar">
 
             <div class="community-box">
@@ -24,58 +39,73 @@
             </div>
 
             <nav class="community-menu">
+
                 <a th:href="@{/board/list(type='QNA')}"
                    th:classappend="${boardDto.boardType == 'QNA'} ? ' active' : ''">
+
                     <span>수의사상담</span>
                     <strong>›</strong>
                 </a>
 
                 <a th:href="@{/board/list(type='FREE')}"
                    th:classappend="${boardDto.boardType == 'FREE'} ? ' active' : ''">
+
                     <span>자유토크</span>
                     <strong>›</strong>
                 </a>
 
                 <a th:href="@{/board/list(type='INFO')}"
                    th:classappend="${boardDto.boardType == 'INFO'} ? ' active' : ''">
+
                     <span>멍냥백서</span>
                     <strong>›</strong>
                 </a>
 
                 <a th:href="@{/board/list(type='NOTICE')}"
                    th:classappend="${boardDto.boardType == 'NOTICE'} ? ' active' : ''">
+
                     <span>공지사항</span>
                     <strong>›</strong>
                 </a>
+
             </nav>
 
         </aside>
 
+
+        <!-- 오른쪽 게시글 상세 -->
         <section class="board-view-content">
 
+            <!-- 상단 제목 영역 -->
             <section class="board-view-hero">
+
                 <div>
-                    <h1 th:text="${boardTitle}">자유 게시판</h1>
+                    <h1 th:text="${boardTitle}">
+                        자유 게시판
+                    </h1>
 
                     <p th:switch="${boardDto.boardType}">
+
                         <span th:case="'QNA'">
                             의료 전문 상담이 필요한 분들께 수의사가 직접 답변드립니다!
                         </span>
+
                         <span th:case="'FREE'">
                             반려동물 이야기 및 마이펫 자랑 등 자유로운 토크방입니다!
                         </span>
+
                         <span th:case="'INFO'">
                             반려견, 반려묘 보호자분들을 위한 꿀팁 정보입니다!
                         </span>
+
                         <span th:case="'NOTICE'">
                             PetCity의 중요한 소식과 안내사항을 확인해 주세요.
                         </span>
-                        <span th:case="'MISSING'">
-                            잃어버린 반려동물과 제보를 공유하는 게시판입니다.
-                        </span>
+
                         <span th:case="*">
                             PetCity 커뮤니티 게시판입니다.
                         </span>
+
                     </p>
                 </div>
 
@@ -83,21 +113,42 @@
                     <span>🐶</span>
                     <span>🐱</span>
                 </div>
+
             </section>
 
+
+            <!-- 게시글 본문 -->
             <article class="board-view-card">
 
                 <header class="board-view-header">
 
                     <div class="board-type-row">
-                        <span class="type-badge" th:switch="${boardDto.boardType}">
-                            <span th:case="'NOTICE'">공지</span>
-                            <span th:case="'QNA'">상담</span>
-                            <span th:case="'FREE'">자유토크</span>
-                            <span th:case="'INFO'">멍냥백서</span>
-                            <span th:case="'MISSING'">실종제보</span>
-                            <span th:case="*">게시판</span>
+
+                        <span class="type-badge"
+                              th:switch="${boardDto.boardType}">
+
+                            <span th:case="'NOTICE'">
+                                공지
+                            </span>
+
+                            <span th:case="'QNA'">
+                                상담
+                            </span>
+
+                            <span th:case="'FREE'">
+                                자유토크
+                            </span>
+
+                            <span th:case="'INFO'">
+                                멍냥백서
+                            </span>
+
+                            <span th:case="*">
+                                게시판
+                            </span>
+
                         </span>
+
                     </div>
 
                     <h2 th:text="${boardDto.title}">
@@ -105,55 +156,86 @@
                     </h2>
 
                     <div class="board-meta">
+
                         <div>
                             <span>작성자</span>
-                            <strong th:text="${boardDto.writerNickname}">작성자</strong>
+
+                            <strong th:text="${boardDto.writerNickname}">
+                                작성자
+                            </strong>
                         </div>
 
                         <div>
                             <span>작성일</span>
-                            <strong th:text="${#temporals.format(boardDto.createdAt, 'yyyy.MM.dd HH:mm')}">
+
+                            <strong th:text="${#temporals.format(
+                                    boardDto.createdAt,
+                                    'yyyy.MM.dd HH:mm'
+                            )}">
                                 2026.07.09 12:00
                             </strong>
                         </div>
 
                         <div>
                             <span>조회수</span>
-                            <strong th:text="${boardDto.hit}">0</strong>
+
+                            <strong th:text="${boardDto.hit}">
+                                0
+                            </strong>
                         </div>
 
                         <div th:if="${boardDto.animalName != null}">
+
                             <span>반려동물</span>
+
                             <strong>
-                                <span th:text="${boardDto.parentAnimalName}">강아지</span>
+                                <span th:text="${boardDto.parentAnimalName}">
+                                    강아지
+                                </span>
+
                                 <span>›</span>
-                                <span th:text="${boardDto.animalName}">골든리트리버</span>
+
+                                <span th:text="${boardDto.animalName}">
+                                    골든리트리버
+                                </span>
                             </strong>
+
                         </div>
+
                     </div>
 
                 </header>
 
+
                 <!-- Summernote HTML 본문 출력 -->
                 <section class="board-view-body">
+
                     <div class="content-html"
                          th:utext="${boardDto.content}">
+
                         게시글 내용입니다.
+
                     </div>
+
                 </section>
 
             </article>
 
+
+            <!-- 게시글 버튼 -->
             <div class="board-view-buttons">
 
                 <a th:href="@{/board/list(type=${boardDto.boardType})}"
                    class="list-button">
+
                     목록으로
                 </a>
 
                 <div class="right-buttons">
+
                     <a th:href="@{/board/update(boardId=${boardDto.boardId})}"
                        class="sub-button">
+
                         수정
                     </a>
 
@@ -170,71 +252,154 @@
                                th:name="${_csrf.parameterName}"
                                th:value="${_csrf.token}">
 
-                        <button type="submit" class="delete-button">
+                        <button type="submit"
+                                class="delete-button">
+
                             삭제
                         </button>
+
                     </form>
+
                 </div>
 
             </div>
 
-            <!-- FREE, QNA 게시판에서만 댓글 영역 출력 -->
+
+            <!--
+                댓글 영역
+
+                FREE:
+                로그인한 모든 회원 작성 가능
+
+                QNA:
+                OWNER, ADMIN만 작성 가능
+
+                INFO, NOTICE:
+                댓글 영역 출력 안 함
+            -->
             <section class="comment-section"
                      th:if="${commentEnabled}">
 
+                <!-- 댓글 제목 -->
                 <div class="comment-title">
+
                     <h3>
                         댓글
-                        <span th:text="${boardDto.commentCount}">0</span>
+
+                        <span th:text="${boardDto.commentCount}">
+                            0
+                        </span>
                     </h3>
+
                 </div>
+
 
                 <!-- 댓글 목록 -->
                 <div class="comment-list"
-                     th:if="${commentList != null and !#lists.isEmpty(commentList)}">
+                     th:if="${commentList != null
+                             and !#lists.isEmpty(commentList)}">
+
 
                     <article class="comment-item"
                              th:each="comment : ${commentList}">
 
+                        <!-- 댓글 상단 -->
                         <div class="comment-head">
+
                             <div class="comment-writer">
 
                                 <strong th:text="${comment.writerNickname}">
-                                    작성자
+                                    댓글 작성자
                                 </strong>
 
+                                <!-- 병원장 표시 -->
                                 <span class="comment-role owner"
                                       th:if="${comment.writerRole == 'OWNER'}">
-                        병원장
-                    </span>
 
+                                    병원장
+                                </span>
+
+                                <!-- 관리자 표시 -->
                                 <span class="comment-role admin"
                                       th:if="${comment.writerRole == 'ADMIN'}">
-                        관리자
-                    </span>
+
+                                    관리자
+                                </span>
+
                             </div>
 
                             <time th:text="${#temporals.format(
-                        comment.createdAt,
-                        'yyyy.MM.dd HH:mm'
-                    )}">
+                                    comment.createdAt,
+                                    'yyyy.MM.dd HH:mm'
+                            )}">
                                 2026.07.13 12:00
                             </time>
+
                         </div>
 
+
+                        <!-- 평소에 보이는 댓글 내용 -->
                         <div class="comment-content"
+                             th:id="'commentContent-' + ${comment.commentId}"
                              th:text="${comment.content}">
+
                             댓글 내용입니다.
+
                         </div>
 
-                        <!-- 댓글 작성자 본인 또는 관리자 -->
-                        <form class="comment-delete-form"
-                              th:if="${isAdmin
-                          or (loginMemberId != null
-                          and loginMemberId == comment.memberId)}"
-                              th:action="@{/board/comment/delete}"
+
+                        <!--
+                            댓글 작성자 본인 또는 관리자만
+                            수정, 삭제 버튼 표시
+                        -->
+                        <div class="comment-action-buttons"
+                             th:id="'commentActions-' + ${comment.commentId}"
+                             th:if="${isAdmin
+                                      or (
+                                          loginMemberId != null
+                                          and loginMemberId == comment.memberId
+                                      )}">
+
+
+                            <!-- 댓글 수정 버튼 -->
+                            <button type="button"
+                                    class="comment-edit-button"
+                                    th:attr="data-comment-id=${comment.commentId}">
+
+                                수정
+                            </button>
+
+
+                            <!-- 댓글 삭제 -->
+                            <form class="comment-delete-form"
+                                  th:action="@{/board/comment/delete}"
+                                  method="post"
+                                  onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+
+                                <input type="hidden"
+                                       name="commentId"
+                                       th:value="${comment.commentId}">
+
+                                <input type="hidden"
+                                       th:if="${_csrf != null}"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}">
+
+                                <button type="submit">
+                                    삭제
+                                </button>
+
+                            </form>
+
+                        </div>
+
+
+                        <!-- 댓글 수정 폼 -->
+                        <form class="comment-edit-form"
+                              th:id="'commentEditForm-' + ${comment.commentId}"
+                              th:action="@{/board/comment/update}"
                               method="post"
-                              onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+                              style="display: none;">
 
                             <input type="hidden"
                                    name="commentId"
@@ -245,19 +410,45 @@
                                    th:name="${_csrf.parameterName}"
                                    th:value="${_csrf.token}">
 
-                            <button type="submit">
-                                삭제
-                            </button>
+                            <textarea name="content"
+                                      maxlength="1000"
+                                      required
+                                      th:text="${comment.content}">
+                            </textarea>
+
+                            <div class="comment-edit-form-buttons">
+
+                                <button type="button"
+                                        class="comment-edit-cancel"
+                                        th:attr="data-comment-id=${comment.commentId}">
+
+                                    취소
+                                </button>
+
+                                <button type="submit"
+                                        class="comment-edit-submit">
+
+                                    수정 완료
+                                </button>
+
+                            </div>
+
                         </form>
 
                     </article>
+
                 </div>
 
-                <!-- 댓글 없음 -->
+
+                <!-- 댓글이 없을 때 -->
                 <div class="comment-empty"
-                     th:if="${commentList == null or #lists.isEmpty(commentList)}">
+                     th:if="${commentList == null
+                             or #lists.isEmpty(commentList)}">
+
                     등록된 댓글이 없습니다.
+
                 </div>
+
 
                 <!-- 댓글 작성 가능 -->
                 <form class="comment-write-form"
@@ -278,27 +469,44 @@
                               maxlength="1000"
                               required
                               th:placeholder="${boardDto.boardType == 'QNA'}
-                    ? '수의사상담 답변을 입력해 주세요.'
-                    : '댓글을 입력해 주세요.'"></textarea>
+                                  ? '수의사상담 답변을 입력해 주세요.'
+                                  : '댓글을 입력해 주세요.'">
+                    </textarea>
 
                     <div class="comment-write-bottom">
-                        <span>최대 1000자</span>
-                        <button type="submit">댓글 등록</button>
+
+                        <span>
+                            최대 1000자
+                        </span>
+
+                        <button type="submit">
+                            댓글 등록
+                        </button>
+
                     </div>
+
                 </form>
+
 
                 <!-- 로그인하지 않은 경우 -->
                 <div class="comment-guide"
                      th:if="${!isAuthenticated}">
+
                     댓글을 작성하려면 로그인해 주세요.
+
                 </div>
 
-                <!-- QNA 일반 회원 -->
+
+                <!--
+                    수의사상담인데 일반 회원으로 로그인한 경우
+                -->
                 <div class="comment-guide"
                      th:if="${isAuthenticated
-                  and boardDto.boardType == 'QNA'
-                  and !canWriteComment}">
+                              and boardDto.boardType == 'QNA'
+                              and !canWriteComment}">
+
                     수의사상담 답변은 병원장과 관리자만 작성할 수 있습니다.
+
                 </div>
 
             </section>
