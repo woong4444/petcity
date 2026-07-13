@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${hospital.name} + ' - PetCity'">병원 상세보기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/hospital/view.css}">
+</head>
+<body>
+
+<div th:replace="~{common/head :: head}"></div>
+
+<section class="hospital-banner">
+    <div class="banner-bg">
+        <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" alt="병원 배경">
+        <div th:unless="${hospital.imageUrl != null and hospital.imageUrl != ''}" class="banner-placeholder">🏥 PetCity</div>
+    </div>
+</section>
+
+<main class="view-wrap">
+
+    <section class="info-card relative">
+        <button th:if="${session.loginMember == null}" class="btn-zzim top-right" onclick="alert('로그인 후 이용 부탁드립니다.');"><i class="icon-heart">♥</i> 찜하기</button>
+        <button th:unless="${session.loginMember == null}" class="btn-zzim top-right" onclick="this.classList.toggle('active')"><i class="icon-heart">♥</i> 찜하기</button>
+
+        <div class="info-badges">
+            <span class="badge-status open" th:if="${hospital.status == '영업/정상'}">🟢 진료중</span>
+            <span class="badge-status closed" th:unless="${hospital.status == '영업/정상'}">🌙 진료 종료</span>
+            <span class="badge-district" th:text="${hospital.district}">강남구</span>
+        </div>
+
+        <h1 class="h-name" th:text="${hospital.name}">병원명</h1>
+
+        <div class="h-stats">
+            <span>⭐ 별점 <strong th:text="${hospital.likeCount}">0</strong></span>
+            <span class="divider">|</span>
+            <span>📝 방문자리뷰 <strong th:text="${hospital.reviewCount}">0</strong></span>
+        </div>
+
+        <div class="h-tags">
+            <span th:if="${hospital.animalNames != null}" th:each="animal : ${hospital.animalNames.split(',')}" th:text="'#'+${animal.trim()}">#강아지</span>
+            <span th:if="${hospital.serviceNames != null}" th:each="svc : ${hospital.serviceNames.split(',')}" th:text="'#'+${svc.trim()}">#내과</span>
+        </div>
+
+        <div class="h-buttons">
+            <button class="btn-primary" onclick="alert('전화연결: ' + this.dataset.phone)" th:data-phone="${hospital.phone}">📞 전화하기</button>
+            <a class="btn-secondary" th:if="${hospital.websiteUrl != null and hospital.websiteUrl != ''}" th:href="${hospital.websiteUrl}" target="_blank">🌐 웹사이트</a>
+        </div>
+    </section>
+
+    <nav class="sticky-tabs" id="stickyTabs">
+        <button class="tab-btn active" data-target="#section-intro">병원 소개</button>
+        <button class="tab-btn" data-target="#section-info">진료 정보</button>
+        <button class="tab-btn" data-target="#section-review">리뷰/후기</button>
+    </nav>
+
+    <div class="content-sections">
+        <section id="section-intro" class="view-section">
+            <h3 class="sec-title">병원 소개</h3>
+            <div class="intro-box">
+                <p th:utext="${hospital.description != null ? hospital.description.replace('\n', '<br/>') : '등록된 소개글이 없습니다.'}"></p>
+            </div>
+        </section>
+
+        <section id="section-info" class="view-section">
+            <h3 class="sec-title">위치 및 진료 시간</h3>
+
+            <div class="detail-row">
+                <div class="icon">📍</div>
+                <div class="text">
+                    <strong th:text="${hospital.address}">도로명 주소</strong>
+                    <span class="sub" th:text="${hospital.detailAddress}">상세 주소</span>
+                    <span class="h-distance mt-2" th:if="${hospital.distance != null and hospital.distance > 0}" th:text="'📍 현위치 기준 ' + ${#numbers.formatDecimal(hospital.distance, 1, 1)} + 'km'"></span>
+                </div>
+            </div>
+
+            <div class="map-wrap">
+                <div id="kakaoMap"></div>
+                <div class="map-buttons">
+                    <a href="#" id="kakaoMapLink" target="_blank" class="btn-map kakao">카카오맵 보기</a>
+                </div>
+            </div>
+
+            <div class="detail-row mt-20">
+                <div class="icon">⏰</div>
+                <div class="text">
+                    <strong>진료 시간</strong>
+                    <span class="sub" th:text="'기본 진료: ' + ${hospital.openTime != null ? hospital.openTime + ' ~ ' + hospital.closeTime : '미등록'}"></span>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-review" class="view-section">
+            <h3 class="sec-title">방문자 리뷰 (<span th:text="${hospital.reviewCount}">0</span>)</h3>
+
+            <div class="review-lock" th:if="${session.loginMember == null}">
+                <div class="lock-icon">🔒</div>
+                <p>리뷰는 <strong>회원가입 후 로그인</strong>을 해야 열람 및 작성이 가능합니다.</p>
+                <a href="#" onclick="alert('로그인/회원가입 기능은 현재 다른 팀원이 통합 준비 중입니다.'); return false;" class="btn-primary-sm">로그인 하러가기</a>
+            </div>
+
+            <div class="review-content" th:unless="${session.loginMember == null}">
+                <div class="review-write-box">
+                    <textarea placeholder="병원 방문 후기를 남겨주세요!"></textarea>
+                    <div class="write-actions">
+                        <div class="star-rating">⭐⭐⭐⭐⭐</div>
+                        <button class="btn-primary-sm">리뷰 등록</button>
+                    </div>
+                </div>
+                <ul class="review-list">
+                    <li>
+                        <div class="r-head"><strong>강아지바보</strong> <span>2026.07.10</span></div>
+                        <div class="r-star">⭐⭐⭐⭐⭐</div>
+                        <p class="r-body">선생님이 너무 친절하시고 과잉 진료가 없어서 좋았어요!</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+</main>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
+<script>
+    const lat = [[${hospital.latitude != null ? hospital.latitude : 0}]];
+    const lng = [[${hospital.longitude != null ? hospital.longitude : 0}]];
+    const hName = "[[${hospital.name}]]";
+</script>
+<script th:src="@{/js/hospital/view.js}"></script>
+
+</body>
+</html>

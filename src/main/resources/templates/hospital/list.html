@@ -4,209 +4,254 @@
     <meta charset="UTF-8">
     <title>동물병원 찾기 - PetCity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- 공통 헤더 CSS -->
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
-
-    <!-- 병원 목록 CSS -->
     <link rel="stylesheet" th:href="@{/css/hospital/list.css}">
 </head>
 <body>
 
-<!-- 공통 헤더 -->
 <div th:replace="~{common/head :: head}"></div>
+
+<aside class="quick-menu">
+    <div class="quick-title">Quick Menu</div>
+    <ul class="quick-list">
+        <li><a href="#">👀 최근 본 병원</a></li>
+        <li><a href="#">⭐ 즐겨찾기</a></li>
+        <li><a href="#">❓ 자주 묻는 질문</a></li>
+    </ul>
+    <button class="btn-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">▲ TOP</button>
+</aside>
 
 <main class="hospital-list-wrap">
 
-    <!-- 페이지 제목 -->
     <section class="hospital-list-header">
         <p class="page-badge">PetCity Hospital Finder</p>
         <h1>동물병원 찾기</h1>
-        <p class="page-desc">반려동물 종류와 지역을 선택해서 우리 아이에게 맞는 병원을 찾아보세요.</p>
+        <div class="hospital-search-form">
+            <input type="text" form="hospitalFilterForm" name="keyword" id="mainKeywordInput" th:value="${keyword}" placeholder="병원명 또는 주소를 검색해보세요!">
+            <button type="submit" form="hospitalFilterForm">검색</button>
+        </div>
     </section>
 
-    <!-- 필터 영역 -->
-    <form id="hospitalFilterForm"
-          th:action="@{/hospital/list}"
-          method="get"
-          class="hospital-filter-wrap"
-          th:data-ajax-url="@{/hospital/list/ajax}"
-          th:data-page-url="@{/hospital/list}">
+    <form id="hospitalFilterForm" th:action="@{/hospital/list}" method="get" class="hospital-filter-wrap"
+          th:data-ajax-url="@{/hospital/list/ajax}" th:data-page-url="@{/hospital/list}">
 
-        <!-- 동물 분류 -->
+        <input type="hidden" name="page" id="pageInput" th:value="${pageDto != null ? pageDto.page : 1}">
+        <input type="hidden" name="sort" id="sortInput" th:value="${sort != null ? sort : 'recommend'}">
+        <input type="hidden" name="openStatus" id="openStatusInput" th:value="${openStatus != null ? openStatus : 'ALL'}">
+
         <div class="filter-box">
-            <div class="filter-title-row">
-                <h3>동물 분류</h3>
-                <span>하나만 선택 가능</span>
+            <div class="filter-title">동물 분류 <span>(대분류 기준 / 검색 클릭 시 적용)</span></div>
+            <div class="filter-content-wrap">
+                <div class="pill-group wrap-group">
+                    <label class="pill-check">
+                        <input type="radio" name="animalId" value="" id="animalAll">
+                        <span>전체</span>
+                    </label>
+                    <label class="pill-check" th:each="animal : ${animalTypeList}">
+                        <input type="radio" name="animalId" th:value="${animal.animalId}"
+                               th:checked="${animalId != null and animalId == animal.animalId}">
+                        <span th:text="${animal.animalName}">강아지</span>
+                    </label>
+                </div>
             </div>
-
-            <div class="radio-group">
-                <label class="filter-radio">
-                    <input type="radio"
-                           name="animalId"
-                           value=""
-                           th:checked="${animalId == null}">
-                    <span>전체</span>
-                </label>
-
-                <label class="filter-radio"
-                       th:each="animal : ${animalTypeList}">
-                    <input type="radio"
-                           name="animalId"
-                           th:value="${animal.animalId}"
-                           th:checked="${animalId != null and animalId == animal.animalId}">
-                    <span th:text="${animal.animalName}">강아지</span>
-                </label>
+            <div class="filter-action-row">
+                <button type="button" class="btn-toggle-filter" data-state="open">- 접기</button>
             </div>
         </div>
 
-        <!-- 지역 분류 -->
+        <div class="filter-box sub-animal-box" id="subAnimalBox" style="display: none; background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 18px;">
+            <div class="filter-title">상세 분류 <span>(선택 사항)</span></div>
+            <div class="filter-content-wrap">
+                <div class="pill-group wrap-group">
+                    <label class="pill-check sub-animal-item" th:each="sub : ${subAnimalTypeList}" th:data-parent="${sub.parentId}" style="display: none;">
+                        <input type="radio" name="subAnimalId" th:value="${sub.animalId}"
+                               th:checked="${subAnimalId != null and subAnimalId == sub.animalId}">
+                        <span th:text="${sub.animalName}">말티즈</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <div class="filter-box">
-            <div class="filter-title-row">
-                <h3>지역 분류</h3>
-                <span>여러 개 선택 가능</span>
+            <div class="filter-title">진료 과목 <span>(부분 일치 허용 / 많이 충족할수록 상단 노출)</span></div>
+            <div class="filter-content-wrap">
+                <div class="pill-group wrap-group">
+                    <label class="pill-check service-all-check">
+                        <input type="checkbox" id="serviceAll" value="">
+                        <span>전체</span>
+                    </label>
+                    <label class="pill-check" th:each="svc : ${medicalServiceList}">
+                        <input type="checkbox" name="serviceIds" th:value="${svc.serviceId}"
+                               th:checked="${serviceIds != null and serviceIds.contains(svc.serviceId)}">
+                        <span th:text="${svc.serviceName}">내과</span>
+                    </label>
+                </div>
             </div>
-
-            <div class="checkbox-group region-checkbox-group">
-
-                <!-- 서울 전체 -->
-                <label class="filter-check seoul-all-check">
-                    <input type="checkbox"
-                           id="seoulAll"
-                           th:checked="${districts == null or districts.size() == 0}">
-                    <span>서울 전체</span>
-                </label>
-
-                <!-- 지역 목록 -->
-                <label class="filter-check"
-                       th:each="item : ${districtList}">
-                    <input type="checkbox"
-                           name="districts"
-                           th:value="${item}"
-                           th:checked="${districts != null and districts.contains(item)}">
-                    <span th:text="${item}">강남구</span>
-                </label>
-
+            <div class="filter-action-row">
+                <button type="button" class="btn-toggle-filter" data-state="open">- 접기</button>
             </div>
         </div>
 
-        <!-- 검색 영역 -->
-        <div class="filter-box filter-search-box">
-            <div class="filter-title-row">
-                <h3>검색</h3>
-                <span>검색어는 검색 버튼을 눌러야 적용</span>
+        <div class="filter-box">
+            <div class="filter-title">지역 분류 <span>(서울시 전체 펼쳐보기)</span></div>
+            <div class="filter-content-wrap">
+                <div class="pill-group wrap-group region-checkbox-group">
+                    <label class="pill-check seoul-all-check">
+                        <input type="checkbox" id="seoulAll" value="">
+                        <span>서울 전체</span>
+                    </label>
+                    <label class="pill-check" th:each="item : ${districtList}">
+                        <input type="checkbox" name="districts" th:value="${item}"
+                               th:checked="${districts != null and districts.contains(item)}">
+                        <span th:text="${item}">강남구</span>
+                    </label>
+                </div>
             </div>
-
-            <div class="hospital-search-form">
-                <input type="text"
-                       name="keyword"
-                       th:value="${keyword}"
-                       placeholder="병원명 또는 주소를 입력하세요">
-
-                <button type="submit">검색</button>
-
-                <a th:href="@{/hospital/list}" id="resetButton" class="reset-button">
-                    초기화
-                </a>
+            <div class="filter-action-row">
+                <button type="button" class="btn-toggle-filter" data-state="open">- 접기</button>
             </div>
         </div>
 
+        <div class="filter-actions">
+            <button type="button" id="resetButton" class="reset-button">↺ 조건 초기화</button>
+        </div>
     </form>
 
-    <!-- Ajax로 교체될 영역 시작 -->
     <div id="hospitalResultArea" th:fragment="hospitalResultArea" class="hospital-result-area">
 
-        <!-- 검색 결과 개수 -->
+        <div class="list-toolbar">
+            <div class="status-toggles">
+                <button type="button" class="status-btn" th:classappend="${openStatus == 'ALL'} ? 'active' : ''" data-status="ALL">전체</button>
+                <button type="button" class="status-btn" th:classappend="${openStatus == 'OPEN'} ? 'active' : ''" data-status="OPEN">🟢 진료중</button>
+                <button type="button" class="status-btn" th:classappend="${openStatus == 'CLOSED'} ? 'active' : ''" data-status="CLOSED">🌙 진료 준비중</button>
+            </div>
+
+            <div class="sort-wrap">
+                <select id="sortSelect" class="sort-select">
+                    <option value="recommend" th:selected="${sort == 'recommend'}">⭐ 추천/정확도순</option>
+                    <option value="distance" th:selected="${sort == 'distance'}">📍 가까운순</option>
+                    <option value="name" th:selected="${sort == 'name'}">🔤 가나다순</option>
+                    <option value="review" th:selected="${sort == 'review'}">📝 리뷰 많은순</option>
+                    <option value="rating" th:selected="${sort == 'rating'}">💖 인기순(좋아요)</option>
+                </select>
+            </div>
+        </div>
+
         <section class="hospital-result-top">
-            <div>
-                <p class="result-label">검색 결과</p>
-                <p class="result-count">
-                    총
-                    <strong th:text="${#lists.size(hospitalList)}">0</strong>
-                    개의 병원이 검색되었습니다.
-                </p>
+            <div class="result-count-area">
+                <p class="result-count">총 <strong th:text="${pageDto != null ? pageDto.totalCount : 0}">0</strong> 개의 병원이 검색되었습니다.</p>
+            </div>
+            <div class="user-location-area">
+                <span class="current-location-text">
+                    <span id="gpsLocationText" style="color:#64748b;">📍 내 위치: <strong id="gpsLocationName" style="color:#334155; font-weight:600;">위치 확인 중...</strong></span>
+                    <span id="customLocationText" style="display:none; margin-left:8px; padding-left:10px; border-left:2px solid #cbd5e1;">
+                        🎯 설정한 위치: <strong id="customLocationName" style="color:#0ea5e9;"></strong>
+                    </span>
+                </span>
+                <button type="button" id="btnLocationSelect" class="btn-location-select">🗺️ 지도에서 위치 변경</button>
             </div>
         </section>
 
-        <!-- 병원 목록 -->
         <section class="hospital-card-list">
-
             <article class="hospital-card" th:each="hospital : ${hospitalList}">
 
-                <!-- 병원 이미지 -->
                 <div class="hospital-image">
-                    <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}"
-                         th:src="${hospital.imageUrl}"
-                         alt="병원 이미지">
-
-                    <div th:if="${hospital.imageUrl == null or hospital.imageUrl == ''}"
-                         class="no-image">
-                        <span>병원</span>
-                    </div>
+                    <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" alt="병원 이미지">
+                    <div th:if="${hospital.imageUrl == null or hospital.imageUrl == ''}" class="no-image"><span>병원</span></div>
+                    <div class="hover-overlay"><p th:text="${hospital.description != null and hospital.description != '' ? hospital.description : '등록된 소개글이 없습니다.'}"></p></div>
                 </div>
 
-                <!-- 병원 정보 -->
                 <div class="hospital-info">
 
                     <div class="hospital-title-row">
-                        <div>
+                        <div class="title-left">
                             <span class="district-badge" th:text="${hospital.district}">강남구</span>
-                            <h2 th:text="${hospital.name}">병원명</h2>
+
+                            <th:block th:if="${pageDto.serviceIds != null and pageDto.serviceIds.size() > 1}">
+                                <span class="match-badge perfect" th:if="${hospital.matchCount == pageDto.serviceIds.size()}">⭐ 모든 조건 일치</span>
+                                <span class="match-badge partial" th:if="${hospital.matchCount > 0 and hospital.matchCount < pageDto.serviceIds.size()}"
+                                      th:text="'✔️ ' + ${hospital.matchedServiceNames} + ' 충족'">✔️ 부분 일치</span>
+                            </th:block>
+
+                            <h2 class="hospital-name">
+                                <span th:text="${hospital.name}">병원명</span>
+                            </h2>
+
+                            <p class="h-distance" th:if="${hospital.distance != null and hospital.distance > 0}">
+                                📍 기준 위치에서 <strong th:text="${#numbers.formatDecimal(hospital.distance, 1, 1)}"></strong>km
+                            </p>
+                        </div>
+
+                        <div class="title-right">
+                            <button th:if="${session.loginMember == null}" type="button" class="btn-list-zzim" onclick="alert('로그인 후 이용 부탁드립니다.');"><i class="icon-heart">♥</i></button>
+                            <button th:unless="${session.loginMember == null}" type="button" class="btn-list-zzim" onclick="this.classList.toggle('active')"><i class="icon-heart">♥</i></button>
                         </div>
                     </div>
 
                     <div class="hospital-detail-list">
-                        <p>
-                            <span class="detail-label">주소</span>
-                            <span th:text="${hospital.address}">서울시 강남구...</span>
-                        </p>
-
-                        <p>
-                            <span class="detail-label">전화</span>
-                            <span th:text="${hospital.phone != null and hospital.phone != '' ? hospital.phone : '정보 없음'}">
-                                정보 없음
-                            </span>
-                        </p>
-
-                        <p>
-                            <span class="detail-label">영업시간</span>
-                            <span th:text="${hospital.openTime != null and hospital.openTime != '' ? hospital.openTime : '정보 없음'}">
-                                정보 없음
-                            </span>
-                        </p>
+                        <p><span class="detail-label">진료동물</span><span class="txt-ellipsis" th:text="${hospital.animalNames != null ? hospital.animalNames : '정보 없음'}"></span></p>
+                        <p><span class="detail-label">진료과목</span><span class="txt-ellipsis" th:text="${hospital.serviceNames != null ? hospital.serviceNames : '정보 없음'}"></span></p>
+                        <p><span class="detail-label">주소</span><span class="txt-ellipsis" th:text="${hospital.address}"></span></p>
+                        <p><span class="detail-label">전화</span><span th:text="${hospital.phone != null and hospital.phone != '' ? hospital.phone : '정보 없음'}"></span></p>
+                        <p><span class="detail-label">영업시간</span><span class="txt-ellipsis" th:text="${hospital.openTime != null and hospital.openTime != '' ? hospital.openTime + ' ~ ' + hospital.closeTime : '정보 없음'}"></span></p>
                     </div>
 
                     <div class="hospital-actions">
-                        <a class="detail-button"
-                           th:href="@{/hospital/view(hospitalId=${hospital.hospitalId})}">
-                            상세보기
-                        </a>
-
-                        <a class="site-button"
-                           th:if="${hospital.websiteUrl != null and hospital.websiteUrl != ''}"
-                           th:href="${hospital.websiteUrl}"
-                           target="_blank">
-                            병원 사이트
-                        </a>
+                        <a class="detail-button" th:href="@{/hospital/view(hospitalId=${hospital.hospitalId})}">상세보기</a>
+                        <button type="button" class="recommend-btn">👍 추천수 <span class="count" th:text="${hospital.likeCount}">0</span></button>
                     </div>
                 </div>
             </article>
 
-            <!-- 병원 목록이 없을 때 -->
-            <div th:if="${#lists.isEmpty(hospitalList)}" class="empty-list">
+            <div th:if="${#lists.isEmpty(hospitalList)}" class="empty-list" style="grid-column: 1 / -1;">
                 <strong>검색된 병원이 없습니다.</strong>
-                <p>동물 분류, 지역, 검색어 조건을 다시 확인해 주세요.</p>
+                <p>다른 지역이나 진료 과목을 선택해 보세요!</p>
             </div>
-
         </section>
 
+        <div class="pagination-wrap" th:if="${pageDto != null and pageDto.totalPages > 1}">
+            <ul class="pagination">
+                <li th:class="${pageDto.page == 1} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link double-arrow" href="#" data-page="1">&lt;&lt;</a>
+                </li>
+                <li th:class="${pageDto.startPage == 1} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link single-arrow" href="#" th:data-page="${pageDto.startPage - 1}">&lt;</a>
+                </li>
+                <li th:each="p : ${#numbers.sequence(pageDto.startPage, pageDto.endPage)}" th:class="${p == pageDto.page} ? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="#" th:data-page="${p}" th:text="${p}">1</a>
+                </li>
+                <li th:class="${pageDto.endPage >= pageDto.totalPages} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link single-arrow" href="#" th:data-page="${pageDto.endPage + 1}">&gt;</a>
+                </li>
+                <li th:class="${pageDto.page == pageDto.totalPages} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link double-arrow" href="#" th:data-page="${pageDto.totalPages}">&gt;&gt;</a>
+                </li>
+            </ul>
+        </div>
     </div>
-    <!-- Ajax로 교체될 영역 끝 -->
-
 </main>
 
-<!-- 병원 목록 JS -->
-<script th:src="@{/js/hospital/list.js}"></script>
+<div id="locationModal" class="location-modal">
+    <div class="location-modal-content">
+        <div class="location-modal-header">
+            <div class="header-left">
+                <h3>🗺️ 지도에서 위치 선택</h3>
+                <button type="button" id="btnGoMyLocation" class="btn-go-myloc">🎯 내 위치로 이동</button>
+            </div>
+            <button type="button" id="btnCloseModal">✕</button>
+        </div>
+        <div class="map-container-relative" style="position:relative;">
+            <div id="selectMap" style="width:100%; height:350px; background:#e2e8f0;"></div>
+            <div class="map-crosshair"></div>
+        </div>
+        <div class="location-modal-footer">
+            <p>선택된 위치: <strong id="selectedAddressText">지도를 움직여보세요</strong></p>
+            <button type="button" id="btnConfirmLocation" class="btn-primary">이 위치로 설정</button>
+        </div>
+    </div>
+</div>
 
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
+<script th:src="@{/js/hospital/list.js?v=10}"></script>
 </body>
 </html>

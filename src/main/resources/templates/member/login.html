@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css"
+            rel="stylesheet">
+</head>
+
+<body class="bg-slate-100">
+
+<div class="hero min-h-screen">
+
+    <div class="card w-full max-w-md bg-base-100 shadow-xl">
+
+        <div class="card-body">
+
+            <h2 class="text-3xl font-bold text-center mb-5">
+                로그인
+            </h2>
+
+            <!-- 일반 로그인 오류 메시지 -->
+            <div
+                    th:if="${message}"
+                    class="alert alert-error mb-3">
+
+                <span th:text="${message}"></span>
+
+            </div>
+
+            <!-- 15분 미활동 자동 로그아웃 메시지 -->
+            <div
+                    th:if="${param.expired != null}"
+                    class="alert alert-warning mb-3">
+
+                <span>
+                    장기간 활동이 없어 자동 로그아웃되었습니다.
+                </span>
+
+            </div>
+
+            <form action="/member/login" method="post">
+
+                <div class="form-control mb-3">
+
+                    <label class="label">
+
+                        <span class="label-text">
+                            아이디
+                        </span>
+
+                    </label>
+
+                    <input
+                            type="text"
+                            name="loginId"
+                            class="input input-bordered"
+                            placeholder="아이디"
+                            required>
+
+                </div>
+
+                <div class="form-control mb-4">
+
+                    <label class="label">
+
+                        <span class="label-text">
+                            비밀번호
+                        </span>
+
+                    </label>
+
+                    <input
+                            type="password"
+                            name="password"
+                            class="input input-bordered"
+                            placeholder="비밀번호"
+                            required>
+
+                </div>
+
+                <button
+                        type="submit"
+                        class="btn btn-primary w-full">
+
+                    로그인
+
+                </button>
+
+            </form>
+
+            <div class="divider">
+                OR
+            </div>
+
+            <a
+                    href="/member/signup"
+                    class="btn btn-outline">
+
+                회원가입
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
