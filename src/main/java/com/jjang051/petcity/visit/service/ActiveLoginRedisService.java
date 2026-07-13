@@ -18,7 +18,7 @@ public class ActiveLoginRedisService {
     private static final String ACTIVE_LOGIN_PREFIX = "active:login:";
     // 연습용으로 1분(나중에는 15분이나 20분 알아서 맞춰서 사용)
 
-    private static final Duration INACTIVE_TIMEOUT = Duration.ofMinutes(5);
+    private static final Duration INACTIVE_TIMEOUT = Duration.ofMinutes(20);
 //    private static final Duration INACTIVE_TIMEOUT = Duration.ofSeconds(20);
 
     private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
