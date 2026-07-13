@@ -173,11 +173,19 @@
                         <div class="title-left">
                             <span class="district-badge" th:text="${hospital.district}">강남구</span>
 
+                            <!-- 🌟 실시간 상태 배지 (자바 로직 연동) -->
+                            <span th:if="${hospital.currentStatus == '진료중'}" class="district-badge" style="background:#dcfce7; color:#059669; margin-left:4px;">🟢 진료중</span>
+                            <span th:if="${hospital.currentStatus == '휴게시간'}" class="district-badge" style="background:#fef3c7; color:#d97706; margin-left:4px;">🟡 휴게시간</span>
+                            <span th:if="${hospital.currentStatus == '휴무일'}" class="district-badge" style="background:#fee2e2; color:#e11d48; margin-left:4px;">🔴 휴무일</span>
+                            <span th:if="${hospital.currentStatus == '진료 종료'}" class="district-badge" style="background:#f1f5f9; color:#64748b; margin-left:4px;">🌙 진료 종료</span>
+
                             <th:block th:if="${pageDto.serviceIds != null and pageDto.serviceIds.size() > 1}">
                                 <span class="match-badge perfect" th:if="${hospital.matchCount == pageDto.serviceIds.size()}">⭐ 모든 조건 일치</span>
                                 <span class="match-badge partial" th:if="${hospital.matchCount > 0 and hospital.matchCount < pageDto.serviceIds.size()}"
                                       th:text="'✔️ ' + ${hospital.matchedServiceNames} + ' 충족'">✔️ 부분 일치</span>
                             </th:block>
+
+                            <div th:if="${hospital.serviceNames != null}" style="margin-bottom: 6px; font-size:11px; color:#6366f1; font-weight:800;" class="txt-ellipsis" th:text="${hospital.serviceNames}">진료과목</div>
 
                             <h2 class="hospital-name go-detail-link" th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}">
                                 <span th:text="${hospital.name}">병원명</span>
@@ -214,10 +222,7 @@
 
                     <div class="hospital-actions">
                         <a class="detail-button" th:href="@{/hospital/view(hospitalId=${hospital.hospitalId})}">상세보기</a>
-
-                        <!-- 🌟 추천수 버튼 클릭 시 로그인 페이지로 즉시 이동 -->
                         <button th:if="${session.loginMember == null}" type="button" class="recommend-btn is-anonymous" onclick="alert('로그인 후 이용 부탁드립니다.'); location.href='/member/login';">👍 추천수 <span class="count" th:text="${hospital.likeCount}">0</span></button>
-
                         <button th:unless="${session.loginMember == null}" type="button" class="recommend-btn btn-like-toggle" th:classappend="${myLikeList != null and myLikeList.contains(hospital.hospitalId)} ? 'active' : ''" th:data-id="${hospital.hospitalId}">👍 추천수 <span class="count" th:text="${hospital.likeCount}">0</span></button>
                     </div>
                 </div>
@@ -273,6 +278,6 @@
 </div>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
-<script th:src="@{/js/hospital/list.js?v=23}"></script>
+<script th:src="@{/js/hospital/list.js?v=28}"></script>
 </body>
 </html>

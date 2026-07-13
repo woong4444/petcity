@@ -25,20 +25,59 @@ document.addEventListener("DOMContentLoaded", function () {
         }, { input_coord: kakao.maps.services.Coords.TM, output_coord: kakao.maps.services.Coords.WGS84 });
     }
 
-    // 탭 스크롤
+    // 🌟 1. 링크 공유하기 복사 기능
+    const btnShare = document.getElementById('btnShare');
+    if (btnShare) {
+        btnShare.addEventListener('click', function() {
+            // 현재 페이지의 URL 주소 복사
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => {
+                    alert('병원 링크가 복사되었습니다!\n원하는 곳에 붙여넣기(Ctrl+V) 하세요.');
+                })
+                .catch(err => {
+                    console.error('복사 실패:', err);
+                    alert('링크 복사에 실패했습니다.');
+                });
+        });
+    }
+
+    // 🌟 2. 스크롤 스파이 (Scroll Spy) 연동
     const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.view-section');
+    const stickyHeaderOffset = 120;
+
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
             const targetElem = document.querySelector(this.dataset.target);
             if (targetElem) {
-                targetElem.scrollIntoView({ behavior: 'smooth' });
-                tabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
+                const offsetPosition = targetElem.offsetTop - stickyHeaderOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
             }
         });
     });
 
-    // 🌟 리뷰 글자수 카운터
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (window.scrollY >= sectionTop - stickyHeaderOffset - 10) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        tabs.forEach(tab => {
+            tab.classList.remove('bg-sky-500', 'text-white', 'shadow-md', 'active');
+            tab.classList.add('text-slate-500', 'hover:bg-slate-50');
+
+            if (tab.dataset.target === `#${current}`) {
+                tab.classList.remove('text-slate-500', 'hover:bg-slate-50');
+                tab.classList.add('bg-sky-500', 'text-white', 'shadow-md', 'active');
+            }
+        });
+    });
+
+
+    // 리뷰 글자수 카운터
     const reviewContent = document.getElementById('reviewContent');
     const charCount = document.getElementById('charCount');
     if (reviewContent && charCount) {
@@ -47,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 🌟 리뷰 150자 더보기/접기 토글
+    // 리뷰 150자 더보기/접기 토글
     document.querySelectorAll('.btn-more-text').forEach(btn => {
         btn.addEventListener('click', function() {
             const contentDiv = this.previousElementSibling;
@@ -61,10 +100,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🌟 DB 연동 찜하기 기능 (+ 카운트 숫자 변경)
-    const zzimBtn = document.querySelector('.btn-detail-zzim');
-    if(zzimBtn) {
-        zzimBtn.addEventListener('click', function() {
+    // DB 연동 찜하기 기능 (+ 카운트 숫자 변경)
+    document.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
             const hospitalId = this.dataset.id;
             fetch('/hospital/api/zzim', {
                 method: 'POST',
@@ -74,11 +113,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(res => res.json())
                 .then(data => {
                     if(data.isSuccess) {
-                        if(data.isZzim) this.classList.add('active');
-                        else this.classList.remove('active');
-
-                        const countSpan = this.querySelector('.count');
-                        if(countSpan) countSpan.textContent = data.zzimCount;
+                        // 리스트 하트, 뷰 상단 하트, 모바일 고정바 하트까지 모두 동시 변경!
+                        document.querySelectorAll(`.btn-zzim-toggle[data-id="${hospitalId}"]`).forEach(el => {
+                            if(data.isZzim) {
+                                el.classList.add('text-rose-600', 'active');
+                                el.classList.remove('text-slate-300', 'text-rose-400');
+                            } else {
+                                el.classList.remove('text-rose-600', 'active');
+                                // 엘리먼트 위치에 따라 기본색 복구
+                                if(el.classList.contains('top-right')) el.classList.add('text-slate-300');
+                                else el.classList.add('text-rose-400');
+                            }
+                            const countSpan = el.querySelector('.count');
+                            if(countSpan) countSpan.textContent = data.zzimCount;
+                        });
                     } else {
                         alert("로그인 후 이용 부탁드립니다.");
                         location.href = '/member/login';
@@ -86,9 +134,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .catch(err => console.error("찜하기 통신 에러:", err));
         });
-    }
+    });
 
-    // 🌟 별점 렌더링
+    // 별점 렌더링
     const stars = document.querySelectorAll('#starRatingSelect span');
     const ratingInput = document.getElementById('reviewRating');
     if(stars.length > 0) {
@@ -107,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
         stars.forEach(s => s.style.color = '#fbbf24');
     }
 
-    // 🌟 DB 리뷰 등록
+    // DB 리뷰 등록
     const btnSubmitReview = document.getElementById('btnSubmitReview');
     if(btnSubmitReview) {
         btnSubmitReview.addEventListener('click', function() {

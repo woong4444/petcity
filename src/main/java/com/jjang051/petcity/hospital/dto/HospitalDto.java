@@ -21,7 +21,6 @@ public class HospitalDto {
     private String openTime;
     private String closeTime;
 
-    // 🌟 추가됨: 점심시간 및 휴무일
     private String lunchTime;
     private String holiday;
 
@@ -43,4 +42,7 @@ public class HospitalDto {
 
     private Double distance;
     private Double avgRating;
+
+    // 🌟 신규 추가: 실시간 영업 상태 (진료중, 휴무일, 휴게시간, 진료종료)
+    private String currentStatus;
 }

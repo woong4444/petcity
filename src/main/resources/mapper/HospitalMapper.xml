@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jjang051.petcity.hospital.dao.HospitalDao">
 
     <!-- 1. 병원 리스트 조회 -->
@@ -11,108 +8,58 @@
         H.HOSPITAL_ID AS hospitalId, H.NAME AS name, H.ADDRESS AS address, H.DETAIL_ADDRESS AS detailAddress,
         H.PHONE AS phone, H.DISTRICT AS district, H.LATITUDE AS latitude, H.LONGITUDE AS longitude,
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime,
-
-        <!-- 🌟 수정됨: 실제 DB 컬럼명(BREAK_TIME, CLOSED_DAYS) 반영 -->
         H.BREAK_TIME AS lunchTime, H.CLOSED_DAYS AS holiday,
-
         H.STATUS AS status, H.DESCRIPTION AS description,
         H.IMAGE_URL AS imageUrl, H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
-
-        (SELECT LISTAGG(AT.ANIMAL_NAME, ', ') WITHIN GROUP (ORDER BY AT.ANIMAL_ID)
-        FROM HOSPITAL_ANIMAL HA2 JOIN ANIMAL_TYPE AT ON HA2.ANIMAL_ID = AT.ANIMAL_ID
-        WHERE HA2.HOSPITAL_ID = H.HOSPITAL_ID) AS animalNames,
-
-        (SELECT LISTAGG(MS.SERVICE_NAME, ', ') WITHIN GROUP (ORDER BY MS.SERVICE_ID)
-        FROM HOSPITAL_SERVICE HS2 JOIN MEDICAL_SERVICE MS ON HS2.SERVICE_ID = MS.SERVICE_ID
-        WHERE HS2.HOSPITAL_ID = H.HOSPITAL_ID) AS serviceNames,
-
+        (SELECT LISTAGG(AT.ANIMAL_NAME, ', ') WITHIN GROUP (ORDER BY AT.ANIMAL_ID) FROM HOSPITAL_ANIMAL HA2 JOIN ANIMAL_TYPE AT ON HA2.ANIMAL_ID = AT.ANIMAL_ID WHERE HA2.HOSPITAL_ID = H.HOSPITAL_ID) AS animalNames,
+        (SELECT LISTAGG(MS.SERVICE_NAME, ', ') WITHIN GROUP (ORDER BY MS.SERVICE_ID) FROM HOSPITAL_SERVICE HS2 JOIN MEDICAL_SERVICE MS ON HS2.SERVICE_ID = MS.SERVICE_ID WHERE HS2.HOSPITAL_ID = H.HOSPITAL_ID) AS serviceNames,
         <if test="serviceIds != null and serviceIds.size() > 0">
-            (SELECT LISTAGG(MS.SERVICE_NAME, ', ') WITHIN GROUP (ORDER BY MS.SERVICE_ID)
-            FROM HOSPITAL_SERVICE HS3 JOIN MEDICAL_SERVICE MS ON HS3.SERVICE_ID = MS.SERVICE_ID
-            WHERE HS3.HOSPITAL_ID = H.HOSPITAL_ID AND HS3.SERVICE_ID IN
-            <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>) AS matchedServiceNames,
-
-            (SELECT COUNT(SERVICE_ID) FROM HOSPITAL_SERVICE HS3
-            WHERE HS3.HOSPITAL_ID = H.HOSPITAL_ID AND HS3.SERVICE_ID IN
-            <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>) AS matchCount,
+            (SELECT LISTAGG(MS.SERVICE_NAME, ', ') WITHIN GROUP (ORDER BY MS.SERVICE_ID) FROM HOSPITAL_SERVICE HS3 JOIN MEDICAL_SERVICE MS ON HS3.SERVICE_ID = MS.SERVICE_ID WHERE HS3.HOSPITAL_ID = H.HOSPITAL_ID AND HS3.SERVICE_ID IN <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>) AS matchedServiceNames,
+            (SELECT COUNT(SERVICE_ID) FROM HOSPITAL_SERVICE HS3 WHERE HS3.HOSPITAL_ID = H.HOSPITAL_ID AND HS3.SERVICE_ID IN <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>) AS matchCount,
         </if>
-
-        <if test="serviceIds == null or serviceIds.size() == 0">
-            '' AS matchedServiceNames, 0 AS matchCount,
-        </if>
+        <if test="serviceIds == null or serviceIds.size() == 0">'' AS matchedServiceNames, 0 AS matchCount,</if>
 
         (SELECT COUNT(*) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS reviewCount,
         (SELECT COUNT(*) FROM HOSPITAL_LIKE HL WHERE HL.HOSPITAL_ID = H.HOSPITAL_ID) AS likeCount,
         (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID) AS zzimCount,
         (SELECT NVL(ROUND(AVG(RATING), 1), 0) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS avgRating
 
-        <if test="userLat != null and userLng != null">
-            , (SQRT(POWER(H.LATITUDE - #{userLat}, 2) + POWER(H.LONGITUDE - #{userLng}, 2))) / 1000 AS distance
-        </if>
-        <if test="userLat == null or userLng == null">
-            , 0 AS distance
-        </if>
+        <if test="userLat != null and userLng != null">, (SQRT(POWER(H.LATITUDE - #{userLat}, 2) + POWER(H.LONGITUDE - #{userLng}, 2))) / 1000 AS distance</if>
+        <if test="userLat == null or userLng == null">, 0 AS distance</if>
 
-        FROM HOSPITAL H
-        WHERE 1 = 1
+        FROM HOSPITAL H WHERE 1 = 1
 
+        <!-- 🌟 휴무일 제외 필터 완벽 반영 -->
         <if test="openStatus == 'OPEN'">
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= H.OPEN_TIME
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= H.CLOSE_TIME
+            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'CLOSED'">
             AND (TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt; H.OPEN_TIME
-            OR TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt; H.CLOSE_TIME)
+            OR TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt; H.CLOSE_TIME
+            OR NVL(H.CLOSED_DAYS, '무') LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%')
         </if>
 
         <choose>
-            <when test="subAnimalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND HA.ANIMAL_ID = #{subAnimalId})
-            </when>
-            <when test="animalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID
-                WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
-            </when>
+            <when test="subAnimalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND HA.ANIMAL_ID = #{subAnimalId})</when>
+            <when test="animalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))</when>
         </choose>
 
-        <if test="serviceIds != null and serviceIds.size() > 0">
-            AND EXISTS (SELECT 1 FROM HOSPITAL_SERVICE HS WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID AND HS.SERVICE_ID IN
-            <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>)
-        </if>
-
-        <if test="districts != null and districts.size() > 0">
-            AND TRIM(H.DISTRICT) IN
-            <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach>
-        </if>
-
-        <if test="keyword != null and keyword != ''">
-            AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')
-        </if>
+        <if test="serviceIds != null and serviceIds.size() > 0">AND EXISTS (SELECT 1 FROM HOSPITAL_SERVICE HS WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID AND HS.SERVICE_ID IN <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>)</if>
+        <if test="districts != null and districts.size() > 0">AND TRIM(H.DISTRICT) IN <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach></if>
+        <if test="keyword != null and keyword != ''">AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')</if>
 
         ORDER BY
         <choose>
-            <when test="sort == 'recommend'">
-                <if test="serviceIds != null and serviceIds.size() > 0">matchCount DESC,</if>
-                likeCount DESC, H.HOSPITAL_ID DESC
-            </when>
+            <when test="sort == 'recommend'"><if test="serviceIds != null and serviceIds.size() > 0">matchCount DESC,</if> likeCount DESC, H.HOSPITAL_ID DESC</when>
             <when test="sort == 'distance' and userLat != null">distance ASC, H.HOSPITAL_ID DESC</when>
             <when test="sort == 'name'">
-                CASE
-                WHEN REGEXP_LIKE(TRIM(H.NAME), '^[가-힣]') THEN 1
-                WHEN REGEXP_LIKE(TRIM(H.NAME), '^[a-zA-Z]') THEN 2
-                WHEN REGEXP_LIKE(TRIM(H.NAME), '^[0-9]') THEN 3
-                ELSE 4
-                END ASC, H.NAME ASC, H.HOSPITAL_ID DESC
+                CASE WHEN REGEXP_LIKE(TRIM(H.NAME), '^[가-힣]') THEN 1 WHEN REGEXP_LIKE(TRIM(H.NAME), '^[a-zA-Z]') THEN 2 WHEN REGEXP_LIKE(TRIM(H.NAME), '^[0-9]') THEN 3 ELSE 4 END ASC, H.NAME ASC, H.HOSPITAL_ID DESC
             </when>
             <when test="sort == 'review'">reviewCount DESC, H.HOSPITAL_ID DESC</when>
-            <when test="sort == 'rating'">
-                ((SELECT COUNT(*) FROM HOSPITAL_LIKE HL WHERE HL.HOSPITAL_ID = H.HOSPITAL_ID) +
-                (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID)) DESC,
-                H.HOSPITAL_ID DESC
-            </when>
-            <otherwise>
-                <if test="serviceIds != null and serviceIds.size() > 0">matchCount DESC,</if> H.HOSPITAL_ID DESC
-            </otherwise>
+            <when test="sort == 'rating'">((SELECT COUNT(*) FROM HOSPITAL_LIKE HL WHERE HL.HOSPITAL_ID = H.HOSPITAL_ID) + (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID)) DESC, H.HOSPITAL_ID DESC</when>
+            <otherwise><if test="serviceIds != null and serviceIds.size() > 0">matchCount DESC,</if> H.HOSPITAL_ID DESC</otherwise>
         </choose>
         OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
     </select>
@@ -122,106 +69,57 @@
         <if test="openStatus == 'OPEN'">
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= H.OPEN_TIME
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= H.CLOSE_TIME
+            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'CLOSED'">
             AND (TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt; H.OPEN_TIME
-            OR TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt; H.CLOSE_TIME)
+            OR TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt; H.CLOSE_TIME
+            OR NVL(H.CLOSED_DAYS, '무') LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%')
         </if>
         <choose>
             <when test="subAnimalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND HA.ANIMAL_ID = #{subAnimalId})</when>
             <when test="animalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))</when>
         </choose>
-        <if test="serviceIds != null and serviceIds.size() > 0">
-            AND EXISTS (SELECT 1 FROM HOSPITAL_SERVICE HS WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID AND HS.SERVICE_ID IN <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>)
-        </if>
-        <if test="districts != null and districts.size() > 0">
-            AND TRIM(H.DISTRICT) IN <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach>
-        </if>
-        <if test="keyword != null and keyword != ''">
-            AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')
-        </if>
+        <if test="serviceIds != null and serviceIds.size() > 0">AND EXISTS (SELECT 1 FROM HOSPITAL_SERVICE HS WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID AND HS.SERVICE_ID IN <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>)</if>
+        <if test="districts != null and districts.size() > 0">AND TRIM(H.DISTRICT) IN <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach></if>
+        <if test="keyword != null and keyword != ''">AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')</if>
     </select>
 
-    <select id="findDistrictList" resultType="string">
-        SELECT DISTINCT TRIM(DISTRICT) AS district FROM HOSPITAL WHERE DISTRICT IS NOT NULL ORDER BY TRIM(DISTRICT)
-    </select>
-
-    <select id="findAnimalTypeList" resultType="AnimalTypeDto">
-        SELECT ANIMAL_ID AS animalId, ANIMAL_NAME AS animalName, CATEGORY AS category
-        FROM ANIMAL_TYPE WHERE PARENT_ID IS NULL ORDER BY ANIMAL_ID
-    </select>
-
-    <select id="findSubAnimalTypeList" resultType="com.jjang051.petcity.hospital.dto.HospitalSubAnimalDto">
-        SELECT ANIMAL_ID AS animalId, ANIMAL_NAME AS animalName, CATEGORY AS category, PARENT_ID AS parentId
-        FROM ANIMAL_TYPE WHERE PARENT_ID IS NOT NULL ORDER BY ANIMAL_ID
-    </select>
-
-    <select id="findMedicalServiceList" resultType="com.jjang051.petcity.hospital.dto.MedicalServiceDto">
-        SELECT SERVICE_ID AS serviceId, SERVICE_NAME AS serviceName FROM MEDICAL_SERVICE ORDER BY SERVICE_ID
-    </select>
+    <select id="findDistrictList" resultType="string">SELECT DISTINCT TRIM(DISTRICT) AS district FROM HOSPITAL WHERE DISTRICT IS NOT NULL ORDER BY TRIM(DISTRICT)</select>
+    <select id="findAnimalTypeList" resultType="AnimalTypeDto">SELECT ANIMAL_ID AS animalId, ANIMAL_NAME AS animalName, CATEGORY AS category FROM ANIMAL_TYPE WHERE PARENT_ID IS NULL ORDER BY ANIMAL_ID</select>
+    <select id="findSubAnimalTypeList" resultType="com.jjang051.petcity.hospital.dto.HospitalSubAnimalDto">SELECT ANIMAL_ID AS animalId, ANIMAL_NAME AS animalName, CATEGORY AS category, PARENT_ID AS parentId FROM ANIMAL_TYPE WHERE PARENT_ID IS NOT NULL ORDER BY ANIMAL_ID</select>
+    <select id="findMedicalServiceList" resultType="com.jjang051.petcity.hospital.dto.MedicalServiceDto">SELECT SERVICE_ID AS serviceId, SERVICE_NAME AS serviceName FROM MEDICAL_SERVICE ORDER BY SERVICE_ID</select>
 
     <select id="findHospitalById" resultType="HospitalDto">
         SELECT
         H.HOSPITAL_ID AS hospitalId, H.NAME AS name, H.ADDRESS AS address, H.DETAIL_ADDRESS AS detailAddress,
         H.PHONE AS phone, H.DISTRICT AS district, H.LATITUDE AS latitude, H.LONGITUDE AS longitude,
-        H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime,
-
-        <!-- 🌟 수정됨: 실제 DB 컬럼명 반영 -->
-        H.BREAK_TIME AS lunchTime, H.CLOSED_DAYS AS holiday,
-
-        H.STATUS AS status, H.DESCRIPTION AS description,
-        H.IMAGE_URL AS imageUrl, H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
+        H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS lunchTime, H.CLOSED_DAYS AS holiday,
+        H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl, H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
         (SELECT LISTAGG(AT.ANIMAL_NAME, ', ') WITHIN GROUP (ORDER BY AT.ANIMAL_ID) FROM HOSPITAL_ANIMAL HA2 JOIN ANIMAL_TYPE AT ON HA2.ANIMAL_ID = AT.ANIMAL_ID WHERE HA2.HOSPITAL_ID = H.HOSPITAL_ID) AS animalNames,
         (SELECT LISTAGG(MS.SERVICE_NAME, ', ') WITHIN GROUP (ORDER BY MS.SERVICE_ID) FROM HOSPITAL_SERVICE HS2 JOIN MEDICAL_SERVICE MS ON HS2.SERVICE_ID = MS.SERVICE_ID WHERE HS2.HOSPITAL_ID = H.HOSPITAL_ID) AS serviceNames,
         (SELECT COUNT(*) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS reviewCount,
         (SELECT COUNT(*) FROM HOSPITAL_LIKE HL WHERE HL.HOSPITAL_ID = H.HOSPITAL_ID) AS likeCount,
         (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID) AS zzimCount,
         (SELECT NVL(ROUND(AVG(RATING), 1), 0) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS avgRating
-        <if test="userLat != null and userLng != null">
-            , (SQRT(POWER(H.LATITUDE - #{userLat}, 2) + POWER(H.LONGITUDE - #{userLng}, 2))) / 1000 AS distance
-        </if>
-        <if test="userLat == null or userLng == null">
-            , 0 AS distance
-        </if>
-        FROM HOSPITAL H
-        WHERE H.HOSPITAL_ID = #{hospitalId}
+        <if test="userLat != null and userLng != null">, (SQRT(POWER(H.LATITUDE - #{userLat}, 2) + POWER(H.LONGITUDE - #{userLng}, 2))) / 1000 AS distance</if>
+        <if test="userLat == null or userLng == null">, 0 AS distance</if>
+        FROM HOSPITAL H WHERE H.HOSPITAL_ID = #{hospitalId}
     </select>
 
-    <select id="findMyZzimList" resultType="int">
-        SELECT HOSPITAL_ID FROM FAVORITE_HOSPITAL WHERE MEMBER_ID = #{memberId}
-    </select>
-    <select id="findMyLikeList" resultType="int">
-        SELECT HOSPITAL_ID FROM HOSPITAL_LIKE WHERE MEMBER_ID = #{memberId}
-    </select>
-    <select id="checkZzim" resultType="int">
-        SELECT COUNT(*) FROM FAVORITE_HOSPITAL WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}
-    </select>
-    <insert id="insertZzim">
-        INSERT INTO FAVORITE_HOSPITAL (MEMBER_ID, HOSPITAL_ID, CREATED_AT) VALUES (#{memberId}, #{hospitalId}, SYSTIMESTAMP)
-    </insert>
-    <delete id="deleteZzim">
-        DELETE FROM FAVORITE_HOSPITAL WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}
-    </delete>
-    <select id="checkLike" resultType="int">
-        SELECT COUNT(*) FROM HOSPITAL_LIKE WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}
-    </select>
-    <insert id="insertLike">
-        INSERT INTO HOSPITAL_LIKE (MEMBER_ID, HOSPITAL_ID, CREATED_AT) VALUES (#{memberId}, #{hospitalId}, SYSTIMESTAMP)
-    </insert>
-    <delete id="deleteLike">
-        DELETE FROM HOSPITAL_LIKE WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}
-    </delete>
-    <insert id="insertReview">
-        INSERT INTO HOSPITAL_REVIEW (REVIEW_ID, HOSPITAL_ID, MEMBER_ID, RATING, CONTENT, CREATED_AT)
-        VALUES (SEQ_HOSPITAL_REVIEW.NEXTVAL, #{hospitalId}, #{memberId}, #{rating}, #{content}, SYSTIMESTAMP)
-    </insert>
+    <!-- 나머지 찜/리뷰 매퍼 동일 -->
+    <select id="findMyZzimList" resultType="int">SELECT HOSPITAL_ID FROM FAVORITE_HOSPITAL WHERE MEMBER_ID = #{memberId}</select>
+    <select id="findMyLikeList" resultType="int">SELECT HOSPITAL_ID FROM HOSPITAL_LIKE WHERE MEMBER_ID = #{memberId}</select>
+    <select id="checkZzim" resultType="int">SELECT COUNT(*) FROM FAVORITE_HOSPITAL WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}</select>
+    <insert id="insertZzim">INSERT INTO FAVORITE_HOSPITAL (MEMBER_ID, HOSPITAL_ID, CREATED_AT) VALUES (#{memberId}, #{hospitalId}, SYSTIMESTAMP)</insert>
+    <delete id="deleteZzim">DELETE FROM FAVORITE_HOSPITAL WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}</delete>
+    <select id="checkLike" resultType="int">SELECT COUNT(*) FROM HOSPITAL_LIKE WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}</select>
+    <insert id="insertLike">INSERT INTO HOSPITAL_LIKE (MEMBER_ID, HOSPITAL_ID, CREATED_AT) VALUES (#{memberId}, #{hospitalId}, SYSTIMESTAMP)</insert>
+    <delete id="deleteLike">DELETE FROM HOSPITAL_LIKE WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}</delete>
+    <insert id="insertReview">INSERT INTO HOSPITAL_REVIEW (REVIEW_ID, HOSPITAL_ID, MEMBER_ID, RATING, CONTENT, CREATED_AT) VALUES (SEQ_HOSPITAL_REVIEW.NEXTVAL, #{hospitalId}, #{memberId}, #{rating}, #{content}, SYSTIMESTAMP)</insert>
     <select id="findReviewListByHospitalId" resultType="com.jjang051.petcity.hospital.dto.HospitalReviewDto">
-        SELECT R.REVIEW_ID AS reviewId, R.HOSPITAL_ID AS hospitalId, R.MEMBER_ID AS memberId,
-        R.RATING AS rating, R.CONTENT AS content, R.CREATED_AT AS createdAt, M.NICKNAME AS nickname
-        FROM HOSPITAL_REVIEW R
-        JOIN APP_MEMBER M ON R.MEMBER_ID = M.MEMBER_ID
-        WHERE R.HOSPITAL_ID = #{hospitalId}
-        ORDER BY R.REVIEW_ID DESC
+        SELECT R.REVIEW_ID AS reviewId, R.HOSPITAL_ID AS hospitalId, R.MEMBER_ID AS memberId, R.RATING AS rating, R.CONTENT AS content, R.CREATED_AT AS createdAt, M.NICKNAME AS nickname
+        FROM HOSPITAL_REVIEW R JOIN APP_MEMBER M ON R.MEMBER_ID = M.MEMBER_ID WHERE R.HOSPITAL_ID = #{hospitalId} ORDER BY R.REVIEW_ID DESC
     </select>
 
 </mapper>
