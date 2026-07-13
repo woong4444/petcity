@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class CustomOAuth2UserService
 
     // ==========================================
     // [상각]
-    // HttpSession 사용
+    // HttpSession
     // ==========================================
     private final HttpServletRequest request;
 
@@ -49,24 +51,18 @@ public class CustomOAuth2UserService
             throws OAuth2AuthenticationException {
 
         // ==========================================
-        // [상각]
-        // Google / Kakao / Naver 사용자 정보 가져오기
+        // OAuth2 사용자 정보
         // ==========================================
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        // ==========================================
-        // [상각]
-        // 로그인 Provider
-        // ==========================================
         String registrationId =
                 userRequest.getClientRegistration().getRegistrationId();
 
         log.info("Provider = {}", registrationId);
 
-        // ==========================================
-        // [상각]
+        // =====================================================
         // Google 로그인
-        // ==========================================
+        // =====================================================
         if ("google".equals(registrationId)) {
 
             String email =
@@ -78,17 +74,9 @@ public class CustomOAuth2UserService
             log.info("email = {}", email);
             log.info("name = {}", name);
 
-            // ==========================================
-            // [상각]
-            // 이메일 조회
-            // ==========================================
             MemberDto memberDto =
                     memberMapper.findByEmail(email);
 
-            // ==========================================
-            // [상각]
-            // 회원이 없으면 자동 회원가입
-            // ==========================================
             if (memberDto == null) {
 
                 memberDto = MemberDto.builder()
@@ -107,7 +95,8 @@ public class CustomOAuth2UserService
 
                 log.info("신규 Google 회원 저장 완료");
 
-                memberDto = memberMapper.findByEmail(email);
+                memberDto =
+                        memberMapper.findByEmail(email);
 
             } else {
 
@@ -116,21 +105,154 @@ public class CustomOAuth2UserService
             }
 
             // ==========================================
-            // [상각]
             // 기존 head.html에서 사용하는 세션 저장
             // ==========================================
             request.getSession().setAttribute("loginMember", memberDto);
 
-            // ==========================================
-            // [상각]
-            // OAuth2 로그인 사용자 반환
-            // ==========================================
+            log.info("loginMember 저장 = {}", memberDto.getNickname());
+
             return new CustomOAuth2User(
                     memberDto,
                     oAuth2User.getAttributes()
             );
         }
 
+        // =====================================================
+        // Kakao 로그인
+        // =====================================================
+        else if ("kakao".equals(registrationId)) {
+
+            Map<String, Object> kakaoAccount =
+                    (Map<String, Object>) oAuth2User.getAttributes().get("kakao_account");
+
+            Map<String, Object> profile =
+                    (Map<String, Object>) kakaoAccount.get("profile");
+
+            String email =
+                    (String) kakaoAccount.get("email");
+
+            String nickname =
+                    (String) profile.get("nickname");
+
+            log.info("email = {}", email);
+            log.info("nickname = {}", nickname);
+
+            MemberDto memberDto =
+                    memberMapper.findByEmail(email);
+
+            if (memberDto == null) {
+
+                memberDto = MemberDto.builder()
+                        .loginId(email)
+                        .password(passwordEncoder.encode("kakao1234"))
+                        .nickname(nickname)
+                        .email(email)
+                        .phone("SNS")
+                        .role("USER")
+                        .emailVerified("Y")
+                        .status("ACTIVE")
+                        .memberStatus("ACTIVE")
+                        .build();
+
+                memberMapper.insert(memberDto);
+
+                log.info("신규 Kakao 회원 저장 완료");
+
+                memberDto =
+                        memberMapper.findByEmail(email);
+
+            } else {
+
+                log.info("기존 Kakao 회원");
+
+            }
+
+            // ==========================================
+            // 기존 head.html에서 사용하는 세션 저장
+            // ==========================================
+            request.getSession().setAttribute("loginMember", memberDto);
+
+            log.info("loginMember 저장 = {}", memberDto.getNickname());
+
+            return new CustomOAuth2User(
+                    memberDto,
+                    oAuth2User.getAttributes()
+            );
+        }
+        // =====================================================
+        // Naver 로그인
+        // =====================================================
+        else if ("naver".equals(registrationId)) {
+
+            Map<String, Object> response =
+                    (Map<String, Object>) oAuth2User.getAttributes().get("response");
+
+            String email =
+                    (String) response.get("email");
+
+            String name =
+                    (String) response.get("name");
+
+            // name이 없으면 nickname 사용
+            if (name == null || name.isBlank()) {
+                name = (String) response.get("nickname");
+            }
+
+            // nickname도 없으면 이메일 앞부분 사용
+            if (name == null || name.isBlank()) {
+                name = email.split("@")[0];
+            }
+
+            log.info("email = {}", email);
+            log.info("name = {}", name);
+
+            MemberDto memberDto =
+                    memberMapper.findByEmail(email);
+
+            if (memberDto == null) {
+
+                memberDto = MemberDto.builder()
+                        .loginId(email)
+                        .password(passwordEncoder.encode("naver1234"))
+                        .nickname(name)
+                        .email(email)
+                        .phone("SNS")
+                        .role("USER")
+                        .emailVerified("Y")
+                        .status("ACTIVE")
+                        .memberStatus("ACTIVE")
+                        .build();
+
+                memberMapper.insert(memberDto);
+
+                log.info("신규 Naver 회원 저장 완료");
+
+                memberDto =
+                        memberMapper.findByEmail(email);
+
+            } else {
+
+                log.info("기존 Naver 회원");
+
+            }
+
+            // ==========================================
+            // 기존 head.html에서 사용하는 세션 저장
+            // ==========================================
+            request.getSession().setAttribute("loginMember", memberDto);
+
+            log.info("loginMember 저장 = {}", memberDto.getNickname());
+
+            return new CustomOAuth2User(
+                    memberDto,
+                    oAuth2User.getAttributes()
+            );
+        }
+
+        // =====================================================
+        // 그 외 Provider
+        // =====================================================
         return oAuth2User;
     }
+
 }
