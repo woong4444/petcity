@@ -33,20 +33,53 @@ public class BoardService {
         NOTICE: 동물 필터 사용 안 함
         QNA/FREE/INFO/MISSING: 동물 필터 사용 가능
     */
-    public BoardListPageDto getBoardListPage(String type,
-                                             Integer parentAnimalId,
-                                             Integer animalId) {
+    public BoardListPageDto getBoardListPage(
+            String type,
+            Integer parentAnimalId,
+            Integer animalId,
+            String searchType,
+            String keyword
+    ) {
 
         String boardType = getValidBoardType(type);
         String boardTitle = getBoardTitle(boardType);
 
-        // 공지사항은 동물 분류를 사용하지 않음
+    /*
+        공지사항은 동물 분류를 사용하지 않음
+    */
         if ("NOTICE".equals(boardType)) {
             parentAnimalId = null;
             animalId = null;
         }
 
-        List<BoardDto> boardList = boardDao.findBoardList(boardType, parentAnimalId, animalId);
+    /*
+        검색 종류가 없거나 잘못 들어오면
+        제목 + 내용 검색으로 처리
+    */
+        searchType = getValidSearchType(searchType);
+
+    /*
+        검색어 앞뒤 공백 제거
+
+        검색어가 비어 있으면 null로 만들어서
+        전체 게시글을 조회함
+    */
+        if (keyword != null) {
+            keyword = keyword.trim();
+
+            if (keyword.isBlank()) {
+                keyword = null;
+            }
+        }
+
+        List<BoardDto> boardList =
+                boardDao.findBoardList(
+                        boardType,
+                        parentAnimalId,
+                        animalId,
+                        searchType,
+                        keyword
+                );
 
         return BoardListPageDto.builder()
                 .boardList(boardList)
@@ -671,6 +704,18 @@ public class BoardService {
                 );
             }
         }
+    }
+    private String getValidSearchType(String searchType) {
+
+        if(searchType == null  || searchType.isBlank()) {
+            return "titleContent";
+        }
+        return switch (searchType) {
+            case "titleContent", "title", "content", "writer"
+                -> searchType;
+
+            default -> "titleContent";
+        };
     }
 
 }

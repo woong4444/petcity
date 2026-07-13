@@ -758,3 +758,21 @@ body {
         margin-bottom: 8px;
     }
 }
+
+.search-reset-button {
+    height: 34px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.search-reset-button:hover {
+    background-color: #f1f5f9;
+}

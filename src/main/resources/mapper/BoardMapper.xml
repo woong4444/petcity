@@ -84,6 +84,61 @@
             )
             )
         </if>
+        <!-- 게시글 검색 -->
+        <if test="keyword != null and keyword != ''">
+
+            <choose>
+
+                <!-- 제목 검색 -->
+                <when test="searchType == 'title'">
+
+                    AND UPPER(B.TITLE)
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+
+                </when>
+
+
+                <!-- 내용 검색 -->
+                <when test="searchType == 'content'">
+
+                    AND DBMS_LOB.INSTR(
+                    B.CONTENT,
+                    #{keyword}
+                    ) > 0
+
+                </when>
+
+
+                <!-- 작성자 검색 -->
+                <when test="searchType == 'writer'">
+
+                    AND UPPER(NVL(M.NICKNAME, ''))
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+
+                </when>
+
+
+                <!-- 제목 + 내용 검색 -->
+                <otherwise>
+
+                    AND (
+                    UPPER(B.TITLE)
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+
+                    OR
+
+                    DBMS_LOB.INSTR(
+                    B.CONTENT,
+                    #{keyword}
+                    ) > 0
+                    )
+
+                </otherwise>
+
+            </choose>
+
+        </if>
+
 
         ORDER BY B.BOARD_ID DESC
 

@@ -17,7 +17,10 @@ public interface BoardDao {
     // 게시판 목록 조회 + 동물 필터
     List<BoardDto> findBoardList(@Param("boardType") String boardType,
                                  @Param("parentAnimalId") Integer parentAnimalId,
-                                 @Param("animalId") Integer animalId);
+                                 @Param("animalId") Integer animalId,
+                                 @Param("searchType") String searchType,
+                                 @Param("keyword")String keyword
+                                         );
 
     // 게시글 상세 조회
     BoardDto findBoardView(@Param("boardId") int boardId);

@@ -35,9 +35,32 @@ public class BoardController {
     */
     @GetMapping("/list")
     public String boardList(
-            @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "parentAnimalId", required = false) Integer parentAnimalId,
-            @RequestParam(value = "animalId", required = false) Integer animalId,
+            @RequestParam(
+                    value = "type",
+                    required = false
+            ) String type,
+
+            @RequestParam(
+                    value = "parentAnimalId",
+                    required = false
+            ) Integer parentAnimalId,
+
+            @RequestParam(
+                    value = "animalId",
+                    required = false
+            ) Integer animalId,
+
+            @RequestParam(
+                    value = "searchType",
+                    required = false,
+                    defaultValue = "titleContent"
+            ) String searchType,
+
+            @RequestParam(
+                    value = "keyword",
+                    required = false
+            ) String keyword,
+
             Model model
     ) {
 
@@ -45,14 +68,42 @@ public class BoardController {
                 boardService.getBoardListPage(
                         type,
                         parentAnimalId,
-                        animalId
+                        animalId,
+                        searchType,
+                        keyword
                 );
 
-        model.addAttribute("boardList", pageDto.getBoardList());
-        model.addAttribute("boardType", pageDto.getBoardType());
-        model.addAttribute("boardTitle", pageDto.getBoardTitle());
+        model.addAttribute(
+                "boardList",
+                pageDto.getBoardList()
+        );
 
-        // 공지사항을 제외한 게시판은 동물 필터 사용
+        model.addAttribute(
+                "boardType",
+                pageDto.getBoardType()
+        );
+
+        model.addAttribute(
+                "boardTitle",
+                pageDto.getBoardTitle()
+        );
+
+    /*
+        검색 후에도 선택값과 검색어 유지
+    */
+        model.addAttribute(
+                "searchType",
+                searchType
+        );
+
+        model.addAttribute(
+                "keyword",
+                keyword == null ? "" : keyword
+        );
+
+    /*
+        공지사항을 제외한 게시판은 동물 필터 사용
+    */
         if (!"NOTICE".equals(pageDto.getBoardType())) {
 
             model.addAttribute(
@@ -60,18 +111,30 @@ public class BoardController {
                     boardService.getParentAnimalList()
             );
 
-            model.addAttribute("parentAnimalId", parentAnimalId);
-            model.addAttribute("animalId", animalId);
+            model.addAttribute(
+                    "parentAnimalId",
+                    parentAnimalId
+            );
+
+            model.addAttribute(
+                    "animalId",
+                    animalId
+            );
 
             if (parentAnimalId != null) {
+
                 model.addAttribute(
                         "childAnimalList",
-                        boardService.getChildAnimalList(parentAnimalId)
+                        boardService.getChildAnimalList(
+                                parentAnimalId
+                        )
                 );
             }
         }
 
-        // 멍냥백서만 카드형 목록 페이지 사용
+    /*
+        멍냥백서만 카드형 목록 페이지 사용
+    */
         if ("INFO".equals(pageDto.getBoardType())) {
             return "board/info-list";
         }
