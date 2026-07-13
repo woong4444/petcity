@@ -1,25 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://thymleaf.org">
+<html lang="en" xmlns:th="http://www.thymleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <title>관리자 대시보드 TEST</title>
     <link rel="stylesheet" href="/css/admin/admin.css">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+    <script defer th:src="@{/js/admin/sidebar.js}"></script>
+
 </head>
 <body>
 <div class="admin-layout">
-    <aside class="admin-sidebar">
-        <div class="admin-logo"> PET ADMIN</div>
-        <nav class="admin-menu">
-            <a href="/admin" class="active">대시보드</a>
-            <a href="/admin/hospitals">병원 관리</a>
-            <a href="/admin/members">회원 관리</a>
-            <a href="/admin/owner-requests">병원장 신청</a>
-            <a href="/admin/reviews">리뷰 관리</a>
-            <a href="/admin/boards">게시판 관리</a>
-            <a href="/admin/banners">메인 배너 관리</a>
-        </nav>
-    </aside>
+
+
+    <th:block th:replace="~{admin/fragments/sidebar :: sidebar('members')}"></th:block>
+
     <main class="admin-main">
         <header class="admin-header">
             <div>
