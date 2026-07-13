@@ -18,7 +18,7 @@ public class BoardDto {
     private int memberId;
 
     // 게시판 종류
-    // NOTICE, QNA, FREE, INFO, MISSING
+    // NOTICE, QNA, FREE, INFO, FAQ
     private String boardType;
 
     // 제목

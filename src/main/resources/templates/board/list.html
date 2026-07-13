@@ -27,9 +27,7 @@
 
     <div class="board-layout">
 
-        <!-- ================================
-             왼쪽 커뮤니티 메뉴
-        ================================= -->
+        <!-- 왼쪽 커뮤니티 메뉴 -->
         <aside class="community-sidebar">
 
             <div class="community-box">
@@ -83,17 +81,26 @@
                     <strong>›</strong>
                 </a>
 
+                <a th:href="@{/board/list(
+                        type='FAQ',
+                        page=1
+                    )}"
+                   th:classappend="${boardType == 'FAQ'}
+                        ? ' active' : ''">
+
+                    <span>자주 묻는 질문</span>
+                    <strong>›</strong>
+                </a>
+
             </nav>
 
         </aside>
 
 
-        <!-- ================================
-             오른쪽 게시판 메인
-        ================================= -->
+        <!-- 오른쪽 게시판 -->
         <section class="board-content">
 
-            <!-- 게시판 상단 타이틀 -->
+            <!-- 게시판 상단 -->
             <section class="board-hero">
 
                 <div class="board-hero-title">
@@ -120,6 +127,10 @@
                             PetCity의 중요한 소식과 안내사항을 확인해 주세요.
                         </span>
 
+                        <span th:case="'FAQ'">
+                            PetCity 이용 중 자주 묻는 질문과 답변을 확인해 주세요.
+                        </span>
+
                         <span th:case="*">
                             PetCity 커뮤니티 게시판입니다.
                         </span>
@@ -138,12 +149,10 @@
             </section>
 
 
-            <!-- ================================
-                 반려동물 필터
-                 공지사항에서는 표시하지 않음
-            ================================= -->
+            <!-- NOTICE와 FAQ는 동물 필터 없음 -->
             <section class="animal-filter-area"
-                     th:if="${boardType != 'NOTICE'}">
+                     th:if="${boardType != 'NOTICE'
+                              and boardType != 'FAQ'}">
 
                 <div class="animal-filter-head">
 
@@ -155,7 +164,6 @@
                         </p>
                     </div>
 
-                    <!-- 모든 필터와 검색어 초기화 -->
                     <a th:href="@{/board/list(
                             type=${boardType},
                             page=1
@@ -177,7 +185,6 @@
 
                     <div class="animal-chip-list">
 
-                        <!-- 전체 -->
                         <a th:href="@{/board/list(
                                 type=${boardType},
                                 page=1
@@ -191,8 +198,6 @@
                             전체
                         </a>
 
-
-                        <!-- 강아지, 고양이, 파충류 등 -->
                         <a th:each="animal : ${parentAnimalList}"
                            th:href="@{/board/list(
                                type=${boardType},
@@ -227,7 +232,6 @@
 
                     <div class="animal-chip-list">
 
-                        <!-- 선택한 대분류 전체 -->
                         <a th:href="@{/board/list(
                                 type=${boardType},
                                 parentAnimalId=${parentAnimalId},
@@ -240,8 +244,6 @@
                             전체
                         </a>
 
-
-                        <!-- 세부 동물 종류 -->
                         <a th:each="animal : ${childAnimalList}"
                            th:href="@{/board/list(
                                type=${boardType},
@@ -266,42 +268,34 @@
             </section>
 
 
-            <!-- ================================
-                 검색 영역
-            ================================= -->
+            <!-- 검색 영역 -->
             <section class="board-search-area">
 
                 <form th:action="@{/board/list}"
                       method="get"
                       class="board-search-form">
 
-                    <!-- 현재 게시판 종류 유지 -->
                     <input type="hidden"
                            name="type"
                            th:value="${boardType}">
 
-                    <!-- 검색하면 항상 1페이지부터 -->
                     <input type="hidden"
                            name="page"
                            value="1">
 
-                    <!-- 현재 동물 대분류 유지 -->
                     <input type="hidden"
                            name="parentAnimalId"
                            th:if="${parentAnimalId != null}"
                            th:value="${parentAnimalId}">
 
-                    <!-- 현재 동물 세부 분류 유지 -->
                     <input type="hidden"
                            name="animalId"
                            th:if="${animalId != null}"
                            th:value="${animalId}">
 
-
                     <div class="search-label">
                         게시글 검색
                     </div>
-
 
                     <select name="searchType">
 
@@ -334,19 +328,15 @@
 
                     </select>
 
-
                     <input type="text"
                            name="keyword"
                            th:value="${keyword}"
                            placeholder="검색어를 입력하세요.">
 
-
                     <button type="submit">
                         조회하기
                     </button>
 
-
-                    <!-- 검색어만 초기화하고 동물 필터는 유지 -->
                     <a th:href="@{/board/list(
                             type=${boardType},
                             parentAnimalId=${parentAnimalId},
@@ -363,9 +353,7 @@
             </section>
 
 
-            <!-- ================================
-                 게시판 테이블
-            ================================= -->
+            <!-- 게시판 테이블 -->
             <section class="board-table-area">
 
                 <table class="board-table">
@@ -382,23 +370,19 @@
                     </tr>
                     </thead>
 
-
                     <tbody>
 
-                    <!-- 게시글 목록 -->
                     <tr th:each="board : ${boardList}"
                         th:classappend="${board.boardType == 'NOTICE'}
-                            ? ' notice-row' : ''">
+                            ? ' notice-row'
+                            : ''">
 
-                        <!-- 게시글 번호 -->
                         <td class="col-no"
                             th:text="${board.boardId}">
 
                             1
                         </td>
 
-
-                        <!-- 게시판 분류 -->
                         <td class="col-type">
 
                             <span class="type-badge"
@@ -420,6 +404,10 @@
                                     멍냥백서
                                 </span>
 
+                                <span th:case="'FAQ'">
+                                    FAQ
+                                </span>
+
                                 <span th:case="*">
                                     게시판
                                 </span>
@@ -428,11 +416,8 @@
 
                         </td>
 
-
-                        <!-- 제목 -->
                         <td class="col-title title-cell">
 
-                            <!-- 동물 종류 -->
                             <div class="board-animal-name"
                                  th:if="${board.animalName != null}">
 
@@ -448,8 +433,6 @@
 
                             </div>
 
-
-                            <!-- 게시글 상세 링크 -->
                             <a th:href="@{/board/view(
                                     boardId=${board.boardId}
                                 )}"
@@ -458,8 +441,6 @@
                                 게시글 제목
                             </a>
 
-
-                            <!-- 첨부 이미지 표시 -->
                             <span th:if="${board.imageCount > 0}"
                                   class="image-mark"
                                   title="첨부 이미지 있음">
@@ -469,16 +450,12 @@
 
                         </td>
 
-
-                        <!-- 작성자 -->
                         <td class="col-writer"
                             th:text="${board.writerNickname}">
 
                             작성자
                         </td>
 
-
-                        <!-- 작성일 -->
                         <td class="col-date"
                             th:text="${#temporals.format(
                                 board.createdAt,
@@ -488,16 +465,12 @@
                             2026.07.09
                         </td>
 
-
-                        <!-- 댓글 수 -->
                         <td class="col-comment"
                             th:text="${board.commentCount}">
 
                             0
                         </td>
 
-
-                        <!-- 조회 수 -->
                         <td class="col-hit"
                             th:text="${board.hit}">
 
@@ -507,7 +480,7 @@
                     </tr>
 
 
-                    <!-- 게시글 또는 검색 결과가 없을 때 -->
+                    <!-- 게시글 없음 -->
                     <tr th:if="${
                         boardList == null
                         or #lists.isEmpty(boardList)
@@ -543,11 +516,7 @@
             </section>
 
 
-            <!-- ================================
-                 글쓰기 버튼
-
-                 기존 가짜 페이징 ‹ 1 › 제거
-            ================================= -->
+            <!-- 글쓰기 -->
             <div class="board-bottom"
                  style="justify-content: flex-end;">
 
@@ -562,12 +531,9 @@
             </div>
 
 
-            <!-- ================================
-                 실제 게시판 페이징
-            ================================= -->
+            <!-- 페이징 -->
             <nav class="board-pagination"
                  aria-label="게시글 페이지">
-
 
                 <!-- 첫 페이지 -->
                 <a th:if="${currentPage > 1}"
@@ -592,7 +558,7 @@
                 </span>
 
 
-                <!-- 이전 5페이지 묶음 -->
+                <!-- 이전 묶음 -->
                 <a th:if="${hasPreviousBlock}"
                    class="page-button page-move"
                    th:href="@{/board/list(
@@ -639,7 +605,7 @@
                 </a>
 
 
-                <!-- 다음 5페이지 묶음 -->
+                <!-- 다음 묶음 -->
                 <a th:if="${hasNextBlock}"
                    class="page-button page-move"
                    th:href="@{/board/list(

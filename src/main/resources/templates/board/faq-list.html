@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>자주 묻는 질문</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/board/faq.css}">
+
+    <script defer
+            th:src="@{/js/board/board-faq.js}">
+    </script>
+</head>
+
+<body>
+
+<div th:replace="~{common/head :: head}"></div>
+
+<main class="faq-wrap">
+
+    <div class="faq-layout">
+
+        <!-- 왼쪽 커뮤니티 메뉴 -->
+        <aside class="community-sidebar">
+
+            <div class="community-box">
+                <p>COMMUNITY</p>
+                <h2>커뮤니티</h2>
+            </div>
+
+            <nav class="community-menu">
+
+                <a th:href="@{/board/list(
+                        type='QNA',
+                        page=1
+                    )}">
+                    <span>수의사상담</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(
+                        type='FREE',
+                        page=1
+                    )}">
+                    <span>자유토크</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(
+                        type='INFO',
+                        page=1
+                    )}">
+                    <span>멍냥백서</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(
+                        type='NOTICE',
+                        page=1
+                    )}">
+                    <span>공지사항</span>
+                    <strong>›</strong>
+                </a>
+
+                <a th:href="@{/board/list(
+                        type='FAQ',
+                        page=1
+                    )}"
+                   class="active">
+
+                    <span>자주 묻는 질문</span>
+                    <strong>›</strong>
+                </a>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- 오른쪽 FAQ -->
+        <section class="faq-content">
+
+            <!-- 상단 타이틀 -->
+            <section class="faq-hero">
+
+                <div class="faq-hero-title">
+
+                    <h1>자주 묻는 질문</h1>
+
+                    <p>
+                        PetCity 이용 중 궁금한 내용을 빠르게 확인해 보세요.
+                    </p>
+
+                </div>
+
+                <div class="faq-hero-pets">
+
+                    <span>🐱</span>
+                    <span>🐶</span>
+                    <span>🐥</span>
+                    <span>🐾</span>
+
+                </div>
+
+            </section>
+
+
+            <!-- FAQ 안내 -->
+            <section class="faq-guide">
+
+                <div class="faq-guide-icon">
+                    💡
+                </div>
+
+                <div>
+                    <strong>
+                        궁금한 질문을 클릭해 주세요.
+                    </strong>
+
+                    <p>
+                        질문을 누르면 아래에 답변이 펼쳐집니다.
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- FAQ 검색 -->
+            <section class="faq-search-area">
+
+                <form th:action="@{/board/list}"
+                      method="get"
+                      class="faq-search-form">
+
+                    <input type="hidden"
+                           name="type"
+                           value="FAQ">
+
+                    <input type="hidden"
+                           name="page"
+                           value="1">
+
+                    <div class="faq-search-label">
+                        FAQ 검색
+                    </div>
+
+                    <select name="searchType">
+
+                        <option value="titleContent"
+                                th:selected="${searchType == null
+                                    or searchType == 'titleContent'}">
+
+                            질문 + 답변
+                        </option>
+
+                        <option value="title"
+                                th:selected="${searchType == 'title'}">
+
+                            질문
+                        </option>
+
+                        <option value="content"
+                                th:selected="${searchType == 'content'}">
+
+                            답변
+                        </option>
+
+                    </select>
+
+                    <input type="text"
+                           name="keyword"
+                           th:value="${keyword}"
+                           placeholder="궁금한 내용을 검색하세요.">
+
+                    <button type="submit">
+                        검색
+                    </button>
+
+                    <a th:href="@{/board/list(
+                            type='FAQ',
+                            page=1
+                        )}"
+                       class="faq-search-reset">
+
+                        초기화
+                    </a>
+
+                </form>
+
+            </section>
+
+
+            <!-- FAQ 개수 -->
+            <div class="faq-count">
+
+                전체
+
+                <strong th:text="${totalCount}">
+                    0
+                </strong>
+
+                개의 질문
+
+            </div>
+
+
+            <!-- FAQ 목록 -->
+            <section class="faq-list">
+
+                <article class="faq-item"
+                         th:each="board : ${boardList}">
+
+                    <!-- 질문 -->
+                    <button type="button"
+                            class="faq-question"
+                            aria-expanded="false">
+
+                        <span class="faq-question-mark">
+                            Q
+                        </span>
+
+                        <strong th:text="${board.title}">
+                            자주 묻는 질문입니다.
+                        </strong>
+
+                        <span class="faq-arrow">
+                            ▼
+                        </span>
+
+                    </button>
+
+
+                    <!-- 답변 -->
+                    <div class="faq-answer">
+
+                        <div class="faq-answer-box">
+
+                            <span class="faq-answer-mark">
+                                A
+                            </span>
+
+                            <div class="faq-answer-content"
+                                 th:utext="${board.content}">
+
+                                자주 묻는 질문에 대한 답변입니다.
+                            </div>
+
+                        </div>
+
+
+                        <!-- 관리자 버튼 -->
+                        <div class="faq-admin-buttons"
+                             th:if="${isAdmin}">
+
+                            <a th:href="@{/board/update(
+                                    boardId=${board.boardId}
+                                )}"
+                               class="faq-edit-button">
+
+                                수정
+                            </a>
+
+                            <form th:action="@{/board/delete}"
+                                  method="post"
+                                  onsubmit="return confirm('FAQ를 삭제하시겠습니까?');">
+
+                                <input type="hidden"
+                                       name="boardId"
+                                       th:value="${board.boardId}">
+
+                                <input type="hidden"
+                                       th:if="${_csrf != null}"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}">
+
+                                <button type="submit"
+                                        class="faq-delete-button">
+
+                                    삭제
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- FAQ가 없을 때 -->
+                <div class="faq-empty"
+                     th:if="${boardList == null
+                              or #lists.isEmpty(boardList)}">
+
+                    <div class="faq-empty-icon">
+                        🔍
+                    </div>
+
+                    <strong th:if="${keyword != null
+                                    and keyword != ''}">
+
+                        검색 결과가 없습니다.
+                    </strong>
+
+                    <strong th:if="${keyword == null
+                                    or keyword == ''}">
+
+                        등록된 자주 묻는 질문이 없습니다.
+                    </strong>
+
+                    <p>
+                        다른 검색어를 입력하거나 나중에 다시 확인해 주세요.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- 관리자 FAQ 등록 버튼 -->
+            <div class="faq-bottom"
+                 th:if="${isAdmin}">
+
+                <a th:href="@{/board/write(type='FAQ')}"
+                   class="faq-write-button">
+
+                    FAQ 등록
+                </a>
+
+            </div>
+
+
+            <!-- 페이징 -->
+            <nav class="faq-pagination"
+                 th:if="${totalPage > 1}"
+                 aria-label="FAQ 페이지">
+
+                <!-- 첫 페이지 -->
+                <a th:if="${currentPage > 1}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type='FAQ',
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=1
+                   )}"
+                   title="첫 페이지">
+
+                    &lt;&lt;
+                </a>
+
+                <span th:unless="${currentPage > 1}"
+                      class="page-button page-disabled">
+
+                    &lt;&lt;
+                </span>
+
+
+                <!-- 이전 5페이지 -->
+                <a th:if="${hasPreviousBlock}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type='FAQ',
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${previousBlockPage}
+                   )}"
+                   title="이전 페이지 묶음">
+
+                    &lt;
+                </a>
+
+                <span th:unless="${hasPreviousBlock}"
+                      class="page-button page-disabled">
+
+                    &lt;
+                </span>
+
+
+                <!-- 페이지 번호 -->
+                <a th:each="pageNumber
+                            : ${#numbers.sequence(
+                                startPage,
+                                endPage
+                            )}"
+                   class="page-button"
+                   th:classappend="${pageNumber == currentPage}
+                       ? ' active' : ''"
+                   th:text="${pageNumber}"
+                   th:href="@{/board/list(
+                       type='FAQ',
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${pageNumber}
+                   )}">
+
+                    1
+                </a>
+
+
+                <!-- 다음 5페이지 -->
+                <a th:if="${hasNextBlock}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type='FAQ',
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${nextBlockPage}
+                   )}"
+                   title="다음 페이지 묶음">
+
+                    &gt;
+                </a>
+
+                <span th:unless="${hasNextBlock}"
+                      class="page-button page-disabled">
+
+                    &gt;
+                </span>
+
+
+                <!-- 마지막 페이지 -->
+                <a th:if="${currentPage < totalPage}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type='FAQ',
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${totalPage}
+                   )}"
+                   title="마지막 페이지">
+
+                    &gt;&gt;
+                </a>
+
+                <span th:unless="${currentPage < totalPage}"
+                      class="page-button page-disabled">
+
+                    &gt;&gt;
+                </span>
+
+            </nav>
+
+        </section>
+
+    </div>
+
+</main>
+
+</body>
+</html>
