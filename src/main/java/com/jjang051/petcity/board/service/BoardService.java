@@ -1,11 +1,7 @@
 package com.jjang051.petcity.board.service;
 
 import com.jjang051.petcity.board.dao.BoardDao;
-import com.jjang051.petcity.board.dto.AnimalTypeDto;
-import com.jjang051.petcity.board.dto.BoardDto;
-import com.jjang051.petcity.board.dto.BoardImageDto;
-import com.jjang051.petcity.board.dto.BoardListPageDto;
-import com.jjang051.petcity.board.dto.BoardViewPageDto;
+import com.jjang051.petcity.board.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,12 +70,22 @@ public class BoardService {
 
         List<BoardImageDto> boardImageList = boardDao.findBoardImageList(boardId);
 
+        List<BoardCommentDto> commentList = Collections.emptyList();
+
+// 자유게시판과 수의사상담만 댓글 조회
+        if ("FREE".equals(boardDto.getBoardType())
+                || "QNA".equals(boardDto.getBoardType())) {
+
+            commentList = boardDao.findCommentList(boardId);
+        }
+
         String boardTitle = getBoardTitle(boardDto.getBoardType());
 
         return BoardViewPageDto.builder()
                 .boardDto(boardDto)
                 .boardTitle(boardTitle)
                 .boardImageList(boardImageList)
+                .commentList(commentList)
                 .build();
     }
 
@@ -367,5 +374,108 @@ public class BoardService {
             case "MISSING" -> "실종/제보 게시판";
             default -> "게시판";
         };
+    }
+    /*
+    댓글 등록
+
+    FREE:
+    로그인 회원 모두 작성 가능
+
+    QNA:
+    OWNER, ADMIN만 작성 가능
+
+    INFO, NOTICE:
+    댓글 작성 불가
+*/
+    public void insertComment(int boardId,
+                              int memberId,
+                              String content,
+                              String role) {
+
+        BoardDto boardDto = boardDao.findBoardView(boardId);
+
+        if (boardDto == null) {
+            throw new RuntimeException("게시글을 찾을 수 없습니다.");
+        }
+
+        String boardType = boardDto.getBoardType();
+
+        if ("INFO".equals(boardType) || "NOTICE".equals(boardType)) {
+            throw new RuntimeException("댓글을 작성할 수 없는 게시판입니다.");
+        }
+
+        if (!"FREE".equals(boardType) && !"QNA".equals(boardType)) {
+            throw new RuntimeException("댓글을 작성할 수 없는 게시판입니다.");
+        }
+
+        if ("QNA".equals(boardType)
+                && !"OWNER".equals(role)
+                && !"ADMIN".equals(role)) {
+
+            throw new RuntimeException(
+                    "수의사상담 답변은 병원장과 관리자만 작성할 수 있습니다."
+            );
+        }
+
+        if (content == null || content.isBlank()) {
+            throw new RuntimeException("댓글 내용을 입력해 주세요.");
+        }
+
+        String trimmedContent = content.trim();
+
+        if (trimmedContent.length() > 1000) {
+            throw new RuntimeException("댓글은 1000자 이하로 작성해 주세요.");
+        }
+
+        BoardCommentDto commentDto = BoardCommentDto.builder()
+                .boardId(boardId)
+                .memberId(memberId)
+                .content(trimmedContent)
+                .build();
+
+        boardDao.insertComment(commentDto);
+    }
+
+
+    /*
+        댓글 삭제
+
+        작성자 본인 또는 관리자만 삭제 가능
+    */
+    public int deleteComment(int commentId,
+                             int loginMemberId,
+                             String role) {
+
+        BoardCommentDto commentDto = boardDao.findCommentById(commentId);
+
+        if (commentDto == null) {
+            throw new RuntimeException("댓글을 찾을 수 없습니다.");
+        }
+
+        boolean admin = "ADMIN".equals(role);
+        boolean writer = commentDto.getMemberId() == loginMemberId;
+
+        if (!admin && !writer) {
+            throw new RuntimeException("댓글을 삭제할 권한이 없습니다.");
+        }
+
+        int boardId = commentDto.getBoardId();
+
+        boardDao.deleteComment(commentId);
+
+        return boardId;
+    }
+
+
+    /*
+        로그인 아이디로 회원 번호 찾기
+    */
+    public Integer findMemberIdByLoginId(String loginId) {
+
+        if (loginId == null || loginId.isBlank()) {
+            return null;
+        }
+
+        return boardDao.findMemberIdByLoginId(loginId);
     }
 }

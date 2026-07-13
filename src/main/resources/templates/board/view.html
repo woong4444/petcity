@@ -178,12 +178,129 @@
 
             </div>
 
-            <section class="comment-preview">
-                <h3>댓글</h3>
+            <!-- FREE, QNA 게시판에서만 댓글 영역 출력 -->
+            <section class="comment-section"
+                     th:if="${commentEnabled}">
 
-                <div class="comment-empty">
-                    댓글 기능은 다음 단계에서 연결할 예정입니다.
+                <div class="comment-title">
+                    <h3>
+                        댓글
+                        <span th:text="${boardDto.commentCount}">0</span>
+                    </h3>
                 </div>
+
+                <!-- 댓글 목록 -->
+                <div class="comment-list"
+                     th:if="${commentList != null and !#lists.isEmpty(commentList)}">
+
+                    <article class="comment-item"
+                             th:each="comment : ${commentList}">
+
+                        <div class="comment-head">
+                            <div class="comment-writer">
+
+                                <strong th:text="${comment.writerNickname}">
+                                    작성자
+                                </strong>
+
+                                <span class="comment-role owner"
+                                      th:if="${comment.writerRole == 'OWNER'}">
+                        병원장
+                    </span>
+
+                                <span class="comment-role admin"
+                                      th:if="${comment.writerRole == 'ADMIN'}">
+                        관리자
+                    </span>
+                            </div>
+
+                            <time th:text="${#temporals.format(
+                        comment.createdAt,
+                        'yyyy.MM.dd HH:mm'
+                    )}">
+                                2026.07.13 12:00
+                            </time>
+                        </div>
+
+                        <div class="comment-content"
+                             th:text="${comment.content}">
+                            댓글 내용입니다.
+                        </div>
+
+                        <!-- 댓글 작성자 본인 또는 관리자 -->
+                        <form class="comment-delete-form"
+                              th:if="${isAdmin
+                          or (loginMemberId != null
+                          and loginMemberId == comment.memberId)}"
+                              th:action="@{/board/comment/delete}"
+                              method="post"
+                              onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+
+                            <input type="hidden"
+                                   name="commentId"
+                                   th:value="${comment.commentId}">
+
+                            <input type="hidden"
+                                   th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}">
+
+                            <button type="submit">
+                                삭제
+                            </button>
+                        </form>
+
+                    </article>
+                </div>
+
+                <!-- 댓글 없음 -->
+                <div class="comment-empty"
+                     th:if="${commentList == null or #lists.isEmpty(commentList)}">
+                    등록된 댓글이 없습니다.
+                </div>
+
+                <!-- 댓글 작성 가능 -->
+                <form class="comment-write-form"
+                      th:if="${canWriteComment}"
+                      th:action="@{/board/comment/write}"
+                      method="post">
+
+                    <input type="hidden"
+                           name="boardId"
+                           th:value="${boardDto.boardId}">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <textarea name="content"
+                              maxlength="1000"
+                              required
+                              th:placeholder="${boardDto.boardType == 'QNA'}
+                    ? '수의사상담 답변을 입력해 주세요.'
+                    : '댓글을 입력해 주세요.'"></textarea>
+
+                    <div class="comment-write-bottom">
+                        <span>최대 1000자</span>
+                        <button type="submit">댓글 등록</button>
+                    </div>
+                </form>
+
+                <!-- 로그인하지 않은 경우 -->
+                <div class="comment-guide"
+                     th:if="${!isAuthenticated}">
+                    댓글을 작성하려면 로그인해 주세요.
+                </div>
+
+                <!-- QNA 일반 회원 -->
+                <div class="comment-guide"
+                     th:if="${isAuthenticated
+                  and boardDto.boardType == 'QNA'
+                  and !canWriteComment}">
+                    수의사상담 답변은 병원장과 관리자만 작성할 수 있습니다.
+                </div>
+
             </section>
 
         </section>
