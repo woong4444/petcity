@@ -15,77 +15,40 @@
         B.BOARD_TYPE AS boardType,
         B.TITLE AS title,
         B.CONTENT AS content,
+        B.ANIMAL_ID AS animalId,
         B.HIT AS hit,
         B.CREATED_AT AS createdAt,
         B.UPDATED_AT AS updatedAt,
-        B.ANIMAL_ID AS animalId,
 
         NVL(M.NICKNAME, '알 수 없음') AS writerNickname,
 
-        AT.ANIMAL_NAME AS animalName,
-        PAT.ANIMAL_ID AS parentAnimalId,
-        PAT.ANIMAL_NAME AS parentAnimalName,
+        A.ANIMAL_NAME AS animalName,
+        PA.ANIMAL_NAME AS parentAnimalName,
+        PA.ANIMAL_ID AS parentAnimalId,
 
         (
         SELECT COUNT(*)
         FROM BOARD_COMMENT BC
         WHERE BC.BOARD_ID = B.BOARD_ID
-        ) AS commentCount,
-
-        (
-        SELECT COUNT(*)
-        FROM BOARD_IMAGE BI
-        WHERE BI.BOARD_ID = B.BOARD_ID
-        ) AS imageCount,
-
-        (
-        SELECT IMAGE_URL
-        FROM (
-        SELECT BI.IMAGE_URL
-        FROM BOARD_IMAGE BI
-        WHERE BI.BOARD_ID = B.BOARD_ID
-        ORDER BY BI.IMAGE_ID ASC
-        )
-        WHERE ROWNUM = 1
-        ) AS thumbnailUrl,
-
-        (
-        SELECT LINK_URL
-        FROM (
-        SELECT BI.LINK_URL
-        FROM BOARD_IMAGE BI
-        WHERE BI.BOARD_ID = B.BOARD_ID
-        ORDER BY BI.IMAGE_ID ASC
-        )
-        WHERE ROWNUM = 1
-        ) AS linkUrl
+        ) AS commentCount
 
         FROM BOARD B
+
         LEFT JOIN APP_MEMBER M
         ON B.MEMBER_ID = M.MEMBER_ID
-        LEFT JOIN ANIMAL_TYPE AT
-        ON B.ANIMAL_ID = AT.ANIMAL_ID
-        LEFT JOIN ANIMAL_TYPE PAT
-        ON AT.PARENT_ID = PAT.ANIMAL_ID
 
-        WHERE B.BOARD_TYPE = #{boardType}
+        LEFT JOIN ANIMAL_TYPE A
+        ON B.ANIMAL_ID = A.ANIMAL_ID
 
-        <if test="animalId != null">
-            AND B.ANIMAL_ID = #{animalId}
-        </if>
+        LEFT JOIN ANIMAL_TYPE PA
+        ON A.PARENT_ID = PA.ANIMAL_ID
 
-        <if test="animalId == null and parentAnimalId != null">
-            AND (
-            B.ANIMAL_ID = #{parentAnimalId}
-            OR B.ANIMAL_ID IN (
-            SELECT ANIMAL_ID
-            FROM ANIMAL_TYPE
-            WHERE PARENT_ID = #{parentAnimalId}
-            )
-            )
-        </if>
+        <include refid="boardListCondition"/>
 
         ORDER BY B.BOARD_ID DESC
+
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{pageSize} ROWS ONLY
 
     </select>
 
@@ -369,6 +332,98 @@
 
     </update>
 
+    <!--
+    게시판 목록과 개수 조회에서 함께 사용하는 조건
+
+    게시판 종류
+    동물 필터
+    게시글 검색
+-->
+    <sql id="boardListCondition">
+
+        WHERE B.BOARD_TYPE = #{boardType}
+
+        <!-- 세부 동물 선택 -->
+        <if test="animalId != null">
+            AND B.ANIMAL_ID = #{animalId}
+        </if>
+
+        <!-- 대분류만 선택 -->
+        <if test="animalId == null and parentAnimalId != null">
+            AND (
+            B.ANIMAL_ID = #{parentAnimalId}
+
+            OR B.ANIMAL_ID IN (
+            SELECT ANIMAL_ID
+            FROM ANIMAL_TYPE
+            WHERE PARENT_ID = #{parentAnimalId}
+            )
+            )
+        </if>
+
+        <!-- 게시글 검색 -->
+        <if test="keyword != null and keyword != ''">
+
+            <choose>
+
+                <!-- 제목 -->
+                <when test="searchType == 'title'">
+                    AND UPPER(B.TITLE)
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+                </when>
+
+                <!-- 내용 -->
+                <when test="searchType == 'content'">
+                    AND DBMS_LOB.INSTR(
+                    B.CONTENT,
+                    #{keyword}
+                    ) > 0
+                </when>
+
+                <!-- 작성자 -->
+                <when test="searchType == 'writer'">
+                    AND UPPER(NVL(M.NICKNAME, ''))
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+                </when>
+
+                <!-- 제목 + 내용 -->
+                <otherwise>
+                    AND (
+                    UPPER(B.TITLE)
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+
+                    OR DBMS_LOB.INSTR(
+                    B.CONTENT,
+                    #{keyword}
+                    ) > 0
+                    )
+                </otherwise>
+
+            </choose>
+
+        </if>
+
+    </sql>
+
+    <select id="countBoardList"
+            resultType="int">
+
+        SELECT COUNT(*)
+
+        FROM BOARD B
+
+        LEFT JOIN APP_MEMBER M
+        ON B.MEMBER_ID = M.MEMBER_ID
+
+        LEFT JOIN ANIMAL_TYPE A
+        ON B.ANIMAL_ID = A.ANIMAL_ID
+
+        LEFT JOIN ANIMAL_TYPE PA
+        ON A.PARENT_ID = PA.ANIMAL_ID
+
+        <include refid="boardListCondition"/>
+
+    </select>
 
 
 

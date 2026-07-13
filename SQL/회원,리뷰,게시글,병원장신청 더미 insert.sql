@@ -295,3 +295,86 @@ WHERE m.LOGIN_ID = 'dummy_user02'
   AND h.HOSPITAL_ID = 4;
 
 COMMIT;
+
+
+
+-- 자유게시판 게시글 더미데이터입니다!!!!!!!!!!!!!!!!!!
+DECLARE
+V_MEMBER_ID APP_MEMBER.MEMBER_ID%TYPE;
+    V_ANIMAL_ID ANIMAL_TYPE.ANIMAL_ID%TYPE;
+BEGIN
+
+    /* 존재하는 회원 한 명 선택 */
+SELECT MIN(MEMBER_ID)
+INTO V_MEMBER_ID
+FROM APP_MEMBER;
+
+/* 품종·종류에 해당하는 하위 동물 한 개 선택 */
+SELECT MIN(ANIMAL_ID)
+INTO V_ANIMAL_ID
+FROM ANIMAL_TYPE
+WHERE PARENT_ID IS NOT NULL;
+
+IF V_MEMBER_ID IS NULL THEN
+        RAISE_APPLICATION_ERROR(
+            -20001,
+            'APP_MEMBER 테이블에 회원이 없습니다.'
+        );
+END IF;
+
+    IF V_ANIMAL_ID IS NULL THEN
+        RAISE_APPLICATION_ERROR(
+            -20002,
+            'ANIMAL_TYPE 테이블에 하위 동물이 없습니다.'
+        );
+END IF;
+
+FOR I IN 1..65 LOOP
+
+        INSERT INTO BOARD (
+            BOARD_ID,
+            MEMBER_ID,
+            BOARD_TYPE,
+            TITLE,
+            CONTENT,
+            ANIMAL_ID,
+            HIT,
+            CREATED_AT,
+            UPDATED_AT
+        )
+        VALUES (
+            SEQ_BOARD.NEXTVAL,
+            V_MEMBER_ID,
+            'FREE',
+
+            CASE
+                WHEN MOD(I, 3) = 0
+                    THEN '[페이징테스트] 강아지 산책 이야기 '
+                WHEN MOD(I, 5) = 0
+                    THEN '[페이징테스트] 고양이 자랑 '
+                ELSE '[페이징테스트] 자유게시판 더미 글 '
+            END || LPAD(I, 2, '0'),
+
+            TO_CLOB(
+                CASE
+                    WHEN MOD(I, 2) = 0
+                        THEN '페이징 테스트를 위한 강아지 관련 더미 내용입니다. 번호: '
+                    ELSE '페이징 테스트를 위한 반려동물 자유토크 내용입니다. 번호: '
+                END || I
+            ),
+
+            V_ANIMAL_ID,
+            MOD(I * 3, 100),
+
+            /* 글마다 작성 시간이 조금씩 다르게 저장 */
+            SYSTIMESTAMP
+                - NUMTODSINTERVAL(65 - I, 'MINUTE'),
+
+            SYSTIMESTAMP
+                - NUMTODSINTERVAL(65 - I, 'MINUTE')
+        );
+
+END LOOP;
+
+COMMIT;
+END;
