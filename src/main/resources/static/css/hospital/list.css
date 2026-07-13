@@ -4,14 +4,20 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 
 .hospital-list-wrap { max-width: 1440px; margin: 0 auto; padding: 40px 40px 70px; }
 
-.quick-menu { position: fixed; top: 160px; right: 30px; width: 120px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); padding: 15px 10px; z-index: 100; text-align: center; }
+.quick-menu { position: fixed; top: 160px; right: 30px; width: 130px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); padding: 15px 10px; z-index: 100; text-align: center; }
 .quick-title { font-size: 13px; font-weight: 900; color: #0284c7; margin-bottom: 12px; border-bottom: 2px solid #e0f2fe; padding-bottom: 8px;}
 .quick-list { list-style: none; padding: 0; margin: 0 0 12px 0; }
 .quick-list li { margin-bottom: 10px; }
 .quick-list a { text-decoration: none; font-size: 12px; font-weight: 700; color: #4b5563; display: block; padding: 4px; border-radius: 6px; transition: 0.2s;}
 .quick-list a:hover { background: #f1f5f9; color: #0ea5e9; }
-.btn-top { width: 100%; height: 32px; border: none; border-radius: 8px; background: #334155; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;}
+.btn-top { width: 100%; height: 32px; border: none; border-radius: 8px; background: #334155; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top:10px;}
 .btn-top:hover { background: #0f172a; }
+
+.quick-recent-box { margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 15px; }
+.quick-recent-title { font-size: 11px; font-weight: 800; color: #94a3b8; margin-bottom: 8px; }
+.quick-recent-item { display: block; margin-bottom: 8px; text-decoration: none; }
+.quick-recent-item img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
+.quick-recent-item span { font-size: 11px; color: #334155; font-weight: 700; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px;}
 
 .hospital-list-header { text-align: center; margin-bottom: 30px; }
 .page-badge { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 14px; margin: 0 0 12px; border-radius: 999px; background-color: #e0f2fe; color: #0369a1; font-size: 13px; font-weight: 800; }
@@ -72,7 +78,10 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .hospital-card { display: flex; flex-direction: column; gap: 16px; padding: 22px; border: 1px solid #e5e7eb; border-radius: 22px; background-color: #ffffff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
 .hospital-card:hover { transform: translateY(-4px); border-color: #bae6fd; box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08); }
 
-.hospital-image { width: 100%; height: 210px; border-radius: 18px; overflow: hidden; position: relative; background: linear-gradient(135deg, #e0f2fe, #f0fdfa); border: 1px solid #e5e7eb; cursor: default; }
+.go-detail-link { cursor: pointer; }
+.go-detail-link:hover { opacity: 0.9; }
+
+.hospital-image { width: 100%; height: 210px; border-radius: 18px; overflow: hidden; position: relative; background: linear-gradient(135deg, #e0f2fe, #f0fdfa); border: 1px solid #e5e7eb; }
 .hospital-image img { width: 100%; height: 100%; object-fit: cover; }
 .no-image { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .no-image span { width: 74px; height: 74px; border-radius: 50%; background: #ffffff; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 8px 20px rgba(14, 165, 233, 0.14); }
@@ -85,12 +94,20 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .hospital-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
 .title-left { flex: 1; }
 .title-right { padding-left: 10px; }
-.btn-list-zzim { background: none; border: none; font-size: 26px; color: #cbd5e1; cursor: pointer; transition: 0.2s; padding: 0; line-height: 1; }
-.btn-list-zzim:hover { color: #fca5a5; transform: scale(1.1); }
-.btn-list-zzim.active { color: #ef4444; }
+
+/* 🌟 리스트 페이지 찜 버튼 스타일 수정 */
+.btn-list-zzim { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; color: #cbd5e1; cursor: pointer; transition: 0.2s; padding: 0; line-height: 1; }
+.btn-list-zzim .icon-heart { font-size: 26px; }
+.btn-list-zzim .count { font-size: 15px; font-weight: 800; color: #94a3b8; }
+.btn-list-zzim:hover .icon-heart, .btn-list-zzim.active .icon-heart { color: #ef4444; }
+.btn-list-zzim:hover .count, .btn-list-zzim.active .count { color: #ef4444; }
 
 .district-badge { display: inline-block; padding: 4px 11px; margin-bottom: 8px; border-radius: 999px; background-color: #ecfeff; color: #0891b2; font-size: 12px; font-weight: 800; }
 .hospital-name { margin: 0; font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.h-rating-review { display: inline-flex; align-items: center; margin-left: 6px; font-size: 14px; font-weight: 700; vertical-align: middle; }
+.h-rating-review .star { color: #f59e0b; margin-right: 3px; }
+.h-rating-review .rev-cnt { color: #94a3b8; font-size: 13px; font-weight: 600; }
 
 .h-distance { margin: 6px 0 0; font-size: 13px; font-weight: 700; color: #10b981; background: #ecfdf5; display: inline-block; padding: 4px 8px; border-radius: 6px; border: 1px solid #d1fae5; }
 .h-distance strong { font-size: 14px; }
@@ -103,9 +120,10 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .hospital-actions { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .hospital-actions a, .hospital-actions button { display: flex; align-items: center; justify-content: center; height: 42px; border-radius: 10px; font-size: 14px; font-weight: 800; transition: all 0.2s ease; border: none; cursor: pointer; text-decoration: none;}
 .detail-button { background-color: #0ea5e9; color: #ffffff; }
-.detail-button:hover { background: #0284c7; }
+.detail-button:hover { background-color: #0284c7; }
 .recommend-btn { background-color: #fff1f2; color: #e11d48; border: 1px solid #fecdd3 !important; }
-.recommend-btn:hover { background: #ffe4e6; }
+.recommend-btn:hover { background-color: #ffe4e6; }
+.recommend-btn.active { background-color: #e11d48; color: #ffffff; border-color: #be123c !important; }
 
 .empty-list { padding: 80px 20px; border: 1px dashed #cbd5e1; border-radius: 22px; text-align: center; color: #64748b; }
 .empty-list strong { display: block; font-size: 18px; color: #334155; margin-bottom: 8px; }
@@ -120,23 +138,17 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .page-item .page-link:hover { background-color: #f3f4f6; border-color: #9ca3af; }
 .page-item.active .page-link { background-color: #0ea5e9; border-color: #0ea5e9; color: #ffffff; }
 .page-item.disabled .page-link { background-color: #f9fafb; color: #d1d5db; pointer-events: none; border-color: #e5e7eb; }
-
 .page-item .page-link.single-arrow, .page-item .page-link.double-arrow { font-family: Consolas, monospace; font-size: 16px; font-weight: bold; }
 .page-item .page-link.double-arrow { letter-spacing: -2px; padding-right: 2px; }
 
-/* 위치 모달(팝업) CSS */
 .location-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.6); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
 .location-modal-content { background: #fff; width: 90%; max-width: 500px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popUp 0.3s ease; }
 @keyframes popUp { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
 .location-modal-header { padding: 18px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-
-/* 🌟 모달 헤더 내부 왼쪽 정렬 CSS 추가 */
 .location-modal-header .header-left { display: flex; align-items: center; gap: 10px; }
 .location-modal-header h3 { margin: 0; font-size: 18px; font-weight: 800; color: #111827; }
-/* 🌟 내 위치로 이동 버튼 스타일 */
 .btn-go-myloc { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; font-size: 13px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; line-height: 1; }
 .btn-go-myloc:hover { background: #dcfce7; }
-
 .location-modal-header button#btnCloseModal { background: none; border: none; font-size: 22px; color: #94a3b8; cursor: pointer; line-height: 1; }
 .map-crosshair { position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>') no-repeat center center; transform: translate(-50%, -100%); z-index: 10; pointer-events: none; }
 .location-modal-footer { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border-top: 1px solid #e2e8f0; }
