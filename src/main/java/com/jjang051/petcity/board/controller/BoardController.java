@@ -31,12 +31,19 @@ public class BoardController {
         /board/list?type=FREE&parentAnimalId=1&animalId=8
     */
     @GetMapping("/list")
-    public String boardList(@RequestParam(value = "type", required = false) String type,
-                            @RequestParam(value = "parentAnimalId", required = false) Integer parentAnimalId,
-                            @RequestParam(value = "animalId", required = false) Integer animalId,
-                            Model model) {
+    public String boardList(
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "parentAnimalId", required = false) Integer parentAnimalId,
+            @RequestParam(value = "animalId", required = false) Integer animalId,
+            Model model
+    ) {
 
-        BoardListPageDto pageDto = boardService.getBoardListPage(type, parentAnimalId, animalId);
+        BoardListPageDto pageDto =
+                boardService.getBoardListPage(
+                        type,
+                        parentAnimalId,
+                        animalId
+                );
 
         model.addAttribute("boardList", pageDto.getBoardList());
         model.addAttribute("boardType", pageDto.getBoardType());
@@ -45,12 +52,19 @@ public class BoardController {
         // 공지사항을 제외한 게시판은 동물 필터 사용
         if (!"NOTICE".equals(pageDto.getBoardType())) {
 
-            model.addAttribute("parentAnimalList", boardService.getParentAnimalList());
+            model.addAttribute(
+                    "parentAnimalList",
+                    boardService.getParentAnimalList()
+            );
+
             model.addAttribute("parentAnimalId", parentAnimalId);
             model.addAttribute("animalId", animalId);
 
             if (parentAnimalId != null) {
-                model.addAttribute("childAnimalList", boardService.getChildAnimalList(parentAnimalId));
+                model.addAttribute(
+                        "childAnimalList",
+                        boardService.getChildAnimalList(parentAnimalId)
+                );
             }
         }
 
@@ -64,16 +78,115 @@ public class BoardController {
 
     /*
         게시글 상세
+
+        FREE:
+        - 댓글 목록 표시
+        - 로그인 회원 모두 댓글 작성 가능
+
+        QNA:
+        - 댓글 목록 표시
+        - 병원장 OWNER, 관리자 ADMIN만 작성 가능
+
+        INFO, NOTICE:
+        - 댓글 기능 사용하지 않음
     */
     @GetMapping("/view")
-    public String boardView(@RequestParam("boardId") int boardId,
-                            Model model) {
+    public String boardView(
+            @RequestParam("boardId") int boardId,
+            Model model,
+            Authentication authentication
+    ) {
 
-        BoardViewPageDto pageDto = boardService.getBoardViewPage(boardId);
+        BoardViewPageDto pageDto =
+                boardService.getBoardViewPage(boardId);
 
-        model.addAttribute("boardDto", pageDto.getBoardDto());
+        BoardDto boardDto = pageDto.getBoardDto();
+
+        // 로그인 여부
+        boolean authenticated =
+                isAuthenticated(authentication);
+
+        // 현재 로그인 회원 권한
+        String role = getRole(authentication);
+
+        // 현재 로그인 회원 번호
+        Integer loginMemberId = null;
+
+        if (authenticated) {
+            loginMemberId =
+                    boardService.findMemberIdByLoginId(
+                            authentication.getName()
+                    );
+        }
+
+        String boardType = boardDto.getBoardType();
+
+        // 댓글 영역을 보여줄 게시판
+        boolean commentEnabled =
+                "FREE".equals(boardType)
+                        || "QNA".equals(boardType);
+
+        // 자유게시판은 로그인 회원 모두 댓글 작성 가능
+        boolean freeCommentAllowed =
+                authenticated
+                        && "FREE".equals(boardType);
+
+        // 수의사상담은 병원장과 관리자만 답변 가능
+        boolean qnaCommentAllowed =
+                authenticated
+                        && "QNA".equals(boardType)
+                        && (
+                        "OWNER".equals(role)
+                                || "ADMIN".equals(role)
+                );
+
+        boolean canWriteComment =
+                freeCommentAllowed || qnaCommentAllowed;
+
+        // 게시글 정보
+        model.addAttribute("boardDto", boardDto);
         model.addAttribute("boardTitle", pageDto.getBoardTitle());
-        model.addAttribute("boardImageList", pageDto.getBoardImageList());
+        model.addAttribute(
+                "boardImageList",
+                pageDto.getBoardImageList()
+        );
+
+        // 댓글 정보
+        model.addAttribute(
+                "commentList",
+                pageDto.getCommentList()
+        );
+
+        model.addAttribute(
+                "commentEnabled",
+                commentEnabled
+        );
+
+        model.addAttribute(
+                "canWriteComment",
+                canWriteComment
+        );
+
+        // 댓글 작성 및 삭제 권한 확인용
+        model.addAttribute(
+                "isAuthenticated",
+                authenticated
+        );
+
+        model.addAttribute(
+                "loginMemberId",
+                loginMemberId
+        );
+
+        model.addAttribute(
+                "loginRole",
+                role
+        );
+
+        model.addAttribute(
+                "isAdmin",
+                "ADMIN".equals(role)
+        );
 
         return "board/view";
     }
@@ -82,30 +195,43 @@ public class BoardController {
         글쓰기 화면
 
         글쓰기 화면 안에서 게시판 선택 가능.
-        단, 공지사항은 관리자만 선택 가능.
+        공지사항은 관리자만 선택 가능.
     */
     @GetMapping("/write")
-    public String boardWrite(@RequestParam(value = "type", required = false) String type,
-                             Model model,
-                             Authentication authentication) {
+    public String boardWrite(
+            @RequestParam(value = "type", required = false) String type,
+            Model model,
+            Authentication authentication
+    ) {
 
         boolean admin = isAdmin(authentication);
 
-        String boardType = boardService.getValidBoardTypeForPage(type);
+        String boardType =
+                boardService.getValidBoardTypeForPage(type);
 
-        // 일반 사용자가 /board/write?type=NOTICE로 직접 들어와도 자유게시판으로 변경
+        /*
+            일반 사용자가 주소로 직접
+
+            /board/write?type=NOTICE
+
+            에 접근해도 자유게시판으로 변경
+        */
         if ("NOTICE".equals(boardType) && !admin) {
             boardType = "FREE";
         }
 
-        String boardTitle = boardService.getBoardTitleForPage(boardType);
+        String boardTitle =
+                boardService.getBoardTitleForPage(boardType);
 
         model.addAttribute("boardType", boardType);
         model.addAttribute("boardTitle", boardTitle);
         model.addAttribute("isAdmin", admin);
 
-        // 글쓰기 화면에서 게시판을 바꿀 수 있으므로 항상 동물 목록을 내려줌
-        model.addAttribute("parentAnimalList", boardService.getParentAnimalList());
+        // 글쓰기 화면에서 게시판을 바꿀 수 있으므로 항상 동물 목록 전달
+        model.addAttribute(
+                "parentAnimalList",
+                boardService.getParentAnimalList()
+        );
 
         return "board/write";
     }
@@ -114,36 +240,154 @@ public class BoardController {
         글쓰기 처리
 
         일반 사용자:
-        - QNA, FREE, INFO, MISSING 작성 가능
+        - QNA, FREE, INFO 작성 가능
         - NOTICE 작성 불가
 
         관리자:
         - NOTICE 작성 가능
     */
     @PostMapping("/write")
-    public String boardWriteProcess(@ModelAttribute BoardDto boardDto,
-                                    @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles,
-                                    @RequestParam(value = "linkUrl", required = false) String linkUrl,
-                                    Authentication authentication) throws IOException {
+    public String boardWriteProcess(
+            @ModelAttribute BoardDto boardDto,
+            @RequestParam(
+                    value = "imageFiles",
+                    required = false
+            ) MultipartFile[] imageFiles,
+            @RequestParam(
+                    value = "linkUrl",
+                    required = false
+            ) String linkUrl,
+            Authentication authentication
+    ) throws IOException {
 
         boolean admin = isAdmin(authentication);
 
-        // 로그인 기능 붙기 전까지 임시로 1번 회원 사용
-        // 나중에 로그인 연결되면 여기서 로그인한 회원 ID로 바꾸면 됨
+        /*
+            현재는 기존 코드 그대로 1번 회원 사용.
+
+            나중에 게시글 작성자도 로그인 회원으로 연결하려면
+            댓글처럼 로그인 아이디로 MEMBER_ID를 조회해서 넣으면 됨.
+        */
         boardDto.setMemberId(1);
 
-        boardService.insertBoard(boardDto, imageFiles, linkUrl, admin);
+        boardService.insertBoard(
+                boardDto,
+                imageFiles,
+                linkUrl,
+                admin
+        );
 
-        return "redirect:/board/list?type=" + boardDto.getBoardType();
+        return "redirect:/board/list?type="
+                + boardDto.getBoardType();
+    }
+
+    /*
+        댓글 등록
+
+        FREE:
+        - 로그인한 모든 회원 작성 가능
+
+        QNA:
+        - OWNER와 ADMIN만 작성 가능
+
+        INFO, NOTICE:
+        - Service에서 작성 차단
+    */
+    @PostMapping("/comment/write")
+    public String commentWrite(
+            @RequestParam("boardId") int boardId,
+            @RequestParam("content") String content,
+            Authentication authentication
+    ) {
+
+        if (!isAuthenticated(authentication)) {
+            throw new RuntimeException(
+                    "로그인 후 댓글을 작성할 수 있습니다."
+            );
+        }
+
+        Integer memberId =
+                boardService.findMemberIdByLoginId(
+                        authentication.getName()
+                );
+
+        if (memberId == null) {
+            throw new RuntimeException(
+                    "로그인 회원 정보를 찾을 수 없습니다."
+            );
+        }
+
+        String role = getRole(authentication);
+
+        boardService.insertComment(
+                boardId,
+                memberId,
+                content,
+                role
+        );
+
+        return "redirect:/board/view?boardId="
+                + boardId;
+    }
+
+    /*
+        댓글 삭제
+
+        댓글 작성자 본인:
+        - 자신의 댓글 삭제 가능
+
+        관리자:
+        - 모든 댓글 삭제 가능
+
+        실제 권한 검사는 Service에서 처리
+    */
+    @PostMapping("/comment/delete")
+    public String commentDelete(
+            @RequestParam("commentId") int commentId,
+            Authentication authentication
+    ) {
+
+        if (!isAuthenticated(authentication)) {
+            throw new RuntimeException(
+                    "로그인이 필요합니다."
+            );
+        }
+
+        Integer memberId =
+                boardService.findMemberIdByLoginId(
+                        authentication.getName()
+                );
+
+        if (memberId == null) {
+            throw new RuntimeException(
+                    "로그인 회원 정보를 찾을 수 없습니다."
+            );
+        }
+
+        String role = getRole(authentication);
+
+        int boardId =
+                boardService.deleteComment(
+                        commentId,
+                        memberId,
+                        role
+                );
+
+        return "redirect:/board/view?boardId="
+                + boardId;
     }
 
     /*
         대분류 선택 시 하위 동물 목록 가져오기
-        JS fetch에서 사용
+
+        board-animal.js의 fetch에서 사용
     */
     @GetMapping("/animal/children")
     @ResponseBody
-    public List<AnimalTypeDto> animalChildren(@RequestParam("parentId") int parentId) {
+    public List<AnimalTypeDto> animalChildren(
+            @RequestParam("parentId") int parentId
+    ) {
+
         return boardService.getChildAnimalList(parentId);
     }
 
@@ -151,11 +395,15 @@ public class BoardController {
         게시글 삭제
     */
     @PostMapping("/delete")
-    public String boardDelete(@RequestParam("boardId") int boardId) {
+    public String boardDelete(
+            @RequestParam("boardId") int boardId
+    ) {
 
-        String boardType = boardService.deleteBoard(boardId);
+        String boardType =
+                boardService.deleteBoard(boardId);
 
-        return "redirect:/board/list?type=" + boardType;
+        return "redirect:/board/list?type="
+                + boardType;
     }
 
     /*
@@ -163,29 +411,99 @@ public class BoardController {
     */
     @PostMapping("/editor/image")
     @ResponseBody
-    public Map<String, String> editorImageUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    public Map<String, String> editorImageUpload(
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
 
-        String imageUrl = boardService.saveEditorImage(file);
+        String imageUrl =
+                boardService.saveEditorImage(file);
 
-        return Map.of("imageUrl", imageUrl);
+        return Map.of(
+                "imageUrl",
+                imageUrl
+        );
     }
 
     /*
-        관리자 여부 확인
-
-        프로젝트에 따라 권한명이 ROLE_ADMIN 또는 ADMIN으로 들어올 수 있어서 둘 다 체크함.
+        로그인 여부 확인
     */
-    private boolean isAdmin(Authentication authentication) {
+    private boolean isAuthenticated(
+            Authentication authentication
+    ) {
 
-        if (authentication == null) {
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !"anonymousUser".equals(
+                authentication.getName()
+        );
+    }
+
+    /*
+        회원이 특정 권한을 가지고 있는지 확인
+
+        ADMIN
+        ROLE_ADMIN
+
+        두 가지 형식을 모두 확인
+    */
+    private boolean hasRole(
+            Authentication authentication,
+            String role
+    ) {
+
+        if (!isAuthenticated(authentication)) {
             return false;
         }
 
         return authentication.getAuthorities()
                 .stream()
-                .anyMatch(auth ->
-                        "ROLE_ADMIN".equals(auth.getAuthority())
-                                || "ADMIN".equals(auth.getAuthority())
+                .anyMatch(authority ->
+                        role.equals(
+                                authority.getAuthority()
+                        )
+                                || (
+                                "ROLE_" + role
+                        ).equals(
+                                authority.getAuthority()
+                        )
                 );
+    }
+
+    /*
+        로그인 회원의 권한 반환
+
+        여러 권한이 있는 경우:
+        ADMIN → OWNER → USER 순서로 확인
+    */
+    private String getRole(
+            Authentication authentication
+    ) {
+
+        if (hasRole(authentication, "ADMIN")) {
+            return "ADMIN";
+        }
+
+        if (hasRole(authentication, "OWNER")) {
+            return "OWNER";
+        }
+
+        if (hasRole(authentication, "USER")) {
+            return "USER";
+        }
+
+        return null;
+    }
+
+    /*
+        관리자 여부 확인
+    */
+    private boolean isAdmin(
+            Authentication authentication
+    ) {
+
+        return hasRole(
+                authentication,
+                "ADMIN"
+        );
     }
 }

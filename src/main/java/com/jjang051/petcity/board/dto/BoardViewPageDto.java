@@ -19,4 +19,7 @@ public class BoardViewPageDto {
 
     // 게시글 이미지 목록
     private List<BoardImageDto> boardImageList;
+
+    //댓글 목록
+    private List<BoardCommentDto> commentList;
 }
