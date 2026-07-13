@@ -10,6 +10,7 @@
     <link rel="stylesheet"
           th:href="@{/css/admin/sidebar.css}">
     <script defer th:src="@{/js/admin/sidebar.js}"></script>
+    <script defer th:src="@{/js/admin/member-list.js}"></script>
 </head>
 
 <body>
@@ -43,14 +44,43 @@
                     전체 회원
                 </h3>
 
-                <p class="member-count">
-                    총
+                <div class="member-count-area">
+
+                    <p class="selected-member-count">
+                        선택
+                        <strong id="selectedMemberCount">
+                            0
+                        </strong>
+                        명
+                    </p>
+
+                    <p class="member-count">
+                        총
+                        <strong th:text="${pageList.totalElements}">
+                            0
+                        </strong>
+                        명
+                    </p>
+
+                    <button type="button"
+                            id="clearSelectedMembers"
+                            class="clear-selection-button">
+                        선택 초기화
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div id="allSelectionNotice" class="all-selection-notice" hidden>
+                <span>현재 페이지 회원이 모두 선택되었습니다.</span>
+                <button class="select-every-member-button" id="selectEveryMember" type="button">
+                    전체회원
                     <strong th:text="${pageList.totalElements}">
                         0
                     </strong>
-                    명
-                </p>
-
+                    명 선택
+                </button>
             </div>
 
             <div class="member-table-wrapper">
@@ -58,6 +88,7 @@
                 <table class="member-table">
 
                     <colgroup>
+                        <col class="column-checkbox">
                         <col class="column-number">
                         <col class="column-login-id">
                         <col class="column-nickname">
@@ -72,6 +103,11 @@
 
                     <thead>
                     <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" id="selectAllMembers" aria-label="현재 페이지 회원 전체 선택">
+
+                        </th>
+
                         <th>번호</th>
                         <th>아이디</th>
                         <th>닉네임</th>
@@ -88,6 +124,13 @@
                     <tbody>
 
                     <tr th:each="member : ${members}">
+
+                        <td class="checkbox-cell">
+                            <input type="checkbox" class="member-checkbox"
+                                   th:value="${member.memberId}"
+                                   th:attr="aria-label=|${member.loginId} 회원 선택|">
+                        </td>
+
 
                         <td th:text="${member.memberId}">
                             1
@@ -172,8 +215,7 @@
                     </tr>
 
                     <tr th:if="${#lists.isEmpty(members)}">
-
-                        <td colspan="10"
+                        <td colspan="11"
                             class="empty-member-row">
                             등록된 회원이 없습니다.
                         </td>
