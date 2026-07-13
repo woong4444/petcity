@@ -8,9 +8,9 @@
     <link rel="stylesheet" th:href="@{/css/hospital/view.css}">
 </head>
 <body>
-
 <div th:replace="~{common/head :: head}"></div>
 
+<!-- 상단 썸네일 배너 -->
 <section class="hospital-banner">
     <div class="banner-bg">
         <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" alt="병원 배경">
@@ -18,11 +18,16 @@
     </div>
 </section>
 
+<!-- 메인 컨텐츠 영역 -->
 <main class="view-wrap">
 
     <section class="info-card relative">
-        <button th:if="${session.loginMember == null}" class="btn-zzim top-right" onclick="alert('로그인 후 이용 부탁드립니다.');"><i class="icon-heart">♥</i> 찜하기</button>
-        <button th:unless="${session.loginMember == null}" class="btn-zzim top-right" onclick="this.classList.toggle('active')"><i class="icon-heart">♥</i> 찜하기</button>
+        <button th:if="${session.loginMember == null}" class="btn-zzim top-right is-anonymous" onclick="alert('로그인 후 이용 부탁드립니다.'); location.href='/member/login';">
+            <i class="icon-heart">♥</i> 찜 <span class="count" th:text="${hospital.zzimCount}">0</span>
+        </button>
+        <button th:unless="${session.loginMember == null}" class="btn-zzim top-right btn-detail-zzim" th:classappend="${isZzim} ? 'active' : ''" th:data-id="${hospital.hospitalId}">
+            <i class="icon-heart">♥</i> 찜 <span class="count" th:text="${hospital.zzimCount}">0</span>
+        </button>
 
         <div class="info-badges">
             <span class="badge-status open" th:if="${hospital.status == '영업/정상'}">🟢 진료중</span>
@@ -33,9 +38,9 @@
         <h1 class="h-name" th:text="${hospital.name}">병원명</h1>
 
         <div class="h-stats">
-            <span>⭐ 별점 <strong th:text="${hospital.likeCount}">0</strong></span>
+            <span>⭐ 별점 <strong th:text="${hospital.avgRating != null ? hospital.avgRating : '0.0'}">0</strong></span>
             <span class="divider">|</span>
-            <span>📝 방문자리뷰 <strong th:text="${hospital.reviewCount}">0</strong></span>
+            <span>📝 방문자리뷰 <strong th:text="${#lists.size(reviewList)}">0</strong></span>
         </div>
 
         <div class="h-tags">
@@ -49,6 +54,7 @@
         </div>
     </section>
 
+    <!-- 스티키 탭 메뉴 -->
     <nav class="sticky-tabs" id="stickyTabs">
         <button class="tab-btn active" data-target="#section-intro">병원 소개</button>
         <button class="tab-btn" data-target="#section-info">진료 정보</button>
@@ -56,6 +62,7 @@
     </nav>
 
     <div class="content-sections">
+        <!-- 1. 병원 소개 -->
         <section id="section-intro" class="view-section">
             <h3 class="sec-title">병원 소개</h3>
             <div class="intro-box">
@@ -63,6 +70,7 @@
             </div>
         </section>
 
+        <!-- 2. 진료/위치 정보 -->
         <section id="section-info" class="view-section">
             <h3 class="sec-title">위치 및 진료 시간</h3>
 
@@ -82,37 +90,70 @@
                 </div>
             </div>
 
+            <!-- 🌟 추가됨: 영업시간, 휴무일, 점심시간 표시 영역 -->
             <div class="detail-row mt-20">
                 <div class="icon">⏰</div>
                 <div class="text">
-                    <strong>진료 시간</strong>
+                    <strong>진료 시간 및 휴무일</strong>
                     <span class="sub" th:text="'기본 진료: ' + ${hospital.openTime != null ? hospital.openTime + ' ~ ' + hospital.closeTime : '미등록'}"></span>
+                    <span class="sub" th:if="${hospital.lunchTime != null and hospital.lunchTime != ''}" th:text="'점심 시간: ' + ${hospital.lunchTime}"></span>
+                    <span class="sub" th:if="${hospital.holiday != null and hospital.holiday != ''}" style="color:#ef4444; font-weight:600;" th:text="'휴무일: ' + ${hospital.holiday}"></span>
                 </div>
             </div>
         </section>
 
+        <!-- 3. 리뷰 영역 -->
         <section id="section-review" class="view-section">
-            <h3 class="sec-title">방문자 리뷰 (<span th:text="${hospital.reviewCount}">0</span>)</h3>
+            <h3 class="sec-title">방문자 리뷰 (<span th:text="${#lists.size(reviewList)}">0</span>)</h3>
 
             <div class="review-lock" th:if="${session.loginMember == null}">
                 <div class="lock-icon">🔒</div>
                 <p>리뷰는 <strong>회원가입 후 로그인</strong>을 해야 열람 및 작성이 가능합니다.</p>
-                <a href="#" onclick="alert('로그인/회원가입 기능은 현재 다른 팀원이 통합 준비 중입니다.'); return false;" class="btn-primary-sm">로그인 하러가기</a>
+                <a href="/member/login" onclick="alert('로그인 후 이용 부탁드립니다.');" class="btn-primary-sm">로그인 하러가기</a>
             </div>
 
             <div class="review-content" th:unless="${session.loginMember == null}">
                 <div class="review-write-box">
-                    <textarea placeholder="병원 방문 후기를 남겨주세요!"></textarea>
+                    <input type="hidden" id="reviewHospitalId" th:value="${hospital.hospitalId}">
+                    <textarea id="reviewContent" placeholder="병원 방문 후기를 남겨주세요! (최대 1000자)" maxlength="1000"></textarea>
+
                     <div class="write-actions">
-                        <div class="star-rating">⭐⭐⭐⭐⭐</div>
-                        <button class="btn-primary-sm">리뷰 등록</button>
+                        <div class="star-rating-select" id="starRatingSelect">
+                            <span data-value="1" class="active">★</span>
+                            <span data-value="2" class="active">★</span>
+                            <span data-value="3" class="active">★</span>
+                            <span data-value="4" class="active">★</span>
+                            <span data-value="5" class="active">★</span>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span id="charCount" style="font-size:12px; color:#94a3b8; font-weight:600;">0 / 1000자</span>
+                            <input type="hidden" id="reviewRating" value="5">
+                            <button type="button" class="btn-primary-sm" id="btnSubmitReview">리뷰 등록</button>
+                        </div>
                     </div>
                 </div>
+
                 <ul class="review-list">
-                    <li>
-                        <div class="r-head"><strong>강아지바보</strong> <span>2026.07.10</span></div>
-                        <div class="r-star">⭐⭐⭐⭐⭐</div>
-                        <p class="r-body">선생님이 너무 친절하시고 과잉 진료가 없어서 좋았어요!</p>
+                    <li th:each="review : ${reviewList}">
+                        <div class="r-head">
+                            <strong th:text="${review.nickname}">작성자 닉네임</strong>
+                            <span th:text="${#calendars.format(review.createdAt, 'yyyy.MM.dd HH:mm')}">작성일</span>
+                        </div>
+                        <div class="r-star" th:text="${'⭐'.repeat(review.rating)}">⭐⭐⭐⭐⭐</div>
+
+                        <div class="r-body-wrap" style="margin-top:8px;">
+                            <div class="r-text-content" style="white-space: pre-wrap; font-size: 14.5px; color: #475569; line-height: 1.6;"
+                                 th:data-full="${review.content}"
+                                 th:data-short="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}"
+                                 th:text="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}">
+                            </div>
+                            <button type="button" class="btn-more-text" th:if="${#strings.length(review.content) > 150}" style="color:#0ea5e9; font-weight:800; font-size:13px; background:none; border:none; padding:0; cursor:pointer; margin-top:4px;">더보기</button>
+                        </div>
+                    </li>
+
+                    <li th:if="${#lists.isEmpty(reviewList)}" style="text-align:center; padding: 40px 0; color:#94a3b8;">
+                        등록된 리뷰가 없습니다. 첫 리뷰를 작성해 보세요!
                     </li>
                 </ul>
             </div>
@@ -122,12 +163,19 @@
 </main>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
-<script>
+<script th:inline="javascript">
     const lat = [[${hospital.latitude != null ? hospital.latitude : 0}]];
     const lng = [[${hospital.longitude != null ? hospital.longitude : 0}]];
-    const hName = "[[${hospital.name}]]";
+    const hName = [[${hospital.name}]];
+    const currentHospital = { id: [[${hospital.hospitalId}]], name: [[${hospital.name}]], img: [[${hospital.imageUrl}]] };
+
+    let recents = JSON.parse(localStorage.getItem('petcity_recent') || '[]');
+    recents = recents.filter(h => h.id !== currentHospital.id);
+    recents.unshift(currentHospital);
+    if (recents.length > 3) recents.pop();
+    localStorage.setItem('petcity_recent', JSON.stringify(recents));
 </script>
-<script th:src="@{/js/hospital/view.js}"></script>
+<script th:src="@{/js/hospital/view.js?v=4}"></script>
 
 </body>
 </html>

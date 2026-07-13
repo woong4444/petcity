@@ -20,6 +20,11 @@ public class HospitalDto {
     private Double longitude;
     private String openTime;
     private String closeTime;
+
+    // 🌟 추가됨: 점심시간 및 휴무일
+    private String lunchTime;
+    private String holiday;
+
     private String status;
     private String description;
     private String imageUrl;
@@ -34,7 +39,8 @@ public class HospitalDto {
 
     private int reviewCount;
     private int likeCount;
+    private int zzimCount;
 
-    // 🌟 추가됨: 사용자의 현재 위치로부터 병원까지의 거리 (km 단위)
     private Double distance;
+    private Double avgRating;
 }
