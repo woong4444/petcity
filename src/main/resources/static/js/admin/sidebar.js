@@ -32,5 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
-
+    const adminLogoutLink = document.querySelector("#adminLogoutLink");
+    if (adminLogoutLink !== null) {
+        adminLogoutLink.addEventListener("click", function () {
+            sessionStorage.removeItem("selectedMemberIds");
+        });
+    }
 });

@@ -102,9 +102,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return checkbox.checked;
         }).length;
 
-        selectAllMembers.checked = memberCheckboxes.length > 0 && checkedCount === memberCheckboxes.length;
+        const isCurrentPageAllSelected = memberCheckboxes.length > 0 && checkedCount === memberCheckboxes.length;
 
-        selectAllMembers.indeterminate = checkedCount > 0 && checkedCount < memberCheckboxes.length;
+        selectAllMembers.checked = isCurrentPageAllSelected;
+        selectAllMembers.indeterminate = false;
     }
 
     function updateSelectedCount() {
