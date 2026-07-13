@@ -19,67 +19,68 @@ public class HospitalService {
 
     private final HospitalDao hospitalDao;
 
-    // 🌟 신규 기능: 현재 시간 기준으로 실시간 영업 상태 정밀 계산!
     private void applyCurrentStatus(HospitalDto h) {
         if (h.getOpenTime() == null || h.getCloseTime() == null) {
             h.setCurrentStatus("정보 없음");
             return;
         }
-
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
         String currentTime = now.format(DateTimeFormatter.ofPattern("HH:mm"));
-        String currentDay = now.format(DateTimeFormatter.ofPattern("E", Locale.KOREAN)); // 월, 화, 수...
+        String currentDay = now.format(DateTimeFormatter.ofPattern("E", Locale.KOREAN));
 
-        // 1. 휴무일 체크
         if (h.getHoliday() != null && h.getHoliday().contains(currentDay)) {
             h.setCurrentStatus("휴무일");
             return;
         }
 
-        // 2. 영업시간 밖인지 체크 (24시간 예외처리 포함)
         boolean isOpen = false;
-        if(h.getOpenTime().contains("24") || h.getOpenTime().equals("00:00")) {
-            isOpen = true;
-        } else if (currentTime.compareTo(h.getOpenTime()) >= 0 && currentTime.compareTo(h.getCloseTime()) <= 0) {
-            isOpen = true;
-        }
+        if(h.getOpenTime().contains("24") || h.getOpenTime().equals("00:00")) isOpen = true;
+        else if (currentTime.compareTo(h.getOpenTime()) >= 0 && currentTime.compareTo(h.getCloseTime()) <= 0) isOpen = true;
 
         if (!isOpen) {
             h.setCurrentStatus("진료 종료");
             return;
         }
 
-        // 3. 휴게시간(점심시간) 체크
         if (h.getLunchTime() != null && h.getLunchTime().contains("~")) {
             try {
                 String lunch = h.getLunchTime();
                 int idx = lunch.indexOf("~");
                 String start = lunch.substring(Math.max(0, idx - 5), idx).trim();
                 String end = lunch.substring(idx + 1, Math.min(lunch.length(), idx + 6)).trim();
-
                 if (currentTime.compareTo(start) >= 0 && currentTime.compareTo(end) <= 0) {
                     h.setCurrentStatus("휴게시간");
                     return;
                 }
             } catch (Exception e) {}
         }
-
         h.setCurrentStatus("진료중");
     }
 
     public HospitalListPageDto getHospitalListPage(int page, Integer animalId, Integer subAnimalId, List<Integer> serviceIds, List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
         int limit = 12;
-        int offset = (page - 1) * limit;
-        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng, offset, limit);
 
-        // 🌟 조회된 리스트의 모든 병원에 실시간 상태 배지 적용
+        // 🌟 1. 전체 데이터 개수와 전체 페이지 수를 '먼저' 계산합니다.
+        int totalCount = hospitalDao.countHospitalList(animalId, subAnimalId, serviceIds, districts, keyword, openStatus);
+        int totalPages = (int) Math.ceil((double) totalCount / limit);
+        if (totalPages == 0) totalPages = 1;
+
+        // 🌟 2. URL 파라미터 조작 방어 로직 (음수, 0, 초과값 접근 차단)
+        if (page < 1) {
+            page = 1; // 0이나 음수 입력 시 1페이지로 강제 이동
+        } else if (page > totalPages) {
+            page = totalPages; // 최대 페이지 초과 입력 시 마지막 페이지로 강제 이동
+        }
+
+        // 🌟 3. 안전하게 보정된 페이지 번호로 오프셋(건너뛸 데이터 수) 계산
+        int offset = (page - 1) * limit;
+
+        // 🌟 4. 데이터베이스에서 목록 조회 및 상태 반영
+        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng, offset, limit);
         for(HospitalDto h : hospitalList) {
             applyCurrentStatus(h);
         }
 
-        int totalCount = hospitalDao.countHospitalList(animalId, subAnimalId, serviceIds, districts, keyword, openStatus);
-        int totalPages = (int) Math.ceil((double) totalCount / limit);
-        if (totalPages == 0) totalPages = 1;
         int blockLimit = 5;
         int startPage = (((int)(Math.ceil((double)page / blockLimit))) - 1) * blockLimit + 1;
         int endPage = startPage + blockLimit - 1;
@@ -98,7 +99,7 @@ public class HospitalService {
                 .keyword(keyword)
                 .openStatus(openStatus)
                 .sort(sort)
-                .page(page)
+                .page(page) // 보정된 안전한 페이지 번호를 화면에 반환
                 .totalCount(totalCount)
                 .totalPages(totalPages)
                 .startPage(startPage)
@@ -108,12 +109,10 @@ public class HospitalService {
 
     public HospitalDto getHospitalById(int hospitalId, Double userLat, Double userLng) {
         HospitalDto h = hospitalDao.findHospitalById(hospitalId, userLat, userLng);
-        // 🌟 상세보기에서도 상태 배지 적용
         if(h != null) applyCurrentStatus(h);
         return h;
     }
 
-    // --- 아래 기존 로직 유지 ---
     public List<Integer> getMyZzimList(int memberId) { return hospitalDao.findMyZzimList(memberId); }
     public List<Integer> getMyLikeList(int memberId) { return hospitalDao.findMyLikeList(memberId); }
     public boolean isZzim(int hospitalId, int memberId) { return hospitalDao.checkZzim(hospitalId, memberId) > 0; }
@@ -127,4 +126,9 @@ public class HospitalService {
     }
     public void insertReview(HospitalReviewDto reviewDto) { hospitalDao.insertReview(reviewDto); }
     public List<HospitalReviewDto> getReviewList(int hospitalId) { return hospitalDao.findReviewListByHospitalId(hospitalId); }
+
+    // 병원장/관리자 전용 답글 업데이트
+    public void addReviewReply(int reviewId, String replyContent, String replyRole) {
+        hospitalDao.updateReviewReply(reviewId, replyContent, replyRole);
+    }
 }
