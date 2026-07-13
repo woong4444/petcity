@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/member-list.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+    <script defer th:src="@{/js/admin/sidebar.js}"></script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <th:block th:replace="~{admin/fragments/sidebar :: sidebar('members')}"></th:block>
+
+    <!-- 본문 -->
+    <main class="admin-main">
+
+        <header class="page-header">
+
+            <div>
+                <h2 class="page-title">
+                    회원 관리
+                </h2>
+
+                <p class="page-description">
+                    전체 회원 정보와 계정 상태를 확인합니다.
+                </p>
+            </div>
+
+        </header>
+
+        <section class="member-card">
+
+            <div class="member-card-header">
+
+                <h3 class="member-card-title">
+                    전체 회원
+                </h3>
+
+                <p class="member-count">
+                    총
+                    <strong th:text="${pageList.totalElements}">
+                        0
+                    </strong>
+                    명
+                </p>
+
+            </div>
+
+            <div class="member-table-wrapper">
+
+                <table class="member-table">
+
+                    <colgroup>
+                        <col class="column-number">
+                        <col class="column-login-id">
+                        <col class="column-nickname">
+                        <col class="column-email">
+                        <col class="column-role">
+                        <col class="column-status">
+                        <col class="column-member-status">
+                        <col class="column-created-at">
+                        <col class="column-last-login">
+                        <col class="column-action">
+                    </colgroup>
+
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>아이디</th>
+                        <th>닉네임</th>
+                        <th>이메일</th>
+                        <th>권한</th>
+                        <th>계정 상태</th>
+                        <th>회원 상태</th>
+                        <th>가입일</th>
+                        <th>최근 로그인</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="member : ${members}">
+
+                        <td th:text="${member.memberId}">
+                            1
+                        </td>
+
+                        <td class="login-id-cell"
+                            th:text="${member.loginId}">
+                            user01
+                        </td>
+
+                        <td th:text="${member.nickname}">
+                            테스트 회원
+                        </td>
+
+                        <td class="email-cell"
+                            th:title="${member.email}"
+                            th:text="${member.email}">
+                            user@test.com
+                        </td>
+
+                        <!-- 권한 -->
+                        <td>
+                            <span class="role-badge"
+                                  th:classappend="${'role-' + #strings.toLowerCase(member.role)}"
+                                  th:text="${member.role}">
+                                USER
+                            </span>
+                        </td>
+
+                        <!-- 계정 상태 -->
+                        <td>
+                            <span class="status-badge account-status"
+                                  th:classappend="${' ' + #strings.toLowerCase(#strings.trim(member.status))}"
+                                  th:text="${member.status}">
+                                ACTIVE
+                            </span>
+                        </td>
+
+                        <!-- 회원 탈퇴 상태 -->
+                        <td>
+                            <span class="status-badge member-status"
+                                  th:classappend="${' ' + #strings.replace(
+                                      #strings.toLowerCase(#strings.trim(member.memberStatus)),
+                                      '_',
+                                      '-'
+                                  )}"
+                                  th:text="${member.memberStatus}">
+                                ACTIVE
+                            </span>
+                        </td>
+
+                        <td class="date-cell"
+                            th:text="${member.createdAt != null
+                                ? #temporals.format(
+                                    member.createdAt,
+                                    'yyyy-MM-dd'
+                                  )
+                                : '-'}">
+                            2026-07-13
+                        </td>
+
+                        <td class="last-login-cell"
+                            th:text="${member.lastLoginAt != null
+                                ? #temporals.format(
+                                    member.lastLoginAt,
+                                    'yyyy-MM-dd HH:mm'
+                                  )
+                                : '-'}">
+                            -
+                        </td>
+
+                        <td>
+                            <button type="button"
+                                    class="detail-button">
+                                상세
+                                <span class="detail-arrow">
+                                    ›
+                                </span>
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(members)}">
+
+                        <td colspan="10"
+                            class="empty-member-row">
+                            등록된 회원이 없습니다.
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+            <nav class="pagination" th:if="${pageList.totalPages>1}" aria-label="회원 목록 페이지">
+                <a th:if="${pageList.hasPrevious}"
+                   th:href="@{/admin/members(page=${pageList.currentPage - 1})}"
+                   class="pagination-link pagination-direction">
+                    이전
+                </a>
+                <span th:unless="${pageList.hasPrevious}" class="pagination-link pagination-direction disabled">
+                    이전
+                </span>
+                <a th:each="pageNumber : ${#numbers.sequence(pageList.startPage, pageList.endPage)}"
+                   th:href="@{/admin/members(page=${pageNumber})}"
+                   th:text="${pageNumber}"
+                   class="pagination-link" th:classappend="${pageNumber == pageList.currentPage} ? ' active' : ''">
+                1
+                </a>
+
+                <a th:if="${pageList.hasNext}" th:href="@{/admin/members(page=${pageList.currentPage +1})}"
+                   class="pagination-link pagination-direction">
+                    다음
+                </a>
+                <span th:unless="${pageList.hasNext}" class="pagination-link pagination-direction disabled">
+                    다음
+                </span>
+            </nav>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

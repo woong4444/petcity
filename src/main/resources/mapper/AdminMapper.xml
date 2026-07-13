@@ -29,5 +29,29 @@
     </select>
 
 
+    <select id="countAllMembers" resultType="long">
+        SELECT COUNT(*) FROM APP_MEMBER
+    </select>
+
+    <select id="findMembersByPage" resultType="AdminMemberListDto">
+        SELECT
+        MEMBER_ID AS memberId,
+        LOGIN_ID AS loginId,
+        NICKNAME AS nickname,
+        EMAIL AS email,
+        PHONE AS phone,
+        ROLE AS role,
+        STATUS AS status,
+        MEMBER_STATUS AS memberStatus,
+        CREATED_AT AS createdAt,
+        LAST_LOGIN_AT AS lastLoginAt,
+        DELETE_REQUESTED_AT AS deleteRequestedAt,
+        HARD_DELETE_AT AS hardDeleteAt
+        FROM APP_MEMBER
+        ORDER BY MEMBER_ID DESC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+
 
 </mapper>

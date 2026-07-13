@@ -1,0 +1,366 @@
+
+
+.member-card {
+    padding: 28px 26px;
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #e4eaf2;
+    border-radius: 18px;
+    box-shadow: 0 8px 26px rgba(38, 50, 72, 0.06);
+}
+
+.member-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.member-card-title {
+    margin: 0;
+    color: #202939;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.member-count {
+    margin: 0;
+    color: #58677d;
+    font-size: 15px;
+}
+
+.member-count strong {
+    color: #2563c9;
+    font-size: 18px;
+}
+
+
+/* ========================================
+   회원 목록 테이블
+======================================== */
+
+.member-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.member-table {
+    width: 100%;
+    min-width: 1180px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.member-table th {
+    padding: 15px 12px;
+    color: #536176;
+    background-color: #f7f9fc;
+    border-top: 1px solid #e1e7ef;
+    border-bottom: 1px solid #d4dce7;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.member-table td {
+    height: 72px;
+    padding: 14px 12px;
+    color: #253146;
+    border-bottom: 1px solid #e4e9f0;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.member-table tbody tr {
+    transition: background-color 0.15s;
+}
+
+.member-table tbody tr:hover {
+    background-color: #f8faff;
+}
+
+.member-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ========================================
+   테이블 열 너비
+======================================== */
+
+.column-number {
+    width: 65px;
+}
+
+.column-login-id {
+    width: 145px;
+}
+
+.column-nickname {
+    width: 135px;
+}
+
+.column-email {
+    width: 205px;
+}
+
+.column-role {
+    width: 95px;
+}
+
+.column-status {
+    width: 115px;
+}
+
+.column-member-status {
+    width: 135px;
+}
+
+.column-created-at {
+    width: 110px;
+}
+
+.column-last-login {
+    width: 155px;
+}
+
+.column-action {
+    width: 95px;
+}
+
+
+/* ========================================
+   셀 내용
+======================================== */
+
+.login-id-cell {
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.email-cell {
+    overflow: hidden;
+    color: #475569;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.date-cell,
+.last-login-cell {
+    color: #475569;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+
+/* ========================================
+   권한 배지
+======================================== */
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 68px;
+    height: 29px;
+    padding: 0 11px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.role-user {
+    color: #374151;
+    background-color: #eef1f5;
+}
+
+.role-owner {
+    color: #5b3ab8;
+    background-color: #eee8ff;
+}
+
+.role-admin {
+    color: #1556a3;
+    background-color: #dcecff;
+}
+
+
+/* ========================================
+   상태 배지 공통
+======================================== */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 92px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+
+/* ========================================
+   계정 상태
+   STATUS
+======================================== */
+
+.account-status.active {
+    color: #147248;
+    background-color: #ddf6e9;
+}
+
+.account-status.blocked {
+    color: #b42318;
+    background-color: #fee4e2;
+}
+
+.account-status.dormant {
+    color: #9a5800;
+    background-color: #fff0cf;
+}
+
+.account-status.deleted {
+    color: #525866;
+    background-color: #e8ebef;
+}
+
+
+/* ========================================
+   회원 탈퇴 상태
+   MEMBER_STATUS
+======================================== */
+
+.member-status.active {
+    color: #1f5fbf;
+    background-color: #e2edff;
+}
+
+.member-status.delete-pending {
+    color: #a24a00;
+    background-color: #ffead5;
+}
+
+.member-status.deleted {
+    color: #ffffff;
+    background-color: #596273;
+}
+
+
+/* ========================================
+   상세보기 버튼
+======================================== */
+
+.detail-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 2px;
+    color: #2563c9;
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.detail-button:hover {
+    color: #123f92;
+    text-decoration: underline;
+}
+
+.detail-arrow {
+    font-size: 20px;
+    line-height: 1;
+}
+
+
+/* ========================================
+   회원이 없을 때
+======================================== */
+
+.empty-member-row {
+    height: 180px !important;
+    color: #7a8798 !important;
+    text-align: center;
+}
+
+/* ========================================
+   회원 목록 페이징
+======================================== */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 26px;
+}
+
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 38px;
+    height: 38px;
+    padding: 0 11px;
+
+    color: #445168;
+    background-color: #ffffff;
+
+    border: 1px solid #dbe2ec;
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+            color 0.15s ease,
+            background-color 0.15s ease,
+            border-color 0.15s ease;
+}
+
+.pagination-link:hover {
+    color: #1f63c8;
+    background-color: #f3f7ff;
+    border-color: #9dbdef;
+}
+
+.pagination-link.active {
+    color: #ffffff;
+    background-color: #347fe8;
+    border-color: #347fe8;
+}
+
+.pagination-direction {
+    min-width: 60px;
+}
+
+.pagination-link.disabled {
+    color: #a8b1bf;
+    background-color: #f7f8fa;
+    border-color: #e6eaf0;
+    cursor: default;
+}
+
+
+/* ========================================
+   작은 화면
+======================================== */
+
+@media (max-width: 1100px) {
+
+    .admin-main {
+        padding: 32px 24px;
+    }
+
+    .member-card {
+        padding: 24px 20px;
+    }
+}

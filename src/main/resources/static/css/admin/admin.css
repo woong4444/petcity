@@ -9,23 +9,6 @@ body {
     color: #222;
 }
 
-.admin-layout {
-    display: flex;
-    min-height: 100vh;
-}
-
-.admin-sidebar {
-    width: 250px;
-    background: #172033;
-    color: #fff;
-    padding: 24px 18px;
-}
-
-.admin-logo {
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 36px;
-}
 
 .admin-menu {
     display: flex;
@@ -48,10 +31,6 @@ body {
     color: #fff;
 }
 
-.admin-main {
-    flex: 1;
-    padding: 34px;
-}
 
 .admin-header {
     display: flex;
