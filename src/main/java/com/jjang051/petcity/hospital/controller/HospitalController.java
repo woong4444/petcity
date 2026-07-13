@@ -27,9 +27,32 @@ public class HospitalController {
 
     private final HospitalService hospitalService;
 
-    // ... 기존 코드(hospitalList, hospitalListAjax, hospitalView, toggleZzim, toggleLike)는 동일하게 유지 ...
+    // 🌟 안전한 페이지 파라미터 변환기
+    private int parsePage(String pageParam) {
+        try {
+            int page = Integer.parseInt(pageParam.trim());
+            return Math.max(page, 1); // 1보다 작으면 1 반환
+        } catch (NumberFormatException e) {
+            return 1; // 문자열(ㄱㄴㅇㄹ) 입력 시 에러 내지 않고 1페이지 반환
+        }
+    }
+
+    // 🌟 page를 int가 아닌 String으로 받아서 parsePage() 로직을 거치도록 수정
     @GetMapping("/list")
-    public String hospitalList(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) Integer animalId, @RequestParam(required = false) Integer subAnimalId, @RequestParam(required = false) List<Integer> serviceIds, @RequestParam(required = false) List<String> districts, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "ALL") String openStatus, @RequestParam(defaultValue = "recommend") String sort, @RequestParam(required = false) Double userLat, @RequestParam(required = false) Double userLng, HttpSession session, Model model) {
+    public String hospitalList(@RequestParam(name = "page", defaultValue = "1") String pageParam,
+                               @RequestParam(required = false) Integer animalId,
+                               @RequestParam(required = false) Integer subAnimalId,
+                               @RequestParam(required = false) List<Integer> serviceIds,
+                               @RequestParam(required = false) List<String> districts,
+                               @RequestParam(required = false) String keyword,
+                               @RequestParam(defaultValue = "ALL") String openStatus,
+                               @RequestParam(defaultValue = "recommend") String sort,
+                               @RequestParam(required = false) Double userLat,
+                               @RequestParam(required = false) Double userLng,
+                               HttpSession session, Model model) {
+
+        int page = parsePage(pageParam); // 파라미터 검증
+
         HospitalListPageDto pageDto = hospitalService.getHospitalListPage(page, animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
         model.addAttribute("hospitalList", pageDto.getHospitalList()); model.addAttribute("districtList", pageDto.getDistrictList()); model.addAttribute("animalTypeList", pageDto.getAnimalTypeList()); model.addAttribute("subAnimalTypeList", pageDto.getSubAnimalTypeList()); model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList()); model.addAttribute("animalId", pageDto.getAnimalId()); model.addAttribute("subAnimalId", pageDto.getSubAnimalId()); model.addAttribute("serviceIds", pageDto.getServiceIds()); model.addAttribute("districts", pageDto.getDistricts()); model.addAttribute("keyword", pageDto.getKeyword()); model.addAttribute("openStatus", pageDto.getOpenStatus()); model.addAttribute("sort", pageDto.getSort()); model.addAttribute("pageDto", pageDto);
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
@@ -37,8 +60,22 @@ public class HospitalController {
         return "hospital/list";
     }
 
+    // 🌟 ajax 요청도 동일하게 파라미터 방어 적용
     @GetMapping("/list/ajax")
-    public String hospitalListAjax(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) Integer animalId, @RequestParam(required = false) Integer subAnimalId, @RequestParam(required = false) List<Integer> serviceIds, @RequestParam(required = false) List<String> districts, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "ALL") String openStatus, @RequestParam(defaultValue = "recommend") String sort, @RequestParam(required = false) Double userLat, @RequestParam(required = false) Double userLng, HttpSession session, Model model) {
+    public String hospitalListAjax(@RequestParam(name = "page", defaultValue = "1") String pageParam,
+                                   @RequestParam(required = false) Integer animalId,
+                                   @RequestParam(required = false) Integer subAnimalId,
+                                   @RequestParam(required = false) List<Integer> serviceIds,
+                                   @RequestParam(required = false) List<String> districts,
+                                   @RequestParam(required = false) String keyword,
+                                   @RequestParam(defaultValue = "ALL") String openStatus,
+                                   @RequestParam(defaultValue = "recommend") String sort,
+                                   @RequestParam(required = false) Double userLat,
+                                   @RequestParam(required = false) Double userLng,
+                                   HttpSession session, Model model) {
+
+        int page = parsePage(pageParam); // 파라미터 검증
+
         HospitalListPageDto pageDto = hospitalService.getHospitalListPage(page, animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
         model.addAttribute("hospitalList", pageDto.getHospitalList()); model.addAttribute("districtList", pageDto.getDistrictList()); model.addAttribute("animalTypeList", pageDto.getAnimalTypeList()); model.addAttribute("subAnimalTypeList", pageDto.getSubAnimalTypeList()); model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList()); model.addAttribute("pageDto", pageDto); model.addAttribute("sort", sort); model.addAttribute("openStatus", openStatus);
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
@@ -93,7 +130,6 @@ public class HospitalController {
         return resultMap;
     }
 
-    // 🌟 병원장/관리자 답글 등록 API
     @PostMapping("/api/review/reply")
     @ResponseBody
     public Map<String, Object> addReviewReply(@RequestParam("reviewId") int reviewId, @RequestParam("replyContent") String replyContent, HttpSession session) {
@@ -105,7 +141,6 @@ public class HospitalController {
             return resultMap;
         }
 
-        // 역할에 따라 DB에 저장할 ROLE 지정 (ADMIN 또는 OWNER)
         String userRole = loginMember.getRole();
         if ("ADMIN".equals(userRole) || "OWNER".equals(userRole)) {
             hospitalService.addReviewReply(reviewId, replyContent, userRole);

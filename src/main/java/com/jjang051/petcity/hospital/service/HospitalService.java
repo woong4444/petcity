@@ -115,7 +115,9 @@ public class HospitalService {
 
     public List<Integer> getMyZzimList(int memberId) { return hospitalDao.findMyZzimList(memberId); }
     public List<Integer> getMyLikeList(int memberId) { return hospitalDao.findMyLikeList(memberId); }
-    public boolean isZzim(int hospitalId, int memberId) { return hospitalDao.checkZzim(hospitalId, memberId) > 0; }
+    public boolean isZzim(int hospitalId, int memberId) {
+        return hospitalDao.checkZzim(hospitalId, memberId) > 0;
+    }
     public boolean toggleZzim(int hospitalId, int memberId) {
         if(isZzim(hospitalId, memberId)) { hospitalDao.deleteZzim(hospitalId, memberId); return false; }
         else { hospitalDao.insertZzim(hospitalId, memberId); return true; }
