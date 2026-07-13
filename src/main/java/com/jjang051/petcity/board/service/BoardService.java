@@ -479,5 +479,198 @@ public class BoardService {
         return boardDao.findMemberIdByLoginId(loginId);
     }
 
+    // 댓글 수정 작성자 본인 또는 관리자만 수정 가능
+
+    public int updateComment(int commentId,
+                             int loginMemberId,
+                             String content,
+                             String role) {
+        BoardCommentDto commentDto =
+                boardDao.findCommentById(commentId);
+
+        if (commentDto == null) {
+            throw new RuntimeException("수정할 댓글을 찾을 수 있습니다.");
+
+        }
+
+        boolean admin = "ADMIN".equals(role);
+
+        boolean writer =
+                commentDto.getMemberId() == loginMemberId;
+
+        if(!admin && !writer) {
+            throw new RuntimeException("댓글을 수정할 권한이 없습니다.");
+
+        }
+
+        if(content== null || content.isBlank()) {
+            throw new RuntimeException("댓글 내용을 입력해 주세요");
+
+        }
+        String trimmedContent = content.trim();
+
+        if(trimmedContent.length() > 1000) {
+            throw new RuntimeException(
+                    "댓글은 1000자 이하로 작성해 주세요"
+            );
+        }
+
+        boardDao.updateComment(
+                commentId,
+                trimmedContent
+        );
+
+        // 수정 후 원래 게시글로 돌아가기 위해 게시글 번호 반환
+        return commentDto.getBoardId();
+    }
+
+    /*
+     게시글 수정 화면 데이터 조회
+     수정 화면에서는 조회수 증가안함
+      */
+    public BoardViewPageDto getBoardUpdatePage(int boardId) {
+        BoardDto boardDto = boardDao.findBoardView(boardId);
+
+        if(boardDto == null) {
+            throw new RuntimeException(
+                    "수정할 게시글을 찾을 수 없습니다.boardId= "+boardId
+            );
+        }
+
+        List<BoardImageDto> boardImageList =
+                boardDao.findBoardImageList(boardId);
+
+        String boardTitle =
+                getBoardTitle(boardDto.getBoardType());
+
+        return BoardViewPageDto.builder()
+                .boardDto(boardDto)
+                .boardTitle(boardTitle)
+                .boardImageList(boardImageList)
+                .build();
+    }
+
+    /*
+    게시글 수정
+
+    게시판 종류와 작성자는 변경하지 않음.
+
+    NOTICE:
+    - 관리자만 수정 가능
+    - 동물 선택 없음
+
+    QNA, FREE:
+    - 제목, 내용, 동물 종류 수정
+
+    INFO:
+    - 제목, 내용, 동물 종류, 링크 수정
+    - 새 이미지를 선택하지 않으면 기존 대표 이미지 유지
+    - 새 이미지를 선택하면 기존 대표 이미지 교체
+*/
+    public  void updateBoard(BoardDto boardDto,
+                             MultipartFile[] imageFiles,
+                             String linkUrl,
+                             boolean admin) throws IOException {
+
+        BoardDto savedBoard =
+                boardDao.findBoardView(boardDto.getBoardId());
+
+        if(savedBoard == null) {
+            throw new RuntimeException("수정할 게시글을 찾을 수 없습니다.");
+        }
+
+        // 사용자가 요청값을 조작해도 게시판 종류는 기존 값 유지
+        String boardType = savedBoard.getBoardType();
+        boardDto.setBoardType(boardType);
+
+        if(boardDto.getTitle() == null
+        || boardDto.getTitle().isBlank()) {
+
+            throw new RuntimeException("제목을 입력해야 합니다.");
+        }
+
+        if(boardDto.getContent() == null
+         || boardDto.getContent().isBlank()) {
+
+            throw  new RuntimeException("내용을 입력해야 합니다.");
+        }
+        /*
+            공지사항은 관리자만 수정 가능
+            */
+        if("NOTICE".equals(boardType)) {
+            if(!admin) {
+                throw new RuntimeException(
+                        "공지사항은 관리자만 수정할 수 있습니다."
+                );
+            }
+            boardDto.setAnimalId(null);
+        } else  {
+
+            if(boardDto.getAnimalId() == null) {
+                throw new RuntimeException(
+                        "동물 종류를 선택해야 합니다."
+                );
+            }
+        }
+        List<BoardImageDto> oldImageList =
+                boardDao.findBoardImageList(boardDto.getBoardId());
+
+        boolean newImageExists =
+                hasImageFile(imageFiles);
+
+        /* 멍냥백서는 관련링크 필수  대표이미지도 필수*/
+
+        if("INFO".equals(boardType)) {
+
+            if(linkUrl == null || linkUrl.isBlank()) {
+                throw new RuntimeException(
+                        "멍냥백서는 관련 링크를 입력해야 합니다."
+                );
+            }
+
+            boolean oldImageExists =
+                    oldImageList != null
+                    && !oldImageList.isEmpty();
+
+            if (!oldImageExists && !newImageExists) {
+                throw new RuntimeException(
+                        "멍냥백서는 대표 이미지가 필요합니다."
+                );
+            }
+        }
+
+        // BOARD 테이블 제목,본문, 동물 종류 수정
+        boardDao.updateBoard(boardDto);
+
+        /* 멍냥백서 대표 이미지 및 링크 수정*/
+
+        if("INFO".equals(boardType)) {
+            if(newImageExists) {
+                // 기존 이미지 db 정보 삭제
+                boardDao.deleteBoardImages(
+                        boardDto.getBoardId()
+                );
+
+                // 기존 실제 파일 삭제
+                deleteImageFiles(oldImageList);
+
+                // 새로운 대표 이미지 저장
+                saveBoardImages(
+                        boardDto.getBoardId(),
+                        boardType,
+                        imageFiles,
+                        linkUrl
+                );
+
+            } else {
+
+                //  새 이미지를 선택하지 않으면 기존 이미지 유지하고 링크만 수정
+                boardDao.updateBoardImageLink(
+                        boardDto.getBoardId(),
+                        normalizeLinkUrl(linkUrl)
+                );
+            }
+        }
+    }
 
 }

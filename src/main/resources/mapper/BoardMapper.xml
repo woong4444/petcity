@@ -333,5 +333,43 @@
 
     </select>
 
+    <!-- 댓글 수정-->
+    <update id="updateComment">
+
+        UPDATE BOARD_COMMENT
+        SET CONTENT =#{content},
+         UPDATED_AT = SYSTIMESTAMP
+        WHERE COMMENT_ID = #{commentId}
+    </update>
+
+    <!--게시글 수정-->
+    <update id="updateBoard"
+            parameterType="com.jjang051.petcity.board.dto.BoardDto">
+
+        UPDATE BOARD
+        SET TITLE = #{title},
+          CONTENT = #{content, jdbcType =CLOB},
+          ANIMAL_ID = #{animalId, jdbcType=NUMERIC},
+          UPDATED_AT = SYSTIMESTAMP
+        WHERE BOARD_ID = #{boardId}
+    </update>
+    <!--게시글 대표 이미지 db 정보 삭제-->
+    <delete id="deleteBoardImages">
+
+        DELETE FROM BOARD_IMAGE
+        WHERE BOARD_ID = #{boardId}
+    </delete>
+
+    <!--기존 멍냥백서 대표 이미지 링크 수정-->
+    <update id ="updateBoardImageLink">
+
+        UPDATE BOARD_IMAGE
+        SET LINK_URL = #{linkUrl, jdbcType=VARCHAR}
+        WHERE BOARD_ID = #{boardId}
+
+    </update>
+
+
+
 
 </mapper>
