@@ -23,12 +23,23 @@
                 로그인
             </h2>
 
-            <!-- 메시지 -->
+            <!-- 일반 로그인 오류 메시지 -->
             <div
                     th:if="${message}"
                     class="alert alert-error mb-3">
 
                 <span th:text="${message}"></span>
+
+            </div>
+
+            <!-- 15분 미활동 자동 로그아웃 메시지 -->
+            <div
+                    th:if="${param.expired != null}"
+                    class="alert alert-warning mb-3">
+
+                <span>
+                    15분 동안 활동이 없어 자동 로그아웃되었습니다.
+                </span>
 
             </div>
 
@@ -48,10 +59,10 @@
                             type="text"
                             name="loginId"
                             class="input input-bordered"
-                            placeholder="아이디">
+                            placeholder="아이디"
+                            required>
 
                 </div>
-
 
                 <div class="form-control mb-4">
 
@@ -67,12 +78,14 @@
                             type="password"
                             name="password"
                             class="input input-bordered"
-                            placeholder="비밀번호">
+                            placeholder="비밀번호"
+                            required>
 
                 </div>
 
-
-                <button class="btn btn-primary w-full">
+                <button
+                        type="submit"
+                        class="btn btn-primary w-full">
 
                     로그인
 
@@ -80,13 +93,9 @@
 
             </form>
 
-
             <div class="divider">
-
                 OR
-
             </div>
-
 
             <a
                     href="/member/signup"

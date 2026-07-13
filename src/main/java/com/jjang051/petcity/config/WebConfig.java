@@ -1,5 +1,6 @@
 package com.jjang051.petcity.config;
 
+import com.jjang051.petcity.visit.interceptor.LoginActivityInterceptor;
 import com.jjang051.petcity.visit.interceptor.VisitCountInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,7 @@ import java.nio.file.Paths;
 public class WebConfig implements WebMvcConfigurer {
 
     private final VisitCountInterceptor visitCountInterceptor;
-
+    private final LoginActivityInterceptor loginActivityInterceptor;
     @Value("${file.upload}")
     private String uploadPath;
 
@@ -42,6 +43,17 @@ public class WebConfig implements WebMvcConfigurer {
                         "/images/**",
                         "/favicon.ico",
                         "/admin/**"
+                );
+        registry.addInterceptor(loginActivityInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/favicon.ico",
+                        "/member/login",
+                        "/member/signup",
+                        "/error"
                 );
     }
 }
