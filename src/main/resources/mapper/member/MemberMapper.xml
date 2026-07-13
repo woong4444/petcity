@@ -16,6 +16,16 @@
 
     </select>
 
+    <!-- 이메일 조회 (Google / Kakao / Naver 로그인용) -->
+    <select id="findByEmail"
+            resultType="com.jjang051.petcity.member.dto.MemberDto">
+
+        SELECT *
+        FROM APP_MEMBER
+        WHERE EMAIL = #{email}
+
+    </select>
+
     <!-- 회원가입 -->
     <insert id="insert">
 
