@@ -76,6 +76,10 @@ public class AdminService {
                     .build();
     }
 
+    public List<Long> getAllMemberIds() {
+        return adminDao.findAllMemberIds();
+    }
+
     private void validatePage(int requestedPage, int totalPages) {
 
         if (totalPages == 0) {

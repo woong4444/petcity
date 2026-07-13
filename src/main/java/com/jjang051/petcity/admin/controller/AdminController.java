@@ -6,11 +6,16 @@ import com.jjang051.petcity.admin.service.AdminService;
 import com.jjang051.petcity.member.dto.MemberDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -61,6 +66,21 @@ public class AdminController {
         } catch (IllegalArgumentException e) {
             return "redirect:/admin/members?page=1";
         }
+
+    }
+
+    @GetMapping("/members/all-ids")
+    @ResponseBody
+    public ResponseEntity<List<Long>> getAllMemberIds(HttpSession session) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!"ADMIN".equals(loginMember.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        List<Long> memberIds = adminService.getAllMemberIds();
+        return ResponseEntity.ok(memberIds);
 
     }
 

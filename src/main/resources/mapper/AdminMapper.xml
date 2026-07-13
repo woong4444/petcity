@@ -53,5 +53,10 @@
         FETCH NEXT #{pageSize} ROWS ONLY
     </select>
 
+    <select id="findAllMemberIds" resultType="long">
+        select member_id
+        from app_member
+        order by member_id desc
+    </select>
 
 </mapper>

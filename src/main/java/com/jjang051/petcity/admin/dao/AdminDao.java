@@ -20,8 +20,9 @@ public interface AdminDao {
 
     int countPendingOwnerRequests();
 
-    List<AdminMemberListDto> findMembersByPage(@Param("offset") int offset, @Param("pageSize") int pageSize);
-
     long countAllMembers();
 
+    List<AdminMemberListDto> findMembersByPage(@Param("offset") int offset, @Param("pageSize") int pageSize);
+
+    List<Long> findAllMemberIds();
 }
