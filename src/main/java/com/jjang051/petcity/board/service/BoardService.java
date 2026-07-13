@@ -478,4 +478,6 @@ public class BoardService {
 
         return boardDao.findMemberIdByLoginId(loginId);
     }
+
+
 }
