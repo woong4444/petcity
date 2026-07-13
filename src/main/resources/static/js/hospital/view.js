@@ -25,23 +25,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }, { input_coord: kakao.maps.services.Coords.TM, output_coord: kakao.maps.services.Coords.WGS84 });
     }
 
-    // 🌟 1. 링크 공유하기 복사 기능
+    // 링크 공유하기 복사 기능
     const btnShare = document.getElementById('btnShare');
     if (btnShare) {
         btnShare.addEventListener('click', function() {
-            // 현재 페이지의 URL 주소 복사
-            navigator.clipboard.writeText(window.location.href)
-                .then(() => {
-                    alert('병원 링크가 복사되었습니다!\n원하는 곳에 붙여넣기(Ctrl+V) 하세요.');
-                })
-                .catch(err => {
-                    console.error('복사 실패:', err);
-                    alert('링크 복사에 실패했습니다.');
-                });
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('병원 링크가 복사되었습니다!\n원하는 곳에 붙여넣기(Ctrl+V) 하세요.');
+            }).catch(err => {
+                console.error('복사 실패:', err);
+                alert('링크 복사에 실패했습니다.');
+            });
         });
     }
 
-    // 🌟 2. 스크롤 스파이 (Scroll Spy) 연동
+    // 스크롤 스파이 연동
     const tabs = document.querySelectorAll('.tab-btn');
     const sections = document.querySelectorAll('.view-section');
     const stickyHeaderOffset = 120;
@@ -68,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
         tabs.forEach(tab => {
             tab.classList.remove('bg-sky-500', 'text-white', 'shadow-md', 'active');
             tab.classList.add('text-slate-500', 'hover:bg-slate-50');
-
             if (tab.dataset.target === `#${current}`) {
                 tab.classList.remove('text-slate-500', 'hover:bg-slate-50');
                 tab.classList.add('bg-sky-500', 'text-white', 'shadow-md', 'active');
@@ -76,8 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-
-    // 리뷰 글자수 카운터
+    // 🌟 보호자 리뷰 글자수 카운터
     const reviewContent = document.getElementById('reviewContent');
     const charCount = document.getElementById('charCount');
     if (reviewContent && charCount) {
@@ -86,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 리뷰 150자 더보기/접기 토글
+    // 🌟 리뷰 & 답글 150자 더보기/접기 토글 공통 로직
     document.querySelectorAll('.btn-more-text').forEach(btn => {
         btn.addEventListener('click', function() {
             const contentDiv = this.previousElementSibling;
@@ -100,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // DB 연동 찜하기 기능 (+ 카운트 숫자 변경)
+    // 찜하기 기능
     document.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -113,14 +108,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(res => res.json())
                 .then(data => {
                     if(data.isSuccess) {
-                        // 리스트 하트, 뷰 상단 하트, 모바일 고정바 하트까지 모두 동시 변경!
                         document.querySelectorAll(`.btn-zzim-toggle[data-id="${hospitalId}"]`).forEach(el => {
                             if(data.isZzim) {
                                 el.classList.add('text-rose-600', 'active');
                                 el.classList.remove('text-slate-300', 'text-rose-400');
                             } else {
                                 el.classList.remove('text-rose-600', 'active');
-                                // 엘리먼트 위치에 따라 기본색 복구
                                 if(el.classList.contains('top-right')) el.classList.add('text-slate-300');
                                 else el.classList.add('text-rose-400');
                             }
@@ -163,31 +156,105 @@ document.addEventListener("DOMContentLoaded", function () {
             const rating = ratingInput.value;
             const hospitalId = document.getElementById('reviewHospitalId').value;
 
-            if(content === '') {
-                alert('리뷰 내용을 입력해주세요!');
-                return;
-            }
+            if(content === '') { alert('리뷰 내용을 입력해주세요!'); return; }
 
             fetch('/hospital/api/review', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    hospitalId: hospitalId,
-                    rating: rating,
-                    content: content
-                })
+                body: new URLSearchParams({ hospitalId: hospitalId, rating: rating, content: content })
             })
                 .then(res => res.json())
                 .then(data => {
-                    if(data.isSuccess) {
-                        alert('리뷰가 등록되었습니다!');
-                        window.location.reload();
-                    } else {
-                        alert("로그인 후 이용 부탁드립니다.");
-                        location.href = '/member/login';
-                    }
+                    if(data.isSuccess) { alert('리뷰가 등록되었습니다!'); window.location.reload(); }
+                    else { alert("로그인 후 이용 부탁드립니다."); location.href = '/member/login'; }
                 })
                 .catch(err => console.error("리뷰 등록 에러:", err));
         });
     }
+
+    // ==============================================
+    // 🌟 병원장/관리자 전용 리뷰 답글 1000자 제한 및 수정 로직
+    // ==============================================
+
+    // 답글 글자수 카운터
+    document.querySelectorAll('.reply-textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            const countSpan = this.closest('.reply-form-box').querySelector('.reply-char-count');
+            if(countSpan) {
+                countSpan.textContent = this.value.length + ' / 1000자';
+            }
+        });
+    });
+
+    // 신규 답글 폼 열기/닫기
+    document.querySelectorAll('.btn-toggle-reply').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const formBox = this.nextElementSibling;
+            formBox.classList.toggle('hidden');
+        });
+    });
+
+    // 기존 답글 수정 폼 열기
+    document.querySelectorAll('.btn-edit-reply').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const parentDiv = this.closest('.bg-slate-50');
+            const displayArea = parentDiv.querySelector('.reply-display-area');
+            const formBox = parentDiv.querySelector('.reply-form-box');
+
+            // 기존 텍스트 숨기고 폼 띄우기
+            displayArea.classList.add('hidden');
+            formBox.classList.remove('hidden');
+
+            // 폼 띄울 때 글자수 즉시 계산
+            const textarea = formBox.querySelector('.reply-textarea');
+            textarea.dispatchEvent(new Event('input'));
+        });
+    });
+
+    // 기존 답글 수정 취소
+    document.querySelectorAll('.btn-cancel-reply').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const parentDiv = this.closest('.bg-slate-50');
+            const displayArea = parentDiv.querySelector('.reply-display-area');
+            const formBox = parentDiv.querySelector('.reply-form-box');
+
+            // 폼 숨기고 기존 텍스트 다시 보이기
+            displayArea.classList.remove('hidden');
+            formBox.classList.add('hidden');
+        });
+    });
+
+    // 답글 등록 및 수정 통신 (메시지 변경)
+    document.querySelectorAll('.btn-submit-reply').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const reviewId = this.dataset.reviewId;
+            const textarea = this.closest('.reply-form-box').querySelector('textarea');
+            const replyContent = textarea.value.trim();
+
+            if (replyContent === '') {
+                alert('답글 내용을 입력해주세요.');
+                textarea.focus();
+                return;
+            }
+
+            if (!confirm('답글을 저장하시겠습니까?')) return;
+
+            fetch('/hospital/api/review/reply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ reviewId: reviewId, replyContent: replyContent })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.isSuccess) {
+                        alert('답글이 저장되었습니다!');
+                        window.location.reload();
+                    } else {
+                        alert(data.message || '답글 저장에 실패했습니다. (권한 없음 또는 세션 만료)');
+                    }
+                })
+                .catch(err => console.error("답글 등록 통신 에러:", err));
+        });
+    });
+
 });

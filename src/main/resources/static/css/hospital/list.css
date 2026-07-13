@@ -2,7 +2,9 @@
 
 body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial, "Noto Sans KR", sans-serif; }
 
-.hospital-list-wrap { max-width: 1440px; margin: 0 auto; padding: 40px 40px 70px; }
+/* 🌟 [수정 핵심] 모든 요소가 패딩을 포함하여 크기를 계산하도록 강제하여 화면 침범 완벽 방어! */
+.hospital-list-wrap * { box-sizing: border-box; }
+.hospital-list-wrap { max-width: 1440px; margin: 0 auto; padding: 40px 180px 70px 40px; box-sizing: border-box; }
 
 .quick-menu { position: fixed; top: 160px; right: 30px; width: 130px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); padding: 15px 10px; z-index: 100; text-align: center; }
 .quick-title { font-size: 13px; font-weight: 900; color: #0284c7; margin-bottom: 12px; border-bottom: 2px solid #e0f2fe; padding-bottom: 8px;}
@@ -24,7 +26,7 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .hospital-list-header h1 { margin: 0 0 20px; font-size: 34px; font-weight: 800; color: #111827; letter-spacing: -1px; }
 
 .hospital-search-form { display: flex; max-width: 680px; margin: 0 auto; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); border-radius: 14px; }
-.hospital-search-form input[type="text"] { flex: 1; height: 54px; padding: 0 20px; border: 2px solid #0ea5e9; border-right: none; border-radius: 14px 0 0 14px; outline: none; font-size: 16px; font-weight: 600; box-sizing: border-box; }
+.hospital-search-form input[type="text"] { flex: 1; height: 54px; padding: 0 20px; border: 2px solid #0ea5e9; border-right: none; border-radius: 14px 0 0 14px; outline: none; font-size: 16px; font-weight: 600; }
 .hospital-search-form button { width: 100px; height: 54px; border: none; background-color: #0ea5e9; color: #ffffff; font-size: 16px; font-weight: 800; border-radius: 0 14px 14px 0; cursor: pointer; }
 .hospital-search-form button:hover { background-color: #0284c7; }
 
@@ -74,15 +76,41 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .btn-location-select { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #475569; cursor: pointer; transition: 0.2s; }
 .btn-location-select:hover { background: #e2e8f0; color: #0f172a; }
 
-.hospital-card-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-.hospital-card { display: flex; flex-direction: column; gap: 16px; padding: 22px; border: 1px solid #e5e7eb; border-radius: 22px; background-color: #ffffff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.hospital-card-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; width: 100%; }
+
+.hospital-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    background-color: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
 .hospital-card:hover { transform: translateY(-4px); border-color: #bae6fd; box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08); }
 
 .go-detail-link { cursor: pointer; }
 .go-detail-link:hover { opacity: 0.9; }
 
-.hospital-image { width: 100%; height: 210px; border-radius: 18px; overflow: hidden; position: relative; background: linear-gradient(135deg, #e0f2fe, #f0fdfa); border: 1px solid #e5e7eb; }
-.hospital-image img { width: 100%; height: 100%; object-fit: cover; }
+.hospital-image {
+    width: 100%;
+    height: 210px;
+    min-height: 210px;
+    max-height: 210px;
+    flex-shrink: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #e0f2fe, #f0fdfa);
+    border: 1px solid #e5e7eb;
+}
+.hospital-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+
 .no-image { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .no-image span { width: 74px; height: 74px; border-radius: 50%; background: #ffffff; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 8px 20px rgba(14, 165, 233, 0.14); }
 
@@ -90,12 +118,11 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .hover-overlay p { margin: 0; font-size: 14px; line-height: 1.5; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
 .hospital-card:hover .hover-overlay { opacity: 1; }
 
-.hospital-info { flex: 1; display: flex; flex-direction: column; }
-.hospital-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.title-left { flex: 1; }
-.title-right { padding-left: 10px; }
+.hospital-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.hospital-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; min-width: 0; }
+.title-left { flex: 1; min-width: 0; padding-right: 10px; }
+.title-right { flex-shrink: 0; }
 
-/* 🌟 리스트 페이지 찜 버튼 스타일 수정 */
 .btn-list-zzim { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; color: #cbd5e1; cursor: pointer; transition: 0.2s; padding: 0; line-height: 1; }
 .btn-list-zzim .icon-heart { font-size: 26px; }
 .btn-list-zzim .count { font-size: 15px; font-weight: 800; color: #94a3b8; }
@@ -103,7 +130,7 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .btn-list-zzim:hover .count, .btn-list-zzim.active .count { color: #ef4444; }
 
 .district-badge { display: inline-block; padding: 4px 11px; margin-bottom: 8px; border-radius: 999px; background-color: #ecfeff; color: #0891b2; font-size: 12px; font-weight: 800; }
-.hospital-name { margin: 0; font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hospital-name { margin: 0; font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; width: 100%; }
 
 .h-rating-review { display: inline-flex; align-items: center; margin-left: 6px; font-size: 14px; font-weight: 700; vertical-align: middle; }
 .h-rating-review .star { color: #f59e0b; margin-right: 3px; }
@@ -112,12 +139,12 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .h-distance { margin: 6px 0 0; font-size: 13px; font-weight: 700; color: #10b981; background: #ecfdf5; display: inline-block; padding: 4px 8px; border-radius: 6px; border: 1px solid #d1fae5; }
 .h-distance strong { font-size: 14px; }
 
-.hospital-detail-list { margin-top: 10px; flex-grow: 1; }
-.hospital-detail-list p { margin: 6px 0; display: flex; gap: 8px; font-size: 13px; color: #4b5563; line-height: 1.5;}
+.hospital-detail-list { margin-top: 10px; flex-grow: 1; min-width: 0; }
+.hospital-detail-list p { margin: 6px 0; display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4b5563; line-height: 1.5; min-width: 0; }
 .detail-label { width: 55px; flex-shrink: 0; color: #111827; font-weight: 800; }
-.txt-ellipsis { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+.txt-ellipsis { display: block; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: keep-all;}
 
-.hospital-actions { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hospital-actions { margin-top: auto; padding-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .hospital-actions a, .hospital-actions button { display: flex; align-items: center; justify-content: center; height: 42px; border-radius: 10px; font-size: 14px; font-weight: 800; transition: all 0.2s ease; border: none; cursor: pointer; text-decoration: none;}
 .detail-button { background-color: #0ea5e9; color: #ffffff; }
 .detail-button:hover { background-color: #0284c7; }
@@ -157,9 +184,14 @@ body { margin: 0; background-color: #f6f8fb; color: #1f2937; font-family: Arial,
 .btn-primary { padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 800; background: #0ea5e9; color: #fff; border: none; cursor: pointer; transition: 0.2s;}
 .btn-primary:hover { background: #0284c7; }
 
-@media (max-width: 1300px) { .hospital-card-list { grid-template-columns: repeat(3, 1fr); } .quick-menu { display: none; } }
-@media (max-width: 992px) { .hospital-card-list { grid-template-columns: repeat(2, 1fr); } .hospital-list-wrap { padding: 36px 20px 60px; } .list-toolbar { flex-direction: column; gap: 12px; align-items: stretch; } .status-toggles { justify-content: center; } }
-@media (max-width: 768px) { .hospital-card-list { grid-template-columns: 1fr; } .hospital-list-header h1 { font-size: 28px; } .hospital-filter-wrap { padding: 20px; border-radius: 18px; } .hospital-result-top { flex-direction: column; align-items: flex-start; } .user-location-area { width: 100%; justify-content: space-between;} }
+/* 🌟 반응형 레이아웃 처리 (화면 좁아지면 퀵메뉴 숨기고 패딩 복구) */
+@media (max-width: 1400px) {
+    .quick-menu { display: none; }
+    .hospital-list-wrap { padding: 40px 40px 70px 40px; }
+}
+@media (max-width: 1300px) { .hospital-card-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 992px) { .hospital-card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hospital-list-wrap { padding: 36px 20px 60px; } .list-toolbar { flex-direction: column; gap: 12px; align-items: stretch; } .status-toggles { justify-content: center; } }
+@media (max-width: 768px) { .hospital-card-list { grid-template-columns: minmax(0, 1fr); } .hospital-list-header h1 { font-size: 28px; } .hospital-filter-wrap { padding: 20px; border-radius: 18px; } .hospital-result-top { flex-direction: column; align-items: flex-start; } .user-location-area { width: 100%; justify-content: space-between;} }
 @media (max-width: 480px) { .hospital-search-form { flex-direction: column; gap: 8px; box-shadow: none; border-radius: 0;} .hospital-search-form input[type="text"] { border-radius: 10px; border: 1px solid #cbd5e1; height: 48px; } .hospital-search-form button { width: 100%; border-radius: 10px; height: 48px; } }
 
 .hospital-result-area { transition: opacity 0.18s ease; }
