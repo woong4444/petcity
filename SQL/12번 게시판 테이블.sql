@@ -58,3 +58,36 @@ ALTER TABLE BOARD
     RENAME COLUMN CONTENT_CLOB TO CONTENT;
 
 COMMIT;
+
+--  수정사항 2
+
+ALTER TABLE BOARD
+DROP CONSTRAINT SYS_C007130;
+
+ALTER TABLE BOARD
+DROP CONSTRAINT CK_BOARD_TYPE;
+
+ALTER TABLE BOARD
+    ADD CONSTRAINT CK_BOARD_TYPE
+        CHECK (
+            BOARD_TYPE IN (
+                           'NOTICE',
+                           'QNA',
+                           'FREE',
+                           'INFO',
+                           'FAQ'
+                )
+            );
+
+COMMIT;
+
+DELETE FROM BOARD
+WHERE BOARD_TYPE = 'MISSING';
+
+UPDATE BOARD
+SET BOARD_TYPE = 'FREE'
+WHERE BOARD_TYPE = 'MISSING';
+
+COMMIT;
+
+
