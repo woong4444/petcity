@@ -20,6 +20,10 @@ public class HospitalDto {
     private Double longitude;
     private String openTime;
     private String closeTime;
+
+    private String lunchTime;
+    private String holiday;
+
     private String status;
     private String description;
     private String imageUrl;
@@ -34,7 +38,11 @@ public class HospitalDto {
 
     private int reviewCount;
     private int likeCount;
+    private int zzimCount;
 
-    // 🌟 추가됨: 사용자의 현재 위치로부터 병원까지의 거리 (km 단위)
     private Double distance;
+    private Double avgRating;
+
+    // 🌟 신규 추가: 실시간 영업 상태 (진료중, 휴무일, 휴게시간, 진료종료)
+    private String currentStatus;
 }

@@ -2,6 +2,7 @@ package com.jjang051.petcity.hospital.dao;
 
 import com.jjang051.petcity.animal.dto.AnimalTypeDto;
 import com.jjang051.petcity.hospital.dto.HospitalDto;
+import com.jjang051.petcity.hospital.dto.HospitalReviewDto;
 import com.jjang051.petcity.hospital.dto.HospitalSubAnimalDto;
 import com.jjang051.petcity.hospital.dto.MedicalServiceDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -35,7 +36,6 @@ public interface HospitalDao {
             @Param("openStatus") String openStatus
     );
 
-    // 🌟 수정됨: 매퍼로 위경도 전달
     HospitalDto findHospitalById(@Param("hospitalId") int hospitalId,
                                  @Param("userLat") Double userLat,
                                  @Param("userLng") Double userLng);
@@ -44,4 +44,20 @@ public interface HospitalDao {
     List<AnimalTypeDto> findAnimalTypeList();
     List<HospitalSubAnimalDto> findSubAnimalTypeList();
     List<MedicalServiceDto> findMedicalServiceList();
+
+    // 🌟 찜하기(즐겨찾기) 기능
+    int checkZzim(@Param("hospitalId") int hospitalId, @Param("memberId") int memberId);
+    void insertZzim(@Param("hospitalId") int hospitalId, @Param("memberId") int memberId);
+    void deleteZzim(@Param("hospitalId") int hospitalId, @Param("memberId") int memberId);
+    List<Integer> findMyZzimList(int memberId);
+
+    // 🌟 추천(좋아요) 기능
+    int checkLike(@Param("hospitalId") int hospitalId, @Param("memberId") int memberId);
+    void insertLike(@Param("hospitalId") int hospitalId, @Param("memberId") int memberId);
+    void deleteLike(@Param("hospitalId") int hospitalId, @Param("memberId") int memberId);
+    List<Integer> findMyLikeList(int memberId);
+
+    // 🌟 리뷰 기능
+    void insertReview(HospitalReviewDto reviewDto);
+    List<HospitalReviewDto> findReviewListByHospitalId(int hospitalId);
 }
