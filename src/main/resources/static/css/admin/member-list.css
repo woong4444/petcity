@@ -351,6 +351,66 @@
 
 
 /* ========================================
+   회원 선택 체크박스
+======================================== */
+
+.column-checkbox {
+    width: 48px;
+}
+
+.checkbox-cell {
+    text-align: center !important;
+}
+
+.member-checkbox,
+#selectAllMembers {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+
+    accent-color: #347fe8;
+    cursor: pointer;
+}
+
+.member-count-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.selected-member-count {
+    margin: 0;
+    color: #58677d;
+    font-size: 15px;
+}
+
+.selected-member-count strong {
+    color: #2563c9;
+    font-size: 18px;
+}
+
+.clear-selection-button {
+    height: 34px;
+    padding: 0 12px;
+
+    color: #536176;
+    background-color: #ffffff;
+
+    border: 1px solid #d8e0eb;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.clear-selection-button:hover {
+    color: #245db1;
+    background-color: #f4f7fc;
+}
+
+/* ========================================
    작은 화면
 ======================================== */
 
@@ -364,3 +424,4 @@
         padding: 24px 20px;
     }
 }
+
