@@ -36,11 +36,17 @@ public class AdminService {
                 .build();
     }
 
-    public AdminMemberPageDto getMemberPage(int requestedPage, String requestedSort, String requestedDirection) {
+    public AdminMemberPageDto getMemberPage(int requestedPage, String requestedSort, String requestedDirection, String keyword, String role, String status, String memberStatus) {
+
         String sort = normalizeSort(requestedSort);
         String direction = normalizeDirection(requestedDirection);
 
-        long totalElements = adminDao.countAllMembers();
+        keyword = normalizeKeyword(keyword);
+        role = normalizeRole(role);
+        status = normalizeStatus(status);
+        memberStatus = normalizeMemberStatus(memberStatus);
+
+        long totalElements = adminDao.countMembersByCondition(keyword, role, status, memberStatus);
         int totalPages = (int) Math.ceil((double) totalElements / PAGE_SIZE);
 
         validatePage(requestedPage, totalPages);
@@ -52,7 +58,7 @@ public class AdminService {
         if (totalElements == 0) {
             members = Collections.emptyList();
         } else {
-            members = adminDao.findMembersByPage(offset, PAGE_SIZE,sort,direction);
+            members = adminDao.findMembersByPage(offset, PAGE_SIZE, sort, direction,keyword,role,status,memberStatus);
         }
         int startPage;
         int endPage;
@@ -77,12 +83,23 @@ public class AdminService {
                 .hasNext(requestedPage < totalPages)
                 .sort(sort)
                 .direction(direction)
+                .keyword(keyword)
+                .role(role)
+                .status(status)
+                .memberStatus(memberStatus)
                 .build();
     }
 
 
-    public List<Long> getAllMemberIds() {
-        return adminDao.findAllMemberIds();
+
+
+    public List<Long> getAllMemberIds(String keyword, String role, String status, String memberStatus) {
+        keyword = normalizeKeyword(keyword);
+        role = normalizeRole(role);
+        status = normalizeStatus(status);
+        memberStatus = normalizeMemberStatus(memberStatus);
+
+        return adminDao.findAllMemberIds(keyword, role, status, memberStatus);
     }
 
     private void validatePage(int requestedPage, int totalPages) {
@@ -127,7 +144,48 @@ public class AdminService {
             default -> "memberId";
         };
     }
+    private String normalizeMemberStatus(String memberStatus) {
+        if (memberStatus == null) {
+            return "";
+        }
+        String normalizeMemberStatus = memberStatus.trim().toUpperCase();
 
+        return switch (normalizeMemberStatus) {
+            case "ACTIVE","DELETED_PENDING","DELETED" -> normalizeMemberStatus;
+            default -> "";
+        };
+    }
+
+
+    private String normalizeStatus(String status) {
+        if (status == null) {
+            return "";
+        }
+        String normalizeStatus = status.trim().toUpperCase();
+
+        return switch (normalizeStatus) {
+            case "ACTIVE","BLOCKED","DELETED" -> normalizeStatus;
+            default -> "";
+        };
+    }
+
+    private String normalizeRole(String role) {
+        if (role == null) {
+            return "";
+        }
+        String normalizeRole = role.trim().toUpperCase();
+        return switch (normalizeRole) {
+            case "USER","OWNER","ADMIN" -> normalizeRole;
+            default -> "";
+        };
+    }
+
+    private String normalizeKeyword(String keyword) {
+        if (keyword == null) {
+            return "";
+        }
+        return keyword.trim();
+    }
 
 }
 

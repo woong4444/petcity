@@ -22,10 +22,16 @@ public interface AdminDao {
 
     long countAllMembers();
 
-    List<AdminMemberListDto> findMembersByPage(@Param("offset") int offset, @Param("pageSize") int pageSize,
-                                               @Param("sort") String sort, @Param("direction") String direction);
+    long countMembersByCondition(@Param("keyword") String keyword, @Param("role") String role,
+                                 @Param("status") String status, @Param("memberStatus") String memberStatus);
 
-    List<Long> findAllMemberIds();
+    List<AdminMemberListDto> findMembersByPage(@Param("offset") int offset, @Param("pageSize") int pageSize,
+                                               @Param("sort") String sort, @Param("direction") String direction,
+                                               @Param("keyword") String keyword, @Param("role") String role,
+                                               @Param("status") String status, @Param("memberStatus") String memberStatus);
+
+    List<Long> findAllMemberIds(@Param("keyword") String keyword, @Param("role") String role,
+                                @Param("status") String status, @Param("memberStatus") String memberStatus);
 
 
 }

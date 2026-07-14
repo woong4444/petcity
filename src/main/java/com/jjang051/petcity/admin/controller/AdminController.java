@@ -45,6 +45,10 @@ public class AdminController {
     public String memberList(@RequestParam(name = "page", defaultValue = "1") String pageParam,
                              @RequestParam(name = "sort", defaultValue = "memberId") String sort,
                              @RequestParam(name = "direction", defaultValue = "desc") String direction,
+                             @RequestParam(name = "keyword", defaultValue = "") String keyword,
+                             @RequestParam(name = "role", defaultValue = "") String role,
+                             @RequestParam(name = "status", defaultValue = "") String status,
+                             @RequestParam(name = "memberStatus", defaultValue = "") String memberStatus,
                              HttpSession session, Model model) {
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
         if (loginMember == null) {
@@ -60,7 +64,7 @@ public class AdminController {
             return "redirect:/admin/members?page=1";
         }
         try {
-            AdminMemberPageDto pageList = adminService.getMemberPage(page, sort, direction);
+            AdminMemberPageDto pageList = adminService.getMemberPage(page, sort, direction, keyword, role, status, memberStatus);
 
             model.addAttribute("members", pageList.getMembers());
             model.addAttribute("pageList", pageList);
@@ -73,7 +77,13 @@ public class AdminController {
 
     @GetMapping("/members/all-ids")
     @ResponseBody
-    public ResponseEntity<List<Long>> getAllMemberIds(HttpSession session) {
+    public ResponseEntity<List<Long>> getAllMemberIds(
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
+            @RequestParam(name = "role", defaultValue = "") String role,
+            @RequestParam(name = "status", defaultValue = "") String status,
+            @RequestParam(name = "memberStatus", defaultValue = "") String memberStatus,
+            HttpSession session
+    ) {
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
         if (loginMember == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -81,7 +91,7 @@ public class AdminController {
         if (!"ADMIN".equals(loginMember.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        List<Long> memberIds = adminService.getAllMemberIds();
+        List<Long> memberIds = adminService.getAllMemberIds(keyword,role,status,memberStatus);
         return ResponseEntity.ok(memberIds);
 
     }
