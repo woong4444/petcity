@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjang051.petcity.pet.dao.PetDao">
+
+    <insert id="insertPet">
+        INSERT INTO MEMBER_PET (
+        PET_ID, MEMBER_ID, ANIMAL_ID, PET_NAME, BREED_NAME,
+        GENDER, NEUTERED, BIRTH_DATE, WEIGHT, PHOTO_URL, REGISTRATION_NO
+        ) VALUES (
+        SEQ_MEMBER_PET.NEXTVAL, #{memberId}, #{animalId}, #{petName}, #{breedName},
+        #{dbGender}, #{neutered}, TO_DATE(#{birthDate}, 'YYYY-MM-DD'), #{weight}, #{photoUrl}, #{registrationNo}
+        )
+    </insert>
+
+    <update id="updatePet">
+        UPDATE MEMBER_PET SET
+        PET_NAME = #{petName},
+        ANIMAL_ID = #{animalId},
+        BREED_NAME = #{breedName},
+        GENDER = #{dbGender},
+        NEUTERED = #{neutered},
+        BIRTH_DATE = TO_DATE(#{birthDate}, 'YYYY-MM-DD'),
+        WEIGHT = #{weight},
+        REGISTRATION_NO = #{registrationNo},
+        UPDATED_AT = SYSTIMESTAMP
+        <if test="photoUrl != null and photoUrl != ''">
+            , PHOTO_URL = #{photoUrl}
+        </if>
+        WHERE PET_ID = #{petId} AND MEMBER_ID = #{memberId}
+    </update>
+
+    <select id="findPetsByMemberId" resultType="com.jjang051.petcity.pet.dto.PetDto">
+        SELECT
+        P.PET_ID AS petId,
+        P.MEMBER_ID AS memberId,
+        P.ANIMAL_ID AS animalId,
+        P.PET_NAME AS petName,
+        P.BREED_NAME AS breedName,
+        CASE
+        WHEN P.GENDER = 'M' AND P.NEUTERED = 'N' THEN 'M'
+        WHEN P.GENDER = 'F' AND P.NEUTERED = 'N' THEN 'F'
+        WHEN P.GENDER = 'M' AND P.NEUTERED = 'Y' THEN 'NM'
+        WHEN P.GENDER = 'F' AND P.NEUTERED = 'Y' THEN 'NF'
+        ELSE P.GENDER
+        END AS gender,
+        TO_CHAR(P.BIRTH_DATE, 'YYYY-MM-DD') AS birthDate,
+        P.WEIGHT AS weight,
+        P.PHOTO_URL AS photoUrl,
+        P.REGISTRATION_NO AS registrationNo,
+        A.ANIMAL_NAME AS animalName,
+        (SELECT MIN(ANIMAL_ID) FROM ANIMAL_TYPE WHERE ANIMAL_NAME = P.BREED_NAME AND PARENT_ID = P.ANIMAL_ID) AS subAnimalId,
+        (TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - TO_NUMBER(TO_CHAR(P.BIRTH_DATE, 'YYYY'))) AS age
+        FROM MEMBER_PET P
+        JOIN ANIMAL_TYPE A ON P.ANIMAL_ID = A.ANIMAL_ID
+        WHERE P.MEMBER_ID = #{memberId} AND P.STATUS = 'ACTIVE'
+        ORDER BY P.IS_MAIN DESC, P.PET_ID ASC
+    </select>
+</mapper>

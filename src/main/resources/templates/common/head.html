@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-<link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
 </head>
 <body>
-
 <header th:fragment="head" class="site-header">
-
     <div class="top-header">
         <div class="header-inner top-header-inner">
-
             <div class="top-left">
                 <div class="sns-list">
                     <span class="sns-icon">K</span>
@@ -17,171 +14,42 @@
                     <span class="sns-icon">I</span>
                     <span class="sns-icon">N</span>
                 </div>
-
-                <span class="top-message">
-                    동물병원 찾기부터 우리 아이 병원 기록까지, PetCity
-                </span>
+                <span class="top-message">동물병원 찾기부터 우리 아이 병원 기록까지, PetCity</span>
             </div>
-
             <div class="top-menu">
-
-                <!-- ========================= -->
-                <!-- 로그인 전 -->
-                <!-- ========================= -->
                 <th:block th:if="${session.loginMember == null}">
-
-                    <a href="/member/login">로그인</a>
-                    <span>|</span>
-
-                    <a href="/member/signup">회원가입</a>
-                    <span>|</span>
-
+                    <a href="/member/login">로그인</a><span>|</span>
+                    <a href="/member/signup">회원가입</a><span>|</span>
                 </th:block>
-
-
-                <!-- ========================= -->
-                <!-- 로그인 후 -->
-                <!-- ========================= -->
                 <th:block th:if="${session.loginMember != null}">
+                    <span th:if="${session.loginMember.role == 'USER'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-primary badge-sm">일반회원</span></span>
+                    <span th:if="${session.loginMember.role == 'OWNER'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-warning badge-sm">병원장</span></span>
+                    <span th:if="${session.loginMember.role == 'ADMIN'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-error badge-sm">관리자</span></span>
 
-                    <!-- 일반회원 -->
-                    <span th:if="${session.loginMember.role == 'USER'}">
-            👤
-            <b th:text="${session.loginMember.nickname}"></b>
-            <span class="badge badge-primary badge-sm">
-                일반회원
-            </span>
-        </span>
-
-                    <!-- 병원장 -->
-                    <span th:if="${session.loginMember.role == 'OWNER'}">
-            🏥
-            <b th:text="${session.loginMember.nickname}"></b>
-            <span class="badge badge-warning badge-sm">
-                병원장
-            </span>
-        </span>
-
-                    <!-- 관리자 -->
-                    <span th:if="${session.loginMember.role == 'ADMIN'}">
-            🛠
-            <b th:text="${session.loginMember.nickname}"></b>
-            <span class="badge badge-error badge-sm">
-                관리자
-            </span>
-        </span>
-
-
-
-                    <!-- ========================= -->
-                    <!-- USER -->
-                    <!-- ========================= -->
-                    <th:block th:if="${session.loginMember.role == 'USER'}">
-
-                        <a href="/member/mypage">
-                            마이페이지
-                        </a>
-
-                        <span>|</span>
-
-                        <a href="/member/logout">
-                            로그아웃
-                        </a>
-
-                        <span>|</span>
-
-                    </th:block>
-
-                    <!-- ========================= -->
-                    <!-- OWNER -->
-                    <!-- ========================= -->
-                    <th:block th:if="${session.loginMember.role == 'OWNER'}">
-
-                        <a href="/owner">
-                            병원관리
-                        </a>
-
-                        <span>|</span>
-
-                        <a href="/member/mypage">
-                            마이페이지
-                        </a>
-
-                        <span>|</span>
-
-                        <a href="/member/logout">
-                            로그아웃
-                        </a>
-
-                        <span>|</span>
-
-                    </th:block>
-
-
-                    <!-- ========================= -->
-                    <!-- ADMIN -->
-                    <!-- ========================= -->
-                    <th:block th:if="${session.loginMember.role == 'ADMIN'}">
-
-                        <a href="/admin">Admin</a>
-
-                        <span>|</span>
-
-                        <a href="/admin/dashboard">Dashboard</a>
-
-                        <span>|</span>
-
-                        <a href="/member/logout">
-                            로그아웃
-                        </a>
-
-                        <span>|</span>
-
-                    </th:block>
-
+                    <a th:if="${session.loginMember.role != 'ADMIN'}" href="/member/mypage">마이페이지</a>
+                    <a th:if="${session.loginMember.role == 'ADMIN'}" href="/admin">Admin</a>
+                    <a th:if="${session.loginMember.role == 'OWNER'}" href="/owner">병원관리</a>
+                    <span>|</span><a href="/member/logout">로그아웃</a><span>|</span>
                 </th:block>
-
-
-                <a href="/pet/list">내 반려동물</a>
-
-                <span>|</span>
-
-                <a href="/board/list">고객센터</a>
-
+                <a href="/pet/list">내 반려동물</a><span>|</span><a href="/board/list">고객센터</a>
             </div>
-
         </div>
     </div>
 
     <div class="middle-header">
         <div class="header-inner middle-header-inner">
-
             <div class="logo-area">
                 <a href="/" class="logo-link">
                     <div class="logo-icon">🐾</div>
-                    <div>
-                        <div class="logo-text">PetCity</div>
-                        <div class="logo-sub-text">Animal Hospital Finder</div>
-                    </div>
+                    <div><div class="logo-text">PetCity</div><div class="logo-sub-text">Animal Hospital Finder</div></div>
                 </a>
             </div>
-
             <div class="search-area">
-                <div class="notice-line">
-                    <strong>NOTICE</strong>
-                    <a href="/board/list">우리 아이에게 맞는 동물병원을 찾아보세요!</a>
-                </div>
-
+                <div class="notice-line"><strong>NOTICE</strong> <a href="/board/list">우리 아이에게 맞는 동물병원을 찾아보세요!</a></div>
                 <form action="/hospital/list" method="get" class="search-form">
-                    <input
-                            type="text"
-                            name="keyword"
-                            placeholder="병원명, 지역, 동물 종류를 검색하세요"
-                            class="search-input"
-                    >
+                    <input type="text" name="keyword" placeholder="병원명, 지역, 동물 종류를 검색하세요" class="search-input">
                     <button type="submit" class="search-button">검색</button>
                 </form>
-
                 <div class="popular-keywords">
                     <span>인기검색어 :</span>
                     <a href="/hospital/list?keyword=강아지">강아지</a>
@@ -190,9 +58,8 @@
                     <a href="/hospital/list?keyword=건강검진">건강검진</a>
                 </div>
             </div>
-
             <div class="banner-area">
-                <div class="mini-banner">
+                <div class="mini-banner" style="cursor: pointer;" onclick="location.href='/hospital/list?sort=distance'">
                     <div class="mini-banner-icon">🏥</div>
                     <div>
                         <p class="mini-banner-title">가까운 동물병원 찾기</p>
@@ -200,36 +67,28 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <nav class="bottom-nav">
         <div class="header-inner bottom-nav-inner">
-
-            <a href="/hospital/list" class="category-button">
-                <span class="category-icon">☰</span>
-                <span>전체 카테고리</span>
-            </a>
-
+            <a href="/hospital/list" class="category-button"><span class="category-icon">☰</span><span>전체 카테고리</span></a>
             <div class="main-menu">
                 <a href="/hospital/list">동물병원</a>
-                <a href="/hospital/search">맞춤검색</a>
+
+                <!-- 🌟 비로그인 시 맞춤검색 클릭 방어 -->
+                <a th:if="${session.loginMember == null}" href="#" onclick="alert('로그인 후 이용 부탁드립니다.'); location.href='/member/login'; return false;">맞춤검색</a>
+                <a th:unless="${session.loginMember == null}" href="/hospital/search">맞춤검색</a>
+
                 <a href="/pet/list">내 반려동물</a>
                 <a href="/board/list">게시판</a>
                 <a href="/event/list">이벤트</a>
             </div>
-
             <div class="right-menu">
-                <a href="/board/notice">고객센터</a>
-                <span>|</span>
-                <a href="/owner/request">병원장 문의</a>
+                <a href="/board/notice">고객센터</a><span>|</span><a href="/owner/request">병원장 문의</a>
             </div>
-
         </div>
     </nav>
-
 </header>
-
 </body>
 </html>

@@ -1,0 +1,63 @@
+@charset "UTF-8";
+
+body { background-color: #f8fafc; font-family: "Noto Sans KR", sans-serif; }
+
+/* 커스텀 버튼형 체크박스 디자인 */
+.custom-chk-btn {
+    display: block;
+    cursor: pointer;
+    user-select: none;
+}
+.custom-chk-btn input {
+    display: none;
+}
+.custom-chk-btn span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 48px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+.custom-chk-btn:hover span {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+/* 체크되었을 때 스타일 (마이펫플러스의 짙은 파란색 느낌) */
+.custom-chk-btn input:checked + span {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.seoul-all span {
+    background-color: #f0f9ff;
+    border-color: #38bdf8;
+    color: #0369a1;
+}
+.seoul-all input:checked + span {
+    background-color: #0ea5e9;
+    border-color: #0ea5e9;
+}
+
+/* 모달창 스크롤바 */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
