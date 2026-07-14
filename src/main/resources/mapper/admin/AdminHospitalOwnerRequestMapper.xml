@@ -24,13 +24,42 @@
         JOIN HOSPITAL H
             ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
         ORDER BY
-            CASE HOR.STATUS
-            WHEN 'PENDING' THEN 1
-            WHEN 'APPROVED' THEN 2
-            WHEN 'REJECTED' THEN 3
-            ELSE 4
-        END,
-        HOR.CREATED_AT DESC
+        <choose>
+            <when test="sort == 'memberInfo'">
+                M.NICKNAME
+            </when>
+
+            <when test="sort == 'hospitalInfo'">
+                H.NAME
+            </when>
+            <when test="sort == 'status'">
+                HOR.STATUS
+            </when>
+            <when test="sort == 'rejectReason'">
+                HOR.REJECT_REASON
+            </when>
+            <when test="sort == 'createdAt'">
+                HOR.CREATED_AT
+            </when>
+            <when test="sort == 'processedAt'">
+                HOR.PROCESSED_AT
+            </when>
+            <otherwise>
+                HOR.REQUEST_ID
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="direction == 'asc'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+        NULLS LAST
+        <if test="sort != 'requestId'">
+            , HOR.REQUEST_ID DESC
+        </if>
     </select>
 
     <select id="findRequestById" resultType="AdminHospitalOwnerRequestDto">
