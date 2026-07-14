@@ -1,10 +1,313 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+
+    <title>회원 상세 정보</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/member-detail.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
 </head>
+
 <body>
+
+<div class="admin-layout">
+
+    <!-- 관리자 사이드바 -->
+    <th:block
+            th:replace="~{admin/fragments/sidebar :: sidebar('members')}">
+    </th:block>
+
+
+    <main class="admin-main">
+
+        <!-- 페이지 상단 -->
+        <header class="page-header">
+
+            <div>
+                <h2 class="page-title">
+                    회원 상세 정보
+                </h2>
+
+                <p class="page-description">
+                    회원의 기본 정보와 계정 상태를 확인합니다.
+                </p>
+            </div>
+
+            <a class="back-button"
+               th:href="@{/admin/members}">
+                목록으로
+            </a>
+
+        </header>
+
+
+        <!-- 회원 기본 정보 -->
+        <section class="member-detail-card">
+
+            <div class="detail-card-header">
+
+                <div>
+                    <p class="member-number">
+                        회원 번호
+                        <strong th:text="${member.memberId}">
+                            1
+                        </strong>
+                    </p>
+
+                    <h3 class="member-name"
+                        th:text="${member.nickname}">
+                        회원 닉네임
+                    </h3>
+
+                    <p class="member-login-id"
+                       th:text="${member.loginId}">
+                        user01
+                    </p>
+                </div>
+
+                <div class="member-badge-area">
+
+                    <span class="detail-badge"
+                          th:text="${member.role}">
+                        USER
+                    </span>
+
+                    <span class="detail-badge"
+                          th:text="${member.status}">
+                        ACTIVE
+                    </span>
+
+                    <span class="detail-badge"
+                          th:text="${member.memberStatus}">
+                        ACTIVE
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-section">
+
+                <h4 class="detail-section-title">
+                    기본 정보
+                </h4>
+
+                <dl class="detail-list">
+
+                    <div class="detail-item">
+                        <dt>회원 번호</dt>
+
+                        <dd th:text="${member.memberId}">
+                            1
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>로그인 아이디</dt>
+
+                        <dd th:text="${member.loginId}">
+                            user01
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>닉네임</dt>
+
+                        <dd th:text="${member.nickname}">
+                            테스트 회원
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>이메일</dt>
+
+                        <dd th:text="${member.email != null
+                            ? member.email
+                            : '-'}">
+                            user@test.com
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>전화번호</dt>
+
+                        <dd th:text="${member.phone != null
+                            ? member.phone
+                            : '-'}">
+                            010-0000-0000
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>프로필 이미지</dt>
+
+                        <dd th:text="${member.profileImage != null
+                            ? member.profileImage
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                </dl>
+
+            </div>
+
+
+            <!-- 계정 정보 -->
+            <div class="detail-section">
+
+                <h4 class="detail-section-title">
+                    계정 정보
+                </h4>
+
+                <dl class="detail-list">
+
+                    <div class="detail-item">
+                        <dt>권한</dt>
+
+                        <dd th:text="${member.role}">
+                            USER
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>계정 상태</dt>
+
+                        <dd th:text="${member.status}">
+                            ACTIVE
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>회원 상태</dt>
+
+                        <dd th:text="${member.memberStatus}">
+                            ACTIVE
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>이메일 인증 여부</dt>
+
+                        <dd th:text="${member.emailVerified != null
+                            ? member.emailVerified
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                </dl>
+
+            </div>
+
+
+            <!-- 날짜 정보 -->
+            <div class="detail-section">
+
+                <h4 class="detail-section-title">
+                    날짜 정보
+                </h4>
+
+                <dl class="detail-list">
+
+                    <div class="detail-item">
+                        <dt>가입일</dt>
+
+                        <dd th:text="${member.createdAt != null
+                            ? #temporals.format(
+                                member.createdAt,
+                                'yyyy-MM-dd HH:mm:ss'
+                              )
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>최근 수정일</dt>
+
+                        <dd th:text="${member.updatedAt != null
+                            ? #temporals.format(
+                                member.updatedAt,
+                                'yyyy-MM-dd HH:mm:ss'
+                              )
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>최근 로그인</dt>
+
+                        <dd th:text="${member.lastLoginAt != null
+                            ? #temporals.format(
+                                member.lastLoginAt,
+                                'yyyy-MM-dd HH:mm:ss'
+                              )
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>탈퇴 요청일</dt>
+
+                        <dd th:text="${member.deleteRequestedAt != null
+                            ? #temporals.format(
+                                member.deleteRequestedAt,
+                                'yyyy-MM-dd HH:mm:ss'
+                              )
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>탈퇴 처리일</dt>
+
+                        <dd th:text="${member.deletedAt != null
+                            ? #temporals.format(
+                                member.deletedAt,
+                                'yyyy-MM-dd HH:mm:ss'
+                              )
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                    <div class="detail-item">
+                        <dt>영구 삭제 예정일</dt>
+
+                        <dd th:text="${member.hardDeleteAt != null
+                            ? #temporals.format(
+                                member.hardDeleteAt,
+                                'yyyy-MM-dd HH:mm:ss'
+                              )
+                            : '-'}">
+                            -
+                        </dd>
+                    </div>
+
+                </dl>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
 
 </body>
 </html>
