@@ -2,8 +2,6 @@ package com.jjang051.petcity.member.controller;
 
 import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberService;
-import com.jjang051.petcity.visit.service.LoginHistoryRedisService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +12,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class MemberController {
 
-    // MemberService 주입
+    // ===========================
+    // MemberService
+    // ===========================
     private final MemberService memberService;
-
-    private final LoginHistoryRedisService loginHistoryRedisService;
 
     // ===========================
     // 로그인 화면
@@ -30,7 +28,7 @@ public class MemberController {
     }
 
     // ===========================
-    // 회원가입 화면
+    // SNS 회원가입 선택 화면
     // ===========================
     @GetMapping("/member/signup")
     public String signup() {
@@ -40,7 +38,17 @@ public class MemberController {
     }
 
     // ===========================
-    // 회원가입 처리
+    // 일반 회원가입 화면
+    // ===========================
+    @GetMapping("/member/signup/form")
+    public String signupForm() {
+
+        return "member/signup-form";
+
+    }
+
+    // ===========================
+    // 일반 회원가입 처리
     // ===========================
     @PostMapping("/member/signup")
     public String signupProcess(MemberDto memberDto,
@@ -70,54 +78,8 @@ public class MemberController {
                     e.getMessage()
             );
 
-            return "redirect:/member/signup";
+            return "redirect:/member/signup/form";
         }
-
-    }
-
-    // ===========================
-    // 로그인 처리
-    // ===========================
-    @PostMapping("/member/login")
-    public String loginProcess(String loginId,
-                               String password,
-                               HttpSession session,
-                               RedirectAttributes rttr) {
-
-        MemberDto member = memberService.findByLoginId(loginId);
-
-        // 아이디 없음
-        if (member == null) {
-
-            rttr.addFlashAttribute(
-                    "message",
-                    "존재하지 않는 아이디입니다."
-            );
-
-            return "redirect:/member/login";
-        }
-
-        // 비밀번호 확인
-        if (!member.getPassword().equals(password)) {
-
-            rttr.addFlashAttribute(
-                    "message",
-                    "비밀번호가 일치하지 않습니다."
-            );
-
-            return "redirect:/member/login";
-        }
-
-        // 로그인 성공
-        session.setAttribute("loginMember", member);
-
-        // 추가부분(레디스에 로그인유저 저장)
-        loginHistoryRedisService.saveLoginHistory(member,session);
-        if ("ADMIN".equals(member.getRole())) {
-            return "redirect:/admin/dashboard";
-        }
-
-        return "redirect:/";
 
     }
 
@@ -125,16 +87,15 @@ public class MemberController {
     // 로그아웃
     // ===========================
     @GetMapping("/member/logout")
-    public String logout(HttpSession session) {
-
-        session.invalidate();
+    public String logout() {
 
         return "redirect:/";
 
     }
+
     // ===========================
-// 병원장 신청 화면
-// ===========================
+    // 병원장 신청 화면
+    // ===========================
     @GetMapping("/owner/request")
     public String ownerRequest() {
 

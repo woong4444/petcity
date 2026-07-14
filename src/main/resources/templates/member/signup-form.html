@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css"
+          rel="stylesheet">
+</head>
+
+<body class="bg-slate-100">
+
+<div class="hero min-h-screen">
+
+    <div class="card w-full max-w-lg bg-base-100 shadow-2xl">
+
+        <div class="card-body">
+
+            <h2 class="text-3xl font-bold text-center mb-6">
+                회원가입
+            </h2>
+
+            <!-- 에러메시지 -->
+            <div
+                    th:if="${message}"
+                    class="alert alert-error mb-4">
+
+                <span th:text="${message}"></span>
+
+            </div>
+
+            <form action="/member/signup" method="post" id="signupForm">
+
+                <!-- Spring Security 적용 시 사용 -->
+                <!--
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                -->
+
+                <!-- 아이디 -->
+                <div class="form-control mb-3">
+
+                    <label class="label">
+                        <span class="label-text">아이디</span>
+                    </label>
+
+                    <input
+                            type="text"
+                            name="loginId"
+                            class="input input-bordered"
+                            placeholder="아이디를 입력하세요"
+                            required>
+
+                </div>
+
+                <!-- 비밀번호 -->
+                <div class="form-control mb-3">
+
+                    <label class="label">
+                        <span class="label-text">비밀번호</span>
+                    </label>
+
+                    <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="input input-bordered"
+                            placeholder="비밀번호"
+                            required>
+
+                </div>
+
+                <!-- 비밀번호 확인 -->
+                <div class="form-control mb-3">
+
+                    <label class="label">
+                        <span class="label-text">비밀번호 확인</span>
+                    </label>
+
+                    <input
+                            type="password"
+                            id="passwordCheck"
+                            class="input input-bordered"
+                            placeholder="비밀번호 확인"
+                            required>
+
+                    <label class="label">
+
+                        <span
+                                id="passwordMessage"
+                                class="label-text-alt">
+
+                        </span>
+
+                    </label>
+
+                </div>
+
+                <!-- 닉네임 -->
+                <div class="form-control mb-3">
+
+                    <label class="label">
+                        <span class="label-text">닉네임</span>
+                    </label>
+
+                    <input
+                            type="text"
+                            name="nickname"
+                            class="input input-bordered"
+                            placeholder="닉네임"
+                            required>
+
+                </div>
+
+                <!-- 이메일 -->
+                <div class="form-control mb-3">
+
+                    <label class="label">
+                        <span class="label-text">이메일</span>
+                    </label>
+
+                    <input
+                            type="email"
+                            name="email"
+                            class="input input-bordered"
+                            placeholder="example@email.com"
+                            required>
+
+                </div>
+
+                <!-- 전화번호 -->
+                <div class="form-control mb-5">
+
+                    <label class="label">
+                        <span class="label-text">전화번호</span>
+                    </label>
+
+                    <input
+                            type="text"
+                            name="phone"
+                            class="input input-bordered"
+                            placeholder="010-0000-0000"
+                            required>
+
+                </div>
+
+                <button
+                        type="submit"
+                        class="btn btn-primary w-full">
+
+                    회원가입
+
+                </button>
+
+            </form>
+            <!-- ================================ -->
+            <!-- [상각] SNS 회원가입 -->
+            <!-- ================================ -->
+
+            <div class="divider">또는</div>
+
+            <a href="/oauth2/authorization/google"
+               class="btn btn-outline btn-block mb-2">
+                Google로 시작하기
+            </a>
+
+            <a href="/oauth2/authorization/kakao"
+               class="btn btn-block mb-2"
+               style="background:#FEE500;border:none;">
+                Kakao로 시작하기
+            </a>
+
+            <a href="/oauth2/authorization/naver"
+               class="btn btn-block text-white mb-2"
+               style="background:#03C75A;border:none;">
+                NAVER로 시작하기
+            </a>
+            <div class="divider">OR</div>
+
+            <a href="/member/login"
+               class="btn btn-outline btn-block">
+
+                로그인
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const password = document.querySelector("#password");
+    const passwordCheck = document.querySelector("#passwordCheck");
+    const passwordMessage = document.querySelector("#passwordMessage");
+    const signupForm = document.querySelector("#signupForm");
+
+    function checkPassword() {
+
+        if(passwordCheck.value===""){
+            passwordMessage.innerHTML="";
+            return;
+        }
+
+        if(password.value===passwordCheck.value){
+
+            passwordMessage.innerHTML="비밀번호가 일치합니다.";
+            passwordMessage.className="label-text-alt text-success";
+
+        }else{
+
+            passwordMessage.innerHTML="비밀번호가 일치하지 않습니다.";
+            passwordMessage.className="label-text-alt text-error";
+
+        }
+
+    }
+
+    password.addEventListener("keyup",checkPassword);
+    passwordCheck.addEventListener("keyup",checkPassword);
+
+    signupForm.addEventListener("submit",function(e){
+
+        if(password.value!==passwordCheck.value){
+
+            alert("비밀번호가 일치하지 않습니다.");
+
+            passwordCheck.focus();
+
+            e.preventDefault();
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
