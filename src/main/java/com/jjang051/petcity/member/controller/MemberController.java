@@ -2,6 +2,9 @@ package com.jjang051.petcity.member.controller;
 
 import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberService;
+import com.jjang051.petcity.visit.service.ActiveLoginRedisService;
+import com.jjang051.petcity.visit.service.LoginHistoryRedisService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

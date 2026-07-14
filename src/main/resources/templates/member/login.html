@@ -25,10 +25,7 @@
 
         <p class="sub-title">
 
-            <!-- 일반 로그인 오류 메시지 -->
-            <div
-                    th:if="${message}"
-                    class="alert alert-error mb-3">
+            🐾 SNS 계정으로 빠르게 로그인
 
         </p>
 
@@ -36,18 +33,7 @@
         <a href="/oauth2/authorization/google"
            class="sns-btn google">
 
-            <!-- 15분 미활동 자동 로그아웃 메시지 -->
-            <div
-                    th:if="${param.expired != null}"
-                    class="alert alert-warning mb-3">
-
-                <span>
-                    장시간 활동이 없어 자동 로그아웃되었습니다.
-                </span>
-
-            </div>
-
-            <form action="/member/login" method="post">
+            Google로 로그인
 
         </a>
 
@@ -59,16 +45,15 @@
 
         </a>
 
-                    <input
-                            type="text"
-                            name="loginId"
-                            class="input input-bordered"
-                            placeholder="아이디"
-                            required>
+        <!-- Naver -->
+        <a href="/oauth2/authorization/naver"
+           class="sns-btn naver">
 
             NAVER로 로그인
 
-                <div class="form-control mb-4">
+        </a>
+
+        <div class="divider">
 
             <span>또는</span>
 
@@ -80,25 +65,23 @@
               method="post">
 
             <!-- CSRF -->
-<!--            <input type="hidden"-->
-<!--                   th:name="${_csrf.parameterName}"-->
-<!--                   th:value="${_csrf.token}">-->
+            <!--            <input type="hidden"-->
+            <!--                   th:name="${_csrf.parameterName}"-->
+            <!--                   th:value="${_csrf.token}">-->
 
-                    <input
-                            type="password"
-                            name="password"
-                            class="input input-bordered"
-                            placeholder="비밀번호"
-                            required>
+            <label>아이디</label>
 
             <input
                     type="text"
                     name="loginId"
                     placeholder="아이디">
 
-                <button
-                        type="submit"
-                        class="btn btn-primary w-full">
+            <label>비밀번호</label>
+
+            <input
+                    type="password"
+                    name="password"
+                    placeholder="비밀번호">
 
             <button type="submit">
 
@@ -108,13 +91,29 @@
 
         </form>
 
-            <div class="divider">
-                OR
-            </div>
+        <div class="bottom-link">
 
-            <a
-                    href="/member/signup"
-                    class="btn btn-outline">
+            <a href="/member/find-id">
+
+                아이디 찾기
+
+            </a>
+
+            <span>|</span>
+
+            <a href="/member/find-password">
+
+                비밀번호 찾기
+
+            </a>
+
+        </div>
+
+        <div class="signup-link">
+
+            아직 회원이 아니신가요?
+
+            <a href="/member/signup">
 
                 회원가입
 
