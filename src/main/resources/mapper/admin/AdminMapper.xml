@@ -135,4 +135,5 @@
 
         order by member_id desc
     </select>
+
 </mapper>

@@ -755,17 +755,13 @@
                         <!-- 상세 -->
                         <td>
 
-                            <button type="button"
-                                    class="detail-button"
-                                    th:attr="data-member-id=${member.memberId}">
-
+                            <a class="detail-button"
+                               th:href="@{/admin/members/detail/{memberId}(memberId=${member.memberId})}">
                                 상세
-
                                 <span class="detail-arrow">
                                     ›
                                 </span>
-
-                            </button>
+                            </a>
 
                         </td>
 

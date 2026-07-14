@@ -2,6 +2,7 @@ package com.jjang051.petcity.admin.service;
 
 import com.jjang051.petcity.admin.dao.AdminDao;
 import com.jjang051.petcity.admin.dto.AdminDashboardDto;
+import com.jjang051.petcity.admin.dto.AdminMemberDetailDto;
 import com.jjang051.petcity.admin.dto.AdminMemberListDto;
 import com.jjang051.petcity.admin.dto.AdminMemberPageDto;
 import com.jjang051.petcity.visit.service.VisitRedisService;
@@ -144,6 +145,7 @@ public class AdminService {
             default -> "memberId";
         };
     }
+
     private String normalizeMemberStatus(String memberStatus) {
         if (memberStatus == null) {
             return "";
@@ -155,7 +157,6 @@ public class AdminService {
             default -> "";
         };
     }
-
 
     private String normalizeStatus(String status) {
         if (status == null) {
