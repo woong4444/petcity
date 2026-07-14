@@ -2,9 +2,6 @@ package com.jjang051.petcity.member.controller;
 
 import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberService;
-import com.jjang051.petcity.visit.service.ActiveLoginRedisService;
-import com.jjang051.petcity.visit.service.LoginHistoryRedisService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +12,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class MemberController {
 
-    // MemberService 주입
+    // ===========================
+    // MemberService
+    // ===========================
     private final MemberService memberService;
 
     private final LoginHistoryRedisService loginHistoryRedisService;
@@ -32,7 +31,7 @@ public class MemberController {
     }
 
     // ===========================
-    // 회원가입 화면
+    // SNS 회원가입 선택 화면
     // ===========================
     @GetMapping("/member/signup")
     public String signup() {
@@ -42,7 +41,17 @@ public class MemberController {
     }
 
     // ===========================
-    // 회원가입 처리
+    // 일반 회원가입 화면
+    // ===========================
+    @GetMapping("/member/signup/form")
+    public String signupForm() {
+
+        return "member/signup-form";
+
+    }
+
+    // ===========================
+    // 일반 회원가입 처리
     // ===========================
     @PostMapping("/member/signup")
     public String signupProcess(MemberDto memberDto,
@@ -72,7 +81,7 @@ public class MemberController {
                     e.getMessage()
             );
 
-            return "redirect:/member/signup";
+            return "redirect:/member/signup/form";
         }
 
     }
@@ -140,9 +149,10 @@ public class MemberController {
         return "redirect:/";
 
     }
+
     // ===========================
-// 병원장 신청 화면
-// ===========================
+    // 병원장 신청 화면
+    // ===========================
     @GetMapping("/owner/request")
     public String ownerRequest() {
 

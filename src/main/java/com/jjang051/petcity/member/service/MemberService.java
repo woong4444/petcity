@@ -3,14 +3,18 @@ package com.jjang051.petcity.member.service;
 import com.jjang051.petcity.member.dao.MemberMapper;
 import com.jjang051.petcity.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
-    // Mapper 객체 주입
+    // Mapper 객체
     private final MemberMapper memberMapper;
+
+    // 비밀번호 암호화
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 로그인 아이디로 회원 조회
@@ -34,19 +38,15 @@ public class MemberService {
         }
 
         // ============================
-        // Spring Security 적용 전
-        // 현재는 비밀번호를 그대로 저장
+        // 비밀번호 BCrypt 암호화
         // ============================
-
-        /*
-        // Spring Security 적용 후
-
         memberDto.setPassword(
                 passwordEncoder.encode(memberDto.getPassword())
         );
-        */
 
+        // ============================
         // 회원 저장
+        // ============================
         memberMapper.insert(memberDto);
     }
 

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,17 +16,33 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final MemberService memberService;
 
     @Override
-    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String loginId)
+            throws UsernameNotFoundException {
 
-        // 로그인 아이디로 회원 조회
+        System.out.println("==================================");
+        System.out.println("Spring Security 로그인 시작");
+        System.out.println("loginId = " + loginId);
+
         MemberDto memberDto = memberService.findByLoginId(loginId);
 
-        // 회원이 없으면 예외 발생
+        System.out.println("member = " + memberDto);
+
         if (memberDto == null) {
+            System.out.println("회원 없음");
             throw new UsernameNotFoundException("존재하지 않는 회원입니다.");
         }
 
-        // Spring Security에 회원 정보 전달
+        System.out.println("DB Password = " + memberDto.getPassword());
+
+        // ★ 추가
+        System.out.println(
+                "!1qaz2wsx matches = " +
+                        new BCryptPasswordEncoder().matches(
+                                "!1qaz2wsx",
+                                memberDto.getPassword()
+                        )
+        );
+
         return new CustomUserDetails(memberDto);
     }
 }
