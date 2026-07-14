@@ -49,8 +49,8 @@
 
                             <!-- 프로필 사진 영역 -->
                             <div class="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-3xl overflow-hidden border border-slate-200">
-                                <img th:if="${pet.imageUrl != null and pet.imageUrl != ''}" th:src="${pet.imageUrl}" class="w-full h-full object-cover">
-                                <span th:unless="${pet.imageUrl != null and pet.imageUrl != ''}">🐾</span>
+                                <img th:if="${pet.photoUrl != null and pet.photoUrl != ''}" th:src="${pet.photoUrl}" class="w-full h-full object-cover">
+                                <span th:unless="${pet.photoUrl != null and pet.photoUrl != ''}">🐾</span>
                             </div>
 
                             <!-- 상세 정보 영역 -->
@@ -65,9 +65,9 @@
                                     <span th:if="${pet.gender == 'M'}">남</span><span th:if="${pet.gender == 'F'}">여</span>
                                     <span th:if="${pet.gender == 'NM'}">남(중성화)</span><span th:if="${pet.gender == 'NF'}">여(중성화)</span>
                                 </div>
-                                <div class="text-slate-600" th:text="'견/묘종 : ' + ${pet.subAnimalName}"></div>
+                                <div class="text-slate-600" th:text="'견/묘종 : ' + ${pet.breedName}"></div>
                                 <div class="text-slate-600" th:text="'몸무게 : ' + ${pet.weight} + 'kg'"></div>
-                                <div class="col-span-2 text-slate-500 text-xs mt-1" th:text="'등록번호 : ' + (${pet.regNumber != null and pet.regNumber != '' ? pet.regNumber : '미등록'})"></div>
+                                <div class="col-span-2 text-slate-500 text-xs mt-1" th:text="'등록번호 : ' + (${pet.registrationNo != null and pet.registrationNo != '' ? pet.registrationNo : '미등록'})"></div>
                             </div>
 
                             <!-- 버튼 영역 -->
@@ -78,11 +78,11 @@
                                         th:data-id="${pet.petId}"
                                         th:data-name="${pet.petName}"
                                         th:data-animal="${pet.animalId}"
-                                        th:data-sub="${pet.subAnimalId}"
+                                        th:data-breed="${pet.breedName}"
                                         th:data-gender="${pet.gender}"
                                         th:data-birth="${pet.birthDate}"
                                         th:data-weight="${pet.weight}"
-                                        th:data-reg="${pet.regNumber != null ? pet.regNumber : ''}">수정</button>
+                                        th:data-reg="${pet.registrationNo != null ? pet.registrationNo : ''}">수정</button>
                             </div>
                         </div>
 
@@ -176,8 +176,6 @@
         <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
             <form id="petRegForm">
                 <input type="hidden" name="petId" id="petIdInput" value="0">
-
-                <!-- 🌟 스프링 시큐리티 CSRF 방어 토큰 추가 🌟 -->
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
                 <div class="border-t border-slate-200">
@@ -199,7 +197,8 @@
                     <div class="flex border-b border-slate-200">
                         <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">품종 <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3">
-                            <select id="modalSubAnimalType" name="subAnimalId" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required>
+                            <!-- 🌟 MEMBER_PET DB 컬럼명에 맞게 breedName으로 수정 -->
+                            <select id="modalSubAnimalType" name="breedName" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required>
                                 <option value="">유형을 먼저 선택해주세요</option>
                             </select>
                         </div>
@@ -227,7 +226,10 @@
                     <div class="flex border-b border-slate-200">
                         <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">몸무게 <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3 flex items-center gap-2">
-                            <input type="number" step="0.1" max="150" name="weight" placeholder="예: 4.5" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required> kg
+                            <!-- 🌟 마이너스 원천 차단! min="0"과 oninput 로직 추가 -->
+                            <input type="number" step="0.1" min="0" max="150" name="weight" placeholder="예: 4.5"
+                                   oninput="if(this.value < 0) this.value = Math.abs(this.value);"
+                                   class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required> kg
                         </div>
                     </div>
 
@@ -241,7 +243,8 @@
                     <div class="flex border-b border-slate-200">
                         <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">등록번호 <span class="text-slate-400 text-xs">선택</span></div>
                         <div class="flex-1 p-3">
-                            <input type="text" name="regNumber" placeholder="동물등록번호 15자리 입력" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500">
+                            <!-- 🌟 MEMBER_PET DB 컬럼명에 맞게 registrationNo로 수정 -->
+                            <input type="text" name="registrationNo" placeholder="동물등록번호 15자리 입력" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500">
                         </div>
                     </div>
                 </div>
@@ -257,7 +260,7 @@
 <script th:inline="javascript">
     const subAnimalList = /*[[${subAnimalTypeList}]]*/ [];
 </script>
-<script th:src="@{/js/hospital/search.js?v=2}"></script>
+<script th:src="@{/js/hospital/search.js?v=4}"></script>
 
 </body>
 </html>

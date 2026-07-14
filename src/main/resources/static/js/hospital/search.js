@@ -22,10 +22,9 @@ function selectPet(animalId, subAnimalId) {
     document.getElementById('icon-step2').textContent = '−';
 }
 
-// 🌟 '다른 아이 추가등록' 또는 최초 '등록하기' 버튼 클릭 시 폼 초기화 로직
 function openPetModalForAdd() {
     document.getElementById('petRegForm').reset();
-    document.getElementById('petIdInput').value = '0'; // 0이면 신규등록
+    document.getElementById('petIdInput').value = '0';
     document.getElementById('modalSubAnimalType').innerHTML = '<option value="">유형을 먼저 선택해주세요</option>';
 
     const petModal = document.getElementById('petModal');
@@ -35,7 +34,6 @@ function openPetModalForAdd() {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // --- 지역 전체 선택 로직 ---
     const seoulAllSearch = document.getElementById('seoulAllSearch');
     const districtChecks = document.querySelectorAll("input[name='districts']");
 
@@ -53,7 +51,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // --- 모달 닫기 로직 ---
     const petModal = document.getElementById('petModal');
     const btnClosePetModal = document.getElementById('btnClosePetModal');
     const btnCancelPetModal = document.getElementById('btnCancelPetModal');
@@ -69,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if(e.target === petModal) closePetModal();
     });
 
-    // --- 🌟 '수정' 버튼 클릭 시 기존 정보 불러오기 로직 ---
+    // 🌟 '수정' 버튼 클릭 시
     document.querySelectorAll('.btn-edit-pet').forEach(btn => {
         btn.addEventListener('click', function() {
             document.getElementById('petRegForm').reset();
@@ -79,12 +76,12 @@ document.addEventListener("DOMContentLoaded", function () {
             document.querySelector('input[name="petName"]').value = dataset.name;
             document.getElementById('modalAnimalType').value = dataset.animal;
 
-            // 품종 리스트 동적 트리거 발생
+            // 품종 리스트 강제 세팅 (하위 셀렉트박스 생성 유도)
             document.getElementById('modalAnimalType').dispatchEvent(new Event('change'));
 
-            // 약간의 딜레이 후 품종 선택 (리스트 생성 시간 확보)
+            // 리스트가 생성될 시간을 약간 확보한 뒤 품종 값 세팅
             setTimeout(() => {
-                document.getElementById('modalSubAnimalType').value = dataset.sub;
+                document.getElementById('modalSubAnimalType').value = dataset.breed;
             }, 50);
 
             document.querySelector('select[name="gender"]').value = dataset.gender;
@@ -97,7 +94,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // --- 모달 내 반려동물 품종 동적 렌더링 ---
     const modalAnimalType = document.getElementById('modalAnimalType');
     const modalSubAnimalType = document.getElementById('modalSubAnimalType');
 
@@ -111,14 +107,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const filtered = subAnimalList.filter(sub => String(sub.parentId) === String(parentId));
             filtered.forEach(sub => {
                 const opt = document.createElement('option');
-                opt.value = sub.animalId;
+                // 🌟 MEMBER_PET DB 구조에 맞춰품종 '이름(String)'을 value로 세팅합니다.
+                opt.value = sub.animalName;
                 opt.textContent = sub.animalName;
                 modalSubAnimalType.appendChild(opt);
             });
         });
     }
 
-    // --- 🌟 폼 전송 및 예외처리 (몸무게 방어) ---
     const btnSubmitPet = document.getElementById('btnSubmitPet');
     if(btnSubmitPet) {
         btnSubmitPet.addEventListener('click', function() {
@@ -129,10 +125,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // 🌟 2222kg 등 말도 안 되는 몸무게 입력 방어
+            // 만약에라도 스크립트 우회해서 마이너스 입력이 들어오면 여기서 2차 차단
             const weightInput = document.querySelector('input[name="weight"]').value;
             if(weightInput <= 0 || weightInput > 150) {
-                alert('몸무게는 0.1kg ~ 150kg 사이로 정확하게 입력해주세요.');
+                alert('몸무게는 0.1kg ~ 150kg 사이로 올바르게 입력해주세요.');
                 return;
             }
 
@@ -146,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(data => {
                     if(data.isSuccess) {
                         alert('반려동물 정보가 성공적으로 저장되었습니다!');
-                        window.location.reload(); // 새로고침하여 DB 정보를 화면에 다시 뿌림
+                        window.location.reload();
                     } else {
                         alert('저장에 실패했습니다.');
                     }

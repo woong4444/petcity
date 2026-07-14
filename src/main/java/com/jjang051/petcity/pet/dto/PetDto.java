@@ -9,17 +9,28 @@ import lombok.*;
 public class PetDto {
     private int petId;
     private int memberId;
-    private String petName;
     private int animalId;
-    private int subAnimalId;
-    private String gender;
+
+    private String petName;
+    private String breedName; // 품종명 (MEMBER_PET 테이블 기준)
+
+    private String gender; // 화면에서 받아오는 값 (M, F, NM, NF)
+    private String dbGender; // DB에 넣을 값 (M, F, U)
+    private String neutered; // DB에 넣을 중성화 여부 (Y, N, U)
+
     private String birthDate;
     private double weight;
-    private String imageUrl;
-    private String regNumber;
 
-    // 조인해서 가져올 한글 이름들 및 나이 계산
+    private String photoUrl; // 사진 URL (MEMBER_PET 테이블 기준)
+    private String registrationNo; // 등록번호
+
+    private String allergyNote;
+    private String note;
+    private String isMain;
+    private String status;
+
+    // View에 보여주거나 검색할 때 활용할 추가 필드
     private String animalName;
-    private String subAnimalName;
+    private int subAnimalId; // 조인을 통해 알아낼 하위 품종 ID
     private int age;
 }

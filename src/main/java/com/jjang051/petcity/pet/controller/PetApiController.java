@@ -22,7 +22,7 @@ public class PetApiController {
     private final PetDao petDao;
 
     @Value("${file.upload}")
-    private String uploadDir; // application.yml 의 C:/upload 경로
+    private String uploadDir;
 
     @PostMapping("/save")
     public Map<String, Object> savePet(
@@ -41,9 +41,24 @@ public class PetApiController {
         try {
             petDto.setMemberId(loginMember.getMemberId().intValue());
 
-            // 🌟 1. 사진 파일이 업로드 되었을 경우 처리
+            // 🌟 성별(M,F)과 중성화여부(Y,N) 매핑 로직
+            String formGender = petDto.getGender();
+            if ("NM".equals(formGender)) {
+                petDto.setDbGender("M");
+                petDto.setNeutered("Y");
+            } else if ("NF".equals(formGender)) {
+                petDto.setDbGender("F");
+                petDto.setNeutered("Y");
+            } else if ("M".equals(formGender) || "F".equals(formGender)) {
+                petDto.setDbGender(formGender);
+                petDto.setNeutered("N");
+            } else {
+                petDto.setDbGender("U");
+                petDto.setNeutered("U");
+            }
+
+            // 🌟 사진 파일 업로드 처리 (MEMBER_PET.PHOTO_URL)
             if (file != null && !file.isEmpty()) {
-                // 폴더가 없으면 자동으로 C:/upload 폴더를 생성하는 안전장치 추가!
                 File dir = new File(uploadDir);
                 if (!dir.exists()) {
                     dir.mkdirs();
@@ -51,15 +66,15 @@ public class PetApiController {
 
                 String originalFilename = file.getOriginalFilename();
                 String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                String savedFilename = UUID.randomUUID().toString() + extension; // 파일명 중복 방지
+                String savedFilename = UUID.randomUUID().toString() + extension;
 
                 File targetFile = new File(uploadDir, savedFilename);
                 file.transferTo(targetFile);
 
-                petDto.setImageUrl("/upload/" + savedFilename);
+                petDto.setPhotoUrl("/upload/" + savedFilename);
             }
 
-            // 🌟 2. petId가 0보다 크면 '수정', 아니면 '신규 등록'
+            // DB 저장 및 업데이트
             if (petDto.getPetId() > 0) {
                 petDao.updatePet(petDto);
             } else {
