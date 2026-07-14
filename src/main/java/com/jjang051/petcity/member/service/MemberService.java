@@ -16,16 +16,23 @@ public class MemberService {
     // 비밀번호 암호화
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * 로그인 아이디로 회원 조회
-     */
     public MemberDto findByLoginId(String loginId) {
-        return memberMapper.findByLoginId(loginId);
+
+        System.out.println("========== MemberService ==========");
+        System.out.println("loginId = " + loginId);
+
+        MemberDto member = memberMapper.findByLoginId(loginId);
+
+        System.out.println("result = " + member);
+
+        return member;
     }
 
     /**
      * 회원가입
      */
+
+
     public void insert(MemberDto memberDto) {
 
         // ============================
@@ -48,6 +55,8 @@ public class MemberService {
         // 회원 저장
         // ============================
         memberMapper.insert(memberDto);
+
+
     }
 
 }

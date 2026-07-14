@@ -15,49 +15,64 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // OAuth2
+    // OAuth2 로그인
     private final CustomOAuth2UserService customOAuth2UserService;
 
     // 일반 로그인
     private final CustomUserDetailsService customUserDetailsService;
 
-    // PasswordConfig에서 생성된 Bean 사용
+    // PasswordEncoder
     private final PasswordEncoder passwordEncoder;
+
+    // ★ 로그인 성공 처리
+    private final LoginSuccessHandler loginSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
 
+                // ===========================
                 // CSRF
+                // ===========================
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // DaoAuthenticationProvider 등록
+                // ===========================
+                // Authentication Provider
+                // ===========================
                 .authenticationProvider(authenticationProvider())
 
+                // ===========================
+                // 일반 로그인
+                // ===========================
                 // 일반 로그인
                 .formLogin(form -> form
                         .loginPage("/member/login")
                         .loginProcessingUrl("/member/login")
                         .usernameParameter("loginId")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(loginSuccessHandler)
                         .permitAll()
                 )
 
+                // ===========================
                 // HTTP Basic
+                // ===========================
                 .httpBasic(AbstractHttpConfigurer::disable)
 
+                // ===========================
                 // OAuth2 로그인
+                // ===========================
                 .oauth2Login(oauth -> oauth
                         .loginPage("/member/login")
                         .userInfoEndpoint(user ->
                                 user.userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(loginSuccessHandler)
                 )
-
+                // ===========================
                 // 로그아웃
+                // ===========================
                 .logout(logout -> logout
                         .logoutUrl("/member/logout")
                         .logoutSuccessUrl("/")
@@ -65,14 +80,14 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                 )
 
+                // ===========================
                 // 권한
+                // ===========================
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
                                 "/main",
                                 "/member/**",
-                                "/admin/**",
-
                                 "/oauth2/**",
                                 "/login/**",
                                 "/css/**",
@@ -85,9 +100,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * 일반 로그인 인증 Provider
-     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
 
