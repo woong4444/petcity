@@ -28,12 +28,16 @@
     </th:block>
 
 
-    <main class="admin-main">
-
+    <main class="admin-main member-detail-main">
+    <div class="member-detail-container">
         <!-- 페이지 상단 -->
         <header class="page-header">
 
             <div>
+                <a class="detail-back-link" th:href="@{/admin/members}">
+                    ‹ 회원 목록
+                </a>
+
                 <h2 class="page-title">
                     회원 상세 정보
                 </h2>
@@ -42,268 +46,525 @@
                     회원의 기본 정보와 계정 상태를 확인합니다.
                 </p>
             </div>
-
-            <a class="back-button"
-               th:href="@{/admin/members}">
-                목록으로
-            </a>
-
         </header>
 
+        <div class="detail-alert success" th:if="${successMessage != null}"
+             th:text="${successMessage}">
+            회원 정보가 변경되었습니다.
+        </div>
+        <div class="detail-alert error" th:if="${errorMessage != null}"
+             th:text="${errorMessage}">
+            회원 정보를 변경할 수 없습니다.
+        </div>
 
-        <!-- 회원 기본 정보 -->
-        <section class="member-detail-card">
+        <section class="member-summary-card">
+            <div class="member-profile-area">
+                <div class="member-avatar">
+                    <img th:if="${member.profileImage != null and not #strings.isEmpty(member.profileImage)}"
+                         th:src="${member.profileImage}" th:alt="|${member.nickname} 프로필 이미지|">
 
-            <div class="detail-card-header">
+                    <span th:unless="${member.profileImage != null and not #strings.isEmpty(member.profileImage)}"
+                          th:text="${member.nickname != null and not #strings.isEmpty(member.nickname) ?  #strings.substring(member.nickname,0,1) : 'M'}">
+                        M
+                    </span>
+                </div>
 
-                <div>
-                    <p class="member-number">
+                <div class="member-summary-info">
+                    <div class="member-number">
                         회원 번호
                         <strong th:text="${member.memberId}">
                             1
                         </strong>
-                    </p>
-
-                    <h3 class="member-name"
-                        th:text="${member.nickname}">
+                    </div>
+                    <h3 class="member-summary-name" th:text="${member.nickname}">
                         회원 닉네임
                     </h3>
-
-                    <p class="member-login-id"
-                       th:text="${member.loginId}">
+                    <p class="member-summary-login-id" th:text="${member.loginId}">
                         user01
                     </p>
                 </div>
+            </div>
 
-                <div class="member-badge-area">
+            <!-- 현재 권한 및 상태 -->
+            <div class="member-current-status">
 
-                    <span class="detail-badge"
-                          th:text="${member.role}">
+                <!-- 권한 -->
+                <span class="summary-badge"
+                      th:classappend="${' role-' +
+                              #strings.toLowerCase(member.role)}"
+                      th:text="${member.role}">
                         USER
                     </span>
 
-                    <span class="detail-badge"
-                          th:text="${member.status}">
+                <!-- 계정 상태 -->
+                <span class="summary-badge"
+                      th:classappend="${' account-' +
+                              #strings.toLowerCase(member.status)}"
+                      th:text="${member.status}">
                         ACTIVE
                     </span>
 
-                    <span class="detail-badge"
-                          th:text="${member.memberStatus}">
+                <!-- 회원 상태 -->
+                <span class="summary-badge"
+                      th:classappend="${' member-' +
+                              #strings.replace(
+                                  #strings.toLowerCase(
+                                      member.memberStatus
+                                  ),
+                                  '_',
+                                  '-'
+                              )}"
+                      th:text="${member.memberStatus}">
                         ACTIVE
                     </span>
-
-                </div>
 
             </div>
 
+        </section>
 
-            <div class="detail-section">
 
-                <h4 class="detail-section-title">
-                    기본 정보
-                </h4>
+        <!-- 기본 정보 / 계정 관리 -->
+        <div class="member-detail-grid">
 
-                <dl class="detail-list">
+            <!-- 기본 정보 -->
+            <section class="detail-card">
 
-                    <div class="detail-item">
-                        <dt>회원 번호</dt>
+                <div class="detail-card-header">
+
+                    <div>
+                        <h3 class="detail-card-title">
+                            기본 정보
+                        </h3>
+
+                        <p class="detail-card-description">
+                            회원이 가입할 때 등록한 정보입니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <dl class="detail-info-list">
+
+                    <!-- 회원 번호 -->
+                    <div class="detail-info-item">
+
+                        <dt>
+                            회원 번호
+                        </dt>
 
                         <dd th:text="${member.memberId}">
                             1
                         </dd>
+
                     </div>
 
-                    <div class="detail-item">
-                        <dt>로그인 아이디</dt>
+
+                    <!-- 로그인 아이디 -->
+                    <div class="detail-info-item">
+
+                        <dt>
+                            로그인 아이디
+                        </dt>
 
                         <dd th:text="${member.loginId}">
                             user01
                         </dd>
+
                     </div>
 
-                    <div class="detail-item">
-                        <dt>닉네임</dt>
 
-                        <dd th:text="${member.nickname}">
+                    <!-- 닉네임 -->
+                    <div class="detail-info-item">
+
+                        <dt>
+                            닉네임
+                        </dt>
+
+                        <dd th:text="${member.nickname != null
+                                and not #strings.isEmpty(member.nickname)
+                                    ? member.nickname
+                                    : '-'}">
                             테스트 회원
                         </dd>
+
                     </div>
 
-                    <div class="detail-item">
-                        <dt>이메일</dt>
+
+                    <!-- 이메일 -->
+                    <div class="detail-info-item">
+
+                        <dt>
+                            이메일
+                        </dt>
 
                         <dd th:text="${member.email != null
-                            ? member.email
-                            : '-'}">
+                                and not #strings.isEmpty(member.email)
+                                    ? member.email
+                                    : '-'}">
                             user@test.com
                         </dd>
+
                     </div>
 
-                    <div class="detail-item">
-                        <dt>전화번호</dt>
+
+                    <!-- 전화번호 -->
+                    <div class="detail-info-item">
+
+                        <dt>
+                            전화번호
+                        </dt>
 
                         <dd th:text="${member.phone != null
-                            ? member.phone
-                            : '-'}">
+                                and not #strings.isEmpty(member.phone)
+                                    ? member.phone
+                                    : '-'}">
                             010-0000-0000
                         </dd>
+
                     </div>
 
-                    <div class="detail-item">
-                        <dt>프로필 이미지</dt>
+
+                    <!-- 이메일 인증 여부 -->
+                    <div class="detail-info-item">
+
+                        <dt>
+                            이메일 인증
+                        </dt>
+
+                        <dd>
+
+                                <span class="verification-badge"
+                                      th:classappend="${member.emailVerified == 'Y'
+                                          or member.emailVerified == '1'
+                                            ? ' verified'
+                                            : ' unverified'}"
+                                      th:text="${member.emailVerified == 'Y'
+                                          or member.emailVerified == '1'
+                                            ? '인증 완료'
+                                            : '미인증'}">
+                                    미인증
+                                </span>
+
+                        </dd>
+
+                    </div>
+
+
+                    <!-- 프로필 이미지 경로 -->
+                    <div class="detail-info-item full">
+
+                        <dt>
+                            프로필 이미지 경로
+                        </dt>
 
                         <dd th:text="${member.profileImage != null
-                            ? member.profileImage
-                            : '-'}">
+                                and not #strings.isEmpty(member.profileImage)
+                                    ? member.profileImage
+                                    : '-'}">
                             -
                         </dd>
+
                     </div>
 
                 </dl>
 
+            </section>
+
+
+            <!-- 계정 관리 -->
+            <section class="detail-card account-setting-card">
+
+                <div class="detail-card-header">
+
+                    <div>
+                        <h3 class="detail-card-title">
+                            계정 관리
+                        </h3>
+
+                        <p class="detail-card-description">
+                            회원의 권한과 계정 상태를 변경합니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <form class="account-setting-form"
+                      method="post"
+                      th:action="@{/admin/members/detail/{memberId}/settings(
+                              memberId=${member.memberId}
+                          )}">
+
+                    <!-- Spring Security CSRF -->
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+
+                    <!-- 권한 -->
+                    <div class="setting-field">
+
+                        <label for="role">
+                            권한
+                        </label>
+
+                        <select id="role"
+                                name="role"
+                                class="setting-select">
+
+                            <option value="USER"
+                                    th:selected="${member.role == 'USER'}">
+                                USER
+                            </option>
+
+                            <option value="OWNER"
+                                    th:selected="${member.role == 'OWNER'}">
+                                OWNER
+                            </option>
+
+                            <option value="ADMIN"
+                                    th:selected="${member.role == 'ADMIN'}">
+                                ADMIN
+                            </option>
+
+                        </select>
+
+                        <p class="setting-help">
+                            USER는 일반 회원, OWNER는 병원장, ADMIN은 관리자입니다.
+                        </p>
+
+                    </div>
+
+
+                    <!-- 계정 상태 -->
+                    <div class="setting-field">
+
+                        <label for="status">
+                            계정 상태
+                        </label>
+
+                        <select id="status"
+                                name="status"
+                                class="setting-select">
+
+                            <option value="ACTIVE"
+                                    th:selected="${member.status == 'ACTIVE'}">
+                                ACTIVE
+                            </option>
+
+                            <option value="BLOCKED"
+                                    th:selected="${member.status == 'BLOCKED'}">
+                                BLOCKED
+                            </option>
+
+                            <option value="DELETED"
+                                    th:selected="${member.status == 'DELETED'}">
+                                DELETED
+                            </option>
+
+                        </select>
+
+                        <p class="setting-help">
+                            계정의 로그인 가능 여부와 사용 상태를 설정합니다.
+                        </p>
+
+                    </div>
+
+
+                    <!-- 회원 상태 -->
+                    <div class="setting-field">
+
+                        <label for="memberStatus">
+                            회원 상태
+                        </label>
+
+                        <select id="memberStatus"
+                                name="memberStatus"
+                                class="setting-select">
+
+                            <option value="ACTIVE"
+                                    th:selected="${member.memberStatus == 'ACTIVE'}">
+                                ACTIVE
+                            </option>
+
+                            <option value="DELETE_PENDING"
+                                    th:selected="${member.memberStatus == 'DELETE_PENDING'}">
+                                DELETE_PENDING
+                            </option>
+
+                            <option value="DELETED"
+                                    th:selected="${member.memberStatus == 'DELETED'}">
+                                DELETED
+                            </option>
+
+                        </select>
+
+                        <p class="setting-help">
+                            회원 탈퇴 요청과 삭제 진행 상태를 설정합니다.
+                        </p>
+
+                    </div>
+
+
+                    <!-- 변경 주의 문구 -->
+                    <div class="setting-warning">
+                        변경 사항은 적용 버튼을 누르는 즉시 회원 계정에 반영됩니다.
+                    </div>
+
+
+                    <!-- 적용 버튼 -->
+                    <button type="submit"
+                            class="setting-apply-button">
+                        변경 사항 적용
+                    </button>
+
+                </form>
+
+            </section>
+
+        </div>
+
+
+        <!-- 날짜 정보 -->
+        <section class="detail-card date-information-card">
+
+            <div class="detail-card-header">
+
+                <div>
+                    <h3 class="detail-card-title">
+                        날짜 정보
+                    </h3>
+
+                    <p class="detail-card-description">
+                        회원 계정의 생성, 수정, 로그인 및 탈퇴 관련 일시입니다.
+                    </p>
+                </div>
+
             </div>
 
 
-            <!-- 계정 정보 -->
-            <div class="detail-section">
+            <dl class="date-info-grid">
 
-                <h4 class="detail-section-title">
-                    계정 정보
-                </h4>
+                <!-- 가입일 -->
+                <div class="date-info-item">
 
-                <dl class="detail-list">
+                    <dt>
+                        가입일
+                    </dt>
 
-                    <div class="detail-item">
-                        <dt>권한</dt>
-
-                        <dd th:text="${member.role}">
-                            USER
-                        </dd>
-                    </div>
-
-                    <div class="detail-item">
-                        <dt>계정 상태</dt>
-
-                        <dd th:text="${member.status}">
-                            ACTIVE
-                        </dd>
-                    </div>
-
-                    <div class="detail-item">
-                        <dt>회원 상태</dt>
-
-                        <dd th:text="${member.memberStatus}">
-                            ACTIVE
-                        </dd>
-                    </div>
-
-                    <div class="detail-item">
-                        <dt>이메일 인증 여부</dt>
-
-                        <dd th:text="${member.emailVerified != null
-                            ? member.emailVerified
-                            : '-'}">
-                            -
-                        </dd>
-                    </div>
-
-                </dl>
-
-            </div>
-
-
-            <!-- 날짜 정보 -->
-            <div class="detail-section">
-
-                <h4 class="detail-section-title">
-                    날짜 정보
-                </h4>
-
-                <dl class="detail-list">
-
-                    <div class="detail-item">
-                        <dt>가입일</dt>
-
-                        <dd th:text="${member.createdAt != null
+                    <dd th:text="${member.createdAt != null
                             ? #temporals.format(
                                 member.createdAt,
                                 'yyyy-MM-dd HH:mm:ss'
                               )
                             : '-'}">
-                            -
-                        </dd>
-                    </div>
+                        -
+                    </dd>
 
-                    <div class="detail-item">
-                        <dt>최근 수정일</dt>
+                </div>
 
-                        <dd th:text="${member.updatedAt != null
+
+                <!-- 최근 수정일 -->
+                <div class="date-info-item">
+
+                    <dt>
+                        최근 수정일
+                    </dt>
+
+                    <dd th:text="${member.updatedAt != null
                             ? #temporals.format(
                                 member.updatedAt,
                                 'yyyy-MM-dd HH:mm:ss'
                               )
                             : '-'}">
-                            -
-                        </dd>
-                    </div>
+                        -
+                    </dd>
 
-                    <div class="detail-item">
-                        <dt>최근 로그인</dt>
+                </div>
 
-                        <dd th:text="${member.lastLoginAt != null
+
+                <!-- 최근 로그인 -->
+                <div class="date-info-item">
+
+                    <dt>
+                        최근 로그인
+                    </dt>
+
+                    <dd th:text="${member.lastLoginAt != null
                             ? #temporals.format(
                                 member.lastLoginAt,
                                 'yyyy-MM-dd HH:mm:ss'
                               )
                             : '-'}">
-                            -
-                        </dd>
-                    </div>
+                        -
+                    </dd>
 
-                    <div class="detail-item">
-                        <dt>탈퇴 요청일</dt>
+                </div>
 
-                        <dd th:text="${member.deleteRequestedAt != null
+
+                <!-- 탈퇴 요청일 -->
+                <div class="date-info-item">
+
+                    <dt>
+                        탈퇴 요청일
+                    </dt>
+
+                    <dd th:text="${member.deleteRequestedAt != null
                             ? #temporals.format(
                                 member.deleteRequestedAt,
                                 'yyyy-MM-dd HH:mm:ss'
                               )
                             : '-'}">
-                            -
-                        </dd>
-                    </div>
+                        -
+                    </dd>
 
-                    <div class="detail-item">
-                        <dt>탈퇴 처리일</dt>
+                </div>
 
-                        <dd th:text="${member.deletedAt != null
+
+                <!-- 탈퇴 처리일 -->
+                <div class="date-info-item">
+
+                    <dt>
+                        탈퇴 처리일
+                    </dt>
+
+                    <dd th:text="${member.deletedAt != null
                             ? #temporals.format(
                                 member.deletedAt,
                                 'yyyy-MM-dd HH:mm:ss'
                               )
                             : '-'}">
-                            -
-                        </dd>
-                    </div>
+                        -
+                    </dd>
 
-                    <div class="detail-item">
-                        <dt>영구 삭제 예정일</dt>
+                </div>
 
-                        <dd th:text="${member.hardDeleteAt != null
+
+                <!-- 영구 삭제 예정일 -->
+                <div class="date-info-item">
+
+                    <dt>
+                        영구 삭제 예정일
+                    </dt>
+
+                    <dd th:text="${member.hardDeleteAt != null
                             ? #temporals.format(
                                 member.hardDeleteAt,
                                 'yyyy-MM-dd HH:mm:ss'
                               )
                             : '-'}">
-                            -
-                        </dd>
-                    </div>
+                        -
+                    </dd>
 
-                </dl>
+                </div>
 
-            </div>
+            </dl>
 
         </section>
+
+    </div>
 
     </main>
 

@@ -27,7 +27,6 @@ public interface AdminDao {
     long countMembersByCondition(@Param("keyword") String keyword, @Param("role") String role,
                                  @Param("status") String status, @Param("memberStatus") String memberStatus);
 
-    AdminMemberDetailDto findMemberDetailById(@Param("memberId") Long memberId);
 
     List<AdminMemberListDto> findMembersByPage(@Param("offset") int offset, @Param("pageSize") int pageSize,
                                                @Param("sort") String sort, @Param("direction") String direction,

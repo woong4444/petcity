@@ -136,27 +136,4 @@
         order by member_id desc
     </select>
 
-    <select id="findMemberDetailById" resultType="AdminMemberDetailDto">
-        SELECT
-        MEMBER_ID AS memberId,
-        LOGIN_ID AS loginId,
-        NICKNAME AS nickname,
-        EMAIL AS email,
-        PHONE AS phone,
-        ROLE AS role,
-        STATUS AS status,
-        MEMBER_STATUS AS memberStatus,
-        TO_CHAR(EMAIL_VERIFIED) AS emailVerified,
-        PROFILE_IMAGE AS profileImage,
-        CREATED_AT AS createdAt,
-        UPDATED_AT AS updatedAt,
-        LAST_LOGIN_AT AS lastLoginAt,
-        DELETE_REQUESTED_AT AS deleteRequestedAt,
-        DELETED_AT AS deletedAt,
-        HARD_DELETE_AT AS hardDeleteAt
-            FROM app_member
-        where member_Id = #{memberId}
-
-
-    </select>
 </mapper>
