@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjang051.petcity.pet.dao.PetDao">
+
+    <insert id="insertPet">
+        INSERT INTO APP_PET (PET_ID, MEMBER_ID, PET_NAME, ANIMAL_ID, SUB_ANIMAL_ID, GENDER, BIRTH_DATE, WEIGHT, IMAGE_URL, REG_NUMBER)
+        VALUES (SEQ_APP_PET.NEXTVAL, #{memberId}, #{petName}, #{animalId}, #{subAnimalId}, #{gender}, #{birthDate}, #{weight}, #{imageUrl}, #{regNumber})
+    </insert>
+
+    <update id="updatePet">
+        UPDATE APP_PET SET
+        PET_NAME = #{petName},
+        ANIMAL_ID = #{animalId},
+        SUB_ANIMAL_ID = #{subAnimalId},
+        GENDER = #{gender},
+        BIRTH_DATE = #{birthDate},
+        WEIGHT = #{weight},
+        REG_NUMBER = #{regNumber}
+        <if test="imageUrl != null and imageUrl != ''">
+            , IMAGE_URL = #{imageUrl}
+        </if>
+        WHERE PET_ID = #{petId} AND MEMBER_ID = #{memberId}
+    </update>
+
+    <select id="findPetsByMemberId" resultType="com.jjang051.petcity.pet.dto.PetDto">
+        SELECT
+        P.PET_ID AS petId, P.MEMBER_ID AS memberId, P.PET_NAME AS petName,
+        P.ANIMAL_ID AS animalId, P.SUB_ANIMAL_ID AS subAnimalId,
+        P.GENDER AS gender, P.BIRTH_DATE AS birthDate, P.WEIGHT AS weight,
+        P.IMAGE_URL AS imageUrl, P.REG_NUMBER AS regNumber,
+        A1.ANIMAL_NAME AS animalName, A2.ANIMAL_NAME AS subAnimalName,
+        (TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - TO_NUMBER(SUBSTR(P.BIRTH_DATE, 1, 4))) AS age
+        FROM APP_PET P
+        JOIN ANIMAL_TYPE A1 ON P.ANIMAL_ID = A1.ANIMAL_ID
+        JOIN ANIMAL_TYPE A2 ON P.SUB_ANIMAL_ID = A2.ANIMAL_ID
+        WHERE P.MEMBER_ID = #{memberId}
+        ORDER BY P.PET_ID ASC
+    </select>
+</mapper>

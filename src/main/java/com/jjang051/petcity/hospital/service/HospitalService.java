@@ -133,4 +133,17 @@ public class HospitalService {
     public void addReviewReply(int reviewId, String replyContent, String replyRole) {
         hospitalDao.updateReviewReply(reviewId, replyContent, replyRole);
     }
+    // --- 🌟 맞춤검색(Custom Search)을 위한 단일 리스트 조회 메서드 추가 ---
+    public List<String> getDistrictList() {
+        return hospitalDao.findDistrictList();
+    }
+    public List<com.jjang051.petcity.animal.dto.AnimalTypeDto> getAnimalTypeList() {
+        return hospitalDao.findAnimalTypeList();
+    }
+    public List<com.jjang051.petcity.hospital.dto.HospitalSubAnimalDto> getSubAnimalTypeList() {
+        return hospitalDao.findSubAnimalTypeList();
+    }
+    public List<com.jjang051.petcity.hospital.dto.MedicalServiceDto> getMedicalServiceList() {
+        return hospitalDao.findMedicalServiceList();
+    }
 }
