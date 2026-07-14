@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>병원장 신청 관리</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/hospital-owner-request-list.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- 관리자 사이드바 -->
+    <th:block
+            th:replace="~{admin/fragments/sidebar :: sidebar('ownerRequests')}">
+    </th:block>
+
+
+    <main class="admin-main request-main">
+
+        <!-- 병원장 신청 목록 카드 -->
+        <section class="request-card">
+
+            <!-- 카드 상단 -->
+            <div class="request-card-header">
+
+                <div>
+                    <h2 class="request-card-title">
+                        병원장 신청 관리
+                    </h2>
+
+                    <p class="request-card-description">
+                        병원장 권한 신청 내역과 제출 서류, 처리 상태를 확인합니다.
+                    </p>
+                </div>
+
+
+                <p class="request-count">
+
+                    전체 신청
+
+                    <strong th:text="${requestCount}">
+                        0
+                    </strong>
+
+                    건
+
+                </p>
+
+            </div>
+
+
+            <!-- 테이블 -->
+            <div class="request-table-wrapper">
+
+                <table class="request-table">
+
+                    <colgroup>
+                        <col class="column-request-id">
+                        <col class="column-member">
+                        <col class="column-hospital">
+                        <col class="column-business-number">
+                        <col class="column-document">
+                        <col class="column-request-status">
+                        <col class="column-reject-reason">
+                        <col class="column-created-at">
+                        <col class="column-processed-at">
+                        <col class="column-action">
+                    </colgroup>
+
+
+                    <thead>
+
+                    <tr>
+
+                        <!-- 신청 번호 정렬 -->
+                        <th class="center-cell">
+
+                            <a class="sort-link"
+                               th:classappend="${sort == 'requestId'
+                                   ? ' active'
+                                   : ''}"
+                               th:href="@{/admin/hospital-owner-requests(
+                                   sort='requestId',
+                                   direction=${sort == 'requestId'
+                                       and direction == 'asc'
+                                           ? 'desc'
+                                           : 'asc'}
+                               )}">
+
+                                신청 번호
+
+                                <span class="sort-arrow"
+                                      th:text="${sort == 'requestId'
+                                          ? (direction == 'asc' ? '▲' : '▼')
+                                          : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 회원 정보 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${sort == 'memberInfo'
+                                   ? ' active'
+                                   : ''}"
+                               th:href="@{/admin/hospital-owner-requests(
+                                   sort='memberInfo',
+                                   direction=${sort == 'memberInfo'
+                                       and direction == 'asc'
+                                           ? 'desc'
+                                           : 'asc'}
+                               )}">
+
+                                회원 정보
+
+                                <span class="sort-arrow"
+                                      th:text="${sort == 'memberInfo'
+                                          ? (direction == 'asc' ? '▲' : '▼')
+                                          : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 병원 정보 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${sort == 'hospitalInfo'
+                                   ? ' active'
+                                   : ''}"
+                               th:href="@{/admin/hospital-owner-requests(
+                                   sort='hospitalInfo',
+                                   direction=${sort == 'hospitalInfo'
+                                       and direction == 'asc'
+                                           ? 'desc'
+                                           : 'asc'}
+                               )}">
+
+                                병원 정보
+
+                                <span class="sort-arrow"
+                                      th:text="${sort == 'hospitalInfo'
+                                          ? (direction == 'asc' ? '▲' : '▼')
+                                          : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 사업자 번호 -->
+                        <th>
+                            사업자 번호
+                        </th>
+
+
+                        <!-- 제출 서류 -->
+                        <th class="center-cell">
+                            서류
+                        </th>
+
+
+                        <!-- 상태 정렬 -->
+                        <th class="center-cell">
+
+                            <a class="sort-link center-sort-link"
+                               th:classappend="${sort == 'status'
+                                   ? ' active'
+                                   : ''}"
+                               th:href="@{/admin/hospital-owner-requests(
+                                   sort='status',
+                                   direction=${sort == 'status'
+                                       and direction == 'asc'
+                                           ? 'desc'
+                                           : 'asc'}
+                               )}">
+
+                                상태
+
+                                <span class="sort-arrow"
+                                      th:text="${sort == 'status'
+                                          ? (direction == 'asc' ? '▲' : '▼')
+                                          : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 반려 사유 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${sort == 'rejectReason'
+                                   ? ' active'
+                                   : ''}"
+                               th:href="@{/admin/hospital-owner-requests(
+                                   sort='rejectReason',
+                                   direction=${sort == 'rejectReason'
+                                       and direction == 'asc'
+                                           ? 'desc'
+                                           : 'asc'}
+                               )}">
+
+                                반려 사유
+
+                                <span class="sort-arrow"
+                                      th:text="${sort == 'rejectReason'
+                                          ? (direction == 'asc' ? '▲' : '▼')
+                                          : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 신청일 정렬 -->
+                        <th class="center-cell">
+
+                            <a class="sort-link center-sort-link"
+                               th:classappend="${sort == 'createdAt'
+                                   ? ' active'
+                                   : ''}"
+                               th:href="@{/admin/hospital-owner-requests(
+                                   sort='createdAt',
+                                   direction=${sort == 'createdAt'
+                                       and direction == 'asc'
+                                           ? 'desc'
+                                           : 'asc'}
+                               )}">
+
+                                신청일
+
+                                <span class="sort-arrow"
+                                      th:text="${sort == 'createdAt'
+                                          ? (direction == 'asc' ? '▲' : '▼')
+                                          : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 처리일 정렬 -->
+                        <th class="center-cell">
+
+                            <a class="sort-link center-sort-link"
+                               th:classappend="${sort == 'processedAt'
+                                   ? ' active'
+                                   : ''}"
+                               th:href="@{/admin/hospital-owner-requests(
+                                   sort='processedAt',
+                                   direction=${sort == 'processedAt'
+                                       and direction == 'asc'
+                                           ? 'desc'
+                                           : 'asc'}
+                               )}">
+
+                                처리일
+
+                                <span class="sort-arrow"
+                                      th:text="${sort == 'processedAt'
+                                          ? (direction == 'asc' ? '▲' : '▼')
+                                          : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 관리 -->
+                        <th class="center-cell">
+                            관리
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <!-- 신청 내역이 없는 경우 -->
+                    <tr th:if="${#lists.isEmpty(requests)}">
+
+                        <td colspan="10"
+                            class="empty-request-row">
+                            등록된 병원장 신청 내역이 없습니다.
+                        </td>
+
+                    </tr>
+
+
+                    <!-- 신청 목록 -->
+                    <tr th:each="request : ${requests}">
+
+                        <!-- 신청 번호 -->
+                        <td class="request-id-cell"
+                            th:text="${request.requestId}">
+                            1
+                        </td>
+
+
+                        <!-- 회원 정보 -->
+                        <td>
+
+                            <div class="request-info">
+
+                                <strong th:text="${request.nickname != null
+                                    and not #strings.isEmpty(request.nickname)
+                                        ? request.nickname
+                                        : '-'}">
+                                    회원 닉네임
+                                </strong>
+
+                                <span th:text="${request.loginId != null
+                                    and not #strings.isEmpty(request.loginId)
+                                        ? request.loginId
+                                        : '-'}">
+                                    login01
+                                </span>
+
+                                <small th:text="|회원 번호 ${request.memberId}|">
+                                    회원 번호 1
+                                </small>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- 병원 정보 -->
+                        <td>
+
+                            <div class="request-info">
+
+                                <strong th:text="${request.hospitalName != null
+                                    and not #strings.isEmpty(request.hospitalName)
+                                        ? request.hospitalName
+                                        : '-'}">
+                                    동물병원
+                                </strong>
+
+                                <small th:text="|병원 번호 ${request.hospitalId}|">
+                                    병원 번호 1
+                                </small>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- 사업자 번호 -->
+                        <td class="business-number-cell"
+                            th:text="${request.businessNumber != null
+                                and not #strings.isEmpty(request.businessNumber)
+                                    ? request.businessNumber
+                                    : '-'}">
+                            123-45-67890
+                        </td>
+
+
+                        <!-- 제출 서류 -->
+                        <td class="center-cell">
+
+                            <a class="document-button"
+                               th:if="${request.documentUrl != null
+                                   and not #strings.isEmpty(request.documentUrl)}"
+                               th:href="${request.documentUrl}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                PDF 보기
+                            </a>
+
+                            <span class="empty-value"
+                                  th:unless="${request.documentUrl != null
+                                      and not #strings.isEmpty(request.documentUrl)}">
+                                -
+                            </span>
+
+                        </td>
+
+
+                        <!-- 신청 상태 -->
+                        <td class="center-cell">
+
+                            <span class="request-status-badge"
+                                  th:classappend="${' status-' +
+                                      #strings.toLowerCase(request.status)}"
+                                  th:text="${request.status}">
+                                PENDING
+                            </span>
+
+                        </td>
+
+
+                        <!-- 반려 사유 -->
+                        <td>
+
+                            <p class="reject-reason"
+                               th:title="${request.rejectReason}"
+                               th:text="${request.rejectReason != null
+                                   and not #strings.isEmpty(request.rejectReason)
+                                       ? request.rejectReason
+                                       : '-'}">
+                                -
+                            </p>
+
+                        </td>
+
+
+                        <!-- 신청일 -->
+                        <td class="request-date-cell"
+                            th:text="${request.createdAt != null
+                                ? #temporals.format(
+                                    request.createdAt,
+                                    'yyyy-MM-dd HH:mm'
+                                  )
+                                : '-'}">
+                            -
+                        </td>
+
+
+                        <!-- 처리일 -->
+                        <td class="request-date-cell"
+                            th:text="${request.processedAt != null
+                                ? #temporals.format(
+                                    request.processedAt,
+                                    'yyyy-MM-dd HH:mm'
+                                  )
+                                : '-'}">
+                            -
+                        </td>
+
+
+                        <!-- 상세 페이지 -->
+                        <td class="center-cell">
+
+                            <a class="detail-button"
+                               th:href="@{/admin/hospital-owner-requests/{requestId}(
+                                   requestId=${request.requestId}
+                               )}">
+
+                                상세
+
+                                <span class="detail-arrow">
+                                    ›
+                                </span>
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

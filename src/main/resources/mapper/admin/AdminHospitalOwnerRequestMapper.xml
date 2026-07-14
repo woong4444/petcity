@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.admin.dao.AdminHospitalOwnerRequestDao">
+    <select id="findAllRequests" resultType="AdminHospitalOwnerRequestDto">
+        SELECT
+            HOR.REQUEST_ID AS requestId,
+            HOR.Member_id AS memberId,
+            HOR.HOSPITAL_ID AS hospitalId,
+            HOR.BUSINESS_NUMBER AS businessNumber,
+            HOR.DOCUMENT_Url AS documentUrl,
+            HOR.STATUS AS status,
+            HOR.REJECT_REASON AS rejectReason,
+            HOR.CREATED_AT AS createdAt,
+            HOR.PROCESSED_AT AS processedAt,
+            M.LOGIN_ID AS loginId,
+            M.NICKNAME AS nickname,
+            H.NAME AS hospitalName
+        FROM HOSPITAL_OWNER_REQUEST HOR
+        JOIN APP_MEMBER M
+            ON HOR.MEMBER_ID = M.MEMBER_ID
+        JOIN HOSPITAL H
+            ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
+        ORDER BY
+        <choose>
+            <when test="sort == 'memberInfo'">
+                M.NICKNAME
+            </when>
+
+            <when test="sort == 'hospitalInfo'">
+                H.NAME
+            </when>
+            <when test="sort == 'status'">
+                HOR.STATUS
+            </when>
+            <when test="sort == 'rejectReason'">
+                HOR.REJECT_REASON
+            </when>
+            <when test="sort == 'createdAt'">
+                HOR.CREATED_AT
+            </when>
+            <when test="sort == 'processedAt'">
+                HOR.PROCESSED_AT
+            </when>
+            <otherwise>
+                HOR.REQUEST_ID
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="direction == 'asc'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+        NULLS LAST
+        <if test="sort != 'requestId'">
+            , HOR.REQUEST_ID DESC
+        </if>
+    </select>
+
+    <select id="findRequestById" resultType="AdminHospitalOwnerRequestDto">
+
+        SELECT
+            HOR.REQUEST_ID AS requestId,
+            HOR.Member_id AS memberId,
+            HOR.HOSPITAL_ID AS hospitalId,
+            HOR.BUSINESS_NUMBER AS businessNumber,
+            HOR.DOCUMENT_Url AS documentUrl,
+            HOR.STATUS AS status,
+            HOR.REJECT_REASON AS rejectReason,
+            HOR.CREATED_AT AS createdAt,
+            HOR.PROCESSED_AT AS processedAt,
+            M.LOGIN_ID AS loginId,
+            M.NICKNAME AS nickname,
+            H.NAME AS hospitalName
+        FROM HOSPITAL_OWNER_REQUEST HOR
+        JOIN APP_MEMBER M
+            ON HOR.MEMBER_ID = M.MEMBER_ID
+        JOIN HOSPITAL H
+            ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
+        WHERE HOR.REQUEST_ID = #{requestId}
+
+    </select>
+</mapper>

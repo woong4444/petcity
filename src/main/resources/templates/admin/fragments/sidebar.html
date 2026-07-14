@@ -109,8 +109,9 @@
         </a>
 
         <!-- 병원장 신청 -->
-        <a href="#"
+        <a th:href="@{/admin/hospital-owner-requests}"
            class="admin-nav-link"
+           th:classappend="${activeMenu == 'ownerRequests' ? ' active' : ''}"
            data-tooltip="병원장 신청">
 
             <span class="nav-icon">
@@ -125,12 +126,11 @@
                 </svg>
             </span>
 
-            <span class="nav-label">
+                    <span class="nav-label">
                 병원장 신청
             </span>
 
         </a>
-
         <!-- 리뷰 관리 -->
         <a href="#"
            class="admin-nav-link"
