@@ -131,7 +131,14 @@ document.addEventListener("DOMContentLoaded", function () {
       selectEveryMember.disabled = true;
 
       try {
-        const response = await fetch("/admin/members/all-ids", {
+        const queryParams = new URLSearchParams();
+        queryParams.set("keyword", selectEveryMember.dataset.keyword || "");
+        queryParams.set("role", selectEveryMember.dataset.role || "");
+        queryParams.set("status", selectEveryMember.dataset.status || "");
+        queryParams.set("memberStatus", selectEveryMember.dataset.memberStatus  || "");
+
+
+        const response = await fetch("/admin/members/all-ids" + queryParams.toString(), {
           method: "GET",
           headers: { Accept: "application/json" },
         });
