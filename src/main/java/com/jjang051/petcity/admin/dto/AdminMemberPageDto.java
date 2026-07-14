@@ -19,5 +19,6 @@ public class AdminMemberPageDto {
     private int endPage;
     private boolean hasPrevious;
     private boolean hasNext;
-
+    private String sort;
+    private String direction;
 }

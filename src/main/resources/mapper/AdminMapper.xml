@@ -48,7 +48,50 @@
         DELETE_REQUESTED_AT AS deleteRequestedAt,
         HARD_DELETE_AT AS hardDeleteAt
         FROM APP_MEMBER
-        ORDER BY MEMBER_ID DESC
+        ORDER BY
+        <choose>
+            <when test="sort == 'loginId'">
+                LOGIN_ID
+            </when>
+
+            <when test="sort == 'nickname'">
+                NICKNAME
+            </when>
+
+            <when test="sort == 'role'">
+                ROLE
+            </when>
+
+            <when test="sort == 'status'">
+                STATUS
+            </when>
+            <when test="sort == 'memberStatus'">
+                MEMBER_STATUS
+            </when>
+            <when test="sort == 'createdAt'">
+                CREATED_AT
+            </when>
+
+            <when test="sort == 'lastLoginAt'">
+                LAST_LOGIN_AT
+            </when>
+            <otherwise>
+                MEMBER_ID
+            </otherwise>
+        </choose>
+
+        <choose>
+            <when test="direction == 'asc'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+        NULLS LAST
+        <if test="sort != 'memberId'">
+            , MEMBER_ID DESC
+        </if>
         OFFSET #{offset} ROWS
         FETCH NEXT #{pageSize} ROWS ONLY
     </select>

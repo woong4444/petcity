@@ -22,7 +22,6 @@ public class AdminService {
     private static final int PAGE_BLOCK_SIZE = 10;
 
 
-
     public AdminDashboardDto getDashboard() {
         return AdminDashboardDto.builder()
                 .todayVisitorCount(visitRedisService.getTodayVisitorCount())
@@ -37,44 +36,50 @@ public class AdminService {
                 .build();
     }
 
-        public AdminMemberPageDto getMemberPage(int requestedPage){
-            long totalElements = adminDao.countAllMembers();
-            int totalPages= (int) Math.ceil((double)totalElements / PAGE_SIZE);
+    public AdminMemberPageDto getMemberPage(int requestedPage, String requestedSort, String requestedDirection) {
+        String sort = normalizeSort(requestedSort);
+        String direction = normalizeDirection(requestedDirection);
 
-            validatePage(requestedPage, totalPages);
+        long totalElements = adminDao.countAllMembers();
+        int totalPages = (int) Math.ceil((double) totalElements / PAGE_SIZE);
 
-            int offset = (requestedPage - 1) * PAGE_SIZE;
+        validatePage(requestedPage, totalPages);
 
-            List<AdminMemberListDto> members;
+        int offset = (requestedPage - 1) * PAGE_SIZE;
 
-            if (totalElements == 0) {
-                members = Collections.emptyList();
-            } else {
-                members = adminDao.findMembersByPage(offset, PAGE_SIZE);
-            }
-            int startPage;
-            int endPage;
+        List<AdminMemberListDto> members;
 
-            if (totalPages == 0) {
-                startPage = 0;
-                endPage = 0;
-            } else {
-                startPage = ((requestedPage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+        if (totalElements == 0) {
+            members = Collections.emptyList();
+        } else {
+            members = adminDao.findMembersByPage(offset, PAGE_SIZE,sort,direction);
+        }
+        int startPage;
+        int endPage;
 
-                endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
-            }
-            return AdminMemberPageDto.builder()
-                    .members(members)
-                    .currentPage(requestedPage)
-                    .pageSize(PAGE_SIZE)
-                    .totalPages(totalPages)
-                    .totalElements(totalElements)
-                    .startPage(startPage)
-                    .endPage(endPage)
-                    .hasPrevious(requestedPage > 1)
-                    .hasNext(requestedPage < totalPages)
-                    .build();
+        if (totalPages == 0) {
+            startPage = 0;
+            endPage = 0;
+        } else {
+            startPage = ((requestedPage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+
+            endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
+        }
+        return AdminMemberPageDto.builder()
+                .members(members)
+                .currentPage(requestedPage)
+                .pageSize(PAGE_SIZE)
+                .totalPages(totalPages)
+                .totalElements(totalElements)
+                .startPage(startPage)
+                .endPage(endPage)
+                .hasPrevious(requestedPage > 1)
+                .hasNext(requestedPage < totalPages)
+                .sort(sort)
+                .direction(direction)
+                .build();
     }
+
 
     public List<Long> getAllMemberIds() {
         return adminDao.findAllMemberIds();
@@ -92,5 +97,37 @@ public class AdminService {
             throw new IllegalArgumentException("존재하지 않는 페이지입니다.");
         }
     }
+
+
+    private String normalizeDirection(String requestedDirection) {
+        if (requestedDirection == null) {
+            return "desc";
+        }
+        if ("asc".equalsIgnoreCase(requestedDirection.trim())) {
+            return "asc";
+        }
+        return "desc";
+
+    }
+
+    private String normalizeSort(String requestedSort) {
+        if (requestedSort == null) {
+            return "memberId";
+        }
+        String sort = requestedSort.trim();
+        return switch (sort) {
+            case "memberId",
+                 "loginId",
+                 "nickname",
+                 "role",
+                 "status",
+                 "memberStatus",
+                 "createdAt",
+                 "lastLoginAt" -> sort;
+            default -> "memberId";
+        };
+    }
+
+
 }
 

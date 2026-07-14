@@ -22,7 +22,10 @@ public interface AdminDao {
 
     long countAllMembers();
 
-    List<AdminMemberListDto> findMembersByPage(@Param("offset") int offset, @Param("pageSize") int pageSize);
+    List<AdminMemberListDto> findMembersByPage(@Param("offset") int offset, @Param("pageSize") int pageSize,
+                                               @Param("sort") String sort, @Param("direction") String direction);
 
     List<Long> findAllMemberIds();
+
+
 }

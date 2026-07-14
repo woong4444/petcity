@@ -43,6 +43,8 @@ public class AdminController {
 
     @GetMapping("/members")
     public String memberList(@RequestParam(name = "page", defaultValue = "1") String pageParam,
+                             @RequestParam(name = "sort", defaultValue = "memberId") String sort,
+                             @RequestParam(name = "direction", defaultValue = "desc") String direction,
                              HttpSession session, Model model) {
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
         if (loginMember == null) {
@@ -58,7 +60,7 @@ public class AdminController {
             return "redirect:/admin/members?page=1";
         }
         try {
-            AdminMemberPageDto pageList = adminService.getMemberPage(page);
+            AdminMemberPageDto pageList = adminService.getMemberPage(page, sort, direction);
 
             model.addAttribute("members", pageList.getMembers());
             model.addAttribute("pageList", pageList);
