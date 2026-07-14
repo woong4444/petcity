@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.admin.dao.AdminInactiveMemberDao">
+    <update id="blockInactiveMembers">
+        UPDATE APP_MEMBER SET STATUS = 'BLOCKED', UPDATED_AT = SYSTIMESTAMP
+        WHERE STATUS = 'ACTIVE' AND MEMBER_STATUS = 'ACTIVE' AND ROLE != 'ADMIN'
+        AND TRUNC(NVL(LAST_LOGIN_AT, CREATED_AT)) &lt;= ADD_MONTHS(TRUNC(SYSDATE),-12)
+
+    </update>
+</mapper>

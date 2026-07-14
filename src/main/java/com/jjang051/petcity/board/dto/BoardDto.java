@@ -1,8 +1,8 @@
 package com.jjang051.petcity.board.dto;
 
 import lombok.*;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +18,7 @@ public class BoardDto {
     private int memberId;
 
     // 게시판 종류
-    // NOTICE, QNA, FREE, INFO, MISSING
+    // NOTICE, QNA, FREE, INFO, FAQ
     private String boardType;
 
     // 제목
@@ -62,6 +62,9 @@ public class BoardDto {
 
     // 부모 동물 이름
     private  String parentAnimalName;
+
+
+
 
 
 

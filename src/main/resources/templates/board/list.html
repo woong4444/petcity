@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title th:text="${boardTitle}">게시판</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
-    <link rel="stylesheet" th:href="@{/css/board/list.css}">
+    <title th:text="${boardTitle}">
+        게시판
+    </title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/board/list.css}">
 </head>
+
 <body>
 
 <div th:replace="~{common/head :: head}"></div>
@@ -25,59 +36,107 @@
             </div>
 
             <nav class="community-menu">
-                <a th:href="@{/board/list(type='QNA')}"
-                   th:classappend="${boardType == 'QNA'} ? ' active' : ''">
+
+                <a th:href="@{/board/list(
+                        type='QNA',
+                        page=1
+                    )}"
+                   th:classappend="${boardType == 'QNA'}
+                        ? ' active' : ''">
+
                     <span>수의사상담</span>
                     <strong>›</strong>
                 </a>
 
-                <a th:href="@{/board/list(type='FREE')}"
-                   th:classappend="${boardType == 'FREE'} ? ' active' : ''">
+                <a th:href="@{/board/list(
+                        type='FREE',
+                        page=1
+                    )}"
+                   th:classappend="${boardType == 'FREE'}
+                        ? ' active' : ''">
+
                     <span>자유토크</span>
                     <strong>›</strong>
                 </a>
 
-                <a th:href="@{/board/list(type='INFO')}"
-                   th:classappend="${boardType == 'INFO'} ? ' active' : ''">
+                <a th:href="@{/board/list(
+                        type='INFO',
+                        page=1
+                    )}"
+                   th:classappend="${boardType == 'INFO'}
+                        ? ' active' : ''">
+
                     <span>멍냥백서</span>
                     <strong>›</strong>
                 </a>
 
-                <a th:href="@{/board/list(type='NOTICE')}"
-                   th:classappend="${boardType == 'NOTICE'} ? ' active' : ''">
+                <a th:href="@{/board/list(
+                        type='NOTICE',
+                        page=1
+                    )}"
+                   th:classappend="${boardType == 'NOTICE'}
+                        ? ' active' : ''">
+
                     <span>공지사항</span>
                     <strong>›</strong>
                 </a>
+
+                <a th:href="@{/board/list(
+                        type='FAQ',
+                        page=1
+                    )}"
+                   th:classappend="${boardType == 'FAQ'}
+                        ? ' active' : ''">
+
+                    <span>자주 묻는 질문</span>
+                    <strong>›</strong>
+                </a>
+
             </nav>
 
         </aside>
 
-        <!-- 오른쪽 게시판 메인 -->
+
+        <!-- 오른쪽 게시판 -->
         <section class="board-content">
 
-            <!-- 게시판 상단 타이틀 영역 -->
+            <!-- 게시판 상단 -->
             <section class="board-hero">
 
                 <div class="board-hero-title">
-                    <h1 th:text="${boardTitle}">자유 게시판</h1>
+
+                    <h1 th:text="${boardTitle}">
+                        자유 게시판
+                    </h1>
 
                     <p th:switch="${boardType}">
+
                         <span th:case="'QNA'">
                             의료 전문 상담이 필요한 분들께 수의사가 직접 답변드립니다!
                         </span>
+
                         <span th:case="'FREE'">
                             반려동물 이야기 및 마이펫 자랑 등 자유로운 토크방입니다!
                         </span>
+
                         <span th:case="'INFO'">
                             반려견, 반려묘 보호자분들을 위한 꿀팁 정보입니다!
                         </span>
+
                         <span th:case="'NOTICE'">
                             PetCity의 중요한 소식과 안내사항을 확인해 주세요.
                         </span>
+
+                        <span th:case="'FAQ'">
+                            PetCity 이용 중 자주 묻는 질문과 답변을 확인해 주세요.
+                        </span>
+
                         <span th:case="*">
                             PetCity 커뮤니티 게시판입니다.
                         </span>
+
                     </p>
+
                 </div>
 
                 <div class="board-hero-image">
@@ -89,99 +148,216 @@
 
             </section>
 
-            <!-- 반려동물 필터: 공지사항 제외 -->
-            <section class="animal-filter-area" th:if="${boardType != 'NOTICE'}">
+
+            <!-- NOTICE와 FAQ는 동물 필터 없음 -->
+            <section class="animal-filter-area"
+                     th:if="${boardType != 'NOTICE'
+                              and boardType != 'FAQ'}">
 
                 <div class="animal-filter-head">
+
                     <div>
                         <h3>반려동물별 보기</h3>
-                        <p>우리 아이와 관련된 글만 골라볼 수 있어요.</p>
+
+                        <p>
+                            우리 아이와 관련된 글만 골라볼 수 있어요.
+                        </p>
                     </div>
 
-                    <a th:href="@{/board/list(type=${boardType})}"
+                    <a th:href="@{/board/list(
+                            type=${boardType},
+                            page=1
+                        )}"
                        class="animal-reset-link">
+
                         전체 글 보기
                     </a>
+
                 </div>
 
-                <!-- 반려동물 -->
+
+                <!-- 반려동물 대분류 -->
                 <div class="animal-filter-block">
-                    <div class="animal-filter-label">반려동물</div>
+
+                    <div class="animal-filter-label">
+                        반려동물
+                    </div>
 
                     <div class="animal-chip-list">
-                        <a th:href="@{/board/list(type=${boardType})}"
+
+                        <a th:href="@{/board/list(
+                                type=${boardType},
+                                page=1
+                            )}"
                            class="animal-chip"
-                           th:classappend="${parentAnimalId == null and animalId == null} ? ' active' : ''">
+                           th:classappend="${
+                               parentAnimalId == null
+                               and animalId == null
+                           } ? ' active' : ''">
+
                             전체
                         </a>
 
                         <a th:each="animal : ${parentAnimalList}"
-                           th:href="@{/board/list(type=${boardType}, parentAnimalId=${animal.animalId})}"
+                           th:href="@{/board/list(
+                               type=${boardType},
+                               parentAnimalId=${animal.animalId},
+                               page=1
+                           )}"
                            th:text="${animal.animalName}"
                            class="animal-chip"
-                           th:classappend="${parentAnimalId != null and parentAnimalId == animal.animalId} ? ' active' : ''">
+                           th:classappend="${
+                               parentAnimalId != null
+                               and parentAnimalId == animal.animalId
+                           } ? ' active' : ''">
+
                             강아지
                         </a>
+
                     </div>
+
                 </div>
+
 
                 <!-- 품종·종류 -->
                 <div class="animal-filter-block"
-                     th:if="${childAnimalList != null and !#lists.isEmpty(childAnimalList)}">
+                     th:if="${
+                         childAnimalList != null
+                         and !#lists.isEmpty(childAnimalList)
+                     }">
 
-                    <div class="animal-filter-label">품종·종류</div>
+                    <div class="animal-filter-label">
+                        품종·종류
+                    </div>
 
                     <div class="animal-chip-list">
-                        <a th:href="@{/board/list(type=${boardType}, parentAnimalId=${parentAnimalId})}"
+
+                        <a th:href="@{/board/list(
+                                type=${boardType},
+                                parentAnimalId=${parentAnimalId},
+                                page=1
+                            )}"
                            class="animal-chip sub"
-                           th:classappend="${animalId == null} ? ' active' : ''">
+                           th:classappend="${animalId == null}
+                                ? ' active' : ''">
+
                             전체
                         </a>
 
                         <a th:each="animal : ${childAnimalList}"
-                           th:href="@{/board/list(type=${boardType}, parentAnimalId=${parentAnimalId}, animalId=${animal.animalId})}"
+                           th:href="@{/board/list(
+                               type=${boardType},
+                               parentAnimalId=${parentAnimalId},
+                               animalId=${animal.animalId},
+                               page=1
+                           )}"
                            th:text="${animal.animalName}"
                            class="animal-chip sub"
-                           th:classappend="${animalId != null and animalId == animal.animalId} ? ' active' : ''">
+                           th:classappend="${
+                               animalId != null
+                               and animalId == animal.animalId
+                           } ? ' active' : ''">
+
                             골든리트리버
                         </a>
+
                     </div>
+
                 </div>
 
             </section>
 
+
             <!-- 검색 영역 -->
             <section class="board-search-area">
-                <form th:action="@{/board/list}" method="get" class="board-search-form">
 
-                    <input type="hidden" name="type" th:value="${boardType}">
+                <form th:action="@{/board/list}"
+                      method="get"
+                      class="board-search-form">
 
-                    <div class="search-label">게시글 검색</div>
+                    <input type="hidden"
+                           name="type"
+                           th:value="${boardType}">
+
+                    <input type="hidden"
+                           name="page"
+                           value="1">
+
+                    <input type="hidden"
+                           name="parentAnimalId"
+                           th:if="${parentAnimalId != null}"
+                           th:value="${parentAnimalId}">
+
+                    <input type="hidden"
+                           name="animalId"
+                           th:if="${animalId != null}"
+                           th:value="${animalId}">
+
+                    <div class="search-label">
+                        게시글 검색
+                    </div>
 
                     <select name="searchType">
-                        <option value="titleContent">제목 + 내용</option>
-                        <option value="title">제목</option>
-                        <option value="content">내용</option>
-                        <option value="writer">작성자</option>
+
+                        <option value="titleContent"
+                                th:selected="${
+                                    searchType == null
+                                    or searchType == 'titleContent'
+                                }">
+
+                            제목 + 내용
+                        </option>
+
+                        <option value="title"
+                                th:selected="${searchType == 'title'}">
+
+                            제목
+                        </option>
+
+                        <option value="content"
+                                th:selected="${searchType == 'content'}">
+
+                            내용
+                        </option>
+
+                        <option value="writer"
+                                th:selected="${searchType == 'writer'}">
+
+                            작성자
+                        </option>
+
                     </select>
 
                     <input type="text"
                            name="keyword"
+                           th:value="${keyword}"
                            placeholder="검색어를 입력하세요.">
 
-                    <button type="submit">조회하기</button>
+                    <button type="submit">
+                        조회하기
+                    </button>
 
-                    <label class="my-board-check">
-                        <input type="checkbox" name="myPost" value="Y">
-                        <span>나의 게시글 보기</span>
-                    </label>
+                    <a th:href="@{/board/list(
+                            type=${boardType},
+                            parentAnimalId=${parentAnimalId},
+                            animalId=${animalId},
+                            page=1
+                        )}"
+                       class="search-reset-button">
+
+                        초기화
+                    </a>
+
                 </form>
+
             </section>
+
 
             <!-- 게시판 테이블 -->
             <section class="board-table-area">
 
                 <table class="board-table">
+
                     <thead>
                     <tr>
                         <th class="col-no">No</th>
@@ -195,81 +371,286 @@
                     </thead>
 
                     <tbody>
-                    <tr th:each="board : ${boardList}"
-                        th:classappend="${board.boardType == 'NOTICE'} ? ' notice-row' : ''">
 
-                        <td class="col-no" th:text="${board.boardId}">1</td>
+                    <tr th:each="board : ${boardList}"
+                        th:classappend="${board.boardType == 'NOTICE'}
+                            ? ' notice-row'
+                            : ''">
+
+                        <td class="col-no"
+                            th:text="${board.boardId}">
+
+                            1
+                        </td>
 
                         <td class="col-type">
-                            <span class="type-badge" th:switch="${board.boardType}">
-                                <span th:case="'NOTICE'">공지</span>
-                                <span th:case="'QNA'">상담</span>
-                                <span th:case="'FREE'">자유토크</span>
-                                <span th:case="'INFO'">멍냥백서</span>
-                                <span th:case="'MISSING'">실종제보</span>
-                                <span th:case="*">게시판</span>
+
+                            <span class="type-badge"
+                                  th:switch="${board.boardType}">
+
+                                <span th:case="'NOTICE'">
+                                    공지
+                                </span>
+
+                                <span th:case="'QNA'">
+                                    상담
+                                </span>
+
+                                <span th:case="'FREE'">
+                                    자유토크
+                                </span>
+
+                                <span th:case="'INFO'">
+                                    멍냥백서
+                                </span>
+
+                                <span th:case="'FAQ'">
+                                    FAQ
+                                </span>
+
+                                <span th:case="*">
+                                    게시판
+                                </span>
+
                             </span>
+
                         </td>
 
                         <td class="col-title title-cell">
 
                             <div class="board-animal-name"
                                  th:if="${board.animalName != null}">
-                                <span th:text="${board.parentAnimalName}">강아지</span>
+
+                                <span th:text="${board.parentAnimalName}">
+                                    강아지
+                                </span>
+
                                 <strong>›</strong>
-                                <span th:text="${board.animalName}">골든리트리버</span>
+
+                                <span th:text="${board.animalName}">
+                                    골든리트리버
+                                </span>
+
                             </div>
 
-                            <a th:href="@{/board/view(boardId=${board.boardId})}"
+                            <a th:href="@{/board/view(
+                                    boardId=${board.boardId}
+                                )}"
                                th:text="${board.title}">
+
                                 게시글 제목
                             </a>
 
                             <span th:if="${board.imageCount > 0}"
                                   class="image-mark"
                                   title="첨부 이미지 있음">
+
                                 📷
                             </span>
+
                         </td>
 
-                        <td class="col-writer" th:text="${board.writerNickname}">
+                        <td class="col-writer"
+                            th:text="${board.writerNickname}">
+
                             작성자
                         </td>
 
                         <td class="col-date"
-                            th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd')}">
+                            th:text="${#temporals.format(
+                                board.createdAt,
+                                'yyyy.MM.dd'
+                            )}">
+
                             2026.07.09
                         </td>
 
-                        <td class="col-comment" th:text="${board.commentCount}">0</td>
+                        <td class="col-comment"
+                            th:text="${board.commentCount}">
 
-                        <td class="col-hit" th:text="${board.hit}">0</td>
-                    </tr>
-
-                    <tr th:if="${#lists.isEmpty(boardList)}">
-                        <td colspan="7" class="empty-board">
-                            등록된 게시글이 없습니다.
+                            0
                         </td>
+
+                        <td class="col-hit"
+                            th:text="${board.hit}">
+
+                            0
+                        </td>
+
                     </tr>
+
+
+                    <!-- 게시글 없음 -->
+                    <tr th:if="${
+                        boardList == null
+                        or #lists.isEmpty(boardList)
+                    }">
+
+                        <td colspan="7"
+                            class="empty-board">
+
+                            <span th:if="${
+                                keyword != null
+                                and keyword != ''
+                            }">
+
+                                검색 조건에 맞는 게시글이 없습니다.
+                            </span>
+
+                            <span th:if="${
+                                keyword == null
+                                or keyword == ''
+                            }">
+
+                                등록된 게시글이 없습니다.
+                            </span>
+
+                        </td>
+
+                    </tr>
+
                     </tbody>
+
                 </table>
 
             </section>
 
-            <!-- 하단 버튼 영역 -->
-            <div class="board-bottom">
 
-                <div class="board-page-dummy">
-                    <button type="button">‹</button>
-                    <button type="button" class="active">1</button>
-                    <button type="button">›</button>
-                </div>
+            <!-- 글쓰기 -->
+            <div class="board-bottom"
+                 style="justify-content: flex-end;">
 
-                <a th:href="@{/board/write(type=${boardType})}" class="write-button">
+                <a th:href="@{/board/write(
+                        type=${boardType}
+                    )}"
+                   class="write-button">
+
                     글쓰기
                 </a>
 
             </div>
+
+
+            <!-- 페이징 -->
+            <nav class="board-pagination"
+                 aria-label="게시글 페이지">
+
+                <!-- 첫 페이지 -->
+                <a th:if="${currentPage > 1}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type=${boardType},
+                       parentAnimalId=${parentAnimalId},
+                       animalId=${animalId},
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=1
+                   )}"
+                   title="첫 페이지">
+
+                    &lt;&lt;
+                </a>
+
+                <span th:unless="${currentPage > 1}"
+                      class="page-button page-disabled">
+
+                    &lt;&lt;
+                </span>
+
+
+                <!-- 이전 묶음 -->
+                <a th:if="${hasPreviousBlock}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type=${boardType},
+                       parentAnimalId=${parentAnimalId},
+                       animalId=${animalId},
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${previousBlockPage}
+                   )}"
+                   title="이전 페이지 묶음">
+
+                    &lt;
+                </a>
+
+                <span th:unless="${hasPreviousBlock}"
+                      class="page-button page-disabled">
+
+                    &lt;
+                </span>
+
+
+                <!-- 페이지 번호 -->
+                <a th:each="pageNumber
+                            : ${#numbers.sequence(
+                                startPage,
+                                endPage
+                            )}"
+                   class="page-button"
+                   th:classappend="${
+                       pageNumber == currentPage
+                   } ? ' active' : ''"
+                   th:text="${pageNumber}"
+                   th:href="@{/board/list(
+                       type=${boardType},
+                       parentAnimalId=${parentAnimalId},
+                       animalId=${animalId},
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${pageNumber}
+                   )}">
+
+                    1
+                </a>
+
+
+                <!-- 다음 묶음 -->
+                <a th:if="${hasNextBlock}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type=${boardType},
+                       parentAnimalId=${parentAnimalId},
+                       animalId=${animalId},
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${nextBlockPage}
+                   )}"
+                   title="다음 페이지 묶음">
+
+                    &gt;
+                </a>
+
+                <span th:unless="${hasNextBlock}"
+                      class="page-button page-disabled">
+
+                    &gt;
+                </span>
+
+
+                <!-- 마지막 페이지 -->
+                <a th:if="${currentPage < totalPage}"
+                   class="page-button page-move"
+                   th:href="@{/board/list(
+                       type=${boardType},
+                       parentAnimalId=${parentAnimalId},
+                       animalId=${animalId},
+                       searchType=${searchType},
+                       keyword=${keyword},
+                       page=${totalPage}
+                   )}"
+                   title="마지막 페이지">
+
+                    &gt;&gt;
+                </a>
+
+                <span th:unless="${currentPage < totalPage}"
+                      class="page-button page-disabled">
+
+                    &gt;&gt;
+                </span>
+
+            </nav>
 
         </section>
 

@@ -21,42 +21,141 @@ import java.util.Map;
 @RequestMapping("/board")
 public class BoardController {
 
+    /*
+        Security 연결 전 테스트 모드
+
+        현재 집에서 로그인 기능 없이 테스트하려면 true.
+        member 브랜치의 Security를 연결한 뒤에는 반드시 false로 변경.
+    */
+    private static final boolean SECURITY_TEST_MODE = true;
+
+    private static final int TEMP_MEMBER_ID = 1;
+    private static final String TEMP_ROLE = "ADMIN";
+
     private final BoardService boardService;
 
     /*
         게시판 목록
 
         /board/list?type=FREE
-        /board/list?type=FREE&parentAnimalId=1
-        /board/list?type=FREE&parentAnimalId=1&animalId=8
+        /board/list?type=FAQ
     */
     @GetMapping("/list")
-    public String boardList(@RequestParam(value = "type", required = false) String type,
-                            @RequestParam(value = "parentAnimalId", required = false) Integer parentAnimalId,
-                            @RequestParam(value = "animalId", required = false) Integer animalId,
-                            Model model) {
+    public String boardList(
+            @RequestParam(value = "type", required = false)
+            String type,
 
-        BoardListPageDto pageDto = boardService.getBoardListPage(type, parentAnimalId, animalId);
+            @RequestParam(value = "parentAnimalId", required = false)
+            Integer parentAnimalId,
+
+            @RequestParam(value = "animalId", required = false)
+            Integer animalId,
+
+            @RequestParam(
+                    value = "searchType",
+                    required = false,
+                    defaultValue = "titleContent"
+            )
+            String searchType,
+
+            @RequestParam(value = "keyword", required = false)
+            String keyword,
+
+            /*
+                page=-1, page=abc 같은 값도 안전하게 받기 위해 String 사용
+            */
+            @RequestParam(value = "page", required = false)
+            String page,
+
+            Model model,
+            Authentication authentication
+    ) {
+
+        BoardListPageDto pageDto =
+                boardService.getBoardListPage(
+                        type,
+                        parentAnimalId,
+                        animalId,
+                        searchType,
+                        keyword,
+                        page
+                );
 
         model.addAttribute("boardList", pageDto.getBoardList());
         model.addAttribute("boardType", pageDto.getBoardType());
         model.addAttribute("boardTitle", pageDto.getBoardTitle());
 
-        // 공지사항을 제외한 게시판은 동물 필터 사용
-        if (!"NOTICE".equals(pageDto.getBoardType())) {
+        model.addAttribute("totalCount", pageDto.getTotalCount());
+        model.addAttribute("currentPage", pageDto.getCurrentPage());
+        model.addAttribute("totalPage", pageDto.getTotalPage());
+        model.addAttribute("startPage", pageDto.getStartPage());
+        model.addAttribute("endPage", pageDto.getEndPage());
+        model.addAttribute(
+                "previousBlockPage",
+                pageDto.getPreviousBlockPage()
+        );
+        model.addAttribute(
+                "nextBlockPage",
+                pageDto.getNextBlockPage()
+        );
+        model.addAttribute(
+                "hasPreviousBlock",
+                pageDto.isHasPreviousBlock()
+        );
+        model.addAttribute(
+                "hasNextBlock",
+                pageDto.isHasNextBlock()
+        );
 
-            model.addAttribute("parentAnimalList", boardService.getParentAnimalList());
-            model.addAttribute("parentAnimalId", parentAnimalId);
-            model.addAttribute("animalId", animalId);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute(
+                "keyword",
+                keyword == null ? "" : keyword
+        );
+
+        /*
+            FAQ 등록·수정·삭제 버튼 표시용
+        */
+        model.addAttribute(
+                "isAdmin",
+                isCurrentAdmin(authentication)
+        );
+
+        /*
+            NOTICE와 FAQ는 동물 분류를 사용하지 않음
+        */
+        if (!"NOTICE".equals(pageDto.getBoardType())
+                && !"FAQ".equals(pageDto.getBoardType())) {
+
+            model.addAttribute(
+                    "parentAnimalList",
+                    boardService.getParentAnimalList()
+            );
+            model.addAttribute(
+                    "parentAnimalId",
+                    parentAnimalId
+            );
+            model.addAttribute(
+                    "animalId",
+                    animalId
+            );
 
             if (parentAnimalId != null) {
-                model.addAttribute("childAnimalList", boardService.getChildAnimalList(parentAnimalId));
+                model.addAttribute(
+                        "childAnimalList",
+                        boardService.getChildAnimalList(
+                                parentAnimalId
+                        )
+                );
             }
         }
 
-        // 멍냥백서만 카드형 목록 페이지 사용
         if ("INFO".equals(pageDto.getBoardType())) {
             return "board/info-list";
+        }
+
+        if ("FAQ".equals(pageDto.getBoardType())) {
+            return "board/faq-list";
         }
 
         return "board/list";
@@ -64,16 +163,100 @@ public class BoardController {
 
     /*
         게시글 상세
+
+        FREE:
+        - 로그인 회원 댓글 작성 가능
+
+        QNA:
+        - OWNER, ADMIN만 답변 가능
+
+        INFO, NOTICE, FAQ:
+        - 댓글 기능 사용하지 않음
     */
     @GetMapping("/view")
-    public String boardView(@RequestParam("boardId") int boardId,
-                            Model model) {
+    public String boardView(
+            @RequestParam("boardId") int boardId,
+            Model model,
+            Authentication authentication
+    ) {
 
-        BoardViewPageDto pageDto = boardService.getBoardViewPage(boardId);
+        BoardViewPageDto pageDto =
+                boardService.getBoardViewPage(boardId);
 
-        model.addAttribute("boardDto", pageDto.getBoardDto());
-        model.addAttribute("boardTitle", pageDto.getBoardTitle());
-        model.addAttribute("boardImageList", pageDto.getBoardImageList());
+        BoardDto boardDto = pageDto.getBoardDto();
+
+        boolean authenticated =
+                isCurrentAuthenticated(authentication);
+
+        String role =
+                getCurrentRole(authentication);
+
+        Integer loginMemberId = null;
+
+        if (authenticated) {
+            loginMemberId =
+                    getCurrentMemberId(authentication);
+        }
+
+        String boardType = boardDto.getBoardType();
+
+        boolean commentEnabled =
+                "FREE".equals(boardType)
+                        || "QNA".equals(boardType);
+
+        boolean freeCommentAllowed =
+                authenticated
+                        && "FREE".equals(boardType);
+
+        boolean qnaCommentAllowed =
+                authenticated
+                        && "QNA".equals(boardType)
+                        && (
+                        "OWNER".equals(role)
+                                || "ADMIN".equals(role)
+                );
+
+        boolean canWriteComment =
+                freeCommentAllowed || qnaCommentAllowed;
+
+        model.addAttribute("boardDto", boardDto);
+        model.addAttribute(
+                "boardTitle",
+                pageDto.getBoardTitle()
+        );
+        model.addAttribute(
+                "boardImageList",
+                pageDto.getBoardImageList()
+        );
+        model.addAttribute(
+                "commentList",
+                pageDto.getCommentList()
+        );
+
+        model.addAttribute(
+                "commentEnabled",
+                commentEnabled
+        );
+        model.addAttribute(
+                "canWriteComment",
+                canWriteComment
+        );
+        model.addAttribute(
+                "isAuthenticated",
+                authenticated
+        );
+        model.addAttribute(
+                "loginMemberId",
+                loginMemberId
+        );
+        model.addAttribute(
+                "loginRole",
+                role
+        );
+        model.addAttribute(
+                "isAdmin",
+                "ADMIN".equals(role)
+        );
 
         return "board/view";
     }
@@ -81,69 +264,303 @@ public class BoardController {
     /*
         글쓰기 화면
 
-        글쓰기 화면 안에서 게시판 선택 가능.
-        단, 공지사항은 관리자만 선택 가능.
+        NOTICE, FAQ는 관리자만 작성 가능
     */
     @GetMapping("/write")
-    public String boardWrite(@RequestParam(value = "type", required = false) String type,
-                             Model model,
-                             Authentication authentication) {
+    public String boardWrite(
+            @RequestParam(value = "type", required = false)
+            String type,
+            Model model,
+            Authentication authentication
+    ) {
 
-        boolean admin = isAdmin(authentication);
+        boolean admin =
+                isCurrentAdmin(authentication);
 
-        String boardType = boardService.getValidBoardTypeForPage(type);
+        String boardType =
+                boardService.getValidBoardTypeForPage(type);
 
-        // 일반 사용자가 /board/write?type=NOTICE로 직접 들어와도 자유게시판으로 변경
-        if ("NOTICE".equals(boardType) && !admin) {
+        /*
+            일반 사용자가 주소로 NOTICE 또는 FAQ에 접근하면
+            FREE 글쓰기 화면으로 이동
+        */
+        if ((
+                "NOTICE".equals(boardType)
+                        || "FAQ".equals(boardType)
+        ) && !admin) {
+
             boardType = "FREE";
         }
 
-        String boardTitle = boardService.getBoardTitleForPage(boardType);
+        String boardTitle =
+                boardService.getBoardTitleForPage(boardType);
 
         model.addAttribute("boardType", boardType);
         model.addAttribute("boardTitle", boardTitle);
         model.addAttribute("isAdmin", admin);
 
-        // 글쓰기 화면에서 게시판을 바꿀 수 있으므로 항상 동물 목록을 내려줌
-        model.addAttribute("parentAnimalList", boardService.getParentAnimalList());
+        /*
+            글쓰기 화면에서 게시판 종류를 바꿀 수 있으므로
+            동물 대분류는 항상 전달
+        */
+        model.addAttribute(
+                "parentAnimalList",
+                boardService.getParentAnimalList()
+        );
 
         return "board/write";
     }
 
     /*
         글쓰기 처리
-
-        일반 사용자:
-        - QNA, FREE, INFO, MISSING 작성 가능
-        - NOTICE 작성 불가
-
-        관리자:
-        - NOTICE 작성 가능
     */
     @PostMapping("/write")
-    public String boardWriteProcess(@ModelAttribute BoardDto boardDto,
-                                    @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles,
-                                    @RequestParam(value = "linkUrl", required = false) String linkUrl,
-                                    Authentication authentication) throws IOException {
+    public String boardWriteProcess(
+            @ModelAttribute BoardDto boardDto,
 
-        boolean admin = isAdmin(authentication);
+            @RequestParam(
+                    value = "imageFiles",
+                    required = false
+            )
+            MultipartFile[] imageFiles,
 
-        // 로그인 기능 붙기 전까지 임시로 1번 회원 사용
-        // 나중에 로그인 연결되면 여기서 로그인한 회원 ID로 바꾸면 됨
-        boardDto.setMemberId(1);
+            @RequestParam(
+                    value = "linkUrl",
+                    required = false
+            )
+            String linkUrl,
 
-        boardService.insertBoard(boardDto, imageFiles, linkUrl, admin);
+            Authentication authentication
+    ) throws IOException {
 
-        return "redirect:/board/list?type=" + boardDto.getBoardType();
+        boolean admin =
+                isCurrentAdmin(authentication);
+
+        int memberId =
+                getCurrentMemberId(authentication);
+
+        boardDto.setMemberId(memberId);
+
+        boardService.insertBoard(
+                boardDto,
+                imageFiles,
+                linkUrl,
+                admin
+        );
+
+        return "redirect:/board/list?type="
+                + boardDto.getBoardType();
     }
 
     /*
-        대분류 선택 시 하위 동물 목록 가져오기
-        JS fetch에서 사용
+        댓글 등록
+    */
+    @PostMapping("/comment/write")
+    public String commentWrite(
+            @RequestParam("boardId") int boardId,
+            @RequestParam("content") String content,
+            Authentication authentication
+    ) {
+
+        if (!isCurrentAuthenticated(authentication)) {
+            throw new RuntimeException(
+                    "로그인 후 댓글을 작성할 수 있습니다."
+            );
+        }
+
+        boardService.insertComment(
+                boardId,
+                getCurrentMemberId(authentication),
+                content,
+                getCurrentRole(authentication)
+        );
+
+        return "redirect:/board/view?boardId="
+                + boardId;
+    }
+
+    /*
+        게시글 수정 화면
+    */
+    @GetMapping("/update")
+    public String boardUpdate(
+            @RequestParam("boardId") int boardId,
+            Model model,
+            Authentication authentication
+    ) {
+
+        BoardViewPageDto pageDto =
+                boardService.getBoardUpdatePage(boardId);
+
+        BoardDto boardDto =
+                pageDto.getBoardDto();
+
+        boolean admin =
+                isCurrentAdmin(authentication);
+
+        /*
+            공지사항과 FAQ는 관리자만 수정 가능
+        */
+        if ((
+                "NOTICE".equals(boardDto.getBoardType())
+                        || "FAQ".equals(boardDto.getBoardType())
+        ) && !admin) {
+
+            throw new RuntimeException(
+                    "공지사항과 FAQ는 관리자만 수정할 수 있습니다."
+            );
+        }
+
+        model.addAttribute("boardDto", boardDto);
+        model.addAttribute(
+                "boardTitle",
+                pageDto.getBoardTitle()
+        );
+        model.addAttribute(
+                "boardImageList",
+                pageDto.getBoardImageList()
+        );
+        model.addAttribute("isAdmin", admin);
+
+        if (pageDto.getBoardImageList() != null
+                && !pageDto.getBoardImageList().isEmpty()) {
+
+            model.addAttribute(
+                    "currentImage",
+                    pageDto.getBoardImageList().get(0)
+            );
+        }
+
+        /*
+            NOTICE와 FAQ는 동물 선택을 사용하지 않음
+        */
+        if (!"NOTICE".equals(boardDto.getBoardType())
+                && !"FAQ".equals(boardDto.getBoardType())) {
+
+            model.addAttribute(
+                    "parentAnimalList",
+                    boardService.getParentAnimalList()
+            );
+
+            if (boardDto.getParentAnimalId() != null) {
+                model.addAttribute(
+                        "childAnimalList",
+                        boardService.getChildAnimalList(
+                                boardDto.getParentAnimalId()
+                        )
+                );
+            }
+        }
+
+        return "board/update";
+    }
+
+    /*
+        게시글 수정 처리
+    */
+    @PostMapping("/update")
+    public String boardUpdateProcess(
+            @ModelAttribute BoardDto boardDto,
+
+            @RequestParam(
+                    value = "imageFiles",
+                    required = false
+            )
+            MultipartFile[] imageFiles,
+
+            @RequestParam(
+                    value = "linkUrl",
+                    required = false
+            )
+            String linkUrl,
+
+            Authentication authentication
+    ) throws IOException {
+
+        boolean admin =
+                isCurrentAdmin(authentication);
+
+        boardService.updateBoard(
+                boardDto,
+                imageFiles,
+                linkUrl,
+                admin
+        );
+
+        /*
+            FAQ는 상세 화면이 아니라 아코디언 목록으로 돌아감
+        */
+        if ("FAQ".equals(boardDto.getBoardType())) {
+            return "redirect:/board/list?type=FAQ";
+        }
+
+        return "redirect:/board/view?boardId="
+                + boardDto.getBoardId();
+    }
+
+    /*
+        댓글 수정
+    */
+    @PostMapping("/comment/update")
+    public String commentUpdate(
+            @RequestParam("commentId") int commentId,
+            @RequestParam("content") String content,
+            Authentication authentication
+    ) {
+
+        if (!isCurrentAuthenticated(authentication)) {
+            throw new RuntimeException(
+                    "로그인이 필요합니다."
+            );
+        }
+
+        int boardId =
+                boardService.updateComment(
+                        commentId,
+                        getCurrentMemberId(authentication),
+                        content,
+                        getCurrentRole(authentication)
+                );
+
+        return "redirect:/board/view?boardId="
+                + boardId;
+    }
+
+    /*
+        댓글 삭제
+    */
+    @PostMapping("/comment/delete")
+    public String commentDelete(
+            @RequestParam("commentId") int commentId,
+            Authentication authentication
+    ) {
+
+        if (!isCurrentAuthenticated(authentication)) {
+            throw new RuntimeException(
+                    "로그인이 필요합니다."
+            );
+        }
+
+        int boardId =
+                boardService.deleteComment(
+                        commentId,
+                        getCurrentMemberId(authentication),
+                        getCurrentRole(authentication)
+                );
+
+        return "redirect:/board/view?boardId="
+                + boardId;
+    }
+
+    /*
+        대분류 선택 시 하위 동물 목록 조회
     */
     @GetMapping("/animal/children")
     @ResponseBody
-    public List<AnimalTypeDto> animalChildren(@RequestParam("parentId") int parentId) {
+    public List<AnimalTypeDto> animalChildren(
+            @RequestParam("parentId") int parentId
+    ) {
+
         return boardService.getChildAnimalList(parentId);
     }
 
@@ -151,11 +568,30 @@ public class BoardController {
         게시글 삭제
     */
     @PostMapping("/delete")
-    public String boardDelete(@RequestParam("boardId") int boardId) {
+    public String boardDelete(
+            @RequestParam("boardId") int boardId,
+            Authentication authentication
+    ) {
 
-        String boardType = boardService.deleteBoard(boardId);
+        BoardDto boardDto =
+                boardService.getBoardUpdatePage(boardId)
+                        .getBoardDto();
 
-        return "redirect:/board/list?type=" + boardType;
+        if ((
+                "NOTICE".equals(boardDto.getBoardType())
+                        || "FAQ".equals(boardDto.getBoardType())
+        ) && !isCurrentAdmin(authentication)) {
+
+            throw new RuntimeException(
+                    "공지사항과 FAQ는 관리자만 삭제할 수 있습니다."
+            );
+        }
+
+        String boardType =
+                boardService.deleteBoard(boardId);
+
+        return "redirect:/board/list?type="
+                + boardType;
     }
 
     /*
@@ -163,29 +599,146 @@ public class BoardController {
     */
     @PostMapping("/editor/image")
     @ResponseBody
-    public Map<String, String> editorImageUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    public Map<String, String> editorImageUpload(
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
 
-        String imageUrl = boardService.saveEditorImage(file);
+        String imageUrl =
+                boardService.saveEditorImage(file);
 
-        return Map.of("imageUrl", imageUrl);
+        return Map.of(
+                "imageUrl",
+                imageUrl
+        );
     }
 
     /*
-        관리자 여부 확인
-
-        프로젝트에 따라 권한명이 ROLE_ADMIN 또는 ADMIN으로 들어올 수 있어서 둘 다 체크함.
+        현재 테스트 모드 또는 실제 Security 기준 로그인 여부
     */
-    private boolean isAdmin(Authentication authentication) {
+    private boolean isCurrentAuthenticated(
+            Authentication authentication
+    ) {
 
-        if (authentication == null) {
+        if (SECURITY_TEST_MODE) {
+            return true;
+        }
+
+        return isAuthenticated(authentication);
+    }
+
+    /*
+        현재 테스트 모드 또는 실제 Security 기준 회원 번호
+    */
+    private int getCurrentMemberId(
+            Authentication authentication
+    ) {
+
+        if (SECURITY_TEST_MODE) {
+            return TEMP_MEMBER_ID;
+        }
+
+        if (!isAuthenticated(authentication)) {
+            throw new RuntimeException(
+                    "로그인이 필요합니다."
+            );
+        }
+
+        Integer memberId =
+                boardService.findMemberIdByLoginId(
+                        authentication.getName()
+                );
+
+        if (memberId == null) {
+            throw new RuntimeException(
+                    "로그인 회원 정보를 찾을 수 없습니다."
+            );
+        }
+
+        return memberId;
+    }
+
+    /*
+        현재 테스트 모드 또는 실제 Security 기준 권한
+    */
+    private String getCurrentRole(
+            Authentication authentication
+    ) {
+
+        if (SECURITY_TEST_MODE) {
+            return TEMP_ROLE;
+        }
+
+        return getRole(authentication);
+    }
+
+    private boolean isCurrentAdmin(
+            Authentication authentication
+    ) {
+
+        return "ADMIN".equals(
+                getCurrentRole(authentication)
+        );
+    }
+
+    /*
+        실제 Security 로그인 여부
+    */
+    private boolean isAuthenticated(
+            Authentication authentication
+    ) {
+
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !"anonymousUser".equals(
+                authentication.getName()
+        );
+    }
+
+    /*
+        ADMIN과 ROLE_ADMIN 형식을 모두 확인
+    */
+    private boolean hasRole(
+            Authentication authentication,
+            String role
+    ) {
+
+        if (!isAuthenticated(authentication)) {
             return false;
         }
 
         return authentication.getAuthorities()
                 .stream()
-                .anyMatch(auth ->
-                        "ROLE_ADMIN".equals(auth.getAuthority())
-                                || "ADMIN".equals(auth.getAuthority())
+                .anyMatch(authority ->
+                        role.equals(
+                                authority.getAuthority()
+                        )
+                                || (
+                                "ROLE_" + role
+                        ).equals(
+                                authority.getAuthority()
+                        )
                 );
+    }
+
+    /*
+        실제 Security 권한 반환
+    */
+    private String getRole(
+            Authentication authentication
+    ) {
+
+        if (hasRole(authentication, "ADMIN")) {
+            return "ADMIN";
+        }
+
+        if (hasRole(authentication, "OWNER")) {
+            return "OWNER";
+        }
+
+        if (hasRole(authentication, "USER")) {
+            return "USER";
+        }
+
+        return null;
     }
 }

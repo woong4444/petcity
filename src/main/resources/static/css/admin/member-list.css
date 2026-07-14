@@ -1,0 +1,744 @@
+
+
+.member-card {
+    padding: 28px 26px;
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #e4eaf2;
+    border-radius: 18px;
+    box-shadow: 0 8px 26px rgba(38, 50, 72, 0.06);
+}
+
+.member-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.member-card-title {
+    margin: 0;
+    color: #202939;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.member-count {
+    margin: 0;
+    color: #58677d;
+    font-size: 15px;
+}
+
+.member-count strong {
+    color: #2563c9;
+    font-size: 18px;
+}
+
+
+/* ========================================
+   회원 목록 테이블
+======================================== */
+
+.member-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.member-table {
+    width: 100%;
+    min-width: 1180px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.member-table th {
+    padding: 15px 12px;
+    color: #536176;
+    background-color: #f7f9fc;
+    border-top: 1px solid #e1e7ef;
+    border-bottom: 1px solid #d4dce7;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.member-table td {
+    height: 72px;
+    padding: 14px 12px;
+    color: #253146;
+    border-bottom: 1px solid #e4e9f0;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.member-table tbody tr {
+    transition: background-color 0.15s;
+}
+
+.member-table tbody tr:hover {
+    background-color: #f8faff;
+}
+
+.member-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ========================================
+   테이블 열 너비
+======================================== */
+
+.column-number {
+    width: 65px;
+}
+
+.column-login-id {
+    width: 145px;
+}
+
+.column-nickname {
+    width: 135px;
+}
+
+.column-email {
+    width: 205px;
+}
+
+.column-role {
+    width: 95px;
+}
+
+.column-status {
+    width: 115px;
+}
+
+.column-member-status {
+    width: 135px;
+}
+
+.column-created-at {
+    width: 110px;
+}
+
+.column-last-login {
+    width: 155px;
+}
+
+.column-action {
+    width: 95px;
+}
+
+
+/* ========================================
+   셀 내용
+======================================== */
+
+.login-id-cell {
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.email-cell {
+    overflow: hidden;
+    color: #475569;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.date-cell,
+.last-login-cell {
+    color: #475569;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+
+/* ========================================
+   권한 배지
+======================================== */
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 68px;
+    height: 29px;
+    padding: 0 11px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.role-user {
+    color: #374151;
+    background-color: #eef1f5;
+}
+
+.role-owner {
+    color: #5b3ab8;
+    background-color: #eee8ff;
+}
+
+.role-admin {
+    color: #1556a3;
+    background-color: #dcecff;
+}
+
+
+/* ========================================
+   상태 배지 공통
+======================================== */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 92px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+
+/* ========================================
+   계정 상태
+   STATUS
+======================================== */
+
+.account-status.active {
+    color: #147248;
+    background-color: #ddf6e9;
+}
+
+.account-status.blocked {
+    color: #b42318;
+    background-color: #fee4e2;
+}
+
+.account-status.dormant {
+    color: #9a5800;
+    background-color: #fff0cf;
+}
+
+.account-status.deleted {
+    color: #525866;
+    background-color: #e8ebef;
+}
+
+
+/* ========================================
+   회원 탈퇴 상태
+   MEMBER_STATUS
+======================================== */
+
+.member-status.active {
+    color: #1f5fbf;
+    background-color: #e2edff;
+}
+
+.member-status.delete-pending {
+    color: #a24a00;
+    background-color: #ffead5;
+}
+
+.member-status.deleted {
+    color: #ffffff;
+    background-color: #596273;
+}
+
+
+/* ========================================
+   상세보기 버튼
+======================================== */
+
+.detail-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 2px;
+    color: #2563c9;
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.detail-button:hover {
+    color: #123f92;
+    text-decoration: underline;
+}
+
+.detail-arrow {
+    font-size: 20px;
+    line-height: 1;
+}
+
+
+/* ========================================
+   회원이 없을 때
+======================================== */
+
+.empty-member-row {
+    height: 180px !important;
+    color: #7a8798 !important;
+    text-align: center;
+}
+
+/* ========================================
+   회원 목록 페이징
+======================================== */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 26px;
+}
+
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 38px;
+    height: 38px;
+    padding: 0 11px;
+
+    color: #445168;
+    background-color: #ffffff;
+
+    border: 1px solid #dbe2ec;
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+            color 0.15s ease,
+            background-color 0.15s ease,
+            border-color 0.15s ease;
+}
+
+.pagination-link:hover {
+    color: #1f63c8;
+    background-color: #f3f7ff;
+    border-color: #9dbdef;
+}
+
+.pagination-link.active {
+    color: #ffffff;
+    background-color: #347fe8;
+    border-color: #347fe8;
+}
+
+.pagination-direction {
+    min-width: 60px;
+}
+
+.pagination-link.disabled {
+    color: #a8b1bf;
+    background-color: #f7f8fa;
+    border-color: #e6eaf0;
+    cursor: default;
+}
+
+
+/* ========================================
+   회원 선택 체크박스
+======================================== */
+
+.column-checkbox {
+    width: 48px;
+}
+
+.checkbox-cell {
+    text-align: center !important;
+}
+
+.member-checkbox,
+#selectAllMembers {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+
+    accent-color: #347fe8;
+    cursor: pointer;
+}
+
+.member-count-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.selected-member-count {
+    margin: 0;
+    color: #58677d;
+    font-size: 15px;
+}
+
+.selected-member-count strong {
+    color: #2563c9;
+    font-size: 18px;
+}
+
+.clear-selection-button {
+    height: 34px;
+    padding: 0 12px;
+
+    color: #536176;
+    background-color: #ffffff;
+
+    border: 1px solid #d8e0eb;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.clear-selection-button:hover {
+    color: #245db1;
+    background-color: #f4f7fc;
+}
+
+/* ========================================
+   전체 회원 선택 안내
+======================================== */
+
+.all-selection-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    margin-bottom: 14px;
+    padding: 12px 16px;
+
+    color: #41506a;
+    background-color: #eef5ff;
+
+    border: 1px solid #cfe0fa;
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/*
+ * hidden 속성이 있을 때
+ * display: flex보다 우선해서 숨김 처리
+ */
+.all-selection-notice[hidden] {
+    display: none;
+}
+
+
+/* ========================================
+   전체 회원 선택 버튼
+======================================== */
+
+.select-every-member-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    min-height: 34px;
+    padding: 0 14px;
+
+    color: #ffffff;
+    background-color: #347fe8;
+
+    border: none;
+    border-radius: 8px;
+
+    box-shadow: 0 4px 10px rgba(52, 127, 232, 0.2);
+
+    font-size: 13px;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.15s ease,
+            box-shadow 0.15s ease,
+            transform 0.15s ease;
+}
+
+.select-every-member-button strong {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 850;
+}
+
+.select-every-member-button:hover {
+    background-color: #246ed5;
+    box-shadow: 0 6px 14px rgba(52, 127, 232, 0.28);
+    transform: translateY(-1px);
+}
+
+.select-every-member-button:active {
+    background-color: #1f61bd;
+    box-shadow: 0 2px 6px rgba(52, 127, 232, 0.2);
+    transform: translateY(0);
+}
+
+
+/* ========================================
+   회원 목록 정렬
+======================================== */
+
+.sort-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: inherit;
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition: color 0.15s ease;
+}
+
+.sort-link:hover {
+    color: #2563c9;
+}
+
+.sort-link.active {
+    color: #1f63c8;
+}
+
+.sort-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 12px;
+
+    color: #9aa5b5;
+
+    font-size: 11px;
+    line-height: 1;
+}
+
+.sort-link:hover .sort-arrow,
+.sort-link.active .sort-arrow {
+    color: #347fe8;
+}
+
+/* ========================================
+   회원 검색 및 필터
+======================================== */
+
+.member-filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-bottom: 18px;
+    padding: 18px 20px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e4eaf2;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 14px rgba(40, 67, 103, 0.06);
+}
+
+
+/* 검색창 영역 */
+.member-search-area {
+    display: flex;
+    flex: 1 1 280px;
+    flex-direction: column;
+    gap: 7px;
+
+    min-width: 240px;
+}
+
+
+/* 각 필터 영역 */
+.member-filter-item {
+    display: flex;
+    flex: 0 1 170px;
+    flex-direction: column;
+    gap: 7px;
+
+    min-width: 150px;
+}
+
+
+/* 검색창 및 필터 제목 */
+.filter-label {
+    color: #526176;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* 검색 입력창 */
+.member-search-input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+
+    color: #263449;
+    background-color: #f9fbfe;
+
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            background-color 0.15s ease;
+}
+
+.member-search-input::placeholder {
+    color: #9ba7b7;
+}
+
+.member-search-input:focus {
+    background-color: #ffffff;
+    border-color: #4b8bea;
+    box-shadow: 0 0 0 3px rgba(75, 139, 234, 0.12);
+}
+
+
+/* 필터 select */
+.member-filter-select {
+    width: 100%;
+    height: 42px;
+    padding: 0 36px 0 12px;
+
+    color: #344258;
+    background-color: #f9fbfe;
+
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    outline: none;
+
+    transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            background-color 0.15s ease;
+}
+
+.member-filter-select:focus {
+    background-color: #ffffff;
+    border-color: #4b8bea;
+    box-shadow: 0 0 0 3px rgba(75, 139, 234, 0.12);
+}
+
+
+/* 검색 및 초기화 버튼 */
+.member-filter-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.member-search-button,
+.member-filter-reset-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+    padding: 0 18px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+}
+
+
+/* 검색 버튼 */
+.member-search-button {
+    color: #ffffff;
+    background-color: #347fe8;
+
+    border: 1px solid #347fe8;
+}
+
+.member-search-button:hover {
+    background-color: #256fd5;
+    border-color: #256fd5;
+    transform: translateY(-1px);
+}
+
+
+/* 초기화 버튼 */
+.member-filter-reset-button {
+    color: #5b687a;
+    background-color: #ffffff;
+
+    border: 1px solid #d7e0eb;
+}
+
+.member-filter-reset-button:hover {
+    color: #2f64ad;
+    background-color: #f3f7fc;
+    border-color: #b9cce6;
+}
+
+
+/* 작은 화면 */
+@media (max-width: 1100px) {
+
+    .member-filter-item {
+        flex: 1 1 160px;
+    }
+
+    .member-filter-buttons {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+/* ========================================
+   작은 화면
+======================================== */
+
+@media (max-width: 1100px) {
+
+    .admin-main {
+        padding: 32px 24px;
+    }
+
+    .member-card {
+        padding: 24px 20px;
+    }
+}
+

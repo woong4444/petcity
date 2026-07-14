@@ -5,26 +5,39 @@
 
 <mapper namespace="com.jjang051.petcity.board.dao.BoardDao">
 
-    <!-- 게시판 종류별 목록 조회 + 동물 필터 -->
+    <!--
+        게시판 목록
+        Oracle 11g 호환 ROWNUM 페이징
+    -->
     <select id="findBoardList"
             resultType="com.jjang051.petcity.board.dto.BoardDto">
 
+        SELECT *
+        FROM (
+        SELECT
+        BOARD_RESULT.*,
+        ROWNUM AS RN
+
+        FROM (
         SELECT
         B.BOARD_ID AS boardId,
         B.MEMBER_ID AS memberId,
         B.BOARD_TYPE AS boardType,
         B.TITLE AS title,
         B.CONTENT AS content,
+        B.ANIMAL_ID AS animalId,
         B.HIT AS hit,
         B.CREATED_AT AS createdAt,
         B.UPDATED_AT AS updatedAt,
-        B.ANIMAL_ID AS animalId,
 
-        NVL(M.NICKNAME, '알 수 없음') AS writerNickname,
+        NVL(
+        M.NICKNAME,
+        '알 수 없음'
+        ) AS writerNickname,
 
-        AT.ANIMAL_NAME AS animalName,
-        PAT.ANIMAL_ID AS parentAnimalId,
-        PAT.ANIMAL_NAME AS parentAnimalName,
+        A.ANIMAL_NAME AS animalName,
+        PA.ANIMAL_NAME AS parentAnimalName,
+        PA.ANIMAL_ID AS parentAnimalId,
 
         (
         SELECT COUNT(*)
@@ -38,59 +51,58 @@
         WHERE BI.BOARD_ID = B.BOARD_ID
         ) AS imageCount,
 
+        /*
+        멍냥백서 대표 이미지 한 장
+        Oracle 11g에서도 사용 가능
+        */
         (
-        SELECT IMAGE_URL
-        FROM (
-        SELECT BI.IMAGE_URL
+        SELECT MIN(BI.IMAGE_URL)
+        KEEP (
+        DENSE_RANK FIRST
+        ORDER BY BI.IMAGE_ID
+        )
         FROM BOARD_IMAGE BI
         WHERE BI.BOARD_ID = B.BOARD_ID
-        ORDER BY BI.IMAGE_ID ASC
-        )
-        WHERE ROWNUM = 1
         ) AS thumbnailUrl,
 
+        /*
+        멍냥백서 대표 이미지 링크
+        */
         (
-        SELECT LINK_URL
-        FROM (
-        SELECT BI.LINK_URL
+        SELECT MIN(BI.LINK_URL)
+        KEEP (
+        DENSE_RANK FIRST
+        ORDER BY BI.IMAGE_ID
+        )
         FROM BOARD_IMAGE BI
         WHERE BI.BOARD_ID = B.BOARD_ID
-        ORDER BY BI.IMAGE_ID ASC
-        )
-        WHERE ROWNUM = 1
         ) AS linkUrl
 
         FROM BOARD B
+
         LEFT JOIN APP_MEMBER M
         ON B.MEMBER_ID = M.MEMBER_ID
-        LEFT JOIN ANIMAL_TYPE AT
-        ON B.ANIMAL_ID = AT.ANIMAL_ID
-        LEFT JOIN ANIMAL_TYPE PAT
-        ON AT.PARENT_ID = PAT.ANIMAL_ID
 
-        WHERE B.BOARD_TYPE = #{boardType}
+        LEFT JOIN ANIMAL_TYPE A
+        ON B.ANIMAL_ID = A.ANIMAL_ID
 
-        <if test="animalId != null">
-            AND B.ANIMAL_ID = #{animalId}
-        </if>
+        LEFT JOIN ANIMAL_TYPE PA
+        ON A.PARENT_ID = PA.ANIMAL_ID
 
-        <if test="animalId == null and parentAnimalId != null">
-            AND (
-            B.ANIMAL_ID = #{parentAnimalId}
-            OR B.ANIMAL_ID IN (
-            SELECT ANIMAL_ID
-            FROM ANIMAL_TYPE
-            WHERE PARENT_ID = #{parentAnimalId}
-            )
-            )
-        </if>
+        <include refid="boardListCondition"/>
 
         ORDER BY B.BOARD_ID DESC
+        ) BOARD_RESULT
+
+        WHERE ROWNUM &lt;=
+        #{offset} + #{pageSize}
+        )
+
+        WHERE RN &gt; #{offset}
 
     </select>
 
-
-    <!-- 게시글 상세 조회 -->
+    <!-- 게시글 상세 -->
     <select id="findBoardView"
             resultType="com.jjang051.petcity.board.dto.BoardDto">
 
@@ -105,7 +117,10 @@
         B.UPDATED_AT AS updatedAt,
         B.ANIMAL_ID AS animalId,
 
-        NVL(M.NICKNAME, '알 수 없음') AS writerNickname,
+        NVL(
+        M.NICKNAME,
+        '알 수 없음'
+        ) AS writerNickname,
 
         AT.ANIMAL_NAME AS animalName,
         PAT.ANIMAL_ID AS parentAnimalId,
@@ -124,10 +139,13 @@
         ) AS imageCount
 
         FROM BOARD B
+
         LEFT JOIN APP_MEMBER M
         ON B.MEMBER_ID = M.MEMBER_ID
+
         LEFT JOIN ANIMAL_TYPE AT
         ON B.ANIMAL_ID = AT.ANIMAL_ID
+
         LEFT JOIN ANIMAL_TYPE PAT
         ON AT.PARENT_ID = PAT.ANIMAL_ID
 
@@ -135,14 +153,14 @@
 
     </select>
 
-
     <!-- 조회수 증가 -->
     <update id="increaseHit">
+
         UPDATE BOARD
         SET HIT = HIT + 1
         WHERE BOARD_ID = #{boardId}
-    </update>
 
+    </update>
 
     <!-- 게시글 작성 -->
     <insert id="insertBoard"
@@ -151,7 +169,10 @@
         <selectKey keyProperty="boardId"
                    resultType="int"
                    order="BEFORE">
-            SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+
+            SELECT SEQ_BOARD.NEXTVAL
+            FROM DUAL
+
         </selectKey>
 
         INSERT INTO BOARD (
@@ -161,7 +182,8 @@
         TITLE,
         CONTENT,
         ANIMAL_ID
-        ) VALUES (
+        )
+        VALUES (
         #{boardId},
         #{memberId},
         #{boardType},
@@ -171,7 +193,6 @@
         )
 
     </insert>
-
 
     <!-- 게시글 이미지 저장 -->
     <insert id="insertBoardImage"
@@ -184,7 +205,8 @@
         SAVED_NAME,
         IMAGE_URL,
         LINK_URL
-        ) VALUES (
+        )
+        VALUES (
         SEQ_BOARD_IMAGE.NEXTVAL,
         #{boardId},
         #{originalName, jdbcType=VARCHAR},
@@ -195,8 +217,7 @@
 
     </insert>
 
-
-    <!-- 게시글 이미지 목록 조회 -->
+    <!-- 게시글 이미지 목록 -->
     <select id="findBoardImageList"
             resultType="com.jjang051.petcity.board.dto.BoardImageDto">
 
@@ -208,14 +229,16 @@
         IMAGE_URL AS imageUrl,
         LINK_URL AS linkUrl,
         CREATED_AT AS createdAt
+
         FROM BOARD_IMAGE
+
         WHERE BOARD_ID = #{boardId}
+
         ORDER BY IMAGE_ID ASC
 
     </select>
 
-
-    <!-- 동물 대분류 목록 -->
+    <!-- 동물 대분류 -->
     <select id="findParentAnimalList"
             resultType="com.jjang051.petcity.board.dto.AnimalTypeDto">
 
@@ -224,14 +247,16 @@
         ANIMAL_NAME AS animalName,
         CATEGORY AS category,
         PARENT_ID AS parentId
+
         FROM ANIMAL_TYPE
+
         WHERE PARENT_ID IS NULL
+
         ORDER BY ANIMAL_ID ASC
 
     </select>
 
-
-    <!-- 대분류에 따른 하위 동물 목록 -->
+    <!-- 동물 하위 목록 -->
     <select id="findChildAnimalList"
             resultType="com.jjang051.petcity.board.dto.AnimalTypeDto">
 
@@ -240,16 +265,256 @@
         ANIMAL_NAME AS animalName,
         CATEGORY AS category,
         PARENT_ID AS parentId
+
         FROM ANIMAL_TYPE
+
         WHERE PARENT_ID = #{parentId}
+
         ORDER BY ANIMAL_ID ASC
 
     </select>
 
     <!-- 게시글 삭제 -->
     <delete id="deleteBoard">
+
         DELETE FROM BOARD
-        WHERE BOARD_ID =#{boardId}
+        WHERE BOARD_ID = #{boardId}
+
     </delete>
+
+    <!-- 댓글 목록 -->
+    <select id="findCommentList"
+            resultType="com.jjang051.petcity.board.dto.BoardCommentDto">
+
+        SELECT
+        BC.COMMENT_ID AS commentId,
+        BC.BOARD_ID AS boardId,
+        BC.MEMBER_ID AS memberId,
+        BC.CONTENT AS content,
+        BC.CREATED_AT AS createdAt,
+        BC.UPDATED_AT AS updatedAt,
+        NVL(
+        M.NICKNAME,
+        '알 수 없음'
+        ) AS writerNickname,
+        M.ROLE AS writerRole
+
+        FROM BOARD_COMMENT BC
+
+        LEFT JOIN APP_MEMBER M
+        ON BC.MEMBER_ID = M.MEMBER_ID
+
+        WHERE BC.BOARD_ID = #{boardId}
+
+        ORDER BY BC.COMMENT_ID ASC
+
+    </select>
+
+    <!-- 댓글 한 개 -->
+    <select id="findCommentById"
+            resultType="com.jjang051.petcity.board.dto.BoardCommentDto">
+
+        SELECT
+        BC.COMMENT_ID AS commentId,
+        BC.BOARD_ID AS boardId,
+        BC.MEMBER_ID AS memberId,
+        BC.CONTENT AS content,
+        BC.CREATED_AT AS createdAt,
+        BC.UPDATED_AT AS updatedAt,
+        NVL(
+        M.NICKNAME,
+        '알 수 없음'
+        ) AS writerNickname,
+        M.ROLE AS writerRole
+
+        FROM BOARD_COMMENT BC
+
+        LEFT JOIN APP_MEMBER M
+        ON BC.MEMBER_ID = M.MEMBER_ID
+
+        WHERE BC.COMMENT_ID = #{commentId}
+
+    </select>
+
+    <!-- 댓글 등록 -->
+    <insert id="insertComment"
+            parameterType="com.jjang051.petcity.board.dto.BoardCommentDto">
+
+        INSERT INTO BOARD_COMMENT (
+        COMMENT_ID,
+        BOARD_ID,
+        MEMBER_ID,
+        CONTENT
+        )
+        VALUES (
+        SEQ_BOARD_COMMENT.NEXTVAL,
+        #{boardId},
+        #{memberId},
+        #{content}
+        )
+
+    </insert>
+
+    <!-- 댓글 삭제 -->
+    <delete id="deleteComment">
+
+        DELETE FROM BOARD_COMMENT
+        WHERE COMMENT_ID = #{commentId}
+
+    </delete>
+
+    <!-- 로그인 아이디로 회원 번호 조회 -->
+    <select id="findMemberIdByLoginId"
+            resultType="int">
+
+        SELECT MEMBER_ID
+        FROM APP_MEMBER
+        WHERE LOGIN_ID = #{loginId}
+
+    </select>
+
+    <!-- 댓글 수정 -->
+    <update id="updateComment">
+
+        UPDATE BOARD_COMMENT
+
+        SET CONTENT = #{content},
+        UPDATED_AT = SYSTIMESTAMP
+
+        WHERE COMMENT_ID = #{commentId}
+
+    </update>
+
+    <!-- 게시글 수정 -->
+    <update id="updateBoard"
+            parameterType="com.jjang051.petcity.board.dto.BoardDto">
+
+        UPDATE BOARD
+
+        SET TITLE = #{title},
+        CONTENT = #{content, jdbcType=CLOB},
+        ANIMAL_ID = #{animalId, jdbcType=NUMERIC},
+        UPDATED_AT = SYSTIMESTAMP
+
+        WHERE BOARD_ID = #{boardId}
+
+    </update>
+
+    <!-- 게시글 이미지 DB 정보 삭제 -->
+    <delete id="deleteBoardImages">
+
+        DELETE FROM BOARD_IMAGE
+        WHERE BOARD_ID = #{boardId}
+
+    </delete>
+
+    <!-- 멍냥백서 링크 수정 -->
+    <update id="updateBoardImageLink">
+
+        UPDATE BOARD_IMAGE
+
+        SET LINK_URL = #{linkUrl, jdbcType=VARCHAR}
+
+        WHERE BOARD_ID = #{boardId}
+
+    </update>
+
+    <!--
+        게시판 목록 공통 조건
+    -->
+    <sql id="boardListCondition">
+
+        WHERE B.BOARD_TYPE = #{boardType}
+
+        <if test="animalId != null">
+
+            AND B.ANIMAL_ID = #{animalId}
+
+        </if>
+
+        <if test="animalId == null
+                  and parentAnimalId != null">
+
+            AND (
+            B.ANIMAL_ID = #{parentAnimalId}
+
+            OR B.ANIMAL_ID IN (
+            SELECT ANIMAL_ID
+            FROM ANIMAL_TYPE
+            WHERE PARENT_ID = #{parentAnimalId}
+            )
+            )
+
+        </if>
+
+        <if test="keyword != null
+                  and keyword != ''">
+
+            <choose>
+
+                <when test="searchType == 'title'">
+
+                    AND UPPER(B.TITLE)
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+
+                </when>
+
+                <when test="searchType == 'content'">
+
+                    AND DBMS_LOB.INSTR(
+                    B.CONTENT,
+                    #{keyword}
+                    ) &gt; 0
+
+                </when>
+
+                <when test="searchType == 'writer'">
+
+                    AND UPPER(
+                    NVL(M.NICKNAME, '')
+                    ) LIKE '%' || UPPER(#{keyword}) || '%'
+
+                </when>
+
+                <otherwise>
+
+                    AND (
+                    UPPER(B.TITLE)
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+
+                    OR DBMS_LOB.INSTR(
+                    B.CONTENT,
+                    #{keyword}
+                    ) &gt; 0
+                    )
+
+                </otherwise>
+
+            </choose>
+
+        </if>
+
+    </sql>
+
+    <!-- 전체 게시글 수 -->
+    <select id="countBoardList"
+            resultType="int">
+
+        SELECT COUNT(*)
+
+        FROM BOARD B
+
+        LEFT JOIN APP_MEMBER M
+        ON B.MEMBER_ID = M.MEMBER_ID
+
+        LEFT JOIN ANIMAL_TYPE A
+        ON B.ANIMAL_ID = A.ANIMAL_ID
+
+        LEFT JOIN ANIMAL_TYPE PA
+        ON A.PARENT_ID = PA.ANIMAL_ID
+
+        <include refid="boardListCondition"/>
+
+    </select>
 
 </mapper>

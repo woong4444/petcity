@@ -1,0 +1,417 @@
+/* ========================================
+   공통 기본 설정
+======================================== */
+
+:root {
+    --admin-sidebar-width: 266px;
+    --admin-sidebar-collapsed-width: 84px;
+
+    --admin-sidebar-bg: #111d33;
+    --admin-sidebar-hover: #20314f;
+    --admin-sidebar-active: #347fe8;
+
+    --admin-page-bg: #f3f6fb;
+    --admin-text: #172033;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    color: var(--admin-text);
+    background-color: var(--admin-page-bg);
+    font-family:
+            Pretendard,
+            "Noto Sans KR",
+            Arial,
+            sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+
+/* ========================================
+   전체 레이아웃
+======================================== */
+
+.admin-layout {
+    display: grid;
+    grid-template-columns:
+            var(--admin-sidebar-width)
+            minmax(0, 1fr);
+
+    min-height: 100vh;
+
+    transition:
+            grid-template-columns 0.25s ease;
+}
+
+.admin-layout.is-sidebar-collapsed {
+    grid-template-columns:
+            var(--admin-sidebar-collapsed-width)
+            minmax(0, 1fr);
+}
+
+
+/* ========================================
+   사이드바
+======================================== */
+
+.admin-sidebar {
+    position: sticky;
+    top: 0;
+
+    height: 100vh;
+    padding: 25px 16px;
+
+    color: #ffffff;
+    background-color: var(--admin-sidebar-bg);
+
+    overflow: visible;
+    z-index: 100;
+}
+
+.sidebar-header {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    min-height: 42px;
+    margin-bottom: 40px;
+}
+
+
+/* ========================================
+   PET ADMIN 로고
+======================================== */
+
+.admin-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    min-width: 0;
+
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+
+    color: #ffffff;
+    background-color: #347fe8;
+
+    border-radius: 10px;
+
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.brand-text {
+    overflow: hidden;
+
+    font-size: 23px;
+    font-weight: 850;
+    letter-spacing: -0.5px;
+
+    white-space: nowrap;
+
+    opacity: 1;
+
+    transition:
+            opacity 0.15s ease,
+            width 0.25s ease;
+}
+
+
+/* ========================================
+   접기 버튼
+======================================== */
+
+.sidebar-toggle {
+    position: absolute;
+    top: 3px;
+    right: -30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 31px;
+    height: 31px;
+
+    padding: 0;
+
+    color: #52637a;
+    background-color: #ffffff;
+
+    border: 1px solid #d9e0ea;
+    border-radius: 50%;
+
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.14);
+
+    cursor: pointer;
+    z-index: 110;
+}
+
+.sidebar-toggle:hover {
+    color: #1e5eb7;
+    background-color: #f3f7ff;
+}
+
+.sidebar-toggle svg {
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    transition: transform 0.25s ease;
+}
+
+.admin-layout.is-sidebar-collapsed
+.sidebar-toggle svg {
+    transform: rotate(180deg);
+}
+
+
+/* ========================================
+   사이드바 메뉴
+======================================== */
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-nav-link {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    min-height: 52px;
+    padding: 0 16px;
+
+    color: #dce6f5;
+
+    border-radius: 11px;
+
+    font-size: 16px;
+    font-weight: 650;
+
+    text-decoration: none;
+
+    transition:
+            color 0.15s ease,
+            background-color 0.15s ease;
+}
+
+.admin-nav-link:hover {
+    color: #ffffff;
+    background-color: var(--admin-sidebar-hover);
+}
+
+.admin-nav-link.active {
+    color: #ffffff;
+    background-color: var(--admin-sidebar-active);
+}
+
+.nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.nav-icon svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.nav-label {
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    opacity: 1;
+
+    transition:
+            opacity 0.15s ease,
+            width 0.25s ease;
+}
+
+
+/* ========================================
+   사이드바 접힘 상태
+======================================== */
+
+.admin-layout.is-sidebar-collapsed
+.admin-sidebar {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.admin-layout.is-sidebar-collapsed
+.sidebar-header {
+    justify-content: center;
+}
+
+.admin-layout.is-sidebar-collapsed
+.brand-text,
+.admin-layout.is-sidebar-collapsed
+.nav-label {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-layout.is-sidebar-collapsed
+.admin-nav-link {
+    justify-content: center;
+    gap: 0;
+
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.admin-layout.is-sidebar-collapsed
+.sidebar-toggle {
+    right: -27px;
+}
+
+
+/* 접힌 상태 메뉴 툴팁 */
+
+.admin-layout.is-sidebar-collapsed
+.admin-nav-link::after {
+    position: absolute;
+    left: 66px;
+    top: 50%;
+
+    content: attr(data-tooltip);
+
+    padding: 7px 10px;
+
+    color: #ffffff;
+    background-color: #172033;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(-50%) translateX(-4px);
+
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.18);
+
+    transition:
+            opacity 0.15s ease,
+            transform 0.15s ease;
+
+    pointer-events: none;
+    z-index: 200;
+}
+
+.admin-layout.is-sidebar-collapsed
+.admin-nav-link:hover::after {
+    opacity: 1;
+    visibility: visible;
+
+    transform: translateY(-50%) translateX(0);
+}
+
+
+/* ========================================
+   공통 본문
+======================================== */
+
+.admin-main {
+    width: 100%;
+    min-width: 0;
+
+    padding: 42px clamp(24px, 3vw, 46px);
+
+    overflow: hidden;
+}
+
+.admin-page-header {
+    margin-bottom: 30px;
+}
+
+.admin-page-title {
+    margin: 0;
+
+    color: #172033;
+
+    font-size: 38px;
+    font-weight: 850;
+    letter-spacing: -1.4px;
+}
+
+.admin-page-description {
+    margin: 10px 0 0;
+
+    color: #657188;
+
+    font-size: 16px;
+}
+
+
+/* ========================================
+   반응형
+======================================== */
+
+@media (max-width: 900px) {
+
+    :root {
+        --admin-sidebar-width: 230px;
+    }
+
+    .admin-main {
+        padding: 32px 22px;
+    }
+
+    .admin-page-title {
+        font-size: 32px;
+    }
+}

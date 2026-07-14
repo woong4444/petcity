@@ -17,6 +17,9 @@ public class MemberController {
     // ===========================
     private final MemberService memberService;
 
+    private final LoginHistoryRedisService loginHistoryRedisService;
+    private final ActiveLoginRedisService activeLoginRedisService;
+
     // ===========================
     // 로그인 화면
     // ===========================
@@ -84,10 +87,64 @@ public class MemberController {
     }
 
     // ===========================
+    // 로그인 처리
+    // ===========================
+    @PostMapping("/member/login")
+    public String loginProcess(String loginId,
+                               String password,
+                               HttpSession session,
+                               RedirectAttributes rttr) {
+
+        MemberDto member = memberService.findByLoginId(loginId);
+
+        // 아이디 없음
+        if (member == null) {
+
+            rttr.addFlashAttribute(
+                    "message",
+                    "존재하지 않는 아이디입니다."
+            );
+
+            return "redirect:/member/login";
+        }
+
+        // 비밀번호 확인
+        if (!member.getPassword().equals(password)) {
+
+            rttr.addFlashAttribute(
+                    "message",
+                    "비밀번호가 일치하지 않습니다."
+            );
+
+            return "redirect:/member/login";
+        }
+
+        // 로그인 성공
+        session.setAttribute("loginMember", member);
+
+        // 추가부분(레디스에 로그인유저 저장)
+        loginHistoryRedisService.saveLoginHistory(member,session);
+
+        activeLoginRedisService.startLoginSession(session.getId(), member);
+
+        if ("ADMIN".equals(member.getRole())) {
+            return "redirect:/admin/dashboard";
+        }
+
+        return "redirect:/";
+
+    }
+
+    // ===========================
     // 로그아웃
     // ===========================
     @GetMapping("/member/logout")
-    public String logout() {
+    public String logout(HttpSession session) {
+//        추가 코드
+        String sessionId = session.getId();
+        activeLoginRedisService.removeLoginSession(sessionId);
+
+        session.invalidate();
 
         return "redirect:/";
 

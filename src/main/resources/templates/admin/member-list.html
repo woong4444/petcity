@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>회원 관리</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/member-list.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+
+    <script defer
+            th:src="@{/js/admin/member-list.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <th:block
+            th:replace="~{admin/fragments/sidebar :: sidebar('members')}">
+    </th:block>
+
+
+    <main class="admin-main">
+
+        <header class="page-header">
+            <div>
+                <h2 class="page-title">
+                    회원 관리
+                </h2>
+
+                <p class="page-description">
+                    전체 회원 정보와 계정 상태를 확인합니다.
+                </p>
+            </div>
+        </header>
+
+
+        <!-- 회원 검색 및 필터 -->
+        <form class="member-filter-form"
+              th:action="@{/admin/members}"
+              method="get">
+
+            <!-- 검색 시 1페이지부터 조회 -->
+            <input type="hidden"
+                   name="page"
+                   value="1">
+
+            <!-- 현재 정렬 조건 유지 -->
+            <input type="hidden"
+                   name="sort"
+                   th:value="${pageList.sort}">
+
+            <input type="hidden"
+                   name="direction"
+                   th:value="${pageList.direction}">
+
+
+            <!-- 회원 검색 -->
+            <div class="member-search-area">
+
+                <label for="keyword"
+                       class="filter-label">
+                    회원 검색
+                </label>
+
+                <input type="search"
+                       id="keyword"
+                       name="keyword"
+                       class="member-search-input"
+                       placeholder="아이디, 닉네임, 이메일 검색"
+                       autocomplete="off"
+                       th:value="${pageList.keyword}">
+
+            </div>
+
+
+            <!-- 권한 필터 -->
+            <div class="member-filter-item">
+
+                <label for="role"
+                       class="filter-label">
+                    권한
+                </label>
+
+                <select id="role"
+                        name="role"
+                        class="member-filter-select">
+
+                    <option value=""
+                            th:selected="${pageList.role == ''}">
+                        전체 권한
+                    </option>
+
+                    <option value="USER"
+                            th:selected="${pageList.role == 'USER'}">
+                        USER
+                    </option>
+
+                    <option value="OWNER"
+                            th:selected="${pageList.role == 'OWNER'}">
+                        OWNER
+                    </option>
+
+                    <option value="ADMIN"
+                            th:selected="${pageList.role == 'ADMIN'}">
+                        ADMIN
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- 계정 상태 필터 -->
+            <div class="member-filter-item">
+
+                <label for="status"
+                       class="filter-label">
+                    계정 상태
+                </label>
+
+                <select id="status"
+                        name="status"
+                        class="member-filter-select">
+
+                    <option value=""
+                            th:selected="${pageList.status == ''}">
+                        전체 계정 상태
+                    </option>
+
+                    <option value="ACTIVE"
+                            th:selected="${pageList.status == 'ACTIVE'}">
+                        ACTIVE
+                    </option>
+
+                    <option value="BLOCKED"
+                            th:selected="${pageList.status == 'BLOCKED'}">
+                        BLOCKED
+                    </option>
+
+                    <option value="DELETED"
+                            th:selected="${pageList.status == 'DELETED'}">
+                        DELETED
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- 회원 상태 필터 -->
+            <div class="member-filter-item">
+
+                <label for="memberStatus"
+                       class="filter-label">
+                    회원 상태
+                </label>
+
+                <select id="memberStatus"
+                        name="memberStatus"
+                        class="member-filter-select">
+
+                    <option value=""
+                            th:selected="${pageList.memberStatus == ''}">
+                        전체 회원 상태
+                    </option>
+
+                    <option value="ACTIVE"
+                            th:selected="${pageList.memberStatus == 'ACTIVE'}">
+                        ACTIVE
+                    </option>
+
+                    <option value="DELETE_PENDING"
+                            th:selected="${pageList.memberStatus == 'DELETE_PENDING'}">
+                        DELETE_PENDING
+                    </option>
+
+                    <option value="DELETED"
+                            th:selected="${pageList.memberStatus == 'DELETED'}">
+                        DELETED
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- 검색 버튼 -->
+            <div class="member-filter-buttons">
+
+                <button type="submit"
+                        class="member-search-button">
+                    검색
+                </button>
+
+                <a class="member-filter-reset-button"
+                   th:href="@{/admin/members(
+                        page=1,
+                        sort=${pageList.sort},
+                        direction=${pageList.direction}
+                   )}">
+                    초기화
+                </a>
+
+            </div>
+
+        </form>
+
+
+        <!-- 회원 목록 -->
+        <section class="member-card">
+
+            <!-- 회원 목록 상단 -->
+            <div class="member-card-header">
+
+                <h3 class="member-card-title">
+                    전체 회원
+                </h3>
+
+                <div class="member-count-area">
+
+                    <p class="selected-member-count">
+                        선택
+
+                        <strong id="selectedMemberCount">
+                            0
+                        </strong>
+
+                        명
+                    </p>
+
+                    <p class="member-count">
+                        총
+
+                        <strong th:text="${pageList.totalElements}">
+                            0
+                        </strong>
+
+                        명
+                    </p>
+
+                    <button type="button"
+                            id="clearSelectedMembers"
+                            class="clear-selection-button">
+                        선택 초기화
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- 현재 페이지 전체 선택 안내 -->
+            <div id="allSelectionNotice"
+                 class="all-selection-notice"
+                 hidden>
+
+                <span id="allSelectionMessage">
+                    현재 페이지 회원이 모두 선택되었습니다.
+                </span>
+
+                <button type="button"
+                        id="selectEveryMember"
+                        class="select-every-member-button"
+                        th:attr="
+                            data-total-count=${pageList.totalElements},
+                            data-keyword=${pageList.keyword},
+                            data-role=${pageList.role},
+                            data-status=${pageList.status},
+                            data-member-status=${pageList.memberStatus}
+                        ">
+
+                    검색 결과 전체
+
+                    <strong th:text="${pageList.totalElements}">
+                        0
+                    </strong>
+
+                    명 선택
+
+                </button>
+
+            </div>
+
+
+            <!-- 회원 테이블 -->
+            <div class="member-table-wrapper">
+
+                <table class="member-table">
+
+                    <colgroup>
+                        <col class="column-checkbox">
+                        <col class="column-number">
+                        <col class="column-login-id">
+                        <col class="column-nickname">
+                        <col class="column-email">
+                        <col class="column-role">
+                        <col class="column-status">
+                        <col class="column-member-status">
+                        <col class="column-created-at">
+                        <col class="column-last-login">
+                        <col class="column-action">
+                    </colgroup>
+
+
+                    <!-- 테이블 헤더 -->
+                    <thead>
+
+                    <tr>
+
+                        <!-- 현재 페이지 전체 선택 -->
+                        <th class="checkbox-cell">
+
+                            <input type="checkbox"
+                                   id="selectAllMembers"
+                                   aria-label="현재 페이지 회원 전체 선택">
+
+                        </th>
+
+
+                        <!-- 번호 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'memberId'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='memberId',
+                                    direction=${pageList.sort == 'memberId'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                번호
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'memberId'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 아이디 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'loginId'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='loginId',
+                                    direction=${pageList.sort == 'loginId'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                아이디
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'loginId'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 닉네임 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'nickname'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='nickname',
+                                    direction=${pageList.sort == 'nickname'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                닉네임
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'nickname'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 이메일 -->
+                        <th>
+                            이메일
+                        </th>
+
+
+                        <!-- 권한 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'role'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='role',
+                                    direction=${pageList.sort == 'role'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                권한
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'role'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 계정 상태 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'status'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='status',
+                                    direction=${pageList.sort == 'status'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                계정 상태
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'status'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 회원 상태 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'memberStatus'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='memberStatus',
+                                    direction=${pageList.sort == 'memberStatus'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                회원 상태
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'memberStatus'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 가입일 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'createdAt'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='createdAt',
+                                    direction=${pageList.sort == 'createdAt'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                가입일
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'createdAt'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 최근 로그인 정렬 -->
+                        <th>
+
+                            <a class="sort-link"
+                               th:classappend="${pageList.sort == 'lastLoginAt'}
+                                    ? ' active'
+                                    : ''"
+
+                               th:href="@{/admin/members(
+                                    page=1,
+                                    sort='lastLoginAt',
+                                    direction=${pageList.sort == 'lastLoginAt'
+                                        and pageList.direction == 'asc'
+                                        ? 'desc'
+                                        : 'asc'},
+                                    keyword=${pageList.keyword},
+                                    role=${pageList.role},
+                                    status=${pageList.status},
+                                    memberStatus=${pageList.memberStatus}
+                               )}">
+
+                                최근 로그인
+
+                                <span class="sort-arrow"
+                                      th:text="${pageList.sort == 'lastLoginAt'
+                                            ? (pageList.direction == 'asc'
+                                                ? '▲'
+                                                : '▼')
+                                            : '↕'}">
+                                    ↕
+                                </span>
+
+                            </a>
+
+                        </th>
+
+
+                        <!-- 관리 -->
+                        <th>
+                            관리
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <!-- 회원 목록 -->
+                    <tbody>
+
+                    <tr th:each="member : ${members}">
+
+                        <!-- 회원 선택 -->
+                        <td class="checkbox-cell">
+
+                            <input type="checkbox"
+                                   class="member-checkbox"
+                                   th:value="${member.memberId}"
+                                   th:attr="aria-label=|${member.loginId} 회원 선택|">
+
+                        </td>
+
+
+                        <!-- 회원 번호 -->
+                        <td th:text="${member.memberId}">
+                            1
+                        </td>
+
+
+                        <!-- 로그인 아이디 -->
+                        <td class="login-id-cell"
+                            th:text="${member.loginId}">
+                            user01
+                        </td>
+
+
+                        <!-- 닉네임 -->
+                        <td th:text="${member.nickname}">
+                            테스트 회원
+                        </td>
+
+
+                        <!-- 이메일 -->
+                        <td class="email-cell"
+                            th:title="${member.email}"
+                            th:text="${member.email}">
+                            user@test.com
+                        </td>
+
+
+                        <!-- 권한 -->
+                        <td>
+
+                            <span class="role-badge"
+                                  th:classappend="${'role-' + #strings.toLowerCase(member.role)}"
+                                  th:text="${member.role}">
+                                USER
+                            </span>
+
+                        </td>
+
+
+                        <!-- 계정 상태 -->
+                        <td>
+
+                            <span class="status-badge account-status"
+                                  th:classappend="${' ' + #strings.toLowerCase(
+                                      #strings.trim(member.status)
+                                  )}"
+                                  th:text="${member.status}">
+                                ACTIVE
+                            </span>
+
+                        </td>
+
+
+                        <!-- 회원 상태 -->
+                        <td>
+
+                            <span class="status-badge member-status"
+                                  th:classappend="${' ' + #strings.replace(
+                                      #strings.toLowerCase(
+                                          #strings.trim(member.memberStatus)
+                                      ),
+                                      '_',
+                                      '-'
+                                  )}"
+                                  th:text="${member.memberStatus}">
+                                ACTIVE
+                            </span>
+
+                        </td>
+
+
+                        <!-- 가입일 -->
+                        <td class="date-cell"
+                            th:text="${member.createdAt != null
+                                ? #temporals.format(
+                                    member.createdAt,
+                                    'yyyy-MM-dd'
+                                  )
+                                : '-'}">
+                            2026-07-13
+                        </td>
+
+
+                        <!-- 최근 로그인 -->
+                        <td class="last-login-cell"
+                            th:text="${member.lastLoginAt != null
+                                ? #temporals.format(
+                                    member.lastLoginAt,
+                                    'yyyy-MM-dd HH:mm'
+                                  )
+                                : '-'}">
+                            -
+                        </td>
+
+
+                        <!-- 상세 -->
+                        <td>
+
+                            <a class="detail-button"
+                               th:href="@{/admin/members/detail/{memberId}(memberId=${member.memberId})}">
+                                상세
+                                <span class="detail-arrow">
+                                    ›
+                                </span>
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- 검색 결과 없음 -->
+                    <tr th:if="${#lists.isEmpty(members)}">
+
+                        <td colspan="11"
+                            class="empty-member-row">
+                            검색 조건에 해당하는 회원이 없습니다.
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- 페이지네이션 -->
+            <nav class="pagination"
+                 th:if="${pageList.totalPages > 1}"
+                 aria-label="회원 목록 페이지">
+
+
+                <!-- 이전 페이지 -->
+                <a th:if="${pageList.hasPrevious}"
+                   th:href="@{/admin/members(
+                        page=${pageList.currentPage - 1},
+                        sort=${pageList.sort},
+                        direction=${pageList.direction},
+                        keyword=${pageList.keyword},
+                        role=${pageList.role},
+                        status=${pageList.status},
+                        memberStatus=${pageList.memberStatus}
+                   )}"
+                   class="pagination-link pagination-direction">
+
+                    이전
+
+                </a>
+
+                <span th:unless="${pageList.hasPrevious}"
+                      class="pagination-link pagination-direction disabled">
+                    이전
+                </span>
+
+
+                <!-- 페이지 번호 -->
+                <a th:each="pageNumber : ${#numbers.sequence(
+                        pageList.startPage,
+                        pageList.endPage
+                   )}"
+
+                   th:href="@{/admin/members(
+                        page=${pageNumber},
+                        sort=${pageList.sort},
+                        direction=${pageList.direction},
+                        keyword=${pageList.keyword},
+                        role=${pageList.role},
+                        status=${pageList.status},
+                        memberStatus=${pageList.memberStatus}
+                   )}"
+
+                   th:text="${pageNumber}"
+
+                   class="pagination-link"
+
+                   th:classappend="${pageNumber == pageList.currentPage}
+                        ? ' active'
+                        : ''">
+
+                    1
+
+                </a>
+
+
+                <!-- 다음 페이지 -->
+                <a th:if="${pageList.hasNext}"
+                   th:href="@{/admin/members(
+                        page=${pageList.currentPage + 1},
+                        sort=${pageList.sort},
+                        direction=${pageList.direction},
+                        keyword=${pageList.keyword},
+                        role=${pageList.role},
+                        status=${pageList.status},
+                        memberStatus=${pageList.memberStatus}
+                   )}"
+                   class="pagination-link pagination-direction">
+
+                    다음
+
+                </a>
+
+                <span th:unless="${pageList.hasNext}"
+                      class="pagination-link pagination-direction disabled">
+                    다음
+                </span>
+
+            </nav>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>
