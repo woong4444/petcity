@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface AdminHospitalOwnerRequestDao {
-    List<AdminHospitalOwnerRequestDto> findAllRequests();
+    List<AdminHospitalOwnerRequestDto> findAllRequests(@Param("sort") String sort, @Param("direction") String direction);
 
     AdminHospitalOwnerRequestDto findRequestById(@Param("requestId") Long requestId);
 

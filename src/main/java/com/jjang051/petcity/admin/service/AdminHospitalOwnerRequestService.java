@@ -14,9 +14,13 @@ public class AdminHospitalOwnerRequestService {
     private final AdminHospitalOwnerRequestDao adminHospitalOwnerRequestDao;
 
     @Transactional(readOnly = true)
-    public List<AdminHospitalOwnerRequestDto> getAllRequests() {
-        return adminHospitalOwnerRequestDao.findAllRequests();
+    public List<AdminHospitalOwnerRequestDto> getAllRequests(String sort, String direction) {
+        sort = normalizeSort(sort);
+        direction = normalizeDirection(direction);
+
+        return adminHospitalOwnerRequestDao.findAllRequests(sort, direction);
     }
+
 
     @Transactional(readOnly = true)
     public AdminHospitalOwnerRequestDto getRequestsById(Long requestId) {
@@ -25,6 +29,30 @@ public class AdminHospitalOwnerRequestService {
         }
 
         return adminHospitalOwnerRequestDao.findRequestById(requestId);
+    }
+
+    private String normalizeDirection(String direction) {
+        if ("asc".equalsIgnoreCase(direction)) {
+            return "asc";
+        }
+        return "desc";
+
+    }
+
+    private String normalizeSort(String sort) {
+        if (sort == null) {
+            return "requestId";
+        }
+        return switch (sort) {
+            case "requestId",
+                 "memberInfo",
+                 "hospitalInfo",
+                 "status",
+                 "rejectReason",
+                 "createdAt",
+                 "processedAt" -> sort;
+            default -> "requestId";
+        };
     }
 
 
