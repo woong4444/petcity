@@ -32,7 +32,7 @@
                     <span th:if="${session.loginMember.role == 'ADMIN'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-error badge-sm">관리자</span></span>
 
                     <a th:if="${session.loginMember.role != 'ADMIN'}" href="/member/mypage">마이페이지</a>
-                    <a th:if="${session.loginMember.role == 'ADMIN'}" href="/admin">Admin</a>
+                    <a th:if="${session.loginMember.role == 'ADMIN'}" href="/admin/dashboard">Admin</a>
                     <a th:if="${session.loginMember.role == 'OWNER'}" href="/owner">병원관리</a>
                     <span>|</span><a href="/member/logout">로그아웃</a><span>|</span>
                 </th:block>
