@@ -18,9 +18,48 @@ document.addEventListener("DOMContentLoaded", function () {
             ["view", ["fullscreen", "codeview"]]
         ],
         callbacks: {
+
+            /*
+                에디터가 처음 만들어졌을 때
+                의미 없는 공백과 빈 줄 제거
+            */
+            onInit: function () {
+
+                const html =
+                    $("#content").summernote("code");
+
+                const text =
+                    $("<div>")
+                        .html(html)
+                        .text()
+                        .trim();
+
+                const hasImage =
+                    html.includes("<img");
+
+                if (!text && !hasImage) {
+
+                    $("#content").summernote(
+                        "code",
+                        ""
+                    );
+                }
+            },
+
+            /*
+                에디터 이미지 업로드
+            */
             onImageUpload: function (files) {
-                for (let i = 0; i < files.length; i++) {
-                    uploadEditorImage(files[i]);
+
+                for (
+                    let i = 0;
+                    i < files.length;
+                    i++
+                ) {
+
+                    uploadEditorImage(
+                        files[i]
+                    );
                 }
             }
         }

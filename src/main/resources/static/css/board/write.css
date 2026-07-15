@@ -529,7 +529,7 @@ body {
     min-height: 320px;
     color: #333333;
     font-size: 15px;
-    line-height: 1.8;
+    line-height: 0.9;
     font-family: Arial, "Noto Sans KR", sans-serif;
 }
 
@@ -570,4 +570,88 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* ================================
+   제목·본문 글자 수 표시
+================================ */
+
+/* ================================
+   제목 입력창과 글자 수
+================================ */
+
+.title-input-box {
+    position: relative;
+    min-width: 0;
+    width: 100%;
+}
+
+.title-input-box input {
+    width: 100%;
+    min-height: 64px;
+    padding: 0 100px 0 18px;
+    box-sizing: border-box;
+}
+
+.title-character-count {
+    position: absolute;
+    right: 18px;
+    bottom: 8px;
+
+    margin: 0;
+    padding: 0;
+
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+
+    pointer-events: none;
+}
+
+.title-character-count.limit {
+    color: #ef4444;
+    font-weight: 900;
+}
+
+@media (max-width: 768px) {
+
+    .title-input-box input {
+        height: 56px;
+        min-height: 56px;
+        padding-right: 95px;
+    }
+
+    .title-character-count {
+        right: 14px;
+        bottom: 6px;
+    }
+}
+
+.board-content-count {
+    margin: 8px 2px 0;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.board-content-count.limit {
+    color: #ef4444;
+    font-weight: 900;
+}
+
+/* ================================
+   Summernote 본문 시작 위치
+================================ */
+
+.note-editable {
+    padding: 6px 12px !important;
+}
+
+.note-editable > *:first-child {
+    margin-top: 0 !important;
+}
+
+.note-editable p {
+    margin-top: 0;
 }

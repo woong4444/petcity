@@ -425,11 +425,12 @@
                                    th:name="${_csrf.parameterName}"
                                    th:value="${_csrf.token}">
 
-                            <textarea name="content"
+                            <textarea class="comment-limit"
+                                      name="content"
                                       maxlength="1000"
                                       required
-                                      th:text="${comment.content}">
-                            </textarea>
+                                      th:text="${comment.content}"></textarea>
+
 
                             <div class="comment-edit-form-buttons">
 
@@ -479,13 +480,13 @@
                            th:name="${_csrf.parameterName}"
                            th:value="${_csrf.token}">
 
-                    <textarea name="content"
+                    <textarea class="comment-limit"
+                              name="content"
                               maxlength="1000"
                               required
                               th:placeholder="${boardDto.boardType == 'QNA'}
-                                  ? '수의사상담 답변을 입력해 주세요.'
-                                  : '댓글을 입력해 주세요.'">
-                    </textarea>
+              ? '수의사상담 답변을 입력해 주세요.'
+              : '댓글을 입력해 주세요.'"></textarea>
 
                     <div class="comment-write-bottom">
 
