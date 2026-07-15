@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-//07-15 추가
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -54,11 +53,9 @@ public class MemberController {
         return "member/signup-form";
 
     }
+
     // =====================================================
-    // [2026-07-15 추가]
     // 회원가입 - 아이디 중복 확인(AJAX)
-    // true  : 이미 사용중인 아이디
-    // false : 사용 가능한 아이디
     // =====================================================
     @ResponseBody
     @GetMapping("/member/check-loginId")
@@ -68,11 +65,34 @@ public class MemberController {
 
     }
 
+    // =====================================================
+    // 회원가입 - 닉네임 중복 확인(AJAX)
+    // =====================================================
+    @ResponseBody
+    @GetMapping("/member/check-nickname")
+    public boolean checkNickname(String nickname) {
+
+        return memberService.existsNickname(nickname);
+
+    }
+
+    // =====================================================
+    // 회원가입 - 이메일 중복 확인(AJAX)
+    // =====================================================
+    @ResponseBody
+    @GetMapping("/member/check-email")
+    public boolean checkEmail(String email) {
+
+        return memberService.existsEmail(email);
+
+    }
+
     // ===========================
     // 일반 회원가입 처리
     // ===========================
     @PostMapping("/member/signup")
-    public String signupProcess(MemberDto memberDto, RedirectAttributes rttr) {
+    public String signupProcess(MemberDto memberDto,
+                                RedirectAttributes rttr) {
 
         // 기본값
         memberDto.setRole("USER");
@@ -96,6 +116,7 @@ public class MemberController {
             rttr.addFlashAttribute("message", e.getMessage());
 
             return "redirect:/member/signup/form";
+
         }
 
     }
@@ -104,7 +125,10 @@ public class MemberController {
     // 로그인 처리
     // ===========================
     @PostMapping("/member/login")
-    public String loginProcess(String loginId, String password, HttpSession session, RedirectAttributes rttr) {
+    public String loginProcess(String loginId,
+                               String password,
+                               HttpSession session,
+                               RedirectAttributes rttr) {
 
         MemberDto member = memberService.findByLoginId(loginId);
 
@@ -114,6 +138,7 @@ public class MemberController {
             rttr.addFlashAttribute("message", "존재하지 않는 아이디입니다.");
 
             return "redirect:/member/login";
+
         }
 
         // 비밀번호 확인
@@ -122,18 +147,20 @@ public class MemberController {
             rttr.addFlashAttribute("message", "비밀번호가 일치하지 않습니다.");
 
             return "redirect:/member/login";
+
         }
 
         // 로그인 성공
         session.setAttribute("loginMember", member);
 
-        // 추가부분(레디스에 로그인유저 저장)
         loginHistoryRedisService.saveLoginHistory(member, session);
 
         activeLoginRedisService.startLoginSession(session.getId(), member);
 
         if ("ADMIN".equals(member.getRole())) {
+
             return "redirect:/admin/dashboard";
+
         }
 
         return "redirect:/";
@@ -145,8 +172,9 @@ public class MemberController {
     // ===========================
     @GetMapping("/member/logout")
     public String logout(HttpSession session) {
-//        추가 코드
+
         String sessionId = session.getId();
+
         activeLoginRedisService.removeLoginSession(sessionId);
 
         session.invalidate();

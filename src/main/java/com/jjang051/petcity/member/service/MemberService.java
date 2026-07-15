@@ -10,12 +10,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MemberService {
 
+    // ============================
     // Mapper 객체
+    // ============================
     private final MemberMapper memberMapper;
 
+    // ============================
     // 비밀번호 암호화
+    // ============================
     private final PasswordEncoder passwordEncoder;
 
+    // ============================
+    // 로그인 아이디 조회
+    // ============================
     public MemberDto findByLoginId(String loginId) {
 
         System.out.println("========== MemberService ==========");
@@ -26,32 +33,69 @@ public class MemberService {
         System.out.println("result = " + member);
 
         return member;
+
     }
 
     // =====================================================
-// [2026-07-15 추가]
-// 회원가입 - 아이디 중복 확인(AJAX)
-// true  : 이미 사용중
-// false : 사용 가능
-// =====================================================
+    // 회원가입 - 아이디 중복 확인(AJAX)
+    // =====================================================
     public boolean existsLoginId(String loginId) {
 
         return memberMapper.countByLoginId(loginId) > 0;
 
     }
 
-    /**
-     * 회원가입
-     */
+    // =====================================================
+    // 회원가입 - 닉네임 중복 확인(AJAX)
+    // =====================================================
+    public boolean existsNickname(String nickname) {
+
+        return memberMapper.countByNickname(nickname) > 0;
+
+    }
+
+    // =====================================================
+    // 회원가입 - 이메일 중복 확인(AJAX)
+    // =====================================================
+    public boolean existsEmail(String email) {
+
+        return memberMapper.countByEmail(email) > 0;
+
+    }
+
+    // =====================================================
+    // 회원가입
+    // =====================================================
     public void insert(MemberDto memberDto) {
 
         // ============================
         // 아이디 중복 검사
         // ============================
-        MemberDto findMember = memberMapper.findByLoginId(memberDto.getLoginId());
+        MemberDto findMember =
+                memberMapper.findByLoginId(memberDto.getLoginId());
 
         if (findMember != null) {
+
             throw new RuntimeException("이미 사용중인 아이디입니다.");
+
+        }
+
+        // ============================
+        // 닉네임 중복 검사
+        // ============================
+        if (existsNickname(memberDto.getNickname())) {
+
+            throw new RuntimeException("이미 사용중인 닉네임입니다.");
+
+        }
+
+        // ============================
+        // 이메일 중복 검사
+        // ============================
+        if (existsEmail(memberDto.getEmail())) {
+
+            throw new RuntimeException("이미 사용중인 이메일입니다.");
+
         }
 
         // ============================
@@ -65,7 +109,6 @@ public class MemberService {
         // 회원 저장
         // ============================
         memberMapper.insert(memberDto);
-
 
     }
 
