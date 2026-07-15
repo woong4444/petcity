@@ -80,6 +80,9 @@ public class CustomUserDetails implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return "ACTIVE".equals(memberDto.getStatus());
+        // 07-16 상각: 일반 회원은 이메일 인증 후 로그인 허용
+        return "ACTIVE".equals(memberDto.getStatus())
+                && ("ADMIN".equals(memberDto.getRole())
+                || "Y".equals(memberDto.getEmailVerified()));
     }
 }

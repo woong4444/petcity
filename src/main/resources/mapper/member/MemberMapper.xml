@@ -56,6 +56,25 @@
 
     </select>
 
+    <select id="findByMemberId"
+            resultType="com.jjang051.petcity.member.dto.MemberDto">
+
+        SELECT *
+        FROM APP_MEMBER
+        WHERE MEMBER_ID = #{memberId}
+
+    </select>
+
+    <!-- 07-16 상각: 현재 회원을 제외한 닉네임 중복 확인 -->
+    <select id="countByNicknameExceptMember" resultType="int">
+
+        SELECT COUNT(*)
+        FROM APP_MEMBER
+        WHERE NICKNAME = #{nickname}
+          AND MEMBER_ID != #{memberId}
+
+    </select>
+
     <!-- ================================================= -->
     <!-- 이메일 중복 확인 -->
     <!-- ================================================= -->
@@ -110,5 +129,52 @@
         )
 
     </insert>
+
+    <!-- 07-16 상각: 기존 SNS 회원 동의·제공자 정보 갱신 -->
+    <update id="updateOAuthInfo">
+
+        UPDATE APP_MEMBER
+        SET LOGIN_TYPE = #{loginType},
+            SOCIAL_ID = #{socialId},
+            AGREEMENT_EMAIL = #{agreementEmail},
+            EMAIL_VERIFIED = 'Y',
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+
+    </update>
+
+    <!-- 07-16 상각: 이메일 인증 완료 상태 갱신 -->
+    <update id="updateEmailVerified">
+
+        UPDATE APP_MEMBER
+        SET EMAIL_VERIFIED = 'Y',
+            UPDATED_AT = SYSDATE
+        WHERE EMAIL = #{email}
+
+    </update>
+
+    <!-- 07-16 상각: 마이페이지에서 허용한 닉네임·전화번호만 수정 -->
+    <update id="updateMyPage">
+
+        UPDATE APP_MEMBER
+        SET NICKNAME = #{nickname},
+            PHONE = #{phone},
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+
+    </update>
+
+    <!-- 07-16 상각: 즉시 삭제 대신 3일간 DELETE_PENDING 상태로 보관 -->
+    <update id="requestWithdrawal">
+
+        UPDATE APP_MEMBER
+        SET STATUS = 'BLOCKED',
+            MEMBER_STATUS = 'DELETE_PENDING',
+            DELETE_REQUESTED_AT = SYSDATE,
+            HARD_DELETE_AT = SYSDATE + 3,
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+
+    </update>
 
 </mapper>

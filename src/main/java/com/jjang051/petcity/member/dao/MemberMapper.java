@@ -2,6 +2,7 @@ package com.jjang051.petcity.member.dao;
 
 import com.jjang051.petcity.member.dto.MemberDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface MemberMapper {
@@ -16,6 +17,8 @@ public interface MemberMapper {
     // =====================================================
     MemberDto findByEmail(String email);
 
+    MemberDto findByMemberId(Long memberId);
+
     // =====================================================
     // 회원가입 - 아이디 중복 확인
     // =====================================================
@@ -26,6 +29,10 @@ public interface MemberMapper {
     // =====================================================
     int countByNickname(String nickname);
 
+    // 07-16 상각: 마이페이지 닉네임 변경 시 본인 계정은 중복 대상에서 제외
+    int countByNicknameExceptMember(@Param("nickname") String nickname,
+                                    @Param("memberId") Long memberId);
+
     // =====================================================
     // 회원가입 - 이메일 중복 확인
     // =====================================================
@@ -35,5 +42,16 @@ public interface MemberMapper {
     // 회원가입
     // =====================================================
     void insert(MemberDto memberDto);
+
+    // 07-16 상각: 기존 SNS 회원 동의·제공자 정보 갱신
+    void updateOAuthInfo(MemberDto memberDto);
+
+    // 07-16 상각: 이메일 인증 완료 상태 갱신
+    void updateEmailVerified(String email);
+
+    // 07-16 상각: 본인 정보 수정과 탈퇴 대기 상태 처리
+    void updateMyPage(MemberDto memberDto);
+
+    void requestWithdrawal(Long memberId);
 
 }

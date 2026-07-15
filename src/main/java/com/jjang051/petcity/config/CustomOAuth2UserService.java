@@ -20,6 +20,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    // 07-16 상각: SNS 가입 동의 세션 키
+    private static final String OAUTH_EMAIL_AGREEMENT = "oauthEmailAgreement";
+
     // ==========================================
     // [상각]
     // 회원 Mapper
@@ -77,6 +80,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
             if (memberDto == null) {
 
+                requireEmailAgreement();
+
                 memberDto = MemberDto.builder().loginId(email).password(passwordEncoder.encode("google1234")).nickname(name).email(email).phone("SNS")
 
                         // ===========================
@@ -95,6 +100,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             } else {
 
                 log.info("기존 Google 회원");
+
+                updateOAuthInfoWhenAgreed(memberDto, "GOOGLE", socialId);
 
             }
 
@@ -132,6 +139,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
             if (memberDto == null) {
 
+                requireEmailAgreement();
+
                 memberDto = MemberDto.builder().loginId(email).password(passwordEncoder.encode("kakao1234")).nickname(nickname).email(email).phone("SNS")
 
                         // =====================================================
@@ -150,6 +159,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             } else {
 
                 log.info("기존 Kakao 회원");
+
+                updateOAuthInfoWhenAgreed(memberDto, "KAKAO", socialId);
 
             }
 
@@ -194,6 +205,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
             if (memberDto == null) {
 
+                requireEmailAgreement();
+
                 memberDto = MemberDto.builder().loginId(email).password(passwordEncoder.encode("naver1234")).nickname(name).email(email).phone("SNS")
 
                         // =====================================================
@@ -212,6 +225,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
                 log.info("기존 Naver 회원");
 
+                updateOAuthInfoWhenAgreed(memberDto, "NAVER", socialId);
+
             }
 
             // ==========================================
@@ -228,6 +243,34 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // 그 외 Provider
         // =====================================================
         return oAuth2User;
+    }
+
+    // 07-16 상각: 신규·기존 SNS 회원 동의 검증 및 갱신
+    private void requireEmailAgreement() {
+
+        Object agreement = request.getSession().getAttribute(OAUTH_EMAIL_AGREEMENT);
+
+        if (!"Y".equals(agreement)) {
+            throw new OAuth2AuthenticationException("email_agreement_required");
+        }
+
+        request.getSession().removeAttribute(OAUTH_EMAIL_AGREEMENT);
+    }
+
+    private void updateOAuthInfoWhenAgreed(MemberDto memberDto,
+                                           String loginType,
+                                           String socialId) {
+
+        if ("Y".equals(memberDto.getAgreementEmail())) {
+            return;
+        }
+
+        requireEmailAgreement();
+
+        memberDto.setLoginType(loginType);
+        memberDto.setSocialId(socialId);
+        memberDto.setAgreementEmail("Y");
+        memberMapper.updateOAuthInfo(memberDto);
     }
 
 }
