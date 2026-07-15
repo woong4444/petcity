@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>병원장 신청 완료 | PetCity</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/owner/apply.css}">
+</head>
+
+<body>
+
+<!-- 공통 헤더 -->
+<div th:replace="~{common/head :: head}">
+</div>
+
+<main class="owner-apply-page">
+
+    <div class="owner-apply-container">
+
+        <section class="apply-complete-card">
+
+            <div class="complete-icon">
+                ✓
+            </div>
+
+            <h1>
+                병원장 신청이 접수되었습니다
+            </h1>
+
+            <p>
+                관리자가 증빙서류와 병원 정보를 확인한 뒤
+                승인 또는 반려 결과를 회원가입 시 인증한
+                이메일로 안내합니다.
+            </p>
+
+            <div class="request-number-box">
+
+                <span>
+                    신청 번호
+                </span>
+
+                <strong th:text="${requestId}">
+                    1
+                </strong>
+
+            </div>
+
+            <div class="complete-guide">
+
+                현재 신청 상태는
+                <strong>심사 대기</strong>입니다.
+                <br><br>
+
+                관리자가 승인하면 회원 권한이
+                <strong>OWNER</strong>로 변경되고,
+                신청한 병원이 일반 병원 목록에 표시됩니다.
+
+            </div>
+
+            <a th:href="@{/}"
+               class="complete-button">
+                홈으로 이동
+            </a>
+
+        </section>
+
+    </div>
+
+</main>
+
+</body>
+</html>

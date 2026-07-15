@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>병원장 권한 신청 | PetCity</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/owner/apply.css}">
+
+    <!-- 카카오 우편번호 검색 -->
+    <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js">
+    </script>
+
+    <!-- 카카오 지도 주소 좌표 변환 -->
+    <script th:src="|https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJavascriptKey}&libraries=services|">
+    </script>
+
+    <!-- 병원장 신청 기능 -->
+    <script defer
+            th:src="@{/js/owner/owner-apply.js}">
+    </script>
+</head>
+
+<body>
+
+<!-- 공통 헤더 -->
+<div th:replace="~{common/head :: head}"></div>
+
+
+<main class="owner-apply-page">
+
+    <div class="owner-apply-container">
+
+        <!-- 페이지 제목 -->
+        <section class="page-header">
+
+            <span class="page-badge">
+                OWNER APPLICATION
+            </span>
+
+            <h1>병원장 권한 신청</h1>
+
+            <p>
+                병원 정보를 등록하고 증빙서류를 제출하면
+                관리자 확인 후 병원장 권한이 부여됩니다.
+            </p>
+
+        </section>
+
+
+        <!-- 성공 메시지 -->
+        <div class="alert success"
+             th:if="${message != null}"
+             th:text="${message}">
+        </div>
+
+
+        <!-- 오류 메시지 -->
+        <div class="alert error"
+             th:if="${errorMessage != null}"
+             th:text="${errorMessage}">
+        </div>
+
+
+        <form th:action="@{/owner/apply}"
+              th:object="${ownerRequestDto}"
+              method="post"
+              enctype="multipart/form-data"
+              id="ownerApplyForm">
+
+            <!-- CSRF -->
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+
+            <!-- ======================================
+                 1. 기존 회원 정보
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">01</span>
+
+                    <div>
+                        <h2>회원 정보</h2>
+
+                        <p>
+                            회원가입 시 등록한 정보입니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="memberNickname">
+                            닉네임
+                        </label>
+
+                        <input type="text"
+                               id="memberNickname"
+                               th:value="${member.memberNickname}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="memberEmail">
+                            인증 이메일
+                        </label>
+
+                        <input type="email"
+                               id="memberEmail"
+                               th:value="${member.memberEmail}"
+                               readonly>
+
+                        <p class="form-help">
+                            승인 또는 반려 결과가 이 이메일로 발송됩니다.
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="memberPhone">
+                            회원 전화번호
+                        </label>
+
+                        <input type="text"
+                               id="memberPhone"
+                               th:value="${member.memberPhone}"
+                               placeholder="등록된 전화번호가 없습니다."
+                               readonly>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="memberRole">
+                            현재 권한
+                        </label>
+
+                        <input type="text"
+                               id="memberRole"
+                               th:value="${member.memberRole}"
+                               readonly>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 2. 신청자 및 증빙
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">02</span>
+
+                    <div>
+                        <h2>신청자 및 증빙 정보</h2>
+
+                        <p>
+                            실제 병원 운영자임을 확인하기 위한 정보입니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="applicantName">
+                            병원장 실명
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="applicantName"
+                               th:field="*{applicantName}"
+                               maxlength="100"
+                               placeholder="증빙서류에 기재된 실명을 입력하세요."
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="businessNumber">
+                            사업자등록번호
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="businessNumber"
+                               th:field="*{businessNumber}"
+                               maxlength="12"
+                               inputmode="numeric"
+                               placeholder="123-45-67890"
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label for="documentFile">
+                            증빙서류
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="file"
+                               id="documentFile"
+                               name="documentFile"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               required>
+
+                        <p class="form-help">
+                            사업자등록증 또는 동물병원 개설신고증을
+                            PDF, JPG, PNG 형식으로 첨부해 주세요.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 3. 병원 기본 정보
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">03</span>
+
+                    <div>
+                        <h2>병원 기본 정보</h2>
+
+                        <p>
+                            승인 후 병원 목록과 상세 페이지에 공개됩니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="hospitalName">
+                            병원명
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="hospitalName"
+                               th:field="*{hospitalName}"
+                               maxlength="200"
+                               placeholder="병원명을 입력하세요."
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="hospitalPhone">
+                            병원 대표 전화번호
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="hospitalPhone"
+                               th:field="*{hospitalPhone}"
+                               maxlength="50"
+                               placeholder="02-1234-5678"
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label for="hospitalAddress">
+                            병원 주소
+                            <span class="required">*</span>
+                        </label>
+
+                        <div class="address-input-row">
+
+                            <input type="text"
+                                   id="hospitalAddress"
+                                   th:field="*{hospitalAddress}"
+                                   placeholder="주소 검색 버튼을 눌러주세요."
+                                   readonly
+                                   required>
+
+                            <button type="button"
+                                    id="addressSearchButton"
+                                    class="secondary-button">
+                                주소 검색
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="hospitalDetailAddress">
+                            상세주소
+                        </label>
+
+                        <input type="text"
+                               id="hospitalDetailAddress"
+                               th:field="*{hospitalDetailAddress}"
+                               maxlength="500"
+                               placeholder="건물명, 층, 호수 등을 입력하세요.">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="hospitalDistrict">
+                            지역
+                        </label>
+
+                        <input type="text"
+                               id="hospitalDistrict"
+                               th:field="*{hospitalDistrict}"
+                               placeholder="주소에서 자동으로 입력됩니다."
+                               readonly
+                               required>
+
+                        <p class="form-help">
+                            예: 서초구, 강남구, 일산동구
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label for="hospitalWebsiteUrl">
+                            병원 홈페이지 주소
+                        </label>
+
+                        <input type="url"
+                               id="hospitalWebsiteUrl"
+                               th:field="*{hospitalWebsiteUrl}"
+                               maxlength="1000"
+                               placeholder="https://example.com">
+
+                    </div>
+
+
+                    <!-- 주소 검색 후 자동 입력 -->
+                    <input type="hidden"
+                           id="hospitalLatitude"
+                           th:field="*{hospitalLatitude}">
+
+                    <input type="hidden"
+                           id="hospitalLongitude"
+                           th:field="*{hospitalLongitude}">
+
+                    <div id="hospitalMap"
+                         class="hospital-map"
+                         hidden>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 4. 병원 운영 정보
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">04</span>
+
+                    <div>
+                        <h2>병원 운영 정보</h2>
+
+                        <p>
+                            병원의 진료시간과 휴무 정보를 입력해 주세요.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="hospitalOpenTime">
+                            진료 시작 시간
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="time"
+                               id="hospitalOpenTime"
+                               th:field="*{hospitalOpenTime}"
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="hospitalCloseTime">
+                            진료 종료 시간
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="time"
+                               id="hospitalCloseTime"
+                               th:field="*{hospitalCloseTime}"
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="hospitalBreakTime">
+                            휴게시간
+                        </label>
+
+                        <input type="text"
+                               id="hospitalBreakTime"
+                               th:field="*{hospitalBreakTime}"
+                               maxlength="1000"
+                               placeholder="예: 12:30~13:30">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="hospitalClosedDays">
+                            정기 휴무일
+                        </label>
+
+                        <input type="text"
+                               id="hospitalClosedDays"
+                               th:field="*{hospitalClosedDays}"
+                               maxlength="500"
+                               placeholder="예: 매주 일요일, 공휴일 휴무">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 5. 진료 가능 동물
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">05</span>
+
+                    <div>
+                        <h2>
+                            진료 가능 동물
+                            <span class="required">*</span>
+                        </h2>
+
+                        <p>
+                            동물 대분류를 선택한 뒤 전체 또는
+                            세부 품종을 선택할 수 있습니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="animal-category-list">
+
+                    <!-- 대분류만 반복 -->
+                    <div class="animal-category"
+                         th:each="parent : ${animalList}"
+                         th:if="${parent.parentId == null}"
+                         th:attr="data-category-id=${parent.animalId}">
+
+                        <!-- 대분류 열기 -->
+                        <label class="animal-category-header">
+
+                            <input type="checkbox"
+                                   class="animal-parent-toggle"
+                                   th:attr="data-category-id=${parent.animalId}">
+
+                            <span th:text="${parent.animalName}">
+                                강아지
+                            </span>
+
+                            <span class="toggle-guide">
+                                세부 선택
+                            </span>
+
+                        </label>
+
+
+                        <!-- 하위 동물 영역 -->
+                        <div class="animal-child-area"
+                             th:attr="data-category-id=${parent.animalId}">
+
+                            <!-- 해당 동물 전부 가능 -->
+                            <label class="animal-option all-option">
+
+                                <input type="checkbox"
+                                       class="animal-all-checkbox"
+                                       th:field="*{animalIds}"
+                                       th:value="${parent.animalId}"
+                                       th:attr="data-category-id=${parent.animalId}">
+
+                                <span th:text="${parent.animalName + ' 전부 진료 가능'}">
+                                    강아지 전부 진료 가능
+                                </span>
+
+                            </label>
+
+
+                            <!-- 하위 품종 -->
+                            <div class="animal-child-grid">
+
+                                <label class="animal-option"
+                                       th:each="child : ${animalList}"
+                                       th:if="${child.parentId == parent.animalId}">
+
+                                    <input type="checkbox"
+                                           class="animal-child-checkbox"
+                                           th:field="*{animalIds}"
+                                           th:value="${child.animalId}"
+                                           th:attr="data-category-id=${parent.animalId}">
+
+                                    <span th:text="${child.animalName}">
+                                        골든리트리버
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <p class="form-help">
+                    ‘전부 진료 가능’을 선택하면 같은 동물 그룹의
+                    세부 품종 선택은 자동으로 해제됩니다.
+                </p>
+
+            </section>
+
+
+            <!-- ======================================
+                 6. 진료 서비스
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">06</span>
+
+                    <div>
+                        <h2>
+                            제공 진료 서비스
+                            <span class="required">*</span>
+                        </h2>
+
+                        <p>
+                            병원 검색 화면에서 사용할 진료 항목입니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="service-all-area">
+
+                    <label class="service-option all-option">
+
+                        <input type="checkbox"
+                               id="serviceSelectAll">
+
+                        <span>전체 선택</span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="service-grid">
+
+                    <label class="service-option"
+                           th:each="service : ${medicalServiceList}">
+
+                        <input type="checkbox"
+                               class="service-checkbox"
+                               th:field="*{serviceIds}"
+                               th:value="${service.serviceId}">
+
+                        <span th:text="${service.serviceName}">
+                            일반진료
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 7. 진료 상세 정보
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">07</span>
+
+                    <div>
+                        <h2>진료 상세 정보</h2>
+
+                        <p>
+                            병원 상세 페이지에 표시될 부가 설명입니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+
+                        <label for="hospitalMedicalSubjects">
+                            진료과목 상세
+                        </label>
+
+                        <textarea id="hospitalMedicalSubjects"
+                                  th:field="*{hospitalMedicalSubjects}"
+                                  maxlength="2000"
+                                  placeholder="예: 내과, 외과, 피부과, 치과, 영상진단"></textarea>
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label for="hospitalDoctorInfo">
+                            의료진 정보
+                        </label>
+
+                        <textarea id="hospitalDoctorInfo"
+                                  th:field="*{hospitalDoctorInfo}"
+                                  maxlength="1000"
+                                  placeholder="예: 수의사 3명, 외과 전담 수의사 1명"></textarea>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 8. 병원 공개 정보
+            ======================================= -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+
+                    <span class="section-number">08</span>
+
+                    <div>
+                        <h2>병원 공개 정보</h2>
+
+                        <p>
+                            병원 목록과 상세 페이지에 공개됩니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+
+                        <label for="hospitalDescription">
+                            병원 소개
+                            <span class="required">*</span>
+                        </label>
+
+                        <textarea id="hospitalDescription"
+                                  th:field="*{hospitalDescription}"
+                                  maxlength="2000"
+                                  placeholder="병원의 특징과 전문 진료 분야를 소개해 주세요."
+                                  required></textarea>
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label for="hospitalImage">
+                            병원 대표 이미지
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="file"
+                               id="hospitalImage"
+                               name="hospitalImage"
+                               accept=".jpg,.jpeg,.png,.webp"
+                               required>
+
+                        <p class="form-help">
+                            병원 목록과 상세 페이지에 공개되는 이미지입니다.
+                        </p>
+
+
+                        <!-- 이미지 미리보기 -->
+                        <div id="hospitalImagePreview"
+                             class="hospital-image-preview">
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group full-width">
+
+                        <label for="hospitalNote">
+                            추가 안내사항
+                        </label>
+
+                        <textarea id="hospitalNote"
+                                  th:field="*{hospitalNote}"
+                                  maxlength="2000"
+                                  placeholder="주차, 예약, 야간진료, 방문 시 주의사항 등을 입력하세요."></textarea>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 제출
+            ======================================= -->
+
+            <section class="submit-section">
+
+                <div class="agreement-box">
+
+                    <label>
+
+                        <input type="checkbox"
+                               id="ownerRequestAgreement"
+                               required>
+
+                        <span>
+                            입력한 정보가 사실이며, 허위 정보 제출 시
+                            신청이 취소될 수 있음에 동의합니다.
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="submit-buttons">
+
+                    <a th:href="@{/}"
+                       class="cancel-button">
+                        취소
+                    </a>
+
+                    <button type="submit"
+                            class="submit-button">
+                        병원장 권한 신청
+                    </button>
+
+                </div>
+
+            </section>
+
+        </form>
+
+    </div>
+
+</main>
+
+</body>
+</html>
