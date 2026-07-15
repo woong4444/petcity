@@ -25,6 +25,15 @@ public class BoardService {
     private static final int PAGE_SIZE = 10;
     private static final int PAGE_BLOCK_SIZE = 5;
 
+    // 게시글 제목 최대 글자 수
+    private static final int TITLE_MAX_LENGTH = 100;
+
+    // 게시글 본문 최대 글자 수
+    private static final int BOARD_CONTENT_MAX_LENGTH = 3000;
+
+    // 댓글 최대 글자 수
+    private static final int COMMENT_MAX_LENGTH = 1000;
+
     private final BoardDao boardDao;
 
     @Value("${file.upload}")
@@ -161,8 +170,23 @@ public class BoardService {
     /*
         게시글 상세
     */
-    public BoardViewPageDto getBoardViewPage(int boardId) {
+    /*
+    게시글 상세
 
+    로그인 회원은 같은 게시글의 조회수를
+    계정당 한 번만 증가시킴.
+
+    memberId가 null이면 비로그인 사용자이므로
+    조회수를 증가시키지 않음.
+*/
+    public BoardViewPageDto getBoardViewPage(
+            int boardId,
+            Integer memberId
+    ) {
+
+    /*
+        게시글 존재 여부 확인
+    */
         BoardDto boardDto =
                 boardDao.findBoardView(boardId);
 
@@ -173,17 +197,62 @@ public class BoardService {
             );
         }
 
-        boardDao.increaseHit(boardId);
 
+    /*
+        로그인한 회원인 경우에만
+        조회 이력 저장 시도
+    */
+        if (memberId != null) {
+
+            int insertedCount =
+                    boardDao.insertBoardViewHistory(
+                            boardId,
+                            memberId
+                    );
+
+        /*
+            조회 이력이 새로 저장된 경우에만
+            조회수 증가
+
+            처음 조회:
+            insertedCount = 1
+
+            이미 조회한 게시글:
+            insertedCount = 0
+        */
+            if (insertedCount > 0) {
+
+                boardDao.increaseHit(boardId);
+
+            /*
+                boardDto는 조회수 증가 전에 조회했으므로
+                현재 화면에서도 증가한 숫자가 보이도록
+                객체의 조회수를 1 증가시킴
+            */
+                boardDto.setHit(
+                        boardDto.getHit() + 1
+                );
+            }
+        }
+
+
+    /*
+        게시글 이미지
+    */
         List<BoardImageDto> boardImageList =
                 boardDao.findBoardImageList(boardId);
 
+
+    /*
+        댓글 기본값
+    */
         List<BoardCommentDto> commentList =
                 Collections.emptyList();
 
-        /*
-            FREE와 QNA만 댓글 조회
-        */
+
+    /*
+        자유게시판과 수의사상담만 댓글 조회
+    */
         if ("FREE".equals(boardDto.getBoardType())
                 || "QNA".equals(boardDto.getBoardType())) {
 
@@ -191,8 +260,12 @@ public class BoardService {
                     boardDao.findCommentList(boardId);
         }
 
+
         String boardTitle =
-                getBoardTitle(boardDto.getBoardType());
+                getBoardTitle(
+                        boardDto.getBoardType()
+                );
+
 
         return BoardViewPageDto.builder()
                 .boardDto(boardDto)
@@ -291,10 +364,19 @@ public class BoardService {
         - TITLE = 질문
         - CONTENT = 답변
     */
+   /*
+    게시글 제목과 본문 검사
+
+    제목 또는 FAQ 질문: 최대 100자
+    본문 또는 FAQ 답변: 최대 3000자
+*/
     private void validateTitleAndContent(
             BoardDto boardDto
     ) {
 
+    /*
+        제목 검사
+    */
         if (boardDto.getTitle() == null
                 || boardDto.getTitle().isBlank()) {
 
@@ -303,6 +385,23 @@ public class BoardService {
             );
         }
 
+        String trimmedTitle =
+                boardDto.getTitle().trim();
+
+        if (getTextLength(trimmedTitle)
+                > TITLE_MAX_LENGTH) {
+
+            throw new RuntimeException(
+                    "제목 또는 질문은 "
+                            + TITLE_MAX_LENGTH
+                            + "자 이하로 작성해 주세요."
+            );
+        }
+
+
+    /*
+        본문 검사
+    */
         if (boardDto.getContent() == null
                 || boardDto.getContent().isBlank()) {
 
@@ -311,11 +410,61 @@ public class BoardService {
             );
         }
 
-        boardDto.setTitle(
-                boardDto.getTitle().trim()
-        );
-    }
+        String htmlContent =
+                boardDto.getContent();
 
+    /*
+        Summernote HTML 태그를 제거하고
+        실제 화면에 보이는 글자만 추출
+    */
+        String plainContent =
+                htmlContent
+                        .replaceAll(
+                                "(?i)<br\\s*/?>",
+                                "\n"
+                        )
+                        .replaceAll(
+                                "(?i)</p>",
+                                "\n"
+                        )
+                        .replaceAll(
+                                "(?s)<[^>]*>",
+                                ""
+                        )
+                        .replace("&nbsp;", " ")
+                        .replace("&lt;", "<")
+                        .replace("&gt;", ">")
+                        .replace("&amp;", "&")
+                        .trim();
+
+    /*
+        글 없이 이미지만 등록한 게시글도 허용
+    */
+        boolean hasImage =
+                htmlContent
+                        .toLowerCase()
+                        .contains("<img");
+
+        if (plainContent.isBlank()
+                && !hasImage) {
+
+            throw new RuntimeException(
+                    "내용 또는 답변을 입력해 주세요."
+            );
+        }
+
+        if (getTextLength(plainContent)
+                > BOARD_CONTENT_MAX_LENGTH) {
+
+            throw new RuntimeException(
+                    "내용 또는 답변은 "
+                            + BOARD_CONTENT_MAX_LENGTH
+                            + "자 이하로 작성해 주세요."
+            );
+        }
+
+        boardDto.setTitle(trimmedTitle);
+    }
     /*
         멍냥백서 대표 이미지 저장
     */
@@ -720,9 +869,13 @@ public class BoardService {
         String trimmedContent =
                 content.trim();
 
-        if (trimmedContent.length() > 1000) {
+        if (getTextLength(trimmedContent)
+                > COMMENT_MAX_LENGTH) {
+
             throw new RuntimeException(
-                    "댓글은 1000자 이하로 작성해 주세요."
+                    "댓글은 "
+                            + COMMENT_MAX_LENGTH
+                            + "자 이하로 작성해 주세요."
             );
         }
 
@@ -835,11 +988,16 @@ public class BoardService {
         String trimmedContent =
                 content.trim();
 
-        if (trimmedContent.length() > 1000) {
+        if (getTextLength(trimmedContent)
+                > COMMENT_MAX_LENGTH) {
+
             throw new RuntimeException(
-                    "댓글은 1000자 이하로 작성해 주세요."
+                    "댓글은 "
+                            + COMMENT_MAX_LENGTH
+                            + "자 이하로 작성해 주세요."
             );
         }
+
 
         boardDao.updateComment(
                 commentId,
@@ -1045,5 +1203,20 @@ public class BoardService {
 
             return 1;
         }
+    }
+    /*
+    한글, 영어, 숫자, 이모지를
+    실제 문자 단위로 계산
+*/
+    private int getTextLength(
+            String text
+    ) {
+        if (text == null) {
+            return  0;
+        }
+        return  text.codePointCount(
+                0,
+                text.length()
+        );
     }
 }

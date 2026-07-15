@@ -39,6 +39,12 @@ public interface BoardDao {
     // 조회수 증가
     void increaseHit(@Param("boardId") int boardId);
 
+    // 회원별 게시글 최초 조회 기록
+    int insertBoardViewHistory(
+            @Param("boardId") int boardId,
+            @Param("memberId") int memberId
+    );
+
     // 게시글 작성
     void insertBoard(BoardDto boardDto);
 

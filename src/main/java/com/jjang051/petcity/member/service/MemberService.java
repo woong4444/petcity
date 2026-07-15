@@ -28,11 +28,21 @@ public class MemberService {
         return member;
     }
 
+    // =====================================================
+// [2026-07-15 추가]
+// 회원가입 - 아이디 중복 확인(AJAX)
+// true  : 이미 사용중
+// false : 사용 가능
+// =====================================================
+    public boolean existsLoginId(String loginId) {
+
+        return memberMapper.countByLoginId(loginId) > 0;
+
+    }
+
     /**
      * 회원가입
      */
-
-
     public void insert(MemberDto memberDto) {
 
         // ============================
