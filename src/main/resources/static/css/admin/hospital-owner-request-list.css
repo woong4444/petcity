@@ -1,3 +1,7 @@
+/* ========================================
+   기본 설정
+======================================== */
+
 * {
     box-sizing: border-box;
 }
@@ -28,13 +32,233 @@ body {
 
 
 /* ========================================
+   페이지 상단
+======================================== */
+
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    margin-bottom: 24px;
+}
+
+.page-title {
+    margin: 0 0 8px;
+
+    color: #202939;
+
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.page-description {
+    margin: 0;
+
+    color: #738096;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   검색 및 필터
+======================================== */
+
+.request-filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-bottom: 18px;
+    padding: 18px 20px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e4eaf2;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 14px rgba(40, 67, 103, 0.06);
+}
+
+
+/* 검색 영역 */
+
+.request-search-area {
+    display: flex;
+    flex: 1 1 360px;
+    flex-direction: column;
+    gap: 7px;
+
+    min-width: 280px;
+}
+
+
+/* 상태 필터 영역 */
+
+.request-filter-item {
+    display: flex;
+    flex: 0 1 190px;
+    flex-direction: column;
+    gap: 7px;
+
+    min-width: 170px;
+}
+
+
+/* 검색 및 필터 제목 */
+
+.filter-label {
+    color: #526176;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* 검색창 */
+
+.request-search-input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+
+    color: #263449;
+    background-color: #f9fbfe;
+
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.request-search-input::placeholder {
+    color: #9ba7b7;
+}
+
+.request-search-input:focus {
+    background-color: #ffffff;
+    border-color: #4b8bea;
+    box-shadow: 0 0 0 3px rgba(75, 139, 234, 0.12);
+}
+
+
+/* 상태 필터 */
+
+.request-filter-select {
+    width: 100%;
+    height: 42px;
+    padding: 0 36px 0 12px;
+
+    color: #344258;
+    background-color: #f9fbfe;
+
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    outline: none;
+
+    transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.request-filter-select:focus {
+    background-color: #ffffff;
+    border-color: #4b8bea;
+    box-shadow: 0 0 0 3px rgba(75, 139, 234, 0.12);
+}
+
+
+/* 검색 및 초기화 버튼 영역 */
+
+.request-filter-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.request-search-button,
+.request-filter-reset-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+    padding: 0 18px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+            color 0.15s ease,
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+}
+
+
+/* 검색 버튼 */
+
+.request-search-button {
+    color: #ffffff;
+    background-color: #347fe8;
+
+    border: 1px solid #347fe8;
+}
+
+.request-search-button:hover {
+    background-color: #256fd5;
+    border-color: #256fd5;
+
+    transform: translateY(-1px);
+}
+
+
+/* 초기화 버튼 */
+
+.request-filter-reset-button {
+    color: #5b687a;
+    background-color: #ffffff;
+
+    border: 1px solid #d7e0eb;
+}
+
+.request-filter-reset-button:hover {
+    color: #2f64ad;
+    background-color: #f3f7fc;
+    border-color: #b9cce6;
+}
+
+
+/* ========================================
    병원장 신청 목록 카드
-   member-card 규격과 통일
 ======================================== */
 
 .request-card {
     width: 100%;
     padding: 28px 26px;
+
     overflow: hidden;
 
     background-color: #ffffff;
@@ -68,16 +292,9 @@ body {
     font-weight: 800;
 }
 
-.request-card-description {
-    margin: 7px 0 0;
-
-    color: #7a8799;
-
-    font-size: 14px;
-}
-
 .request-count {
     flex-shrink: 0;
+
     margin: 0;
 
     color: #58677d;
@@ -100,18 +317,18 @@ body {
 
 .request-table-wrapper {
     width: 100%;
+
     overflow-x: auto;
 }
 
 
 /* ========================================
    신청 목록 테이블
-   member-table 규격과 통일
 ======================================== */
 
 .request-table {
     width: 100%;
-    min-width: 1510px;
+    min-width: 1440px;
 
     table-layout: fixed;
     border-collapse: collapse;
@@ -146,7 +363,7 @@ body {
 }
 
 .request-table tbody tr {
-    transition: background-color 0.15s;
+    transition: background-color 0.15s ease;
 }
 
 .request-table tbody tr:hover {
@@ -171,7 +388,7 @@ body {
 }
 
 .column-hospital {
-    width: 225px;
+    width: 220px;
 }
 
 .column-business-number {
@@ -187,7 +404,7 @@ body {
 }
 
 .column-reject-reason {
-    width: 230px;
+    width: 220px;
 }
 
 .column-created-at {
@@ -232,6 +449,7 @@ body {
 
 .center-sort-link {
     justify-content: center;
+
     width: 100%;
 }
 
@@ -294,7 +512,7 @@ body {
     color: #1e293b;
 
     font-size: 14px;
-    font-weight: 750;
+    font-weight: 700;
 
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -352,7 +570,7 @@ body {
     border-radius: 8px;
 
     font-size: 13px;
-    font-weight: 750;
+    font-weight: 700;
 
     text-decoration: none;
 
@@ -432,7 +650,7 @@ body {
 
 
 /* ========================================
-   날짜
+   신청일 및 처리일
 ======================================== */
 
 .request-date-cell {
@@ -463,7 +681,7 @@ body {
     border: none;
 
     font-size: 14px;
-    font-weight: 750;
+    font-weight: 700;
 
     text-decoration: none;
 
@@ -472,6 +690,7 @@ body {
 
 .detail-button:hover {
     color: #123f92;
+
     text-decoration: underline;
 }
 
@@ -495,6 +714,70 @@ body {
 
 
 /* ========================================
+   페이지네이션
+======================================== */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    margin-top: 26px;
+}
+
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 38px;
+    height: 38px;
+    padding: 0 11px;
+
+    color: #445168;
+    background-color: #ffffff;
+
+    border: 1px solid #dbe2ec;
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+            color 0.15s ease,
+            background-color 0.15s ease,
+            border-color 0.15s ease;
+}
+
+.pagination-link:hover {
+    color: #1f63c8;
+    background-color: #f3f7ff;
+    border-color: #9dbdef;
+}
+
+.pagination-link.active {
+    color: #ffffff;
+    background-color: #347fe8;
+    border-color: #347fe8;
+}
+
+.pagination-direction {
+    min-width: 60px;
+}
+
+.pagination-link.disabled {
+    color: #a8b1bf;
+    background-color: #f7f8fa;
+    border-color: #e6eaf0;
+
+    cursor: default;
+}
+
+
+/* ========================================
    작은 화면
 ======================================== */
 
@@ -507,12 +790,55 @@ body {
     .request-card {
         padding: 24px 20px;
     }
+
+    .request-search-area {
+        flex: 1 1 100%;
+    }
+
+    .request-filter-item {
+        flex: 1 1 180px;
+    }
+
+    .request-filter-buttons {
+        width: 100%;
+
+        justify-content: flex-end;
+    }
 }
+
 
 @media (max-width: 760px) {
 
     .request-main {
         padding: 24px 16px 50px;
+    }
+
+    .page-title {
+        font-size: 25px;
+    }
+
+    .request-filter-form {
+        padding: 16px;
+    }
+
+    .request-search-area,
+    .request-filter-item {
+        flex: 1 1 100%;
+
+        min-width: 100%;
+    }
+
+    .request-filter-buttons {
+        justify-content: stretch;
+    }
+
+    .request-search-button,
+    .request-filter-reset-button {
+        flex: 1;
+    }
+
+    .request-card {
+        padding: 22px 16px;
     }
 
     .request-card-header {

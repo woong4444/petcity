@@ -153,7 +153,7 @@ public class AdminService {
         String normalizeMemberStatus = memberStatus.trim().toUpperCase();
 
         return switch (normalizeMemberStatus) {
-            case "ACTIVE","DELETED_PENDING","DELETED" -> normalizeMemberStatus;
+            case "ACTIVE","DELETE_PENDING","DELETED" -> normalizeMemberStatus;
             default -> "";
         };
     }

@@ -32,8 +32,8 @@ public class AdminMemberDetailService {
 
         if (Objects.equals(memberId, loginAdminId)) {
             boolean isRoleChanged = !"ADMIN".equals(normalizedRole);
-            boolean isAccountDisabled = !"ADMIN".equals(normalizedStatus);
-            boolean isMemberDisabled = !"ADMIN".equals(normalizedMemberStatus);
+            boolean isAccountDisabled = !"ACTIVE".equals(normalizedStatus);
+            boolean isMemberDisabled = !"ACTIVE".equals(normalizedMemberStatus);
             if (isRoleChanged || isAccountDisabled || isMemberDisabled) {
                 throw new IllegalArgumentException("현재 로그인한 관리자 계정의 권한이나 상태는 변경할 수 없습니다.");
             }
