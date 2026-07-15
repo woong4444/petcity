@@ -16,7 +16,7 @@
 
     </select>
 
-    <!-- 이메일 조회 (Google / Kakao / Naver 로그인용) -->
+    <!-- 이메일 조회 -->
     <select id="findByEmail"
             resultType="com.jjang051.petcity.member.dto.MemberDto">
 
@@ -25,6 +25,36 @@
         WHERE EMAIL = #{email}
 
     </select>
+
+    <!-- ================================================= -->
+    <!-- [07-15 추가_상각] 회원가입 아이디 중복 확인(AJAX) -->
+    <!-- signup-form.html에서 중복확인 버튼 클릭 시 사용 -->
+    <!-- ================================================= -->
+    <select id="countByLoginId"
+            parameterType="String"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM APP_MEMBER
+        WHERE LOGIN_ID = #{loginId}
+
+    </select>
+
+
+
+    <!-- ================================================= -->
+    <!-- 07-16 추가 : 회원가입 닉네임 중복 확인(AJAX) -->
+    <!-- ================================================= -->
+    <select id="countByNickname"
+            parameterType="String"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM APP_MEMBER
+        WHERE NICKNAME = #{nickname}
+
+    </select>
+
 
     <!-- 회원가입 -->
     <insert id="insert">
@@ -45,37 +75,16 @@
         )
         VALUES
         (
-        -- 시퀀스로 회원번호 생성
         SEQ_APP_MEMBER.NEXTVAL,
-
-        -- 아이디
         #{loginId},
-
-        -- 비밀번호
         #{password},
-
-        -- 닉네임
         #{nickname},
-
-        -- 이메일
         #{email},
-
-        -- 전화번호
         #{phone},
-
-        -- 권한(USER)
         #{role},
-
-        -- 이메일 인증 여부(N)
         #{emailVerified},
-
-        -- 회원 상태(ACTIVE)
         #{status},
-
-        -- 삭제 여부(NORMAL)
         #{memberStatus},
-
-        -- 가입일
         SYSDATE
         )
 
