@@ -162,6 +162,51 @@
 
     </update>
 
+    <!--
+    회원별 게시글 최초 조회 기록
+
+    같은 회원이 이미 해당 게시글을 조회했다면
+    INSERT하지 않음.
+
+    처음 조회:
+    결과 1
+
+    이미 조회:
+    결과 0
+-->
+
+    <insert id="insertBoardViewHistory">
+
+        MERGE INTO BOARD_VIEW_HISTORY BVH
+
+        USING (
+        SELECT
+        #{boardId} AS BOARD_ID,
+        #{memberId} AS MEMBER_ID
+        FROM DUAL
+        ) NEW_VIEW
+
+        ON (
+        BVH.BOARD_ID = NEW_VIEW.BOARD_ID
+        AND BVH.MEMBER_ID = NEW_VIEW.MEMBER_ID
+        )
+
+        WHEN NOT MATCHED THEN
+
+        INSERT (
+        BOARD_ID,
+        MEMBER_ID,
+        VIEWED_AT
+        )
+
+        VALUES (
+        NEW_VIEW.BOARD_ID,
+        NEW_VIEW.MEMBER_ID,
+        SYSTIMESTAMP
+        )
+
+    </insert>
+
     <!-- 게시글 작성 -->
     <insert id="insertBoard"
             parameterType="com.jjang051.petcity.board.dto.BoardDto">

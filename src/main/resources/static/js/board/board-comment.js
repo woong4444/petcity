@@ -138,3 +138,94 @@ function closeCommentEdit(commentId) {
         editForm.style.display = "none";
     }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const COMMENT_MAX_LENGTH = 1000;
+
+    const commentTextareas =
+        document.querySelectorAll(".comment-limit");
+
+    commentTextareas.forEach(function (textarea) {
+
+        /*
+            글자 수 표시 요소 생성
+        */
+        const countElement =
+            document.createElement("div");
+
+        countElement.className =
+            "comment-character-count";
+
+        textarea.insertAdjacentElement(
+            "afterend",
+            countElement
+        );
+
+
+        /*
+            입력 글자 수 검사
+        */
+        function checkCommentLength() {
+
+            const characters =
+                Array.from(textarea.value);
+
+            /*
+                1000자를 넘으면
+                1000자까지만 남기고 뒤 내용을 삭제
+            */
+            if (characters.length > COMMENT_MAX_LENGTH) {
+
+                textarea.value =
+                    characters
+                        .slice(0, COMMENT_MAX_LENGTH)
+                        .join("");
+            }
+
+            const currentLength =
+                Array.from(textarea.value).length;
+
+            countElement.textContent =
+                currentLength
+                + " / "
+                + COMMENT_MAX_LENGTH
+                + "자";
+
+            countElement.classList.toggle(
+                "limit",
+                currentLength >= COMMENT_MAX_LENGTH
+            );
+        }
+
+
+        /*
+            키보드 입력
+        */
+        textarea.addEventListener(
+            "input",
+            checkCommentLength
+        );
+
+
+        /*
+            복사한 긴 글 붙여넣기
+        */
+        textarea.addEventListener(
+            "paste",
+            function () {
+
+                setTimeout(
+                    checkCommentLength,
+                    0
+                );
+            }
+        );
+
+
+        /*
+            기존 댓글 수정칸의 글자 수 표시
+        */
+        checkCommentLength();
+    });
+});
