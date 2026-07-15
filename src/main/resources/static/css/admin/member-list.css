@@ -727,6 +727,370 @@
         justify-content: flex-end;
     }
 }
+
+/* ========================================
+   선택 회원 삭제 버튼
+======================================== */
+
+.delete-selected-button {
+    height: 34px;
+    padding: 0 13px;
+
+    color: #ffffff;
+    background-color: #dc3545;
+
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            opacity 0.15s ease,
+            transform 0.15s ease;
+}
+
+.delete-selected-button:hover:not(:disabled) {
+    background-color: #bd2635;
+    border-color: #bd2635;
+
+    transform: translateY(-1px);
+}
+
+.delete-selected-button:disabled {
+    color: #9aa4b3;
+    background-color: #eef1f5;
+    border-color: #e1e5eb;
+
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+
+/* ========================================
+   삭제 모달
+======================================== */
+
+.member-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+}
+
+.member-delete-modal[hidden] {
+    display: none;
+}
+
+.member-delete-modal-backdrop {
+    position: absolute;
+    inset: 0;
+
+    background-color: rgba(19, 27, 40, 0.56);
+    backdrop-filter: blur(2px);
+}
+
+.member-delete-dialog {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    max-width: 540px;
+
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 18px;
+
+    box-shadow: 0 24px 70px rgba(24, 34, 50, 0.24);
+}
+
+
+/* ========================================
+   삭제 모달 상단
+======================================== */
+
+.member-delete-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 24px 26px 18px;
+
+    border-bottom: 1px solid #ebeff4;
+}
+
+.delete-warning-label {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 25px;
+    padding: 0 9px;
+
+    color: #b42318;
+    background-color: #fee4e2;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.member-delete-modal-title {
+    margin: 11px 0 0;
+
+    color: #202939;
+
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.member-delete-modal-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+    padding: 0;
+
+    color: #647084;
+    background-color: #f5f7fa;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 25px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.member-delete-modal-close:hover {
+    color: #263449;
+    background-color: #e9edf3;
+}
+
+
+/* ========================================
+   삭제 모달 내용
+======================================== */
+
+.member-delete-modal-body {
+    padding: 22px 26px 26px;
+}
+
+.member-delete-warning-box {
+    padding: 16px 17px;
+
+    color: #8f2f28;
+    background-color: #fff4f3;
+
+    border: 1px solid #ffd7d3;
+    border-radius: 11px;
+}
+
+.member-delete-warning-box strong {
+    display: block;
+
+    color: #a52c23;
+
+    font-size: 15px;
+}
+
+.member-delete-warning-box p {
+    margin: 8px 0 0;
+
+    color: #87524e;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.delete-reason-area {
+    margin-top: 20px;
+}
+
+.delete-reason-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #344258;
+
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.required-mark {
+    color: #dc3545;
+}
+
+.delete-reason-input {
+    width: 100%;
+    min-height: 125px;
+    padding: 13px 14px;
+
+    color: #263449;
+    background-color: #fbfcfe;
+
+    border: 1px solid #d9e1eb;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.55;
+
+    outline: none;
+    resize: vertical;
+
+    transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.delete-reason-input::placeholder {
+    color: #9ca7b6;
+}
+
+.delete-reason-input:focus {
+    background-color: #ffffff;
+    border-color: #e05a65;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.delete-reason-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+
+    margin-top: 7px;
+
+    color: #8792a3;
+
+    font-size: 12px;
+}
+
+.delete-reason-info strong {
+    color: #5d697b;
+}
+
+
+/* ========================================
+   삭제 모달 하단 버튼
+======================================== */
+
+.member-delete-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+
+    padding: 17px 26px 22px;
+
+    background-color: #fafbfd;
+    border-top: 1px solid #ebeff4;
+}
+
+.delete-modal-cancel-button,
+.delete-modal-confirm-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 40px;
+    padding: 0 18px;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 750;
+
+    cursor: pointer;
+}
+
+.delete-modal-cancel-button {
+    color: #526176;
+    background-color: #ffffff;
+
+    border: 1px solid #d5dde8;
+}
+
+.delete-modal-cancel-button:hover {
+    background-color: #f2f5f9;
+}
+
+.delete-modal-confirm-button {
+    color: #ffffff;
+    background-color: #dc3545;
+
+    border: 1px solid #dc3545;
+}
+
+.delete-modal-confirm-button:hover:not(:disabled) {
+    background-color: #bd2635;
+    border-color: #bd2635;
+}
+
+.delete-modal-confirm-button:disabled {
+    color: #a2abb8;
+    background-color: #e8ebf0;
+    border-color: #e8ebf0;
+
+    cursor: not-allowed;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+
+/* ========================================
+   삭제 모달 작은 화면
+======================================== */
+
+@media (max-width: 620px) {
+
+    .member-delete-modal {
+        align-items: flex-end;
+
+        padding: 14px;
+    }
+
+    .member-delete-dialog {
+        max-width: none;
+
+        border-radius: 16px;
+    }
+
+    .member-delete-modal-header,
+    .member-delete-modal-body,
+    .member-delete-modal-footer {
+        padding-right: 19px;
+        padding-left: 19px;
+    }
+
+    .member-delete-modal-footer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
 /* ========================================
    작은 화면
 ======================================== */
