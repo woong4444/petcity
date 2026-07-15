@@ -4,7 +4,33 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.jjang051.petcity.admin.dao.AdminHospitalOwnerRequestDao">
-    <select id="findAllRequests" resultType="AdminHospitalOwnerRequestDto">
+    <sql id="requestSearchConditions">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                UPPER(H.NAME) LIKE '%' || UPPER(#{keyword}) || '%'
+                OR UPPER(M.NICKNAME) LIKE '%' || UPPER(#{keyword}) || '%'
+                )
+            </if>
+
+            <if test="status != null and status != ''">
+                AND HOR.STATUS = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <select id="countRequestsByCondition" resultType="long">
+        SELECT COUNT(*)
+        FROM HOSPITAL_OWNER_REQUEST HOR
+        JOIN APP_MEMBER M
+        ON HOR.MEMBER_ID = M.MEMBER_ID
+        JOIN HOSPITAL H
+        ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
+            <include refid="requestSearchConditions"/>
+    </select>
+
+
+    <select id="findRequestsByPage" resultType="AdminHospitalOwnerRequestDto">
         SELECT
             HOR.REQUEST_ID AS requestId,
             HOR.Member_id AS memberId,
@@ -23,6 +49,7 @@
             ON HOR.MEMBER_ID = M.MEMBER_ID
         JOIN HOSPITAL H
             ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
+        <include refid="requestSearchConditions"/>
         ORDER BY
         <choose>
             <when test="sort == 'memberInfo'">
@@ -33,7 +60,12 @@
                 H.NAME
             </when>
             <when test="sort == 'status'">
-                HOR.STATUS
+                CASE HOR.STATUS
+                    WHEN 'PENDING' THEN 1
+                    WHEN 'APPROVED' THEN 2
+                    WHEN 'REJECTED' THEN 3
+                ELSE 4
+                END
             </when>
             <when test="sort == 'rejectReason'">
                 HOR.REJECT_REASON
@@ -83,6 +115,8 @@
         JOIN HOSPITAL H
             ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
         WHERE HOR.REQUEST_ID = #{requestId}
-
     </select>
+
+
+
 </mapper>

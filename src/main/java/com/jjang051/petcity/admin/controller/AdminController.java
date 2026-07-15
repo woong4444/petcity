@@ -1,6 +1,7 @@
 package com.jjang051.petcity.admin.controller;
 
 import com.jjang051.petcity.admin.dto.AdminDashboardDto;
+import com.jjang051.petcity.admin.dto.AdminMemberDeleteRequestDto;
 import com.jjang051.petcity.admin.dto.AdminMemberPageDto;
 import com.jjang051.petcity.admin.service.AdminService;
 import com.jjang051.petcity.member.dto.MemberDto;
@@ -10,12 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -91,7 +91,7 @@ public class AdminController {
         if (!"ADMIN".equals(loginMember.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        List<Long> memberIds = adminService.getAllMemberIds(keyword,role,status,memberStatus);
+        List<Long> memberIds = adminService.getAllMemberIds(keyword, role, status, memberStatus);
         return ResponseEntity.ok(memberIds);
 
     }
@@ -107,4 +107,29 @@ public class AdminController {
             return null;
         }
     }
+
+    @PostMapping("/members/delete")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteMember(@RequestBody AdminMemberDeleteRequestDto requestDto, HttpSession session) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "로그인이 필요합니다."));
+        }
+
+        if (!"ADMIN".equals(loginMember.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "관리자만 회원을 삭제할 수 있습니다."));
+        }
+        try {
+            int deletedCount = adminService.deleteMembers(requestDto);
+            return ResponseEntity.ok(Map.of("message", deletedCount + "명의 회원이 삭제되었습니다.", "deletedCount", deletedCount));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
+
+    }
+
 }

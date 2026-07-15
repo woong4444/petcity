@@ -25,7 +25,7 @@
 
     <select id="countPendingOwnerRequests" resultType="int">
         select count(*) from hospital_owner_request
-        where status = 'pending'
+        where status = 'PENDING'
     </select>
 
 
@@ -136,4 +136,30 @@
         order by member_id desc
     </select>
 
+    <select id="countAdminMembersByIds" resultType="int">
+        SELECT COUNT(*)
+        FROM APP_MEMBER
+        WHERE ROLE='ADMIN'
+         AND MEMBER_ID IN
+        <foreach collection="memberIds" item="memberId"
+                 open="(" separator="," close=")">
+        #{memberId}
+        </foreach>
+    </select>
+    <update id="deleteMembers">
+            UPDATE APP_MEMBER
+        SET
+            STATUS = 'DELETED',
+            MEMBER_STATUS = 'DELETED',
+            DELETE_REASON = #{deleteReason},
+        DELETED_AT = SYSTIMESTAMP,
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE MEMBER_ID IN
+        <foreach collection="memberIds" item="memberId"
+                 open="(" separator="," close=")">
+            #{memberId}
+        </foreach>
+        AND ROLE != 'ADMIN'
+        AND ( STATUS != 'DELETED' OR MEMBER_STATUS != 'DELETED')
+    </update>
 </mapper>

@@ -30,7 +30,6 @@
             th:replace="~{admin/fragments/sidebar :: sidebar('members')}">
     </th:block>
 
-
     <main class="admin-main">
 
         <header class="page-header">
@@ -45,18 +44,14 @@
             </div>
         </header>
 
-
-        <!-- 회원 검색 및 필터 -->
         <form class="member-filter-form"
               th:action="@{/admin/members}"
               method="get">
 
-            <!-- 검색 시 1페이지부터 조회 -->
             <input type="hidden"
                    name="page"
                    value="1">
 
-            <!-- 현재 정렬 조건 유지 -->
             <input type="hidden"
                    name="sort"
                    th:value="${pageList.sort}">
@@ -65,8 +60,6 @@
                    name="direction"
                    th:value="${pageList.direction}">
 
-
-            <!-- 회원 검색 -->
             <div class="member-search-area">
 
                 <label for="keyword"
@@ -84,8 +77,6 @@
 
             </div>
 
-
-            <!-- 권한 필터 -->
             <div class="member-filter-item">
 
                 <label for="role"
@@ -121,8 +112,6 @@
 
             </div>
 
-
-            <!-- 계정 상태 필터 -->
             <div class="member-filter-item">
 
                 <label for="status"
@@ -158,8 +147,6 @@
 
             </div>
 
-
-            <!-- 회원 상태 필터 -->
             <div class="member-filter-item">
 
                 <label for="memberStatus"
@@ -195,8 +182,6 @@
 
             </div>
 
-
-            <!-- 검색 버튼 -->
             <div class="member-filter-buttons">
 
                 <button type="submit"
@@ -217,11 +202,8 @@
 
         </form>
 
-
-        <!-- 회원 목록 -->
         <section class="member-card">
 
-            <!-- 회원 목록 상단 -->
             <div class="member-card-header">
 
                 <h3 class="member-card-title">
@@ -256,12 +238,17 @@
                         선택 초기화
                     </button>
 
+                    <button type="button"
+                            id="openDeleteMemberModal"
+                            class="delete-selected-button"
+                            disabled>
+                        선택 회원 삭제
+                    </button>
+
                 </div>
 
             </div>
 
-
-            <!-- 현재 페이지 전체 선택 안내 -->
             <div id="allSelectionNotice"
                  class="all-selection-notice"
                  hidden>
@@ -293,8 +280,6 @@
 
             </div>
 
-
-            <!-- 회원 테이블 -->
             <div class="member-table-wrapper">
 
                 <table class="member-table">
@@ -313,13 +298,10 @@
                         <col class="column-action">
                     </colgroup>
 
-
-                    <!-- 테이블 헤더 -->
                     <thead>
 
                     <tr>
 
-                        <!-- 현재 페이지 전체 선택 -->
                         <th class="checkbox-cell">
 
                             <input type="checkbox"
@@ -328,15 +310,12 @@
 
                         </th>
 
-
-                        <!-- 번호 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'memberId'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='memberId',
@@ -365,15 +344,12 @@
 
                         </th>
 
-
-                        <!-- 아이디 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'loginId'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='loginId',
@@ -402,15 +378,12 @@
 
                         </th>
 
-
-                        <!-- 닉네임 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'nickname'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='nickname',
@@ -439,21 +412,16 @@
 
                         </th>
 
-
-                        <!-- 이메일 -->
                         <th>
                             이메일
                         </th>
 
-
-                        <!-- 권한 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'role'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='role',
@@ -482,15 +450,12 @@
 
                         </th>
 
-
-                        <!-- 계정 상태 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'status'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='status',
@@ -519,15 +484,12 @@
 
                         </th>
 
-
-                        <!-- 회원 상태 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'memberStatus'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='memberStatus',
@@ -556,15 +518,12 @@
 
                         </th>
 
-
-                        <!-- 가입일 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'createdAt'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='createdAt',
@@ -593,15 +552,12 @@
 
                         </th>
 
-
-                        <!-- 최근 로그인 정렬 -->
                         <th>
 
                             <a class="sort-link"
                                th:classappend="${pageList.sort == 'lastLoginAt'}
                                     ? ' active'
                                     : ''"
-
                                th:href="@{/admin/members(
                                     page=1,
                                     sort='lastLoginAt',
@@ -630,8 +586,6 @@
 
                         </th>
 
-
-                        <!-- 관리 -->
                         <th>
                             관리
                         </th>
@@ -640,13 +594,10 @@
 
                     </thead>
 
-
-                    <!-- 회원 목록 -->
                     <tbody>
 
                     <tr th:each="member : ${members}">
 
-                        <!-- 회원 선택 -->
                         <td class="checkbox-cell">
 
                             <input type="checkbox"
@@ -656,35 +607,25 @@
 
                         </td>
 
-
-                        <!-- 회원 번호 -->
                         <td th:text="${member.memberId}">
                             1
                         </td>
 
-
-                        <!-- 로그인 아이디 -->
                         <td class="login-id-cell"
                             th:text="${member.loginId}">
                             user01
                         </td>
 
-
-                        <!-- 닉네임 -->
                         <td th:text="${member.nickname}">
                             테스트 회원
                         </td>
 
-
-                        <!-- 이메일 -->
                         <td class="email-cell"
                             th:title="${member.email}"
                             th:text="${member.email}">
                             user@test.com
                         </td>
 
-
-                        <!-- 권한 -->
                         <td>
 
                             <span class="role-badge"
@@ -695,8 +636,6 @@
 
                         </td>
 
-
-                        <!-- 계정 상태 -->
                         <td>
 
                             <span class="status-badge account-status"
@@ -709,8 +648,6 @@
 
                         </td>
 
-
-                        <!-- 회원 상태 -->
                         <td>
 
                             <span class="status-badge member-status"
@@ -727,8 +664,6 @@
 
                         </td>
 
-
-                        <!-- 가입일 -->
                         <td class="date-cell"
                             th:text="${member.createdAt != null
                                 ? #temporals.format(
@@ -739,8 +674,6 @@
                             2026-07-13
                         </td>
 
-
-                        <!-- 최근 로그인 -->
                         <td class="last-login-cell"
                             th:text="${member.lastLoginAt != null
                                 ? #temporals.format(
@@ -751,13 +684,14 @@
                             -
                         </td>
 
-
-                        <!-- 상세 -->
                         <td>
 
                             <a class="detail-button"
-                               th:href="@{/admin/members/detail/{memberId}(memberId=${member.memberId})}">
+                               th:href="@{/admin/members/detail/{memberId}(
+                                    memberId=${member.memberId}
+                               )}">
                                 상세
+
                                 <span class="detail-arrow">
                                     ›
                                 </span>
@@ -767,8 +701,6 @@
 
                     </tr>
 
-
-                    <!-- 검색 결과 없음 -->
                     <tr th:if="${#lists.isEmpty(members)}">
 
                         <td colspan="11"
@@ -784,14 +716,10 @@
 
             </div>
 
-
-            <!-- 페이지네이션 -->
             <nav class="pagination"
                  th:if="${pageList.totalPages > 1}"
                  aria-label="회원 목록 페이지">
 
-
-                <!-- 이전 페이지 -->
                 <a th:if="${pageList.hasPrevious}"
                    th:href="@{/admin/members(
                         page=${pageList.currentPage - 1},
@@ -803,9 +731,7 @@
                         memberStatus=${pageList.memberStatus}
                    )}"
                    class="pagination-link pagination-direction">
-
                     이전
-
                 </a>
 
                 <span th:unless="${pageList.hasPrevious}"
@@ -813,13 +739,10 @@
                     이전
                 </span>
 
-
-                <!-- 페이지 번호 -->
                 <a th:each="pageNumber : ${#numbers.sequence(
                         pageList.startPage,
                         pageList.endPage
                    )}"
-
                    th:href="@{/admin/members(
                         page=${pageNumber},
                         sort=${pageList.sort},
@@ -829,21 +752,14 @@
                         status=${pageList.status},
                         memberStatus=${pageList.memberStatus}
                    )}"
-
                    th:text="${pageNumber}"
-
                    class="pagination-link"
-
                    th:classappend="${pageNumber == pageList.currentPage}
                         ? ' active'
                         : ''">
-
                     1
-
                 </a>
 
-
-                <!-- 다음 페이지 -->
                 <a th:if="${pageList.hasNext}"
                    th:href="@{/admin/members(
                         page=${pageList.currentPage + 1},
@@ -855,9 +771,7 @@
                         memberStatus=${pageList.memberStatus}
                    )}"
                    class="pagination-link pagination-direction">
-
                     다음
-
                 </a>
 
                 <span th:unless="${pageList.hasNext}"
@@ -870,6 +784,123 @@
         </section>
 
     </main>
+
+</div>
+
+<div id="memberDeleteModal"
+     class="member-delete-modal"
+     aria-hidden="true"
+     hidden>
+
+    <div class="member-delete-modal-backdrop"
+         data-close-delete-modal>
+    </div>
+
+    <section class="member-delete-dialog"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="memberDeleteModalTitle">
+
+        <header class="member-delete-modal-header">
+
+            <div>
+
+                <span class="delete-warning-label">
+                    회원 삭제
+                </span>
+
+                <h3 id="memberDeleteModalTitle"
+                    class="member-delete-modal-title">
+                    선택한 회원을 삭제하시겠습니까?
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    class="member-delete-modal-close"
+                    data-close-delete-modal
+                    aria-label="삭제 모달 닫기">
+                ×
+            </button>
+
+        </header>
+
+        <div class="member-delete-modal-body">
+
+            <div class="member-delete-warning-box">
+
+                <strong>
+                    총
+
+                    <span id="deleteTargetCount">
+                        0
+                    </span>
+
+                    명의 회원이 삭제됩니다.
+                </strong>
+
+                <p>
+                    삭제된 회원은 로그인할 수 없으며 <br>
+                    계정 상태와 회원 상태가 DELETED로 변경됩니다.
+                </p>
+
+            </div>
+
+            <div class="delete-reason-area">
+
+                <label for="deleteReason"
+                       class="delete-reason-label">
+                    삭제 사유
+
+                    <span class="required-mark">
+                        *
+                    </span>
+                </label>
+
+                <textarea id="deleteReason"
+                          class="delete-reason-input"
+                          maxlength="500"
+                          rows="5"
+                          placeholder="회원 삭제 사유를 입력해 주세요."></textarea>
+
+                <div class="delete-reason-info">
+
+                    <span>
+                        삭제 사유는 반드시 입력해야 합니다.
+                    </span>
+
+                    <span>
+                        <strong id="deleteReasonLength">
+                            0
+                        </strong>
+
+                        / 500
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <footer class="member-delete-modal-footer">
+
+            <button type="button"
+                    class="delete-modal-cancel-button"
+                    data-close-delete-modal>
+                취소
+            </button>
+
+            <button type="button"
+                    id="confirmDeleteMembers"
+                    class="delete-modal-confirm-button"
+                    disabled>
+                삭제
+            </button>
+
+        </footer>
+
+    </section>
 
 </div>
 

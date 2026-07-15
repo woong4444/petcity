@@ -42,9 +42,21 @@ CREATE SEQUENCE SEQ_APP_MEMBER
     INCREMENT BY 1
     NOCACHE;
 
+
+
+-------------추가 사항
+ALTER TABLE APP_MEMBER
+    ADD (
+    BLOCK_REASON VARCHAR2(500),
+    BLOCKED_AT TIMESTAMP
+);
+
+ALTER TABLE APP_MEMBER
+    ADD (
+    BLOCKED_BY NUMBER
+);
 /* =====================================================
    추가사항 7-15 회원 타입 관련 컬럼 추가
-===================================================== */
 ALTER TABLE APP_MEMBER
     ADD LOGIN_TYPE VARCHAR2(20);
 

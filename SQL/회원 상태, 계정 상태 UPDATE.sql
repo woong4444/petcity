@@ -1,18 +1,3 @@
-/* =====================================================
-   테스트 회원 105명 생성
-
-   LOGIN_ID
-   test_user001 ~ test_user105
-
-   PASSWORD
-   전부 1234
-
-   테스트용 상태 분배
-   - 10의 배수: OWNER, BLOCKED
-   - 12의 배수: DELETE_PENDING
-   - 25의 배수: DELETED
-===================================================== */
-
 INSERT INTO APP_MEMBER (
     MEMBER_ID,
     NICKNAME,

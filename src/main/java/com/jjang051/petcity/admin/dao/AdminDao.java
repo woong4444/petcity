@@ -22,6 +22,10 @@ public interface AdminDao {
 
     int countPendingOwnerRequests();
 
+    int countAdminMembersByIds(@Param("memberIds") List<Long> memberIds);
+
+    int deleteMembers(@Param("memberIds") List<Long> memberIds, @Param("deleteReason") String deleteReason);
+
     long countAllMembers();
 
     long countMembersByCondition(@Param("keyword") String keyword, @Param("role") String role,
