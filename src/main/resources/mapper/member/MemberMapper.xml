@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -6,7 +6,9 @@
 
 <mapper namespace="com.jjang051.petcity.member.dao.MemberMapper">
 
+    <!-- ================================================= -->
     <!-- 로그인 아이디 조회 -->
+    <!-- ================================================= -->
     <select id="findByLoginId"
             resultType="com.jjang051.petcity.member.dto.MemberDto">
 
@@ -16,7 +18,10 @@
 
     </select>
 
-    <!-- 이메일 조회 -->
+
+    <!-- ================================================= -->
+    <!-- 이메일 조회 (SNS 로그인용) -->
+    <!-- ================================================= -->
     <select id="findByEmail"
             resultType="com.jjang051.petcity.member.dto.MemberDto">
 
@@ -26,9 +31,9 @@
 
     </select>
 
+
     <!-- ================================================= -->
-    <!-- [07-15 추가_상각] 회원가입 아이디 중복 확인(AJAX) -->
-    <!-- signup-form.html에서 중복확인 버튼 클릭 시 사용 -->
+    <!-- 07-15 오후 추가_상각 : 아이디 중복 확인 -->
     <!-- ================================================= -->
     <select id="countByLoginId"
             parameterType="String"
@@ -41,9 +46,8 @@
     </select>
 
 
-
     <!-- ================================================= -->
-    <!-- 07-16 추가 : 회원가입 닉네임 중복 확인(AJAX) -->
+    <!-- 07-15 오후 추가_상각 : 닉네임 중복 확인 -->
     <!-- ================================================= -->
     <select id="countByNickname"
             parameterType="String"
@@ -56,7 +60,10 @@
     </select>
 
 
+    <!-- ================================================= -->
     <!-- 회원가입 -->
+    <!-- 07-15 오후 추가_상각 : SNS 컬럼 추가 -->
+    <!-- ================================================= -->
     <insert id="insert">
 
         INSERT INTO APP_MEMBER
@@ -71,20 +78,43 @@
         EMAIL_VERIFIED,
         STATUS,
         MEMBER_STATUS,
+
+        LOGIN_TYPE,
+        SOCIAL_ID,
+        AGREEMENT_EMAIL,
+
         CREATED_AT
         )
+
         VALUES
         (
         SEQ_APP_MEMBER.NEXTVAL,
+
         #{loginId},
+
         #{password},
+
         #{nickname},
+
         #{email},
+
         #{phone},
+
         #{role},
+
         #{emailVerified},
+
         #{status},
+
         #{memberStatus},
+
+        <!-- 07-15 오후 추가_상각 -->
+        #{loginType},
+
+        #{socialId,jdbcType=VARCHAR},
+
+        #{agreementEmail},
+
         SYSDATE
         )
 

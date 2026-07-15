@@ -79,6 +79,9 @@ public class MemberController {
         memberDto.setEmailVerified("N");
         memberDto.setStatus("ACTIVE");
         memberDto.setMemberStatus("ACTIVE");
+        memberDto.setLoginType("LOCAL");
+        memberDto.setSocialId(null);
+        memberDto.setAgreementEmail("N");
 
         try {
 

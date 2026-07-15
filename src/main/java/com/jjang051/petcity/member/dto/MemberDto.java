@@ -35,6 +35,21 @@ public class MemberDto {
 
     private String memberStatus;
 
+// =====================================================
+// 07-15 오후 추가_상각 : SNS 로그인 정보
+// =====================================================
+
+    // 로그인 방식
+// LOCAL / GOOGLE / KAKAO / NAVER
+    private String loginType;
+
+    // SNS 고유 ID
+    private String socialId;
+
+    // 이메일 수집 동의 여부(Y/N)
+    private String agreementEmail;
+
+
     private LocalDateTime deleteRequestedAt;
     private LocalDateTime hardDeleteAt;
     private LocalDateTime deletedAt;
