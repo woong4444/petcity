@@ -41,3 +41,15 @@ CREATE SEQUENCE SEQ_APP_MEMBER
     START WITH 1
     INCREMENT BY 1
     NOCACHE;
+
+/* =====================================================
+   추가사항 7-15 회원 타입 관련 컬럼 추가
+===================================================== */
+ALTER TABLE APP_MEMBER
+    ADD LOGIN_TYPE VARCHAR2(20);
+
+ALTER TABLE APP_MEMBER
+    ADD SOCIAL_ID VARCHAR2(100);
+
+ALTER TABLE APP_MEMBER
+    ADD AGREEMENT_EMAIL CHAR(1) DEFAULT 'N';
