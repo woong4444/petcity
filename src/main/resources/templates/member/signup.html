@@ -67,7 +67,37 @@
 
             </p>
 
+            <!-- ================================================= -->
+            <!-- 07-15 오후 추가_상각 : SNS 이메일 수집 동의 -->
+            <!-- ================================================= -->
+
+            <div class="agreement-box">
+
+                <label class="agreement-label">
+
+                    <input
+                            type="checkbox"
+                            id="agreementEmail">
+
+                    <span>
+
+            이메일 수집 및 개인정보 이용에 동의합니다.
+            <strong>(필수)</strong>
+
+        </span>
+
+                </label>
+
+                <p class="agreement-desc">
+
+                    SNS 회원가입을 위해 이메일 수집 동의가 필요합니다.
+
+                </p>
+
+            </div>
+
             <a href="/oauth2/authorization/google"
+               id="googleLoginBtn"
                class="sns-btn google">
 
                 Google로 시작하기
@@ -75,15 +105,15 @@
             </a>
 
             <a href="/oauth2/authorization/kakao"
+               id="kakaoLoginBtn"
                class="sns-btn kakao">
-
                 Kakao로 시작하기
 
             </a>
 
             <a href="/oauth2/authorization/naver"
+               id="naverLoginBtn"
                class="sns-btn naver">
-
                 NAVER로 시작하기
 
             </a>
@@ -118,6 +148,11 @@
     </div>
 
 </section>
+
+<!-- ================================================= -->
+<!-- 07-15 오후 추가_상각 : 회원가입 JS -->
+<!-- ================================================= -->
+<script th:src="@{/js/member/signup.js}"></script>
 
 </body>
 </html>
