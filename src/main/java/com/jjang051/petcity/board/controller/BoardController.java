@@ -172,7 +172,14 @@ public class BoardController {
 
         INFO, NOTICE, FAQ:
         - 댓글 기능 사용하지 않음
+
+        게시글 조회수 한 번만 증가
     */
+    /*
+    게시글 상세
+
+    로그인 계정당 게시글 조회수 한 번만 증가
+*/
     @GetMapping("/view")
     public String boardView(
             @RequestParam("boardId") int boardId,
@@ -180,34 +187,84 @@ public class BoardController {
             Authentication authentication
     ) {
 
-        BoardViewPageDto pageDto =
-                boardService.getBoardViewPage(boardId);
+    /*
+        Security 연결 전 임시 로그인 처리
 
-        BoardDto boardDto = pageDto.getBoardDto();
-
-        boolean authenticated =
-                isCurrentAuthenticated(authentication);
+        현재 집에서는 TEMP_MEMBER_ID 회원으로
+        로그인한 것처럼 테스트
+    */
+        boolean authenticated = true;
 
         String role =
-                getCurrentRole(authentication);
+                TEMP_ROLE;
 
-        Integer loginMemberId = null;
+        Integer loginMemberId =
+                TEMP_MEMBER_ID;
 
-        if (authenticated) {
-            loginMemberId =
-                    getCurrentMemberId(authentication);
-        }
 
-        String boardType = boardDto.getBoardType();
+    /*
+        실제 Spring Security를 사용할 때는
+        위 임시 코드 3줄을 지우고
+        아래 코드를 사용하면 됨.
+    */
 
+    /*
+    boolean authenticated =
+            isAuthenticated(authentication);
+
+    String role =
+            getRole(authentication);
+
+    Integer loginMemberId = null;
+
+    if (authenticated) {
+
+        loginMemberId =
+                boardService.findMemberIdByLoginId(
+                        authentication.getName()
+                );
+    }
+    */
+
+
+    /*
+        회원 번호를 Service로 전달
+
+        Service에서 해당 회원이 이 게시글을
+        처음 조회했는지 확인
+    */
+        BoardViewPageDto pageDto =
+                boardService.getBoardViewPage(
+                        boardId,
+                        loginMemberId
+                );
+
+        BoardDto boardDto =
+                pageDto.getBoardDto();
+
+        String boardType =
+                boardDto.getBoardType();
+
+
+    /*
+        댓글 영역 사용 게시판
+    */
         boolean commentEnabled =
                 "FREE".equals(boardType)
                         || "QNA".equals(boardType);
 
+
+    /*
+        자유게시판 댓글 작성 권한
+    */
         boolean freeCommentAllowed =
                 authenticated
                         && "FREE".equals(boardType);
 
+
+    /*
+        수의사상담 댓글 작성 권한
+    */
         boolean qnaCommentAllowed =
                 authenticated
                         && "QNA".equals(boardType)
@@ -216,18 +273,34 @@ public class BoardController {
                                 || "ADMIN".equals(role)
                 );
 
-        boolean canWriteComment =
-                freeCommentAllowed || qnaCommentAllowed;
 
-        model.addAttribute("boardDto", boardDto);
+        boolean canWriteComment =
+                freeCommentAllowed
+                        || qnaCommentAllowed;
+
+
+    /*
+        게시글 정보
+    */
+        model.addAttribute(
+                "boardDto",
+                boardDto
+        );
+
         model.addAttribute(
                 "boardTitle",
                 pageDto.getBoardTitle()
         );
+
         model.addAttribute(
                 "boardImageList",
                 pageDto.getBoardImageList()
         );
+
+
+    /*
+        댓글 정보
+    */
         model.addAttribute(
                 "commentList",
                 pageDto.getCommentList()
@@ -237,30 +310,39 @@ public class BoardController {
                 "commentEnabled",
                 commentEnabled
         );
+
         model.addAttribute(
                 "canWriteComment",
                 canWriteComment
         );
+
+
+    /*
+        로그인 및 권한 정보
+    */
         model.addAttribute(
                 "isAuthenticated",
                 authenticated
         );
+
         model.addAttribute(
                 "loginMemberId",
                 loginMemberId
         );
+
         model.addAttribute(
                 "loginRole",
                 role
         );
+
         model.addAttribute(
                 "isAdmin",
                 "ADMIN".equals(role)
         );
 
+
         return "board/view";
     }
-
     /*
         글쓰기 화면
 

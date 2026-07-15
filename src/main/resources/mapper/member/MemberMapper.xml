@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -6,7 +6,9 @@
 
 <mapper namespace="com.jjang051.petcity.member.dao.MemberMapper">
 
+    <!-- ================================================= -->
     <!-- 로그인 아이디 조회 -->
+    <!-- ================================================= -->
     <select id="findByLoginId"
             resultType="com.jjang051.petcity.member.dto.MemberDto">
 
@@ -16,7 +18,10 @@
 
     </select>
 
-    <!-- 이메일 조회 (Google / Kakao / Naver 로그인용) -->
+
+    <!-- ================================================= -->
+    <!-- 이메일 조회 (SNS 로그인용) -->
+    <!-- ================================================= -->
     <select id="findByEmail"
             resultType="com.jjang051.petcity.member.dto.MemberDto">
 
@@ -26,7 +31,39 @@
 
     </select>
 
+
+    <!-- ================================================= -->
+    <!-- 07-15 오후 추가_상각 : 아이디 중복 확인 -->
+    <!-- ================================================= -->
+    <select id="countByLoginId"
+            parameterType="String"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM APP_MEMBER
+        WHERE LOGIN_ID = #{loginId}
+
+    </select>
+
+
+    <!-- ================================================= -->
+    <!-- 07-15 오후 추가_상각 : 닉네임 중복 확인 -->
+    <!-- ================================================= -->
+    <select id="countByNickname"
+            parameterType="String"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM APP_MEMBER
+        WHERE NICKNAME = #{nickname}
+
+    </select>
+
+
+    <!-- ================================================= -->
     <!-- 회원가입 -->
+    <!-- 07-15 오후 추가_상각 : SNS 컬럼 추가 -->
+    <!-- ================================================= -->
     <insert id="insert">
 
         INSERT INTO APP_MEMBER
@@ -41,41 +78,43 @@
         EMAIL_VERIFIED,
         STATUS,
         MEMBER_STATUS,
+
+        LOGIN_TYPE,
+        SOCIAL_ID,
+        AGREEMENT_EMAIL,
+
         CREATED_AT
         )
+
         VALUES
         (
-        -- 시퀀스로 회원번호 생성
         SEQ_APP_MEMBER.NEXTVAL,
 
-        -- 아이디
         #{loginId},
 
-        -- 비밀번호
         #{password},
 
-        -- 닉네임
         #{nickname},
 
-        -- 이메일
         #{email},
 
-        -- 전화번호
         #{phone},
 
-        -- 권한(USER)
         #{role},
 
-        -- 이메일 인증 여부(N)
         #{emailVerified},
 
-        -- 회원 상태(ACTIVE)
         #{status},
 
-        -- 삭제 여부(NORMAL)
         #{memberStatus},
 
-        -- 가입일
+        <!-- 07-15 오후 추가_상각 -->
+        #{loginType},
+
+        #{socialId,jdbcType=VARCHAR},
+
+        #{agreementEmail},
+
         SYSDATE
         )
 
