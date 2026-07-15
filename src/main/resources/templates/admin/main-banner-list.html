@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>메인 배너 관리</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/main-banner-list.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+
+    <script defer
+            src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js">
+    </script>
+
+    <script defer
+            th:src="@{/js/admin/main-banner-list.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <th:block th:replace="~{
+        admin/fragments/sidebar
+        :: sidebar('main-banners')
+    }">
+    </th:block>
+
+    <main class="admin-main">
+
+        <header class="page-header banner-page-header">
+
+            <div>
+                <h2 class="page-title">
+                    메인 배너 관리
+                </h2>
+
+                <p class="page-description">
+                    메인 화면에 노출되는 배너의 순서와 상태를 관리합니다.
+                </p>
+            </div>
+
+            <div class="page-header-actions">
+
+                <a href="/admin/main-banners/preview"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="full-preview-button">
+                    전체 화면 미리보기
+                </a>
+
+                <a th:href="@{/admin/main-banners/create}"
+                   class="create-banner-button">
+                    배너 등록
+                </a>
+
+            </div>
+
+        </header>
+
+        <section class="preview-card">
+
+            <div class="preview-card-header">
+
+                <div>
+
+                    <div class="preview-title-row">
+
+                        <h3 class="preview-card-title">
+                            메인 화면 미리보기
+                        </h3>
+
+                        <span class="preview-badge">
+                            Swiper
+                        </span>
+
+                    </div>
+
+                    <p class="preview-card-description">
+                        실제 메인 화면의 전체 카테고리 메뉴 아래에 표시될 배너입니다.
+                    </p>
+
+                </div>
+
+                <button type="button"
+                        id="toggleBannerPreview"
+                        class="preview-toggle-button"
+                        aria-expanded="true">
+                    미리보기 접기
+                    <span class="preview-toggle-arrow">
+                        ▲
+                    </span>
+                </button>
+
+            </div>
+
+            <div id="bannerPreviewContent"
+                 class="preview-content">
+
+                <div class="preview-browser">
+
+                    <div class="preview-browser-toolbar">
+
+                        <span class="browser-dot"></span>
+                        <span class="browser-dot"></span>
+                        <span class="browser-dot"></span>
+
+                        <div class="preview-browser-address">
+                            localhost:8080
+                        </div>
+
+                    </div>
+
+                    <div class="preview-category-menu">
+
+                        <span class="preview-category-item active">
+                            ☰ 전체 카테고리
+                        </span>
+
+                        <span class="preview-category-item">
+                            동물병원
+                        </span>
+
+                        <span class="preview-category-item">
+                            맞춤검색
+                        </span>
+
+                        <span class="preview-category-item">
+                            내 반려동물
+                        </span>
+
+                        <span class="preview-category-item">
+                            게시판
+                        </span>
+
+                        <span class="preview-category-item">
+                            이벤트
+                        </span>
+
+                    </div>
+
+                    <div class="swiper main-banner-preview-swiper">
+
+                        <div class="swiper-wrapper"
+                             id="previewSlideList">
+
+                            <div class="swiper-slide"
+                                 data-banner-id="1">
+
+                                <a href="/hospitals"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="preview-slide-link">
+
+                                    <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=1600&q=85"
+                                         alt="반려동물 병원 찾기"
+                                         class="preview-slide-image">
+
+                                    <div class="preview-slide-overlay"></div>
+
+                                    <div class="preview-slide-content">
+
+                                        <span class="preview-slide-label">
+                                            PETCITY HOSPITAL
+                                        </span>
+
+                                        <h4>
+                                            반려동물에게 맞는<br>
+                                            동물병원을 찾아보세요
+                                        </h4>
+
+                                        <p>
+                                            동물 종류와 진료 항목을 기준으로 가까운 병원을 찾을 수 있습니다.
+                                        </p>
+
+                                        <span class="preview-slide-action">
+                                            병원 찾기
+                                        </span>
+
+                                    </div>
+
+                                </a>
+
+                            </div>
+
+                            <div class="swiper-slide"
+                                 data-banner-id="2">
+
+                                <a href="/events"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="preview-slide-link">
+
+                                    <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1600&q=85"
+                                         alt="반려동물 이벤트"
+                                         class="preview-slide-image">
+
+                                    <div class="preview-slide-overlay"></div>
+
+                                    <div class="preview-slide-content">
+
+                                        <span class="preview-slide-label">
+                                            PETCITY EVENT
+                                        </span>
+
+                                        <h4>
+                                            반려동물과 함께하는<br>
+                                            특별한 이벤트
+                                        </h4>
+
+                                        <p>
+                                            PetCity에서 진행하는 다양한 이벤트를 확인해 보세요.
+                                        </p>
+
+                                        <span class="preview-slide-action">
+                                            이벤트 보기
+                                        </span>
+
+                                    </div>
+
+                                </a>
+
+                            </div>
+
+                            <div class="swiper-slide"
+                                 data-banner-id="3">
+
+                                <a href="/hospitals/map"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="preview-slide-link">
+
+                                    <img src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1600&q=85"
+                                         alt="가까운 병원 지도 찾기"
+                                         class="preview-slide-image">
+
+                                    <div class="preview-slide-overlay"></div>
+
+                                    <div class="preview-slide-content">
+
+                                        <span class="preview-slide-label">
+                                            PETCITY MAP
+                                        </span>
+
+                                        <h4>
+                                            내 주변 가까운 병원을<br>
+                                            지도에서 확인하세요
+                                        </h4>
+
+                                        <p>
+                                            위치를 기준으로 가까운 동물병원을 빠르게 검색할 수 있습니다.
+                                        </p>
+
+                                        <span class="preview-slide-action">
+                                            지도에서 찾기
+                                        </span>
+
+                                    </div>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        <div class="swiper-pagination"></div>
+
+                        <button type="button"
+                                class="swiper-button-prev"
+                                aria-label="이전 배너">
+                        </button>
+
+                        <button type="button"
+                                class="swiper-button-next"
+                                aria-label="다음 배너">
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="banner-list-card">
+
+            <div class="banner-list-header">
+
+                <div>
+
+                    <h3 class="banner-list-title">
+                        등록된 메인 배너
+                    </h3>
+
+                    <p class="banner-list-description">
+                        오른쪽 화살표 버튼으로 노출 순서를 변경할 수 있습니다.
+                    </p>
+
+                </div>
+
+                <p class="banner-total-count">
+                    총
+                    <strong id="bannerTotalCount">
+                        3
+                    </strong>
+                    개
+                </p>
+
+            </div>
+
+            <div id="bannerList"
+                 class="banner-list">
+
+                <article class="banner-item"
+                         data-banner-id="1"
+                         data-banner-title="반려동물에게 맞는 동물병원을 찾아보세요">
+
+                    <div class="banner-order-area">
+
+                        <span class="banner-order-label">
+                            순서
+                        </span>
+
+                        <strong class="banner-order-number">
+                            1
+                        </strong>
+
+                    </div>
+
+                    <div class="banner-thumbnail-area">
+
+                        <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=700&q=80"
+                             alt="반려동물 병원 찾기 배너"
+                             class="banner-thumbnail">
+
+                    </div>
+
+                    <div class="banner-info">
+
+                        <div class="banner-title-row">
+
+                            <h4 class="banner-title">
+                                반려동물에게 맞는 동물병원을 찾아보세요
+                            </h4>
+
+                            <span class="banner-status active">
+                                노출 중
+                            </span>
+
+                        </div>
+
+                        <p class="banner-subtitle">
+                            동물 종류와 진료 항목을 기준으로 가까운 병원을 찾을 수 있습니다.
+                        </p>
+
+                        <div class="banner-meta-list">
+
+                            <div class="banner-meta-item">
+
+                                <span class="banner-meta-label">
+                                    연결 링크
+                                </span>
+
+                                <a href="/hospitals"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="banner-link">
+                                    /hospitals
+                                </a>
+
+                            </div>
+
+                            <div class="banner-meta-item">
+
+                                <span class="banner-meta-label">
+                                    노출 기간
+                                </span>
+
+                                <span class="banner-meta-value">
+                                    상시 노출
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="banner-control-area">
+
+                        <div class="order-control-buttons">
+
+                            <button type="button"
+                                    class="order-arrow-button move-up-button"
+                                    aria-label="배너 순서 위로 이동"
+                                    disabled>
+                                ↑
+                            </button>
+
+                            <button type="button"
+                                    class="order-arrow-button move-down-button"
+                                    aria-label="배너 순서 아래로 이동">
+                                ↓
+                            </button>
+
+                        </div>
+
+                        <div class="banner-manage-buttons">
+
+                            <a href="/admin/main-banners/1/edit"
+                               class="banner-edit-button">
+                                수정
+                            </a>
+
+                            <button type="button"
+                                    class="banner-delete-button">
+                                삭제
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+                <article class="banner-item"
+                         data-banner-id="2"
+                         data-banner-title="반려동물과 함께하는 특별한 이벤트">
+
+                    <div class="banner-order-area">
+
+                        <span class="banner-order-label">
+                            순서
+                        </span>
+
+                        <strong class="banner-order-number">
+                            2
+                        </strong>
+
+                    </div>
+
+                    <div class="banner-thumbnail-area">
+
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=700&q=80"
+                             alt="반려동물 이벤트 배너"
+                             class="banner-thumbnail">
+
+                    </div>
+
+                    <div class="banner-info">
+
+                        <div class="banner-title-row">
+
+                            <h4 class="banner-title">
+                                반려동물과 함께하는 특별한 이벤트
+                            </h4>
+
+                            <span class="banner-status active">
+                                노출 중
+                            </span>
+
+                        </div>
+
+                        <p class="banner-subtitle">
+                            PetCity에서 진행하는 다양한 이벤트를 확인해 보세요.
+                        </p>
+
+                        <div class="banner-meta-list">
+
+                            <div class="banner-meta-item">
+
+                                <span class="banner-meta-label">
+                                    연결 링크
+                                </span>
+
+                                <a href="/events"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="banner-link">
+                                    /events
+                                </a>
+
+                            </div>
+
+                            <div class="banner-meta-item">
+
+                                <span class="banner-meta-label">
+                                    노출 기간
+                                </span>
+
+                                <span class="banner-meta-value">
+                                    2026-07-01 ~ 2026-08-31
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="banner-control-area">
+
+                        <div class="order-control-buttons">
+
+                            <button type="button"
+                                    class="order-arrow-button move-up-button"
+                                    aria-label="배너 순서 위로 이동">
+                                ↑
+                            </button>
+
+                            <button type="button"
+                                    class="order-arrow-button move-down-button"
+                                    aria-label="배너 순서 아래로 이동">
+                                ↓
+                            </button>
+
+                        </div>
+
+                        <div class="banner-manage-buttons">
+
+                            <a href="/admin/main-banners/2/edit"
+                               class="banner-edit-button">
+                                수정
+                            </a>
+
+                            <button type="button"
+                                    class="banner-delete-button">
+                                삭제
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+                <article class="banner-item"
+                         data-banner-id="3"
+                         data-banner-title="내 주변 가까운 병원을 지도에서 확인하세요">
+
+                    <div class="banner-order-area">
+
+                        <span class="banner-order-label">
+                            순서
+                        </span>
+
+                        <strong class="banner-order-number">
+                            3
+                        </strong>
+
+                    </div>
+
+                    <div class="banner-thumbnail-area">
+
+                        <img src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=700&q=80"
+                             alt="가까운 병원 지도 찾기 배너"
+                             class="banner-thumbnail">
+
+                    </div>
+
+                    <div class="banner-info">
+
+                        <div class="banner-title-row">
+
+                            <h4 class="banner-title">
+                                내 주변 가까운 병원을 지도에서 확인하세요
+                            </h4>
+
+                            <span class="banner-status inactive">
+                                숨김
+                            </span>
+
+                        </div>
+
+                        <p class="banner-subtitle">
+                            위치를 기준으로 가까운 동물병원을 빠르게 검색할 수 있습니다.
+                        </p>
+
+                        <div class="banner-meta-list">
+
+                            <div class="banner-meta-item">
+
+                                <span class="banner-meta-label">
+                                    연결 링크
+                                </span>
+
+                                <a href="/hospitals/map"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="banner-link">
+                                    /hospitals/map
+                                </a>
+
+                            </div>
+
+                            <div class="banner-meta-item">
+
+                                <span class="banner-meta-label">
+                                    노출 기간
+                                </span>
+
+                                <span class="banner-meta-value">
+                                    상시 노출
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="banner-control-area">
+
+                        <div class="order-control-buttons">
+
+                            <button type="button"
+                                    class="order-arrow-button move-up-button"
+                                    aria-label="배너 순서 위로 이동">
+                                ↑
+                            </button>
+
+                            <button type="button"
+                                    class="order-arrow-button move-down-button"
+                                    aria-label="배너 순서 아래로 이동"
+                                    disabled>
+                                ↓
+                            </button>
+
+                        </div>
+
+                        <div class="banner-manage-buttons">
+
+                            <a href="/admin/main-banners/3/edit"
+                               class="banner-edit-button">
+                                수정
+                            </a>
+
+                            <button type="button"
+                                    class="banner-delete-button">
+                                삭제
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<div id="bannerDeleteModal"
+     class="banner-delete-modal"
+     aria-hidden="true"
+     hidden>
+
+    <div class="banner-delete-backdrop"
+         data-close-delete-modal>
+    </div>
+
+    <section class="banner-delete-dialog"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="bannerDeleteModalTitle">
+
+        <header class="banner-delete-header">
+
+            <div>
+
+                <span class="delete-warning-badge">
+                    배너 삭제
+                </span>
+
+                <h3 id="bannerDeleteModalTitle"
+                    class="banner-delete-title">
+                    메인 배너를 삭제하시겠습니까?
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    class="banner-delete-close"
+                    data-close-delete-modal
+                    aria-label="삭제 모달 닫기">
+                ×
+            </button>
+
+        </header>
+
+        <div class="banner-delete-body">
+
+            <div class="delete-target-box">
+
+                <span class="delete-target-label">
+                    삭제할 배너
+                </span>
+
+                <strong id="deleteBannerTitle">
+                    -
+                </strong>
+
+            </div>
+
+            <p class="banner-delete-description">
+                배너 삭제 후 아래 배너의 노출 순서는 자동으로 다시 정리됩니다.
+            </p>
+
+        </div>
+
+        <footer class="banner-delete-footer">
+
+            <button type="button"
+                    class="banner-delete-cancel"
+                    data-close-delete-modal>
+                취소
+            </button>
+
+            <button type="button"
+                    id="confirmDeleteBanner"
+                    class="banner-delete-confirm">
+                삭제
+            </button>
+
+        </footer>
+
+    </section>
+
+</div>
+
+</body>
+</html>
