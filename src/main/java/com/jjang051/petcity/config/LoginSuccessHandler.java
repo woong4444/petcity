@@ -33,21 +33,14 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         MemberDto member = null;
 
-        // ==========================================
-        // 일반 로그인
-        // ==========================================
-        if (principal instanceof CustomUserDetails customUserDetails) {
-
-            member = customUserDetails.getMember();
-
-        }
-
-        // ==========================================
-        // SNS 로그인
-        // ==========================================
-        else if (principal instanceof CustomOAuth2User customOAuth2User) {
+        // 소셜 로그인을 먼저 확인
+        if (principal instanceof CustomOAuth2User customOAuth2User) {
 
             member = customOAuth2User.getMember();
+
+        } else if (principal instanceof CustomUserDetails customUserDetails) {
+
+            member = customUserDetails.getMember();
 
         }
 

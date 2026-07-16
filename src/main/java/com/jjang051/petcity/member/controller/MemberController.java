@@ -26,8 +26,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-
+import org.springframework.validation.FieldError;
 import java.util.Locale;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 
 @Controller
 @RequiredArgsConstructor
@@ -51,20 +53,39 @@ public class MemberController {
     // 로그인 화면
     // ===========================
     @GetMapping("/member/login")
-    public String login() {
+    public String login(
+            Authentication authentication,
+            HttpSession session
+    ) {
+
+    /*
+        이미 로그인한 사용자가 로그인 페이지에 접근하면
+        메인 페이지로 이동
+    */
+        if (isLoggedIn(authentication, session)) {
+            return "redirect:/";
+        }
 
         return "member/login";
-
     }
 
     // ===========================
     // SNS 회원가입 선택 화면
     // ===========================
     @GetMapping("/member/signup")
-    public String signup() {
+    public String signup(
+            Authentication authentication,
+            HttpSession session
+    ) {
+
+    /*
+        로그인한 사용자는 회원가입 선택 화면 접근 불가
+    */
+        if (isLoggedIn(authentication, session)) {
+            return "redirect:/";
+        }
 
         return "member/signup";
-
     }
 
     // 07-16 상각: SNS 가입 전 이메일 수집 동의 저장
@@ -85,14 +106,34 @@ public class MemberController {
 
     // 07-16 상각: 이메일 인증 화면
     @GetMapping("/member/email-verification")
-    public String emailVerification(HttpSession session, Model model) {
+    public String emailVerification(
+            Authentication authentication,
+            HttpSession session,
+            Model model
+    ) {
 
-        String email = (String) session.getAttribute("pendingVerificationEmail");
+    /*
+        이미 로그인한 사용자는
+        회원가입 이메일 인증 화면 접근 불가
+    */
+        if (isLoggedIn(authentication, session)) {
+            return "redirect:/";
+        }
+
+        String email =
+                (String) session.getAttribute(
+                        "pendingVerificationEmail"
+                );
+
         if (email == null) {
             return "redirect:/member/signup/form";
         }
 
-        model.addAttribute("email", email);
+        model.addAttribute(
+                "email",
+                email
+        );
+
         return "member/email-verification";
     }
 
@@ -168,12 +209,46 @@ public class MemberController {
     // 일반 회원가입 화면
     // ===========================
     @GetMapping("/member/signup/form")
-    public String signupForm() {
+    public String signupForm(
+            Authentication authentication,
+            HttpSession session,
+            Model model
+    ) {
+
+    /*
+        로그인한 사용자는 일반 회원가입 화면 접근 불가
+    */
+        if (isLoggedIn(authentication, session)) {
+            return "redirect:/";
+        }
+
+    /*
+        회원가입에 실패하고 다시 돌아와도
+        인증 완료 이메일을 유지
+    */
+        String verifiedEmail =
+                (String) session.getAttribute(
+                        "verifiedSignupEmail"
+                );
+
+        boolean emailVerified =
+                verifiedEmail != null
+                        && !verifiedEmail.isBlank();
+
+        model.addAttribute(
+                "emailVerified",
+                emailVerified
+        );
+
+        model.addAttribute(
+                "verifiedEmail",
+                emailVerified
+                        ? verifiedEmail
+                        : ""
+        );
 
         return "member/signup-form";
-
     }
-
     // =====================================================
     // 회원가입 - 아이디 중복 확인(AJAX)
     // =====================================================
@@ -208,30 +283,85 @@ public class MemberController {
     }
 
     // 07-16 상각: 최종 가입 전 이메일 인증번호 발송
+
     @ResponseBody
     @PostMapping("/member/signup/email/send")
-    public ResponseEntity<String> sendSignupEmailCode(@RequestParam String email,
-                                                      HttpSession session) {
+    public ResponseEntity<String> sendSignupEmailCode(
+            @RequestParam String email,
+            HttpSession session
+    ) {
 
-        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
-        if (!normalizedEmail.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-            return ResponseEntity.badRequest().body("올바른 이메일을 입력해주세요.");
+        String normalizedEmail =
+                email.trim()
+                        .toLowerCase(Locale.ROOT);
+
+        if (!normalizedEmail.matches(
+                "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+        )) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                            "올바른 이메일을 입력해주세요."
+                    );
+        }
+
+    /*
+        이미 인증 완료한 같은 이메일이면
+        인증 상태를 지우지 않는다.
+    */
+        String verifiedEmail =
+                (String) session.getAttribute(
+                        "verifiedSignupEmail"
+                );
+
+        if (normalizedEmail.equals(verifiedEmail)) {
+
+            return ResponseEntity.ok(
+                    "이미 인증 완료된 이메일입니다."
+            );
         }
 
         if (memberService.existsEmail(normalizedEmail)) {
-            return ResponseEntity.badRequest().body("이미 사용 중인 이메일입니다.");
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                            "이미 사용 중인 이메일입니다."
+                    );
         }
 
         try {
-            emailVerificationService.sendVerificationCode(normalizedEmail);
-            session.setAttribute("pendingSignupEmail", normalizedEmail);
-            session.removeAttribute("verifiedSignupEmail");
-            return ResponseEntity.ok("인증번호를 이메일로 보냈습니다.");
+
+            emailVerificationService
+                    .sendVerificationCode(
+                            normalizedEmail
+                    );
+
+            session.setAttribute(
+                    "pendingSignupEmail",
+                    normalizedEmail
+            );
+
+        /*
+            다른 이메일로 새 인증을 요청했을 때만
+            이전 인증 상태를 해제한다.
+        */
+            session.removeAttribute(
+                    "verifiedSignupEmail"
+            );
+
+            return ResponseEntity.ok(
+                    "인증번호를 이메일로 보냈습니다."
+            );
+
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(e.getMessage());
         }
     }
-
     // 07-16 상각: 최종 가입 전 이메일 인증번호 확인
     @ResponseBody
     @PostMapping("/member/signup/email/verify")
@@ -267,10 +397,27 @@ public class MemberController {
                                 RedirectAttributes rttr) {
 
         if (bindingResult.hasErrors()) {
-            rttr.addFlashAttribute("message", "회원가입 입력값을 다시 확인해주세요.");
+
+            String errorMessage =
+                    bindingResult.getFieldErrors()
+                            .stream()
+                            .map(FieldError::getDefaultMessage)
+                            .filter(message ->
+                                    message != null
+                                            && !message.isBlank()
+                            )
+                            .findFirst()
+                            .orElse(
+                                    "회원가입 입력값을 다시 확인해주세요."
+                            );
+
+            rttr.addFlashAttribute(
+                    "message",
+                    errorMessage
+            );
+
             return "redirect:/member/signup/form";
         }
-
         if (!memberDto.getPassword().equals(passwordConfirm)) {
             rttr.addFlashAttribute("message", "비밀번호 확인이 일치하지 않습니다.");
             return "redirect:/member/signup/form";
@@ -311,51 +458,7 @@ public class MemberController {
 
     }
 
-    // ===========================
-    // 로그인 처리
-    // ===========================
-    @PostMapping("/member/login")
-    public String loginProcess(String loginId,
-                               String password,
-                               HttpSession session,
-                               RedirectAttributes rttr) {
 
-        MemberDto member = memberService.findByLoginId(loginId);
-
-        // 아이디 없음
-        if (member == null) {
-
-            rttr.addFlashAttribute("message", "존재하지 않는 아이디입니다.");
-
-            return "redirect:/member/login";
-
-        }
-
-        // 비밀번호 확인
-        if (!member.getPassword().equals(password)) {
-
-            rttr.addFlashAttribute("message", "비밀번호가 일치하지 않습니다.");
-
-            return "redirect:/member/login";
-
-        }
-
-        // 로그인 성공
-        session.setAttribute("loginMember", member);
-
-        loginHistoryRedisService.saveLoginHistory(member, session);
-
-        activeLoginRedisService.startLoginSession(session.getId(), member);
-
-        if ("ADMIN".equals(member.getRole())) {
-
-            return "redirect:/admin/dashboard";
-
-        }
-
-        return "redirect:/";
-
-    }
 
     // ===========================
     // 로그아웃
@@ -460,6 +563,36 @@ public class MemberController {
 
         return "member/owner-request";
 
+    }
+
+    /*
+    Spring Security 인증 정보와
+    기존 loginMember 세션을 함께 확인
+*/
+    private boolean isLoggedIn(
+            Authentication authentication,
+            HttpSession session
+    ) {
+
+    /*
+        Spring Security 기준 로그인 여부
+    */
+        boolean securityLoggedIn =
+                authentication != null
+                        && authentication.isAuthenticated()
+                        && !(authentication
+                        instanceof AnonymousAuthenticationToken);
+
+    /*
+        기존 PetCity 세션 기준 로그인 여부
+    */
+        boolean sessionLoggedIn =
+                session.getAttribute(
+                        "loginMember"
+                ) != null;
+
+        return securityLoggedIn
+                || sessionLoggedIn;
     }
 
 }
