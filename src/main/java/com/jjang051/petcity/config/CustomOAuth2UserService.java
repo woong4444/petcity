@@ -18,8 +18,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService
-        implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     // ==========================================
     // [상각]
@@ -43,20 +42,17 @@ public class CustomOAuth2UserService
     // [상각]
     // 기본 OAuth2 Service
     // ==========================================
-    private final DefaultOAuth2UserService delegate =
-            new DefaultOAuth2UserService();
+    private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest)
-            throws OAuth2AuthenticationException {
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         // ==========================================
         // OAuth2 사용자 정보
         // ==========================================
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        String registrationId =
-                userRequest.getClientRegistration().getRegistrationId();
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
         log.info("Provider = {}", registrationId);
 
@@ -65,38 +61,36 @@ public class CustomOAuth2UserService
         // =====================================================
         if ("google".equals(registrationId)) {
 
-            String email =
-                    (String) oAuth2User.getAttributes().get("email");
+            String email = (String) oAuth2User.getAttributes().get("email");
 
-            String name =
-                    (String) oAuth2User.getAttributes().get("name");
+            String name = (String) oAuth2User.getAttributes().get("name");
+            // =====================================================
+            // 07-15 오후 추가_상각 : Google SNS 정보
+            // =====================================================
+
+            String socialId = (String) oAuth2User.getAttributes().get("sub");
 
             log.info("email = {}", email);
             log.info("name = {}", name);
 
-            MemberDto memberDto =
-                    memberMapper.findByEmail(email);
+            MemberDto memberDto = memberMapper.findByEmail(email);
 
             if (memberDto == null) {
 
-                memberDto = MemberDto.builder()
-                        .loginId(email)
-                        .password(passwordEncoder.encode("google1234"))
-                        .nickname(name)
-                        .email(email)
-                        .phone("SNS")
-                        .role("USER")
-                        .emailVerified("Y")
-                        .status("ACTIVE")
-                        .memberStatus("ACTIVE")
-                        .build();
+                memberDto = MemberDto.builder().loginId(email).password(passwordEncoder.encode("google1234")).nickname(name).email(email).phone("SNS")
+
+                        // ===========================
+                        // 07-15 오후 추가_상각
+                        // ===========================
+                        .loginType("GOOGLE").socialId(socialId).agreementEmail("Y")
+
+                        .role("USER").emailVerified("Y").status("ACTIVE").memberStatus("ACTIVE").build();
 
                 memberMapper.insert(memberDto);
 
                 log.info("신규 Google 회원 저장 완료");
 
-                memberDto =
-                        memberMapper.findByEmail(email);
+                memberDto = memberMapper.findByEmail(email);
 
             } else {
 
@@ -111,10 +105,7 @@ public class CustomOAuth2UserService
 
             log.info("loginMember 저장 = {}", memberDto.getNickname());
 
-            return new CustomOAuth2User(
-                    memberDto,
-                    oAuth2User.getAttributes()
-            );
+            return new CustomOAuth2User(memberDto, oAuth2User.getAttributes());
         }
 
         // =====================================================
@@ -122,44 +113,39 @@ public class CustomOAuth2UserService
         // =====================================================
         else if ("kakao".equals(registrationId)) {
 
-            Map<String, Object> kakaoAccount =
-                    (Map<String, Object>) oAuth2User.getAttributes().get("kakao_account");
+            Map<String, Object> kakaoAccount = (Map<String, Object>) oAuth2User.getAttributes().get("kakao_account");
 
-            Map<String, Object> profile =
-                    (Map<String, Object>) kakaoAccount.get("profile");
+            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
-            String email =
-                    (String) kakaoAccount.get("email");
+            String email = (String) kakaoAccount.get("email");
 
-            String nickname =
-                    (String) profile.get("nickname");
+            String nickname = (String) profile.get("nickname");
+            // =====================================================
+            // 0  7-15 오후 추가_상각 : Kakao SNS 정보
+            // =====================================================
+            String socialId = String.valueOf(oAuth2User.getAttributes().get("id"));
 
             log.info("email = {}", email);
             log.info("nickname = {}", nickname);
 
-            MemberDto memberDto =
-                    memberMapper.findByEmail(email);
+            MemberDto memberDto = memberMapper.findByEmail(email);
 
             if (memberDto == null) {
 
-                memberDto = MemberDto.builder()
-                        .loginId(email)
-                        .password(passwordEncoder.encode("kakao1234"))
-                        .nickname(nickname)
-                        .email(email)
-                        .phone("SNS")
-                        .role("USER")
-                        .emailVerified("Y")
-                        .status("ACTIVE")
-                        .memberStatus("ACTIVE")
-                        .build();
+                memberDto = MemberDto.builder().loginId(email).password(passwordEncoder.encode("kakao1234")).nickname(nickname).email(email).phone("SNS")
+
+                        // =====================================================
+                        // 07-15 오후 추가_상각 : Kakao SNS 정보
+                        // =====================================================
+                        .loginType("KAKAO").socialId(socialId).agreementEmail("Y")
+
+                        .role("USER").emailVerified("Y").status("ACTIVE").memberStatus("ACTIVE").build();
 
                 memberMapper.insert(memberDto);
 
                 log.info("신규 Kakao 회원 저장 완료");
 
-                memberDto =
-                        memberMapper.findByEmail(email);
+                memberDto = memberMapper.findByEmail(email);
 
             } else {
 
@@ -174,24 +160,22 @@ public class CustomOAuth2UserService
 
             log.info("loginMember 저장 = {}", memberDto.getNickname());
 
-            return new CustomOAuth2User(
-                    memberDto,
-                    oAuth2User.getAttributes()
-            );
+            return new CustomOAuth2User(memberDto, oAuth2User.getAttributes());
         }
         // =====================================================
         // Naver 로그인
         // =====================================================
         else if ("naver".equals(registrationId)) {
 
-            Map<String, Object> response =
-                    (Map<String, Object>) oAuth2User.getAttributes().get("response");
+            Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes().get("response");
 
-            String email =
-                    (String) response.get("email");
+            String email = (String) response.get("email");
 
-            String name =
-                    (String) response.get("name");
+            String name = (String) response.get("name");
+            // =====================================================
+            // 07-15 오후 추가_상각 : Naver SNS 정보
+            // ===============================================
+            String socialId = (String) response.get("id");
 
             // name이 없으면 nickname 사용
             if (name == null || name.isBlank()) {
@@ -206,29 +190,23 @@ public class CustomOAuth2UserService
             log.info("email = {}", email);
             log.info("name = {}", name);
 
-            MemberDto memberDto =
-                    memberMapper.findByEmail(email);
+            MemberDto memberDto = memberMapper.findByEmail(email);
 
             if (memberDto == null) {
 
-                memberDto = MemberDto.builder()
-                        .loginId(email)
-                        .password(passwordEncoder.encode("naver1234"))
-                        .nickname(name)
-                        .email(email)
-                        .phone("SNS")
-                        .role("USER")
-                        .emailVerified("Y")
-                        .status("ACTIVE")
-                        .memberStatus("ACTIVE")
-                        .build();
+                memberDto = MemberDto.builder().loginId(email).password(passwordEncoder.encode("naver1234")).nickname(name).email(email).phone("SNS")
 
+                        // =====================================================
+                        // 07-15 오후 추가_상각 : Naver SNS 정보
+                        // =====================================================
+                        .loginType("NAVER").socialId(socialId).agreementEmail("Y")
+
+                        .role("USER").emailVerified("Y").status("ACTIVE").memberStatus("ACTIVE").build();
                 memberMapper.insert(memberDto);
 
                 log.info("신규 Naver 회원 저장 완료");
 
-                memberDto =
-                        memberMapper.findByEmail(email);
+                memberDto = memberMapper.findByEmail(email);
 
             } else {
 
@@ -243,10 +221,7 @@ public class CustomOAuth2UserService
 
             log.info("loginMember 저장 = {}", memberDto.getNickname());
 
-            return new CustomOAuth2User(
-                    memberDto,
-                    oAuth2User.getAttributes()
-            );
+            return new CustomOAuth2User(memberDto, oAuth2User.getAttributes());
         }
 
         // =====================================================

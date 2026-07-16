@@ -136,14 +136,14 @@
                     </div>
 
                     <!-- ================================================= -->
-                    <!-- 07-15 추가 : 중복확인 결과 -->
+                    <!-- 07-15 추가 : 아이디 중복확인 결과 -->
                     <!-- ================================================= -->
 
                     <div id="loginIdMessage"
-                         class="check-message"></div>
+                         class="check-message">
 
+                    </div>
                 </div>
-
                 <!-- 비밀번호 -->
 
                 <div class="form-control mb-3">
@@ -247,6 +247,7 @@
 
                     <input
                             type="email"
+                            id="email"
                             name="email"
                             class="input input-bordered"
                             placeholder="example@email.com"
@@ -465,7 +466,10 @@
     });
 
 </script>
-
+<!-- ================================================= -->
+<!-- 07-15 오후 추가_상각 : 회원가입 JS -->
+<!-- ================================================= -->
+<script th:src="@{/js/member/signup.js}"></script>
 
 </body>
 
