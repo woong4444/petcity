@@ -97,12 +97,14 @@
     <select id="checkLike" resultType="int">SELECT COUNT(*) FROM HOSPITAL_LIKE WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}</select>
     <insert id="insertLike">INSERT INTO HOSPITAL_LIKE (MEMBER_ID, HOSPITAL_ID, CREATED_AT) VALUES (#{memberId}, #{hospitalId}, SYSTIMESTAMP)</insert>
     <delete id="deleteLike">DELETE FROM HOSPITAL_LIKE WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}</delete>
+
+    <!-- 🌟 수정됨: petId가 null로 넘어올 때 발생하는 에러를 방지하기 위해 jdbcType=INTEGER 추가 -->
     <insert id="insertReview">
         INSERT INTO HOSPITAL_REVIEW (REVIEW_ID, HOSPITAL_ID, MEMBER_ID, RATING, CONTENT, CREATED_AT, PET_ID)
-        VALUES (SEQ_HOSPITAL_REVIEW.NEXTVAL, #{hospitalId}, #{memberId}, #{rating}, #{content}, SYSTIMESTAMP, #{petId})
+        VALUES (SEQ_HOSPITAL_REVIEW.NEXTVAL, #{hospitalId}, #{memberId}, #{rating}, #{content}, SYSTIMESTAMP, #{petId, jdbcType=INTEGER})
     </insert>
 
-    <!-- 🌟 수정됨: 답글(REPLY) 관련 컬럼 가져오기 -->
+    <!-- 답글(REPLY) 관련 컬럼 가져오기 -->
     <select id="findReviewListByHospitalId" resultType="com.jjang051.petcity.hospital.dto.HospitalReviewDto">
         SELECT R.REVIEW_ID AS reviewId, R.HOSPITAL_ID AS hospitalId, R.MEMBER_ID AS memberId,
         R.RATING AS rating, R.CONTENT AS content, R.CREATED_AT AS createdAt, M.NICKNAME AS nickname,
@@ -112,7 +114,7 @@
         WHERE R.HOSPITAL_ID = #{hospitalId} ORDER BY R.REVIEW_ID DESC
     </select>
 
-    <!-- 🌟 신규: 답글 작성 쿼리 -->
+    <!-- 신규: 답글 작성 쿼리 -->
     <update id="updateReviewReply">
         UPDATE HOSPITAL_REVIEW
         SET REPLY_CONTENT = #{replyContent},

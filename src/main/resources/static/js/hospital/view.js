@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🌟 보호자 리뷰 글자수 카운터
+    // 보호자 리뷰 글자수 카운터
     const reviewContent = document.getElementById('reviewContent');
     const charCount = document.getElementById('charCount');
     if (reviewContent && charCount) {
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 🌟 리뷰 & 답글 150자 더보기/접기 토글 공통 로직
+    // 리뷰 & 답글 150자 더보기/접기 토글 공통 로직
     document.querySelectorAll('.btn-more-text').forEach(btn => {
         btn.addEventListener('click', function() {
             const contentDiv = this.previousElementSibling;
@@ -105,9 +105,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ hospitalId: hospitalId })
             })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error("HTTP 상태 코드: " + res.status);
+                    return res.json();
+                })
                 .then(data => {
-                    if(data.isSuccess) {
+                    if(data.isSuccess === true) {
                         document.querySelectorAll(`.btn-zzim-toggle[data-id="${hospitalId}"]`).forEach(el => {
                             if(data.isZzim) {
                                 el.classList.add('text-rose-600', 'active');
@@ -120,12 +123,15 @@ document.addEventListener("DOMContentLoaded", function () {
                             const countSpan = el.querySelector('.count');
                             if(countSpan) countSpan.textContent = data.zzimCount;
                         });
-                    } else {
-                        alert("로그인 후 이용 부탁드립니다.");
+                    } else if(data.isSuccess === false) {
+                        alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
                         location.href = '/member/login';
                     }
                 })
-                .catch(err => console.error("찜하기 통신 에러:", err));
+                .catch(err => {
+                    console.error("찜하기 통신 에러:", err);
+                    alert("서버 처리 중 오류가 발생했습니다.");
+                });
         });
     });
 
@@ -163,17 +169,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ hospitalId: hospitalId, rating: rating, content: content })
             })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.isSuccess) { alert('리뷰가 등록되었습니다!'); window.location.reload(); }
-                    else { alert("로그인 후 이용 부탁드립니다."); location.href = '/member/login'; }
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("서버 응답 오류 (HTTP " + res.status + ")");
+                    }
+                    return res.json();
                 })
-                .catch(err => console.error("리뷰 등록 에러:", err));
+                .then(data => {
+                    if(data.isSuccess === true) {
+                        alert('리뷰가 등록되었습니다!');
+                        window.location.reload();
+                    } else if(data.isSuccess === false) {
+                        alert("세션이 만료되었습니다. 안전을 위해 다시 로그인 해주세요.");
+                        location.href = '/member/login';
+                    } else {
+                        alert("응답 형식이 올바르지 않습니다.");
+                    }
+                })
+                .catch(err => {
+                    console.error("리뷰 등록 에러:", err);
+                    alert("💥 앗! 리뷰 저장 중 DB 오류가 발생했습니다.\nIDE(스프링 부트) 콘솔창의 에러 로그를 확인해주세요!");
+                });
         });
     }
 
     // ==============================================
-    // 🌟 병원장/관리자 전용 리뷰 답글 1000자 제한 및 수정 로직
+    // 병원장/관리자 전용 리뷰 답글 1000자 제한 및 수정 로직
     // ==============================================
 
     // 답글 글자수 카운터
@@ -224,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 답글 등록 및 수정 통신 (메시지 변경)
+    // 답글 등록 및 수정 통신
     document.querySelectorAll('.btn-submit-reply').forEach(btn => {
         btn.addEventListener('click', function() {
             const reviewId = this.dataset.reviewId;
@@ -244,16 +265,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ reviewId: reviewId, replyContent: replyContent })
             })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+                    return res.json();
+                })
                 .then(data => {
-                    if(data.isSuccess) {
+                    if(data.isSuccess === true) {
                         alert('답글이 저장되었습니다!');
                         window.location.reload();
                     } else {
-                        alert(data.message || '답글 저장에 실패했습니다. (권한 없음 또는 세션 만료)');
+                        alert(data.message || '세션이 만료되었거나 권한이 없습니다.');
                     }
                 })
-                .catch(err => console.error("답글 등록 통신 에러:", err));
+                .catch(err => {
+                    console.error("답글 등록 통신 에러:", err);
+                    alert("💥 앗! 답글 저장 중 오류가 발생했습니다.\nIDE(스프링 부트) 콘솔창을 확인해주세요.");
+                });
         });
     });
 

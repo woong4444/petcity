@@ -32,7 +32,7 @@ public class OwnerRequestController {
         EMAIL_VERIFIED = Y인 아이디로 변경
     */
     private static final String TEMP_LOGIN_ID =
-            "test_user004";
+            "tjrwls0416";
 
     /*
         키가 없어도 서버가 실행되도록
