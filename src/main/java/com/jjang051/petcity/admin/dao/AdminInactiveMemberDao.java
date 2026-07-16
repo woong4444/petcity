@@ -6,5 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 public interface AdminInactiveMemberDao {
     int blockInactiveMembers();
 
+    int markBlockedMembersAsDeleted();
+
+    int hardDeleteExpiredInactiveMembers();
 
 }

@@ -5,9 +5,38 @@
 
 <mapper namespace="com.jjang051.petcity.admin.dao.AdminInactiveMemberDao">
     <update id="blockInactiveMembers">
-        UPDATE APP_MEMBER SET STATUS = 'BLOCKED', UPDATED_AT = SYSTIMESTAMP
+        UPDATE APP_MEMBER SET STATUS = 'BLOCKED',BLOCKED_AT = LOCALTIMESTAMP, UPDATED_AT = LOCALTIMESTAMP
         WHERE STATUS = 'ACTIVE' AND MEMBER_STATUS = 'ACTIVE' AND ROLE != 'ADMIN'
         AND TRUNC(NVL(LAST_LOGIN_AT, CREATED_AT)) &lt;= ADD_MONTHS(TRUNC(SYSDATE),-12)
-
     </update>
+
+
+    <update id="markBlockedMembersAsDeleted">
+        UPDATE APP_MEMBER SET
+        STATUS = 'DELETED',
+        MEMBER_STATUS = 'DELETED',
+        DELETE_REASON = '1년 이상 미로그인 후 차단 상태 30일 경과',
+        DELETE_REQUESTED_AT = LOCALTIMESTAMP,
+        DELETED_AT = LOCALTIMESTAMP,
+        HARD_DELETE_AT = LOCALTIMESTAMP + INTERVAL '3' DAY,
+        UPDATED_AT = LOCALTIMESTAMP
+        WHERE STATUS = 'BLOCKED'
+        AND MEMBER_STATUS = 'ACTIVE'
+        AND ROLE != 'ADMIN'
+        AND BLOCKED_AT IS NOT NULL
+        AND BLOCKED_AT <![CDATA[ <= ]]> LOCALTIMESTAMP - INTERVAL '30' DAY
+    </update>
+
+    <delete id="hardDeleteExpiredInactiveMembers">
+        DELETE FROM APP_MEMBER
+        WHERE STATUS = 'DELETED'
+        AND MEMBER_STATUS = 'DELETED'
+        AND ROLE != 'ADMIN'
+        AND HARD_DELETE_AT IS NOT NULL
+        AND HARD_DELETE_AT <![CDATA[ <= ]]> LOCALTIMESTAMP
+        AND ( MEMBER_STATUS = 'DELETE_PENDING'
+                OR( STATUS = 'DELETED' AND MEMBER_STATUS = 'DELETED')
+            )
+    </delete>
+
 </mapper>
