@@ -11,6 +11,7 @@
          로그인 회원 정보 조회
     ================================================== -->
 
+    <!-- 병원장 신청을 위한 로그인 회원 조회 -->
     <select id="findMemberForOwnerRequest"
             resultType="com.jjang051.petcity.owner.dto.OwnerRequestDto">
 
@@ -21,13 +22,12 @@
         PHONE AS memberPhone,
         ROLE AS memberRole,
         EMAIL_VERIFIED AS emailVerified
+
         FROM APP_MEMBER
-        WHERE LOGIN_ID = #{loginId}
-        AND STATUS = 'ACTIVE'
-        AND MEMBER_STATUS = 'ACTIVE'
+
+        WHERE MEMBER_ID = #{memberId}
 
     </select>
-
 
     <!-- =================================================
          진료 가능 동물 조회

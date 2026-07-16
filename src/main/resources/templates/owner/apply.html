@@ -61,19 +61,29 @@
         </div>
 
 
-        <!-- 오류 메시지 -->
+        <!-- 서버에서 넘어온 오류 메시지 -->
         <div class="alert error"
              th:if="${errorMessage != null}"
              th:text="${errorMessage}">
         </div>
 
 
-        <form th:action="@{/owner/apply}"
-              th:object="${ownerRequestDto}"
-              method="post"
-              enctype="multipart/form-data"
-              id="ownerApplyForm">
+        <!--
+            ADMIN 또는 OWNER가 신청 버튼을 눌렀을 때
+            JavaScript로 즉시 보여주는 메시지
+        -->
+        <div id="roleBlockMessage"
+             class="alert error"
+             style="display: none;">
+        </div>
 
+
+        <form id="ownerApplyForm"
+              th:action="@{/owner/apply}"
+              th:object="${ownerRequestDto}"
+              th:data-member-role="${member.memberRole}"
+              method="post"
+              enctype="multipart/form-data">
             <!-- CSRF -->
             <input type="hidden"
                    th:if="${_csrf != null}"

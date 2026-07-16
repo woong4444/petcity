@@ -1,7 +1,9 @@
 package com.jjang051.petcity.owner.controller;
 
+import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.owner.dto.OwnerRequestDto;
 import com.jjang051.petcity.owner.service.OwnerRequestService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -24,21 +26,9 @@ public class OwnerRequestController {
     private final OwnerRequestService ownerRequestService;
 
     /*
-        Spring Security를 꺼놓은 동안 사용할
-        임시 로그인 회원 아이디
-
-        반드시 APP_MEMBER.LOGIN_ID에 실제로 존재하고,
-        ROLE = USER,
-        EMAIL_VERIFIED = Y인 아이디로 변경
+        카카오 지도 JavaScript 키
     */
-    private static final String TEMP_LOGIN_ID =
-            "tjrwls0416";
-
-    /*
-        키가 없어도 서버가 실행되도록
-        기본값을 빈 문자열로 설정
-    */
-    @Value("${kakao.map.javascript-key}")
+    @Value("${kakao.map.javascript-key:}")
     private String kakaoJavascriptKey;
 
 
@@ -47,43 +37,64 @@ public class OwnerRequestController {
     */
     @GetMapping("/apply")
     public String ownerApplyPage(
+            HttpSession session,
             Model model
     ) {
 
         /*
-            보안이 꺼져 있으므로
-            임시 로그인 아이디로 회원 정보 조회
+            일반 로그인과 소셜 로그인 성공 시
+            LoginSuccessHandler가 저장한 회원 정보
+        */
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        /*
+            로그인하지 않은 사용자는 로그인 화면으로 이동
+        */
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+
+            return "redirect:/member/login";
+        }
+
+        /*
+            임시 아이디가 아니라
+            현재 로그인 회원의 MEMBER_ID로 조회
         */
         OwnerRequestDto memberDto =
                 ownerRequestService
                         .getMemberForRequest(
-                                TEMP_LOGIN_ID
+                                loginMember.getMemberId()
                         );
-
 
         model.addAttribute(
                 "member",
                 memberDto
         );
 
-
+        /*
+            진료 가능 동물 목록
+        */
         model.addAttribute(
                 "animalList",
                 ownerRequestService
                         .getAnimalList()
         );
 
-
+        /*
+            진료 서비스 목록
+        */
         model.addAttribute(
                 "medicalServiceList",
                 ownerRequestService
                         .getMedicalServiceList()
         );
 
-
         /*
-            오류 후 다시 들어온 경우에는
-            기존 입력값을 그대로 사용
+            신청 실패 후 돌아온 경우에는
+            기존 입력값을 유지한다.
         */
         if (!model.containsAttribute(
                 "ownerRequestDto"
@@ -94,7 +105,6 @@ public class OwnerRequestController {
                     new OwnerRequestDto()
             );
         }
-
 
         model.addAttribute(
                 "kakaoJavascriptKey",
@@ -119,29 +129,48 @@ public class OwnerRequestController {
             @RequestParam("hospitalImage")
             MultipartFile hospitalImage,
 
+            HttpSession session,
+
             RedirectAttributes redirectAttributes
     ) {
+
+        /*
+            현재 로그인 회원 조회
+        */
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "로그인이 필요합니다."
+            );
+
+            return "redirect:/member/login";
+        }
 
         try {
 
             /*
-                임시 로그인 회원을 다시 조회
+                DB에서 현재 회원을 다시 확인
             */
             OwnerRequestDto memberDto =
                     ownerRequestService
                             .getMemberForRequest(
-                                    TEMP_LOGIN_ID
+                                    loginMember.getMemberId()
                             );
 
-
             /*
-                화면에서 받은 회원번호를 사용하지 않고
-                조회한 회원번호를 직접 설정
+                HTML에서 넘어온 MEMBER_ID는 믿지 않고
+                로그인 회원의 번호를 직접 설정한다.
             */
             ownerRequestDto.setMemberId(
                     memberDto.getMemberId()
             );
-
 
             int requestId =
                     ownerRequestService
@@ -151,17 +180,14 @@ public class OwnerRequestController {
                                     hospitalImage
                             );
 
-
             redirectAttributes.addFlashAttribute(
                     "message",
                     "병원장 권한 신청이 정상적으로 접수되었습니다."
             );
 
-
             return "redirect:/owner/apply-complete"
                     + "?requestId="
                     + requestId;
-
 
         } catch (IOException exception) {
 
@@ -176,7 +202,6 @@ public class OwnerRequestController {
             );
 
             return "redirect:/owner/apply";
-
 
         } catch (RuntimeException exception) {
 
@@ -201,8 +226,20 @@ public class OwnerRequestController {
     @GetMapping("/apply-complete")
     public String ownerApplyCompletePage(
             @RequestParam int requestId,
+            HttpSession session,
             Model model
     ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+
+            return "redirect:/member/login";
+        }
 
         model.addAttribute(
                 "requestId",

@@ -35,26 +35,33 @@ public class OwnerRequestService {
 
 
     /*
-        병원장 신청 화면에 표시할
-        로그인 회원 정보 조회
-    */
+     병원장 신청 화면에서 사용할
+     현재 로그인 회원 정보 조회
+ */
+   /*
+    병원장 신청 페이지에 표시할
+    현재 로그인 회원 정보 조회
+
+    여기서는 회원 정보만 조회한다.
+    ADMIN, OWNER도 페이지에 들어갈 수 있다.
+*/
     @Transactional(readOnly = true)
     public OwnerRequestDto getMemberForRequest(
-            String loginId
+            Long memberId
     ) {
 
-        if (loginId == null
-                || loginId.isBlank()) {
+        if (memberId == null
+                || memberId <= 0) {
 
             throw new RuntimeException(
-                    "로그인이 필요합니다."
+                    "로그인 회원 정보를 찾을 수 없습니다."
             );
         }
 
         OwnerRequestDto memberDto =
                 ownerRequestDao
                         .findMemberForOwnerRequest(
-                                loginId
+                                memberId
                         );
 
         if (memberDto == null) {
@@ -64,36 +71,87 @@ public class OwnerRequestService {
             );
         }
 
-        /*
-            현재 정책:
-            일반 회원만 병원장 권한 신청 가능
-        */
-        if (!"USER".equals(
+    /*
+        이메일 인증을 하지 않은 회원은
+        신청 페이지 이용 불가
+    */
+        if (!"Y".equals(
+                memberDto.getEmailVerified()
+        )) {
+
+            throw new RuntimeException(
+                    "이메일 인증을 완료한 후 이용해 주세요."
+            );
+        }
+
+    /*
+        ADMIN과 OWNER 검사 코드는
+        여기에서 하지 않는다.
+    */
+
+        return memberDto;
+    }
+
+    /*
+    실제 병원장 신청이 가능한 회원인지 검사
+
+    페이지 진입 때가 아니라
+    신청 버튼을 눌렀을 때 실행한다.
+*/
+    @Transactional(readOnly = true)
+    public void validateOwnerApplicationRole(
+            Long memberId
+    ) {
+
+        if (memberId == null
+                || memberId <= 0) {
+
+            throw new RuntimeException(
+                    "신청 회원 정보를 확인할 수 없습니다."
+            );
+        }
+
+        OwnerRequestDto memberDto =
+                ownerRequestDao
+                        .findMemberForOwnerRequest(
+                                memberId
+                        );
+
+        if (memberDto == null) {
+
+            throw new RuntimeException(
+                    "로그인 회원 정보를 찾을 수 없습니다."
+            );
+        }
+
+    /*
+        관리자 신청 차단
+    */
+        if ("ADMIN".equals(
                 memberDto.getMemberRole()
         )) {
 
             throw new RuntimeException(
-                    "일반 회원만 병원장 권한을 신청할 수 있습니다."
+                    "관리자 계정은 병원장 권한을 신청할 수 없습니다."
             );
         }
 
-        /*
-            승인 결과를 발송할 이메일 확인
-        */
-        if (memberDto.getMemberEmail() == null
-                || memberDto
-                .getMemberEmail()
-                .isBlank()) {
+    /*
+        이미 병원장인 회원 신청 차단
+    */
+        if ("OWNER".equals(
+                memberDto.getMemberRole()
+        )) {
 
             throw new RuntimeException(
-                    "회원 이메일 정보가 없습니다."
+                    "이미 병원장 권한을 보유한 회원입니다."
             );
         }
 
-        /*
-            회원가입에서 이메일 인증을 완료한 회원만 신청
-        */
-        if (!"Y".equalsIgnoreCase(
+    /*
+        이메일 인증 확인
+    */
+        if (!"Y".equals(
                 memberDto.getEmailVerified()
         )) {
 
@@ -101,10 +159,7 @@ public class OwnerRequestService {
                     "이메일 인증을 완료한 후 신청해 주세요."
             );
         }
-
-        return memberDto;
     }
-
 
     /*
         동물 대분류와 하위 동물 조회
@@ -137,15 +192,33 @@ public class OwnerRequestService {
             MultipartFile hospitalImage
     ) throws IOException {
 
-        /*
-            입력값 검사
-        */
+        if (requestDto == null) {
+
+            throw new RuntimeException(
+                    "신청 정보가 없습니다."
+            );
+        }
+
+    /*
+        신청 버튼을 눌렀을 때
+        실제 회원 권한 검사
+
+        ADMIN과 OWNER는 여기서 차단된다.
+    */
+        validateOwnerApplicationRole(
+                Long.valueOf(
+                        requestDto.getMemberId()
+                )
+        );
+
+    /*
+        신청서 입력값 검사
+    */
         validateOwnerRequest(
                 requestDto,
                 documentFile,
                 hospitalImage
         );
-
 
         /*
             같은 회원의 심사 중 신청 확인
