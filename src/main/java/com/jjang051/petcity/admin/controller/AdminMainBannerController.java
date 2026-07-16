@@ -1,13 +1,17 @@
 package com.jjang051.petcity.admin.controller;
 
 import com.jjang051.petcity.admin.dto.AdminMainBannerCreateDto;
+import com.jjang051.petcity.admin.dto.AdminMainBannerDto;
 import com.jjang051.petcity.admin.service.AdminMainBannerService;
 import com.jjang051.petcity.member.dto.MemberDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -16,15 +20,12 @@ public class AdminMainBannerController {
     private final AdminMainBannerService adminMainBannerService;
 
     @GetMapping
-    public String mainBannerList(HttpSession session) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+    public String mainBannerList(Model model) {
+        List<AdminMainBannerDto> mainBanners = adminMainBannerService.findAllMainBanners();
+        List<AdminMainBannerDto> previewBanners = adminMainBannerService.findVisibleMainBanners();
+        model.addAttribute("mainBanners", mainBanners);
+        model.addAttribute("previewBanners", previewBanners);
 
-        if (loginMember == null) {
-            return "redirect:/member/login";
-        }
-        if (!"ADMIN".equals(loginMember.getRole())) {
-            return "redirect:/";
-        }
         return "admin/main-banner-list";
     }
 
@@ -63,6 +64,7 @@ public class AdminMainBannerController {
             return "redirect:/admin/main-banners/create";
         }
     }
+
 
 }
 
