@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>이메일 인증 | PetCity</title>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <style>
+        .verification-box { max-width: 460px; margin: 80px auto; padding: 36px; border: 1px solid #e5e7eb; border-radius: 16px; text-align: center; }
+        .verification-box input { width: 100%; box-sizing: border-box; padding: 14px; margin: 22px 0 12px; font-size: 20px; letter-spacing: 6px; text-align: center; }
+        .verification-box button { width: 100%; padding: 14px; border: 0; border-radius: 8px; cursor: pointer; background: #3174e8; color: #fff; font-weight: 700; }
+        .verification-box .resend { margin-top: 12px; background: #f3f4f6; color: #333; }
+        .verification-box .message { color: #d14343; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+<header th:replace="~{common/head :: head}"></header>
+
+<!-- 07-16 상각: 일반 회원가입 이메일 인증 화면 -->
+<main class="verification-box">
+    <h1>이메일 인증</h1>
+    <p><strong th:text="${email}"></strong>으로 인증번호를 보냈습니다.</p>
+    <p>인증번호는 10분 동안 유효합니다.</p>
+    <p class="message" th:if="${message}" th:text="${message}"></p>
+
+    <form action="/member/email-verification" method="post">
+        <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
+               pattern="[0-9]{6}" maxlength="6" placeholder="인증번호 6자리" required>
+        <button type="submit">인증 완료</button>
+    </form>
+    <button type="button" class="resend" id="resendButton">인증번호 재발송</button>
+</main>
+
+<script>
+    // 07-16 상각: 인증번호 재발송 요청
+    document.querySelector("#resendButton").addEventListener("click", async () => {
+        const response = await fetch("/member/email-verification/send", { method: "POST" });
+        alert(await response.text());
+    });
+</script>
+</body>
+</html>
