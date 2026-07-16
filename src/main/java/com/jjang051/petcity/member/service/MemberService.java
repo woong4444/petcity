@@ -202,37 +202,104 @@ public class MemberService {
     }
 
     // 07-16 상각: 서버 측 비밀번호 강도 검증
-    private void validatePassword(MemberDto memberDto) {
+    // 서버 측 비밀번호 검증
+    private void validatePassword(
+            MemberDto memberDto
+    ) {
 
-        String password = memberDto.getPassword();
-        String lowerPassword = password.toLowerCase(Locale.ROOT);
+        String password =
+                memberDto.getPassword();
 
-        if (!password.matches("^[\\x21-\\x7E]{9,64}$")) {
-            throw new IllegalArgumentException("취약한 비밀번호입니다. 올바른 비밀번호로 기입 부탁드립니다.");
+        if (password == null
+                || password.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "비밀번호를 입력해주세요."
+            );
         }
 
-        int characterTypes = 0;
-        if (password.matches(".*[a-z].*")) characterTypes++;
-        if (password.matches(".*[A-Z].*")) characterTypes++;
-        if (password.matches(".*\\d.*")) characterTypes++;
-        if (password.matches(".*[^a-zA-Z0-9].*")) characterTypes++;
+    /*
+        비밀번호 정책
 
-        if (characterTypes < 3 || COMMON_PASSWORDS.contains(lowerPassword)) {
-            throw new IllegalArgumentException("취약한 비밀번호입니다. 올바른 비밀번호로 기입 부탁드립니다.");
+        - 8~64자
+        - 영문 최소 1개
+        - 숫자 최소 1개
+        - 특수문자 최소 1개
+        - 공백 금지
+    */
+        if (!password.matches(
+                "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s])\\S{8,64}$"
+        )) {
+
+            throw new IllegalArgumentException(
+                    "비밀번호는 8자 이상이며 " +
+                            "영문, 숫자, 특수문자를 모두 포함해야 합니다."
+            );
         }
 
-        String emailPrefix = memberDto.getEmail().substring(0, memberDto.getEmail().indexOf('@'));
-        if (lowerPassword.contains(memberDto.getLoginId()) || lowerPassword.contains(emailPrefix)) {
-            throw new IllegalArgumentException("비밀번호에는 아이디나 이메일을 포함할 수 없습니다.");
+        String lowerPassword =
+                password.toLowerCase(Locale.ROOT);
+
+    /*
+        너무 흔한 비밀번호 차단
+    */
+        if (COMMON_PASSWORDS.contains(
+                lowerPassword
+        )) {
+
+            throw new IllegalArgumentException(
+                    "너무 쉽게 추측할 수 있는 비밀번호입니다."
+            );
+        }
+
+    /*
+        아이디가 비밀번호에 포함되는 것 차단
+    */
+        String loginId =
+                memberDto.getLoginId()
+                        .toLowerCase(Locale.ROOT);
+
+        if (lowerPassword.contains(loginId)) {
+
+            throw new IllegalArgumentException(
+                    "비밀번호에는 아이디를 포함할 수 없습니다."
+            );
+        }
+
+    /*
+        이메일의 @ 앞부분이 비밀번호에
+        포함되는 것 차단
+    */
+        String email =
+                memberDto.getEmail()
+                        .toLowerCase(Locale.ROOT);
+
+        int atIndex =
+                email.indexOf("@");
+
+        if (atIndex > 0) {
+
+            String emailPrefix =
+                    email.substring(0, atIndex);
+
+            if (lowerPassword.contains(
+                    emailPrefix
+            )) {
+
+                throw new IllegalArgumentException(
+                        "비밀번호에는 이메일 아이디를 포함할 수 없습니다."
+                );
+            }
         }
     }
-
     // 07-16 상각: 반복·연속·공용 아이디 차단
     private void validateLoginId(String loginId) {
 
-        if (!loginId.matches("^[a-z][a-z0-9_]{4,19}$")) {
+        if (!loginId.matches("^[a-z][a-z0-9]{4,19}$")) {
+
             throw new IllegalArgumentException(
-                    "아이디는 영문 소문자로 시작하는 5~20자의 영문 소문자, 숫자, 밑줄만 사용할 수 있습니다."
+                    "아이디는 영문 소문자로 시작하는 " +
+                            "5~20자의 영문 소문자와 숫자만 사용할 수 있습니다."
             );
         }
 

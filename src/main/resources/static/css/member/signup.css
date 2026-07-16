@@ -662,3 +662,35 @@ button.normal-btn{
     color:#64748b;
     -webkit-text-fill-color:#64748b;
 }
+
+/* 비밀번호 입력창과 보기 버튼 */
+
+.password-input-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrap .input {
+    width: 100%;
+    padding-right: 72px;
+    box-sizing: border-box;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+
+    border: none;
+    background: transparent;
+    color: #2563eb;
+
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.password-toggle-btn:hover {
+    text-decoration: underline;
+}
