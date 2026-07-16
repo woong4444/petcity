@@ -5,6 +5,8 @@ import com.jjang051.petcity.hospital.dto.HospitalDto;
 import com.jjang051.petcity.hospital.dto.HospitalListPageDto;
 import com.jjang051.petcity.hospital.dto.HospitalReviewDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
@@ -18,6 +20,28 @@ import java.util.Locale;
 public class HospitalService {
 
     private final HospitalDao hospitalDao;
+    private final ResourceLoader resourceLoader;
+
+    private static final String[] HOSPITAL_IMAGE_EXTENSIONS = {
+            "jpg", "JPG", "png", "jpeg"
+    };
+
+    private void applyHospitalImage(HospitalDto hospital) {
+        for (String extension : HOSPITAL_IMAGE_EXTENSIONS) {
+            String imagePath = "/images/hospital/"
+                    + hospital.getHospitalId() + "." + extension;
+            Resource image = resourceLoader.getResource(
+                    "classpath:/static" + imagePath
+            );
+
+            if (image.exists()) {
+                hospital.setImageUrl(imagePath);
+                return;
+            }
+        }
+
+        hospital.setImageUrl(null);
+    }
 
     private void applyCurrentStatus(HospitalDto h) {
         if (h.getOpenTime() == null || h.getCloseTime() == null) {
@@ -79,6 +103,7 @@ public class HospitalService {
         List<HospitalDto> hospitalList = hospitalDao.findHospitalList(animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng, offset, limit);
         for(HospitalDto h : hospitalList) {
             applyCurrentStatus(h);
+            applyHospitalImage(h);
         }
 
         int blockLimit = 5;
@@ -109,7 +134,10 @@ public class HospitalService {
 
     public HospitalDto getHospitalById(int hospitalId, Double userLat, Double userLng) {
         HospitalDto h = hospitalDao.findHospitalById(hospitalId, userLat, userLng);
-        if(h != null) applyCurrentStatus(h);
+        if(h != null) {
+            applyCurrentStatus(h);
+            applyHospitalImage(h);
+        }
         return h;
     }
 

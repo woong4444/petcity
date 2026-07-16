@@ -211,6 +211,10 @@ public class MemberService {
             throw new IllegalArgumentException("취약한 비밀번호입니다. 올바른 비밀번호로 기입 부탁드립니다.");
         }
 
+        if (password.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new IllegalArgumentException("이메일 형식은 비밀번호로 사용할 수 없습니다.");
+        }
+
         int characterTypes = 0;
         if (password.matches(".*[a-z].*")) characterTypes++;
         if (password.matches(".*[A-Z].*")) characterTypes++;

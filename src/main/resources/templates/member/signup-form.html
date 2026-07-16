@@ -24,7 +24,7 @@
 
 <!-- ================= CONTENT ================= -->
 
-<!--<section class="signup-section">-->
+<section class="signup-section">
 
     <div class="signup-container">
 
@@ -272,12 +272,11 @@
                             maxlength="254"
                             autocomplete="email"
                             placeholder="example@email.com"
-                            disabled
                             required>
 
                     <!-- 07-16 상각: 이메일 중복확인 -->
-                    <div id="emailActivationMessage" class="check-message">아이디·비밀번호·닉네임 조건을 먼저 완료해주세요.</div>
-                    <button type="button" id="checkEmailBtn" class="check-btn" style="margin-top: 10px;" disabled>이메일 중복확인</button>
+                    <div id="emailActivationMessage" class="check-message">이메일 중복확인을 해주세요.</div>
+                    <button type="button" id="checkEmailBtn" class="check-btn" style="margin-top: 10px;">이메일 중복확인</button>
                     <div id="emailDuplicateMessage" class="check-message"></div>
 
                     <!-- 07-16 상각: 가입 전 이메일 인증 -->
@@ -420,6 +419,23 @@
         return characterTypes >= 3;
     }
 
+    function isEmailLikePassword(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function passwordContainsMemberInfo(value) {
+        const lowerPassword = value.toLowerCase();
+        const normalizedLoginId = loginId.value.trim().toLowerCase();
+        const normalizedEmail = email.value.trim().toLowerCase();
+        const atIndex = normalizedEmail.indexOf("@");
+        const emailPrefix = atIndex > 0
+            ? normalizedEmail.substring(0, atIndex)
+            : "";
+
+        return (normalizedLoginId !== "" && lowerPassword.includes(normalizedLoginId))
+            || (emailPrefix.length >= 3 && lowerPassword.includes(emailPrefix));
+    }
+
     // 07-16 상각: 추측 쉬운 아이디 사전 차단
     function isWeakLoginId(value) {
 
@@ -433,31 +449,21 @@
             || value.includes("abcde");
     }
 
-    // 07-16 상각: 필수 정보 검증 후 이메일 인증 활성화
+    // 07-16 상각: 이메일 인증은 다른 항목의 검사 완료 여부와 독립적으로 진행
     function updateEmailActivation() {
-        const passwordReady = isStrongPassword(password.value)
-            && password.value === passwordCheck.value;
-        const canVerifyEmail = loginIdChecked && nicknameChecked && passwordReady;
+        email.disabled = false;
+        checkEmailBtn.disabled = emailVerified;
+        sendEmailCodeBtn.disabled = !emailChecked || emailVerified;
+        emailCode.disabled = !emailCodeSent || emailVerified;
 
-        email.disabled = !canVerifyEmail;
-        checkEmailBtn.disabled = !canVerifyEmail || emailVerified;
-        sendEmailCodeBtn.disabled = !canVerifyEmail || !emailChecked || emailCodeSent;
-
-        emailActivationMessage.textContent = canVerifyEmail
-            ? "이메일 중복확인 후 인증번호를 발송할 수 있습니다."
-            : "아이디 중복확인, 비밀번호 조건, 닉네임 중복확인을 먼저 완료해주세요.";
-        emailActivationMessage.className = canVerifyEmail
+        emailActivationMessage.textContent = emailVerified
+            ? "이메일 인증이 완료되었습니다."
+            : emailChecked
+                ? "인증번호를 발송할 수 있습니다."
+                : "이메일 중복확인을 해주세요.";
+        emailActivationMessage.className = emailVerified || emailChecked
             ? "check-message text-success"
-            : "check-message text-error";
-
-        if (!canVerifyEmail) {
-            emailVerified = false;
-            emailCodeSent = false;
-            emailChecked = false;
-            emailCode.value = "";
-            emailCode.disabled = true;
-            sendEmailCodeBtn.textContent = "인증번호 발송";
-        }
+            : "check-message";
     }
 
     // 07-16 상각: 가입 전 이메일 인증 요청 및 확인
@@ -516,6 +522,7 @@
         sendEmailCodeBtn.classList.remove("is-verifying", "is-complete");
         emailVerificationMessage.textContent = "";
         emailDuplicateMessage.textContent = "";
+        checkPassword();
         updateEmailActivation();
     });
 
@@ -538,6 +545,24 @@
     });
 
     function checkPassword() {
+
+        if (password.value !== "" && isEmailLikePassword(password.value)) {
+
+            passwordMessage.textContent =
+                "이메일 형식은 비밀번호로 사용할 수 없습니다.";
+            passwordMessage.className = "label-text-alt text-error";
+            return;
+
+        }
+
+        if (password.value !== "" && passwordContainsMemberInfo(password.value)) {
+
+            passwordMessage.textContent =
+                "비밀번호에는 아이디나 이메일을 포함할 수 없습니다.";
+            passwordMessage.className = "label-text-alt text-error";
+            return;
+
+        }
 
         if (password.value !== "" && !isStrongPassword(password.value)) {
 
@@ -569,11 +594,11 @@
 
     }
 
-    password.addEventListener("keyup", () => {
+    password.addEventListener("input", () => {
         checkPassword();
         updateEmailActivation();
     });
-    passwordCheck.addEventListener("keyup", () => {
+    passwordCheck.addEventListener("input", () => {
         checkPassword();
         updateEmailActivation();
     });
@@ -598,6 +623,24 @@
 
             e.preventDefault();
 
+            return;
+
+        }
+
+        if (isEmailLikePassword(password.value)) {
+
+            alert("이메일 형식은 비밀번호로 사용할 수 없습니다.");
+            password.focus();
+            e.preventDefault();
+            return;
+
+        }
+
+        if (passwordContainsMemberInfo(password.value)) {
+
+            alert("비밀번호에는 아이디나 이메일을 포함할 수 없습니다.");
+            password.focus();
+            e.preventDefault();
             return;
 
         }
@@ -750,11 +793,6 @@
     });
 
 </script>
-<!-- ================================================= -->
-<!-- 07-15 오후 추가_상각 : 회원가입 JS -->
-<!-- ================================================= -->
-<script th:src="@{/js/member/signup.js}"></script>
-
 </body>
 
 </html>

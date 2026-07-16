@@ -91,12 +91,12 @@ public class SecurityConfig {
                                 "/member/check-loginId",
                                 "/member/check-nickname",
                                 "/member/check-email",
-                                "/member/oauth-email-agreement",
                                 "/member/email-verification",
                                 "/member/email-verification/**",
                                 "/board/list",
                                 "/board/info-list",
                                 "/board/faq-list",
+                                "/hospital/**",
 
                                 "/oauth2/**",
                                 "/login/**",

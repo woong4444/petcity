@@ -33,9 +33,6 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class MemberController {
 
-    // 07-16 상각: SNS 이메일 수집 동의 세션 키
-    private static final String OAUTH_EMAIL_AGREEMENT = "oauthEmailAgreement";
-
     // ===========================
     // MemberService
     // ===========================
@@ -51,7 +48,12 @@ public class MemberController {
     // 로그인 화면
     // ===========================
     @GetMapping("/member/login")
-    public String login() {
+    public String login(HttpSession session) {
+
+        String redirect = getLoggedInRedirect(session);
+        if (redirect != null) {
+            return redirect;
+        }
 
         return "member/login";
 
@@ -61,31 +63,25 @@ public class MemberController {
     // SNS 회원가입 선택 화면
     // ===========================
     @GetMapping("/member/signup")
-    public String signup() {
+    public String signup(HttpSession session) {
+
+        String redirect = getLoggedInRedirect(session);
+        if (redirect != null) {
+            return redirect;
+        }
 
         return "member/signup";
 
     }
 
-    // 07-16 상각: SNS 가입 전 이메일 수집 동의 저장
-    @ResponseBody
-    @PostMapping("/member/oauth-email-agreement")
-    public boolean saveOAuthEmailAgreement(@RequestParam String provider,
-                                           HttpSession session) {
-
-        if (!"google".equals(provider)
-                && !"kakao".equals(provider)
-                && !"naver".equals(provider)) {
-            return false;
-        }
-
-        session.setAttribute(OAUTH_EMAIL_AGREEMENT, "Y");
-        return true;
-    }
-
     // 07-16 상각: 이메일 인증 화면
     @GetMapping("/member/email-verification")
     public String emailVerification(HttpSession session, Model model) {
+
+        String redirect = getLoggedInRedirect(session);
+        if (redirect != null) {
+            return redirect;
+        }
 
         String email = (String) session.getAttribute("pendingVerificationEmail");
         if (email == null) {
@@ -168,7 +164,12 @@ public class MemberController {
     // 일반 회원가입 화면
     // ===========================
     @GetMapping("/member/signup/form")
-    public String signupForm() {
+    public String signupForm(HttpSession session) {
+
+        String redirect = getLoggedInRedirect(session);
+        if (redirect != null) {
+            return redirect;
+        }
 
         return "member/signup-form";
 
@@ -460,6 +461,26 @@ public class MemberController {
 
         return "member/owner-request";
 
+    }
+
+    private String getLoggedInRedirect(HttpSession session) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            return null;
+        }
+
+        if ("ADMIN".equals(loginMember.getRole())) {
+            return "redirect:/admin/dashboard";
+        }
+
+        if ("OWNER".equals(loginMember.getRole())) {
+            return "redirect:/owner";
+        }
+
+        return "redirect:/";
     }
 
 }
