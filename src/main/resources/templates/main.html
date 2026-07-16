@@ -1,140 +1,338 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>PetCity - 동물병원 찾기</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Tailwind CSS -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        PetCity - 동물병원 찾기
+    </title>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- DaisyUI -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css">
 
-    <!-- 🌟 헤더 디자인을 입혀주는 핵심 코드! -->
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/main/main.css}">
+
+    <script defer
+            src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js">
+    </script>
+
+    <script defer
+            th:src="@{/js/main/main-banner.js}">
+    </script>
 </head>
 
 <body class="bg-slate-50 text-gray-800">
 
-<!-- 공통 헤더 -->
-<div th:replace="~{common/head :: head}"></div>
+<div th:replace="~{common/head :: head}">
+</div>
 
-<!-- 메인 히어로 영역 -->
-<section class="min-h-[520px] flex items-center bg-gradient-to-br from-teal-50 via-white to-amber-50">
-    <div class="container mx-auto px-6 py-16">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+<main>
 
-            <!-- 왼쪽 텍스트 -->
-            <div>
+    <section th:if="${mainBanners != null
+                     and !#lists.isEmpty(mainBanners)}"
+             class="main-banner-section">
+
+        <div class="swiper main-banner-swiper">
+
+            <div class="swiper-wrapper">
+
+                <div class="swiper-slide"
+                     th:each="banner : ${mainBanners}">
+
+                    <a th:href="${banner.linkUrl != null
+                                and !#strings.isEmpty(banner.linkUrl)
+                                ? banner.linkUrl
+                                : '#'}"
+                       th:classappend="${banner.linkUrl == null
+                                       or #strings.isEmpty(banner.linkUrl)
+                                       ? ' main-banner-link-disabled'
+                                       : ''}"
+                       class="main-banner-link">
+
+                        <img th:src="${banner.imageUrl}"
+                             th:alt="${banner.title}"
+                             class="main-banner-image">
+
+                        <div class="main-banner-overlay">
+                        </div>
+
+                        <div class="main-banner-container">
+
+                            <div class="main-banner-content">
+
+                                <span class="main-banner-label">
+                                    PETCITY
+                                </span>
+
+                                <h1 class="main-banner-title"
+                                    th:text="${banner.title}">
+                                    메인 배너 제목
+                                </h1>
+
+                                <p th:if="${banner.subTitle != null
+                                          and !#strings.isEmpty(banner.subTitle)}"
+                                   class="main-banner-subtitle"
+                                   th:text="${banner.subTitle}">
+                                    메인 배너 설명
+                                </p>
+
+                                <span th:if="${banner.linkUrl != null
+                                             and !#strings.isEmpty(banner.linkUrl)}"
+                                      class="main-banner-action">
+
+                                    자세히 보기
+
+                                    <span aria-hidden="true">
+                                        →
+                                    </span>
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="swiper-pagination">
+            </div>
+
+            <button type="button"
+                    class="swiper-button-prev main-banner-navigation"
+                    aria-label="이전 배너">
+            </button>
+
+            <button type="button"
+                    class="swiper-button-next main-banner-navigation"
+                    aria-label="다음 배너">
+            </button>
+
+        </div>
+
+    </section>
+
+    <section th:if="${mainBanners == null
+                     or #lists.isEmpty(mainBanners)}"
+             class="default-hero-section">
+
+        <div class="container mx-auto px-6 py-16">
+
+            <div class="max-w-2xl">
+
                 <div class="badge badge-primary badge-outline mb-4">
                     우리 아이에게 맞는 병원 찾기
                 </div>
 
-                <h1 class="text-4xl lg:text-5xl font-bold leading-tight mb-6">
-                    반려동물에 맞는 <br>
-                    <span class="text-teal-600">동물병원</span>을 찾아보세요
+                <h1 class="text-4xl
+                           font-bold
+                           leading-tight
+                           lg:text-5xl">
+
+                    반려동물에 맞는
+
+                    <br>
+
+                    <span class="text-teal-600">
+                        동물병원
+                    </span>
+
+                    을 찾아보세요
+
                 </h1>
 
-                <p class="text-gray-600 text-lg mb-8">
+                <p class="mt-6 text-lg text-gray-600">
                     강아지, 고양이 진료 가능한 동물과 진료 항목을 기준으로 가까운 병원을 찾을 수 있어요.
                 </p>
 
-                <!-- 검색창 -->
-                <form action="/hospital/list" method="get"
-                      class="bg-white p-3 rounded-2xl shadow-md flex flex-col sm:flex-row gap-3 max-w-xl">
+            </div>
 
-                    <input
-                            type="text"
-                            name="keyword"
-                            placeholder="병원명, 지역, 동물 종류를 검색하세요"
-                            class="input input-bordered w-full"
-                    >
+        </div>
 
-                    <button type="submit" class="btn btn-primary px-8">
+    </section>
+
+    <section class="hospital-search-section">
+
+        <div class="container mx-auto px-6">
+
+            <div class="hospital-search-card">
+
+                <div class="hospital-search-text">
+
+                    <span class="hospital-search-label">
+                        동물병원 검색
+                    </span>
+
+                    <h2 class="hospital-search-title">
+                        우리 아이에게 맞는 병원을 찾아보세요
+                    </h2>
+
+                    <p class="hospital-search-description">
+                        병원명, 지역, 진료 가능한 동물 종류를 기준으로 검색할 수 있습니다.
+                    </p>
+
+                </div>
+
+                <form th:action="@{/hospital/list}"
+                      method="get"
+                      class="hospital-search-form">
+
+                    <input type="text"
+                           name="keyword"
+                           class="input input-bordered hospital-search-input"
+                           placeholder="병원명, 지역, 동물 종류를 검색하세요">
+
+                    <button type="submit"
+                            class="btn btn-primary hospital-search-button">
                         검색
                     </button>
+
                 </form>
 
-                <div class="flex gap-3 mt-6">
-                    <a href="/hospital/list" class="btn btn-outline btn-primary">
+                <div class="hospital-search-links">
+
+                    <a th:href="@{/hospital/list}"
+                       class="btn btn-outline btn-primary">
                         병원 목록 보기
                     </a>
-                    <a href="/map" class="btn btn-outline">
+
+                    <a th:href="@{/map}"
+                       class="btn btn-outline">
                         지도에서 찾기
                     </a>
-                </div>
-            </div>
 
-            <!-- 오른쪽 카드 -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="card bg-white shadow-md">
-                    <div class="card-body">
-                        <div class="text-4xl mb-2">🐶</div>
-                        <h3 class="card-title text-lg">강아지 병원</h3>
-                        <p class="text-sm text-gray-500">소형견부터 대형견까지</p>
-                    </div>
-                </div>
-
-                <div class="card bg-white shadow-md">
-                    <div class="card-body">
-                        <div class="text-4xl mb-2">🐱</div>
-                        <h3 class="card-title text-lg">고양이 병원</h3>
-                        <p class="text-sm text-gray-500">고양이 전문 진료 검색</p>
-                    </div>
                 </div>
 
             </div>
 
         </div>
-    </div>
-</section>
 
-<!-- 주요 기능 영역 -->
-<section class="container mx-auto px-6 py-16">
-    <h2 class="text-3xl font-bold text-center mb-10">
-        PetCity 주요 기능
-    </h2>
+    </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="card bg-white shadow-sm border">
-            <div class="card-body">
-                <h3 class="card-title text-teal-600">📍 지도 기반 병원 찾기</h3>
-                <p class="text-gray-600">
-                    내 위치나 지역을 기준으로 가까운 동물병원을 <br>
-                    지도에서 확인할 수 있어요.
-                </p>
-            </div>
+    <section class="container mx-auto px-6 py-16">
+
+        <div class="section-heading">
+
+            <span class="section-label">
+                PETCITY SERVICE
+            </span>
+
+            <h2 class="section-title">
+                PetCity 주요 기능
+            </h2>
+
+            <p class="section-description">
+                반려동물과 보호자에게 필요한 병원 정보를 편리하게 확인해 보세요.
+            </p>
+
         </div>
 
-        <div class="card bg-white shadow-sm border">
-            <div class="card-body">
-                <h3 class="card-title text-teal-600">🐾 동물별 병원 검색</h3>
-                <p class="text-gray-600">
-                    강아지, 고양이 진료 가능 동물로 검색할 수 있어요.
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+
+            <article class="service-card">
+
+                <div class="service-icon">
+                    📍
+                </div>
+
+                <h3 class="service-title">
+                    지도 기반 병원 찾기
+                </h3>
+
+                <p class="service-description">
+                    내 위치나 선택한 지역을 기준으로 가까운 동물병원을 지도에서 확인할 수 있어요.
                 </p>
-            </div>
+
+                <a th:href="@{/map}"
+                   class="service-link">
+                    지도에서 확인하기
+                </a>
+
+            </article>
+
+            <article class="service-card">
+
+                <div class="service-icon">
+                    🐾
+                </div>
+
+                <h3 class="service-title">
+                    동물별 병원 검색
+                </h3>
+
+                <p class="service-description">
+                    강아지와 고양이 등 진료 가능한 동물과 진료 항목을 기준으로 검색할 수 있어요.
+                </p>
+
+                <a th:href="@{/hospital/list}"
+                   class="service-link">
+                    병원 검색하기
+                </a>
+
+            </article>
+
+            <article class="service-card">
+
+                <div class="service-icon">
+                    ⭐
+                </div>
+
+                <h3 class="service-title">
+                    리뷰와 별점
+                </h3>
+
+                <p class="service-description">
+                    실제 이용자의 리뷰와 별점을 확인하고 우리 아이에게 맞는 병원을 선택할 수 있어요.
+                </p>
+
+                <a th:href="@{/hospital/list}"
+                   class="service-link">
+                    병원 후기 확인하기
+                </a>
+
+            </article>
+
         </div>
 
-        <div class="card bg-white shadow-sm border">
-            <div class="card-body">
-                <h3 class="card-title text-teal-600">⭐ 리뷰와 별점</h3>
-                <p class="text-gray-600">
-                    실제 이용자 리뷰와 별점을 보고 <br>
-                    병원을 선택할 수 있어요.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
-<!-- 푸터 -->
-<footer class="footer footer-center p-8 bg-base-200 text-base-content">
+</main>
+
+<footer class="footer footer-center bg-base-200 p-8 text-base-content">
+
     <aside>
-        <p class="font-bold text-lg">🐾 PetCity</p>
-        <p>반려동물을 위한 동물병원 검색 플랫폼</p>
-        <p class="text-sm text-gray-500">© 2026 PetCity Team</p>
+
+        <p class="text-lg font-bold">
+            🐾 PetCity
+        </p>
+
+        <p>
+            반려동물을 위한 동물병원 검색 플랫폼
+        </p>
+
+        <p class="text-sm text-gray-500">
+            © 2026 PetCity Team
+        </p>
+
     </aside>
+
 </footer>
 
 </body>

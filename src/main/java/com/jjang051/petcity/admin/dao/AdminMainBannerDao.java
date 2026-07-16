@@ -20,4 +20,12 @@ public interface AdminMainBannerDao {
     List<AdminMainBannerDto> findAllMainBanners();
     List<AdminMainBannerDto> findVisibleMainBanners();
 
+    AdminMainBannerDto findMainBannerById(@Param("bannerId") Long bannerId);
+
+
+    int shiftDisplayOrderWhenMovingLater(@Param("bannerId") Long bannerId, @Param("oldDisplayOrder") int oldDisplayOrder, @Param("newDisplayOrder") int newDisplayOrder);
+    int shiftDisplayOrderWhenMovingEarlier(@Param("bannerId") Long bannerId, @Param("oldDisplayOrder") int oldDisplayOrder, @Param("newDisplayOrder") int newDisplayOrder);
+
+    int updateMainBanner(AdminMainBannerDto mainBannerDto);
+
 }
