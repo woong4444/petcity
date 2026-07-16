@@ -22,7 +22,7 @@ public class MemberService {
 
     // 07-16 상각: 가입 시 차단할 추측 쉬운 아이디
     private static final Set<String> WEAK_LOGIN_IDS = Set.of(
-            "administrator", "root", "manager", "test", "test01",
+            "admin", "administrator", "root", "manager", "test", "test01",
             "guest", "user", "member", "petcity", "qwerty", "asdf", "abcde"
     );
 
@@ -208,7 +208,7 @@ public class MemberService {
         String lowerPassword = password.toLowerCase(Locale.ROOT);
 
         if (!password.matches("^[\\x21-\\x7E]{9,64}$")) {
-            throw new IllegalArgumentException("비밀번호는 공백 없이 영문, 숫자, 특수문자를 포함해 9~64자로 입력해주세요.");
+            throw new IllegalArgumentException("취약한 비밀번호입니다. 올바른 비밀번호로 기입 부탁드립니다.");
         }
 
         int characterTypes = 0;
@@ -218,7 +218,7 @@ public class MemberService {
         if (password.matches(".*[^a-zA-Z0-9].*")) characterTypes++;
 
         if (characterTypes < 3 || COMMON_PASSWORDS.contains(lowerPassword)) {
-            throw new IllegalArgumentException("비밀번호는 영문 대·소문자, 숫자, 특수문자 중 3종 이상을 사용하고 흔한 비밀번호는 피해주세요.");
+            throw new IllegalArgumentException("취약한 비밀번호입니다. 올바른 비밀번호로 기입 부탁드립니다.");
         }
 
         String emailPrefix = memberDto.getEmail().substring(0, memberDto.getEmail().indexOf('@'));
@@ -229,6 +229,12 @@ public class MemberService {
 
     // 07-16 상각: 반복·연속·공용 아이디 차단
     private void validateLoginId(String loginId) {
+
+        if (!loginId.matches("^[a-z][a-z0-9_]{4,19}$")) {
+            throw new IllegalArgumentException(
+                    "아이디는 영문 소문자로 시작하는 5~20자의 영문 소문자, 숫자, 밑줄만 사용할 수 있습니다."
+            );
+        }
 
         if (WEAK_LOGIN_IDS.contains(loginId)
                 || loginId.matches("^(.)\\1{4,}$")
