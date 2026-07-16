@@ -2,174 +2,170 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${hospital.name} + ' - PetCity'">병원 상세보기</title>
+    <title th:text="${hospital.name} + ' - PetCity'">병원 상세</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Spring Security CSRF 토큰 세팅 -->
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <link rel="stylesheet" th:href="@{/css/hospital/view.css}">
 </head>
 <body class="bg-slate-50 pb-20 lg:pb-0">
 <div th:replace="~{common/head :: head}"></div>
 
-<!-- 상단 썸네일 배너 -->
+<!-- 상단 배너 이미지 -->
 <section class="hospital-banner">
     <div class="banner-bg">
-        <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" alt="병원 배경">
+        <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" alt="병원 이미지">
         <div th:unless="${hospital.imageUrl != null and hospital.imageUrl != ''}" class="banner-placeholder">🏥 PetCity</div>
     </div>
 </section>
 
-<!-- 메인 컨텐츠 영역 -->
+<!-- 병원 기본 정보 요약 영역 -->
 <main class="view-wrap max-w-4xl mx-auto mt-[-60px] relative z-10">
-
     <section class="info-card relative bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
         <div class="info-badges mb-3 flex gap-2">
-            <span th:if="${hospital.currentStatus == '진료중'}" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">🟢 진료중</span>
-            <span th:if="${hospital.currentStatus == '휴게시간'}" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">🟡 휴게시간</span>
-            <span th:if="${hospital.currentStatus == '휴무일'}" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">🔴 휴무일</span>
-            <span th:if="${hospital.currentStatus == '진료 종료'}" class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">🌙 진료 종료</span>
-            <span class="badge-district bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-xs font-bold" th:text="${hospital.district}">강남구</span>
+            <span th:if="${hospital.currentStatus == '진료중'}" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">진료중</span>
+            <span th:if="${hospital.currentStatus == '점심시간'}" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">점심시간</span>
+            <span th:if="${hospital.currentStatus == '진료종료'}" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">진료종료</span>
+            <span th:if="${hospital.currentStatus == '휴무일'}" class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">휴무일</span>
+            <span class="badge-district bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-xs font-bold" th:text="${hospital.district}">지역구</span>
         </div>
-
         <div class="flex justify-between items-start mb-4">
-            <h1 class="h-name text-3xl font-extrabold text-slate-800" th:text="${hospital.name}">병원명</h1>
+            <h1 class="h-name text-3xl font-extrabold text-slate-800" th:text="${hospital.name}">병원 이름</h1>
             <button id="btnShare" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-bold px-4 py-2 rounded-lg transition flex items-center gap-1">
-                🔗 공유하기
+                공유하기
             </button>
         </div>
-
         <div class="h-stats flex items-center gap-3 text-sm font-bold text-slate-600 mb-4">
-            <span>⭐ 별점 <strong class="text-amber-500 text-base" th:text="${hospital.avgRating != null ? hospital.avgRating : '0.0'}">0</strong></span>
+            <span>평점 <strong class="text-amber-500 text-base" th:text="${hospital.avgRating != null ? hospital.avgRating : '0.0'}">0</strong></span>
             <span class="text-slate-300">|</span>
-            <span>📝 방문자리뷰 <strong class="text-sky-500 text-base" th:text="${#lists.size(reviewList)}">0</strong></span>
+            <span>리뷰 <strong class="text-sky-500 text-base" th:text="${#lists.size(reviewList)}">0</strong></span>
             <span class="text-slate-300">|</span>
-            <span>💖 찜 <strong class="text-rose-500 text-base" th:text="${hospital.zzimCount}">0</strong></span>
+            <span>관심 <strong class="text-rose-500 text-base" th:text="${hospital.zzimCount}">0</strong></span>
         </div>
-
         <div class="h-tags flex flex-wrap gap-2 mb-6">
-            <span class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-xs font-bold" th:if="${hospital.animalNames != null}" th:each="animal : ${hospital.animalNames.split(',')}" th:text="'#'+${animal.trim()}">#강아지</span>
-            <span class="bg-indigo-50 text-indigo-500 px-2 py-1 rounded text-xs font-bold" th:if="${hospital.serviceNames != null}" th:each="svc : ${hospital.serviceNames.split(',')}" th:text="'#'+${svc.trim()}">#내과</span>
+            <span class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-xs font-bold" th:if="${hospital.animalNames != null}" th:each="animal : ${hospital.animalNames.split(',')}" th:text="'#'+${animal.trim()}">#태그</span>
+            <span class="bg-indigo-50 text-indigo-500 px-2 py-1 rounded text-xs font-bold" th:if="${hospital.serviceNames != null}" th:each="svc : ${hospital.serviceNames.split(',')}" th:text="'#'+${svc.trim()}">#서비스</span>
         </div>
-
         <div class="h-buttons grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <button class="btn-primary bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition" onclick="alert('전화연결: ' + this.dataset.phone)" th:data-phone="${hospital.phone}">📞 전화하기</button>
+            <button class="btn-primary bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition" onclick="alert('전화연결: ' + this.dataset.phone)" th:data-phone="${hospital.phone}">전화 예약하기</button>
             <button class="btn-secondary bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition" onclick="alert('채팅 상담 기능은 준비 중입니다.');">💬 1:1 상담</button>
-            <a class="btn-outline border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-3 rounded-xl flex items-center justify-center transition" th:if="${hospital.websiteUrl != null and hospital.websiteUrl != ''}" th:href="${hospital.websiteUrl}" target="_blank">🌐 웹사이트</a>
+            <a class="btn-outline border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-3 rounded-xl flex items-center justify-center transition" th:if="${hospital.websiteUrl != null and hospital.websiteUrl != ''}" th:href="${hospital.websiteUrl}" target="_blank">홈페이지 바로가기</a>
         </div>
     </section>
 
-    <!-- 스티키 탭 메뉴 -->
+    <!-- 스티키 탭 네비게이션 -->
     <nav class="sticky-tabs flex gap-2 p-2 bg-white/95 backdrop-blur sticky top-0 z-40 mt-8 rounded-2xl shadow-sm border border-slate-200" id="stickyTabs">
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl bg-sky-500 text-white shadow-md active" data-target="#section-intro">병원 소개</button>
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-price">진료/비용 안내</button>
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-info">위치/시간</button>
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-review">리뷰/후기</button>
+        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl bg-sky-500 text-white shadow-md active" data-target="#section-intro">병원소개</button>
+        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-price">진료항목</button>
+        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-info">상세정보</button>
+        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-review">리뷰보기</button>
     </nav>
 
     <div class="content-sections bg-white p-8 mt-4 rounded-2xl shadow-sm border border-slate-100 mb-20">
 
-        <!-- 1. 병원 소개 -->
+        <!-- 1. 병원소개 -->
         <section id="section-intro" class="view-section mb-16 pt-6">
-            <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">병원 소개</h3>
+            <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">안녕하세요!</h3>
             <div class="intro-box text-slate-600 leading-relaxed bg-slate-50 p-6 rounded-xl">
-                <p th:utext="${hospital.description != null ? hospital.description.replace('\n', '<br/>') : '등록된 소개글이 없습니다.'}"></p>
+                <p th:utext="${hospital.description != null ? hospital.description.replace('\n', '<br/>') : '병원 소개가 없습니다.'}"></p>
             </div>
         </section>
 
-        <!-- 2. 진료/비용 안내 -->
+        <!-- 2. 진료항목(비용) -->
         <section id="section-price" class="view-section mb-16 pt-6">
             <div class="flex justify-between items-end mb-6">
-                <h3 class="sec-title text-xl font-extrabold text-slate-800">주요 진료 및 예상 비용</h3>
-                <span class="text-xs text-slate-400 font-bold">* 실제 비용은 동물의 상태에 따라 달라질 수 있습니다.</span>
+                <h3 class="sec-title text-xl font-extrabold text-slate-800">대표 진료 항목</h3>
+                <span class="text-xs text-slate-400 font-bold">* 실제 비용은 병원 사정에 따라 다를 수 있습니다.</span>
             </div>
-
             <div class="border border-slate-200 rounded-xl overflow-hidden">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center hover:bg-slate-50 transition">
                     <div>
-                        <span class="bg-indigo-100 text-indigo-600 text-[10px] font-bold px-2 py-1 rounded mb-1 inline-block">수술/시술</span>
-                        <h4 class="font-bold text-slate-700">강아지 스케일링 (5kg 미만)</h4>
-                        <p class="text-xs text-slate-400 mt-1">마취 전 검사 + 호흡마취 + 스케일링 + 불소도포</p>
+                        <span class="bg-indigo-100 text-indigo-600 text-[10px] font-bold px-2 py-1 rounded mb-1 inline-block">강아지</span>
+                        <h4 class="font-bold text-slate-700">기본 종합백신 (5kg 미만)</h4>
+                        <p class="text-xs text-slate-400 mt-1">기본 건강검진 포함</p>
                     </div>
                     <div class="text-right">
-                        <span class="text-sky-600 font-extrabold text-lg">상담 후 결정</span>
+                        <span class="text-sky-600 font-extrabold text-lg">25,000원</span>
                     </div>
                 </div>
-
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center hover:bg-slate-50 transition">
                     <div>
-                        <span class="bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-1 rounded mb-1 inline-block">건강검진</span>
-                        <h4 class="font-bold text-slate-700">고양이 종합 건강검진</h4>
-                        <p class="text-xs text-slate-400 mt-1">혈액검사 12종 + X-ray + 초음파 + 뇨검사</p>
+                        <span class="bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-1 rounded mb-1 inline-block">고양이</span>
+                        <h4 class="font-bold text-slate-700">중성화 수술</h4>
+                        <p class="text-xs text-slate-400 mt-1">마취 + X-ray + 혈액검사 포함</p>
                     </div>
                     <div class="text-right">
-                        <span class="text-sky-600 font-extrabold text-lg">상담 후 결정</span>
+                        <span class="text-sky-600 font-extrabold text-lg">150,000원~</span>
                     </div>
                 </div>
-
                 <div class="p-4 bg-slate-50 text-center">
-                    <button class="text-sm font-bold text-slate-500 hover:text-sky-600 transition" onclick="alert('DB 가격 테이블 연동 준비 중입니다.')">+ 다른 진료 항목 더보기</button>
+                    <button class="text-sm font-bold text-slate-500 hover:text-sky-600 transition" onclick="alert('DB 연동 예정입니다.')">+ 진료 항목 더보기</button>
                 </div>
             </div>
         </section>
 
-        <!-- 3. 진료/위치 정보 -->
+        <!-- 3. 상세정보 (지도/영업시간) -->
         <section id="section-info" class="view-section mb-16 pt-6">
-            <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">위치 및 진료 시간</h3>
-
+            <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">오시는 길 & 진료시간</h3>
             <div class="grid md:grid-cols-2 gap-8">
                 <div>
                     <div class="bg-slate-50 p-5 rounded-xl mb-4">
                         <div class="flex gap-3 mb-2">
                             <span class="text-xl">📍</span>
                             <div>
-                                <strong class="block text-slate-700" th:text="${hospital.address}">도로명 주소</strong>
-                                <span class="text-sm text-slate-500 block mt-1" th:text="${hospital.detailAddress}">상세 주소</span>
+                                <strong class="block text-slate-700" th:text="${hospital.address}">기본주소</strong>
+                                <span class="text-sm text-slate-500 block mt-1" th:text="${hospital.detailAddress}">상세주소</span>
                             </div>
                         </div>
                     </div>
-
                     <div class="bg-slate-50 p-5 rounded-xl">
                         <div class="flex gap-3">
                             <span class="text-xl">⏰</span>
                             <div class="text-sm font-bold text-slate-600 space-y-2">
                                 <p><span class="inline-block w-16 text-slate-400">진료시간</span> <span th:text="${hospital.openTime != null ? hospital.openTime + ' ~ ' + hospital.closeTime : '미등록'}"></span></p>
-                                <p th:if="${hospital.lunchTime != null and hospital.lunchTime != ''}"><span class="inline-block w-16 text-slate-400">휴게시간</span> <span class="text-amber-600" th:text="${hospital.lunchTime}"></span></p>
-                                <p th:if="${hospital.holiday != null and hospital.holiday != ''}"><span class="inline-block w-16 text-slate-400">휴무일</span> <span class="text-red-500" th:text="${hospital.holiday}"></span></p>
+                                <p th:if="${hospital.lunchTime != null and hospital.lunchTime != ''}"><span class="inline-block w-16 text-slate-400">점심시간</span> <span class="text-amber-600" th:text="${hospital.lunchTime}"></span></p>
+                                <p th:if="${hospital.holiday != null and hospital.holiday != ''}"><span class="inline-block w-16 text-slate-400">휴진안내</span> <span class="text-red-500" th:text="${hospital.holiday}"></span></p>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="relative h-64 rounded-xl overflow-hidden border border-slate-200">
                     <div id="kakaoMap" class="w-full h-full"></div>
-                    <a href="#" id="kakaoMapLink" target="_blank" class="absolute bottom-3 right-3 bg-white/90 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 shadow-md hover:bg-sky-50 transition">🗺️ 카카오맵 크게보기</a>
+                    <a href="#" id="kakaoMapLink" target="_blank" class="absolute bottom-3 right-3 bg-white/90 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 shadow-md hover:bg-sky-50 transition">길찾기</a>
                 </div>
             </div>
         </section>
 
-        <!-- 4. 리뷰 영역 -->
+        <!-- 4. 리뷰보기 -->
         <section id="section-review" class="view-section pt-6">
             <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">방문자 리뷰 (<span th:text="${#lists.size(reviewList)}">0</span>)</h3>
 
+            <!-- 비로그인 상태일 때 보여주는 폼 -->
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center" th:if="${session.loginMember == null}">
-                <div class="text-4xl mb-3">🔒</div>
-                <p class="text-slate-600 font-bold mb-4">리뷰는 <strong>회원가입 후 로그인</strong>을 해야 열람 및 작성이 가능합니다.</p>
-                <a href="/member/login" class="inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-2 rounded-lg transition">로그인 하러가기</a>
+                <div class="text-4xl mb-3">📝</div>
+                <p class="text-slate-600 font-bold mb-4">리뷰 작성은 <strong>로그인 후</strong> 이용 가능합니다.</p>
+                <a href="/member/login" class="inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-2 rounded-lg transition">로그인하러 가기</a>
             </div>
 
-            <!-- 보호자 신규 리뷰 작성 폼 -->
+            <!-- 로그인 상태일 때 보여주는 리뷰 작성 폼 -->
             <div class="review-content" th:unless="${session.loginMember == null}">
                 <div class="bg-white border-2 border-sky-100 rounded-xl p-5 mb-8 shadow-sm">
                     <input type="hidden" id="reviewHospitalId" th:value="${hospital.hospitalId}">
+                    <!-- 혹시 view.js에서 멤버 ID를 검증할까봐 히든 인풋 추가 -->
+                    <input type="hidden" id="loginMemberId" th:value="${session.loginMember.memberId}">
 
                     <div class="mb-3 flex gap-2">
-                        <button type="button" class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-600 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1" onclick="alert('반려동물 DB 연동 전입니다. 자유 후기로 작성해주세요!')">
-                            🐾 내 반려동물 선택 (선택)
+                        <button type="button" class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-600 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1" onclick="alert('영수증 인증 기능은 DB 연동 필요합니다!')">
+                            영수증 인증하기
                         </button>
                     </div>
-
-                    <textarea id="reviewContent" class="w-full h-24 p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-sky-400 focus:bg-white transition resize-none text-sm" placeholder="병원 방문 후기를 남겨주세요! 등록된 동물을 선택하면 더 구체적인 후기가 됩니다. (최대 1000자)" maxlength="1000"></textarea>
-
+                    <textarea id="reviewContent" class="w-full h-24 p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-sky-400 focus:bg-white transition resize-none text-sm" placeholder="솔직한 리뷰를 남겨주세요! (최대 1000자)" maxlength="1000"></textarea>
                     <div class="flex justify-between items-center mt-3">
                         <div class="star-rating-select flex gap-1 text-2xl" id="starRatingSelect">
                             <span data-value="1" class="active text-amber-400 cursor-pointer">★</span>
@@ -178,26 +174,25 @@
                             <span data-value="4" class="active text-amber-400 cursor-pointer">★</span>
                             <span data-value="5" class="active text-amber-400 cursor-pointer">★</span>
                         </div>
-
                         <div class="flex items-center gap-4">
-                            <span id="charCount" class="text-xs font-bold text-slate-400">0 / 1000자</span>
+                            <span id="charCount" class="text-xs font-bold text-slate-400">0 / 1000 자</span>
                             <input type="hidden" id="reviewRating" value="5">
-                            <button type="button" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2 rounded-lg transition text-sm" id="btnSubmitReview">리뷰 등록</button>
+                            <button type="button" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2 rounded-lg transition text-sm" id="btnSubmitReview">리뷰 등록하기</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- 작성된 리뷰 리스트 렌더링 -->
                 <ul class="space-y-4">
                     <li class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm" th:each="review : ${reviewList}">
                         <div class="flex justify-between items-center mb-2">
                             <div class="flex items-center gap-2">
                                 <strong class="text-slate-700 font-bold text-sm" th:text="${review.nickname}">작성자</strong>
-                                <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.petName != null}" th:text="${review.petName} + ' (' + ${review.petBreed} + ')'">초코(말티즈)</span>
+                                <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.petName != null}" th:text="${review.petName} + ' (' + ${review.petBreed} + ')'">반려동물(종)</span>
                             </div>
-                            <span class="text-[11px] text-slate-400 font-bold" th:text="${#calendars.format(review.createdAt, 'yyyy.MM.dd HH:mm')}">작성일</span>
+                            <span class="text-[11px] text-slate-400 font-bold" th:text="${#calendars.format(review.createdAt, 'yyyy.MM.dd HH:mm')}">날짜</span>
                         </div>
-                        <div class="text-amber-400 text-sm mb-3" th:text="${'★'.repeat(review.rating)} + ${'☆'.repeat(5 - review.rating)}">★★★★★</div>
-
+                        <div class="text-amber-400 text-sm mb-3" th:text="${'★'.repeat(review.rating)} + ${'☆'.repeat(5 - review.rating)}">별점</div>
                         <div>
                             <div class="r-text-content text-slate-600 text-sm leading-relaxed whitespace-pre-wrap"
                                  th:data-full="${review.content}"
@@ -207,23 +202,16 @@
                             <button type="button" class="btn-more-text text-sky-500 font-bold text-xs mt-2 hover:underline" th:if="${#strings.length(review.content) > 150}">더보기</button>
                         </div>
 
-                        <!-- ============================================== -->
-                        <!-- 🌟 [수정됨] 병원장/관리자 전용 답글 표시 영역 및 수정 기능 -->
-                        <!-- ============================================== -->
+                        <!-- 병원측/관리자 답글 -->
                         <div class="mt-4 bg-slate-50 p-4 rounded-xl border border-slate-200" th:if="${review.replyContent != null}">
-
-                            <!-- 뱃지 및 수정버튼 -->
                             <div class="flex items-center gap-2 mb-2 justify-between">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-extrabold text-slate-700" th:text="${review.replyRole == 'ADMIN' ? 'PetCity 관리자' : hospital.name}">병원명</span>
-                                    <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.replyRole == 'OWNER'}">병원장</span>
-                                    <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.replyRole == 'ADMIN'}">관리자</span>
+                                    <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.replyRole == 'OWNER'}">병원원장</span>
+                                    <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.replyRole == 'ADMIN'}">공식답변</span>
                                 </div>
-                                <!-- 관리자나 해당 병원장일 경우 수정 버튼 노출 -->
-                                <button type="button" class="btn-edit-reply text-xs font-bold text-sky-500 hover:underline" th:if="${session.loginMember != null and (session.loginMember.role == 'ADMIN' or (session.loginMember.role == 'OWNER' and hospital.ownerId == session.loginMember.memberId))}">수정</button>
+                                <button type="button" class="btn-edit-reply text-xs font-bold text-sky-500 hover:underline" th:if="${session.loginMember != null and (session.loginMember.role == 'ADMIN' or (session.loginMember.role == 'OWNER' and hospital.ownerId == session.loginMember.memberId))}">답글수정</button>
                             </div>
-
-                            <!-- 기존 답글 텍스트 (150자 더보기 적용) -->
                             <div class="reply-display-area">
                                 <div class="r-text-content text-sm text-slate-600 whitespace-pre-wrap leading-relaxed"
                                      th:data-full="${review.replyContent}"
@@ -233,61 +221,103 @@
                                 <button type="button" class="btn-more-text text-sky-500 font-bold text-xs mt-2 hover:underline" th:if="${#strings.length(review.replyContent) > 150}">더보기</button>
                             </div>
 
-                            <!-- 답글 수정 폼 (초기엔 숨김) -->
+                            <!-- 답글 수정 폼 (관리자/원장) -->
                             <div class="reply-form-box hidden mt-3">
-                                <textarea class="reply-textarea w-full h-24 p-3 bg-white border border-sky-200 rounded-lg text-sm resize-none focus:border-sky-400 outline-none" placeholder="보호자님께 남길 따뜻한 답글을 작성해주세요. (최대 1000자)" maxlength="1000" th:text="${review.replyContent}"></textarea>
+                                <textarea class="reply-textarea w-full h-24 p-3 bg-white border border-sky-200 rounded-lg text-sm resize-none focus:border-sky-400 outline-none" placeholder="답글을 작성해주세요 (최대 1000자)" maxlength="1000" th:text="${review.replyContent}"></textarea>
                                 <div class="flex justify-between items-center mt-2">
-                                    <span class="reply-char-count text-xs font-bold text-slate-400" th:text="${#strings.length(review.replyContent)} + ' / 1000자'">0 / 1000자</span>
+                                    <span class="reply-char-count text-xs font-bold text-slate-400" th:text="${#strings.length(review.replyContent)} + ' / 1000 자'">0 / 1000 자</span>
                                     <div class="space-x-2">
                                         <button type="button" class="btn-cancel-reply bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition">취소</button>
-                                        <button type="button" class="btn-submit-reply bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-lg text-xs font-bold transition" th:data-review-id="${review.reviewId}">답글 수정</button>
+                                        <button type="button" class="btn-submit-reply bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-lg text-xs font-bold transition" th:data-review-id="${review.reviewId}">수정완료</button>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
 
-                        <!-- 🌟 권한 체크 후 신규 답글 작성 폼 (답글이 없을 때만 보임) -->
+                        <!-- 답글 작성 버튼 (권한자 & 답글없을때) -->
                         <div class="mt-3" th:if="${session.loginMember != null and (session.loginMember.role == 'ADMIN' or (session.loginMember.role == 'OWNER' and hospital.ownerId == session.loginMember.memberId)) and review.replyContent == null}">
-                            <button type="button" class="btn-toggle-reply text-xs font-bold text-sky-500 hover:underline">↳ 병원장/관리자 답글 달기</button>
+                            <button type="button" class="btn-toggle-reply text-xs font-bold text-sky-500 hover:underline">↳ 답글 달기</button>
                             <div class="reply-form-box hidden mt-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                <textarea class="reply-textarea w-full h-24 p-3 bg-white border border-sky-200 rounded-lg text-sm resize-none focus:border-sky-400 outline-none" placeholder="보호자님께 남길 따뜻한 답글을 작성해주세요. (최대 1000자)" maxlength="1000"></textarea>
+                                <textarea class="reply-textarea w-full h-24 p-3 bg-white border border-sky-200 rounded-lg text-sm resize-none focus:border-sky-400 outline-none" placeholder="답글을 작성해주세요 (최대 1000자)" maxlength="1000"></textarea>
                                 <div class="flex justify-between items-center mt-2">
-                                    <span class="reply-char-count text-xs font-bold text-slate-400">0 / 1000자</span>
-                                    <button type="button" class="btn-submit-reply bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-lg text-xs font-bold transition" th:data-review-id="${review.reviewId}">답글 등록</button>
+                                    <span class="reply-char-count text-xs font-bold text-slate-400">0 / 1000 자</span>
+                                    <button type="button" class="btn-submit-reply bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-lg text-xs font-bold transition" th:data-review-id="${review.reviewId}">답글등록</button>
                                 </div>
                             </div>
                         </div>
-
                     </li>
-
                     <li th:if="${#lists.isEmpty(reviewList)}" class="text-center py-10 text-slate-400 font-bold bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        등록된 리뷰가 없습니다. 첫 리뷰를 작성해 보세요!
+                        아직 작성된 리뷰가 없습니다.<br>첫 리뷰의 주인공이 되어보세요!
                     </li>
                 </ul>
             </div>
         </section>
     </div>
-
 </main>
 
-<!-- 모바일용 하단 고정 예약 바 -->
+<!-- 모바일 전용 하단 고정 버튼 -->
 <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-3 flex gap-2 z-50 lg:hidden shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
-    <button th:if="${session.loginMember == null}" class="btn-list-zzim is-anonymous flex-1 bg-rose-50 text-rose-400 font-bold py-3 rounded-xl flex justify-center items-center gap-2" onclick="alert('로그인 후 이용 부탁드립니다.'); location.href='/member/login';">
+    <button th:if="${session.loginMember == null}" class="btn-list-zzim is-anonymous flex-1 bg-rose-50 text-rose-400 font-bold py-3 rounded-xl flex justify-center items-center gap-2" onclick="alert('로그인 후 이용 가능합니다.'); location.href='/member/login';">
         <i class="icon-heart text-xl">♥</i> <span class="count text-base" th:text="${hospital.zzimCount}">0</span>
     </button>
     <button th:unless="${session.loginMember == null}" class="btn-list-zzim btn-zzim-toggle flex-1 bg-rose-50 text-rose-400 font-bold py-3 rounded-xl flex justify-center items-center gap-2" th:classappend="${isZzim} ? 'text-rose-600' : ''" th:data-id="${hospital.hospitalId}">
         <i class="icon-heart text-xl">♥</i> <span class="count text-base" th:text="${hospital.zzimCount}">0</span>
     </button>
-    <button class="flex-[2] bg-sky-500 hover:bg-sky-600 text-white font-extrabold py-3 rounded-xl transition" onclick="alert('전화연결: ' + this.dataset.phone)" th:data-phone="${hospital.phone}">📞 전화상담</button>
+    <button class="flex-[2] bg-sky-500 hover:bg-sky-600 text-white font-extrabold py-3 rounded-xl transition" onclick="alert('전화연결: ' + this.dataset.phone)" th:data-phone="${hospital.phone}">전화 예약하기</button>
 </div>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
+
+<!-- 궁극의 통신 에러 방어 코드 (어떤 환경이든 통과합니다) -->
 <script th:inline="javascript">
     const lat = [[${hospital.latitude != null ? hospital.latitude : 0}]];
     const lng = [[${hospital.longitude != null ? hospital.longitude : 0}]];
     const hName = [[${hospital.name}]];
     const currentHospital = { id: [[${hospital.hospitalId}]], name: [[${hospital.name}]], img: [[${hospital.imageUrl}]] };
+
+    const csrfHeader = /*[[${_csrf?.headerName}]]*/ 'X-CSRF-TOKEN';
+    const csrfToken = /*[[${_csrf?.token}]]*/ '';
+
+    // 1. Fetch API 가로채기 (Headers 객체 및 쿠키 전송 완벽 대응)
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+        let [resource, config] = args;
+        if (!config) config = {};
+
+        // 쿠키(세션) 강제 포함 및 AJAX 요청 명시
+        config.credentials = 'include';
+
+        const isPostMethod = config.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(config.method.toUpperCase());
+
+        if (config.headers instanceof Headers) {
+            config.headers.set('X-Requested-With', 'XMLHttpRequest');
+            if (isPostMethod && csrfHeader && csrfToken) {
+                config.headers.set(csrfHeader, csrfToken);
+            }
+        } else {
+            config.headers = config.headers || {};
+            config.headers['X-Requested-With'] = 'XMLHttpRequest';
+            if (isPostMethod && csrfHeader && csrfToken) {
+                config.headers[csrfHeader] = csrfToken;
+            }
+        }
+
+        return originalFetch(resource, config);
+    };
+
+    // 2. jQuery AJAX 가로채기
+    if (typeof jQuery !== 'undefined') {
+        jQuery.ajaxSetup({
+            xhrFields: { withCredentials: true },
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        jQuery(document).ajaxSend(function(event, xhr, options) {
+            const isPostMethod = options.type && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.type.toUpperCase());
+            if (isPostMethod && csrfHeader && csrfToken) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
+            }
+        });
+    }
 
     let recents = JSON.parse(localStorage.getItem('petcity_recent') || '[]');
     recents = recents.filter(h => h.id !== currentHospital.id);
@@ -295,7 +325,6 @@
     if (recents.length > 3) recents.pop();
     localStorage.setItem('petcity_recent', JSON.stringify(recents));
 </script>
-<script th:src="@{/js/hospital/view.js?v=13}"></script>
-
+<script th:src="@{/js/hospital/view.js?v=17}"></script>
 </body>
 </html>
