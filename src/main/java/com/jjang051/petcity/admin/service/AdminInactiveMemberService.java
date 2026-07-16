@@ -15,4 +15,13 @@ public class AdminInactiveMemberService {
         return adminInactiveMemberDao.blockInactiveMembers();
     }
 
+    @Transactional
+    public int markBlockedMembersAsDeleted(){
+        return adminInactiveMemberDao.markBlockedMembersAsDeleted();
+    }
+
+    @Transactional
+    public int hardDeleteExpiredInactiveMembers() {
+        return adminInactiveMemberDao.hardDeleteExpiredInactiveMembers();
+    }
 }
