@@ -2,39 +2,85 @@ document.addEventListener("DOMContentLoaded", function () {
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     const form = document.querySelector("#mainBannerCreateForm");
+
     const titleInput = document.querySelector("#title");
     const titleLength = document.querySelector("#titleLength");
+
     const subTitleInput = document.querySelector("#subTitle");
     const subTitleLength = document.querySelector("#subTitleLength");
 
-    const imageSourceOptions = Array.from(document.querySelectorAll(
+    const imageSourceOptions = Array.from(
+        document.querySelectorAll(
             'input[name="imageSourceType"]',
         ),
     );
 
-    const imageFileArea = document.querySelector("#imageFileArea");
-    const imageUrlArea = document.querySelector("#imageUrlArea");
-    const bannerImageFile = document.querySelector("#bannerImageFile");
-    const imageUrlInput = document.querySelector("#imageUrl");
-    const selectedFileInfo = document.querySelector("#selectedFileInfo");
-    const selectedFileName = document.querySelector("#selectedFileName");
-    const clearSelectedImage = document.querySelector("#clearSelectedImage");
-    const bannerPreviewPlaceholder = document.querySelector("#bannerPreviewPlaceholder");
-    const linkUrlInput = document.querySelector("#linkUrl");
-    const displayOrderInput = document.querySelector("#displayOrder");
+    const imageFileArea =
+        document.querySelector("#imageFileArea");
 
-    const activeYnSelect = document.querySelector("#activeYn");
-    const startAtInput = document.querySelector("#startAt");
-    const endAtInput = document.querySelector("#endAt");
-    const submitBannerButton = document.querySelector("#submitBannerButton");
-    const bannerPreviewLink = document.querySelector("#bannerPreviewLink");
-    const bannerPreviewImage = document.querySelector("#bannerPreviewImage");
-    const bannerPreviewTitle = document.querySelector("#bannerPreviewTitle");
-    const bannerPreviewSubTitle = document.querySelector("#bannerPreviewSubTitle");
-    const previewDisplayOrder = document.querySelector("#previewDisplayOrder");
-    const previewLinkUrl = document.querySelector("#previewLinkUrl");
-    const previewImageSourceType = document.querySelector("#previewImageSourceType");
-    const previewActiveBadge = document.querySelector("#previewActiveBadge");
+    const imageUrlArea =
+        document.querySelector("#imageUrlArea");
+
+    const bannerImageFile =
+        document.querySelector("#bannerImageFile");
+
+    const imageUrlInput =
+        document.querySelector("#imageUrl");
+
+    const selectedFileInfo =
+        document.querySelector("#selectedFileInfo");
+
+    const selectedFileName =
+        document.querySelector("#selectedFileName");
+
+    const clearSelectedImage =
+        document.querySelector("#clearSelectedImage");
+
+    const bannerPreviewPlaceholder =
+        document.querySelector("#bannerPreviewPlaceholder");
+
+    const linkUrlInput =
+        document.querySelector("#linkUrl");
+
+    const displayOrderInput =
+        document.querySelector("#displayOrder");
+
+    const activeYnSelect =
+        document.querySelector("#activeYn");
+
+    const startAtInput =
+        document.querySelector("#startAt");
+
+    const endAtInput =
+        document.querySelector("#endAt");
+
+    const submitBannerButton =
+        document.querySelector("#submitBannerButton");
+
+    const bannerPreviewLink =
+        document.querySelector("#bannerPreviewLink");
+
+    const bannerPreviewImage =
+        document.querySelector("#bannerPreviewImage");
+
+    const bannerPreviewTitle =
+        document.querySelector("#bannerPreviewTitle");
+
+    const bannerPreviewSubTitle =
+        document.querySelector("#bannerPreviewSubTitle");
+
+    const previewDisplayOrder =
+        document.querySelector("#previewDisplayOrder");
+
+    const previewLinkUrl =
+        document.querySelector("#previewLinkUrl");
+
+    const previewImageSourceType =
+        document.querySelector("#previewImageSourceType");
+
+    const previewActiveBadge =
+        document.querySelector("#previewActiveBadge");
+
     let previewObjectUrl = null;
 
     updateTitlePreview();
@@ -75,130 +121,122 @@ document.addEventListener("DOMContentLoaded", function () {
                 clearFilePreview();
                 return;
             }
+
             if (!isAllowedImageFile(file)) {
                 alert(
                     "JPG, JPEG, PNG, WEBP, GIF, AVIF 형식의 이미지만 등록할 수 있습니다.",
                 );
+
                 clearFileInput();
                 clearFilePreview();
+
                 return;
             }
 
             if (file.size > MAX_FILE_SIZE) {
-                alert("이미지 파일은 10MB 이하로 등록해주세요");
+                alert(
+                    "이미지 파일은 10MB 이하로 등록해 주세요.",
+                );
+
                 clearFileInput();
                 clearFilePreview();
+
                 return;
             }
+
             showSelectedFile(file);
             showFilePreview(file);
         });
     }
 
-
     if (clearSelectedImage !== null) {
         clearSelectedImage.addEventListener("click", function () {
-                clearFileInput();
-                clearFilePreview();
-            },
-        );
+            clearFileInput();
+            clearFilePreview();
+        });
     }
 
     if (imageUrlInput !== null) {
         imageUrlInput.addEventListener("input", function () {
-            const selectedType = getImageSourceType();
-            if (selectedType !== "URL") {
-                return;
-            }
-            showUrlPreview(imageUrlInput.value.trim());
-        });
-
-
-        imageUrlInput.addEventListener("blur", function () {
-            const imageUrl = imageUrlInput.value.trim();
-            if (imageUrl.length === 0) {
+            if (getImageSourceType() !== "URL") {
                 return;
             }
 
-            if (!isAllowedImageUrl(imageUrl)) {
-                alert("이미지 주소는 JPG, JPEG, PNG, WEBP, GIF, AVIF 형식이어야 합니다.",);
-                imageUrlInput.focus();
-            }
+            const imageUrl =
+                imageUrlInput.value.trim();
+
+            showUrlPreview(imageUrl);
         });
     }
+
     if (linkUrlInput !== null) {
         linkUrlInput.addEventListener("input", function () {
             updateLinkPreview();
         });
-        linkUrlInput.addEventListener("blur", function () {
-            const linkUrl = linkUrlInput.value.trim();
-            if (linkUrl.length === 0) {
-                return;
-            }
-            if (!isValidLinkUrl(linkUrl)) {
-                alert( "연결 링크는 /로 시작하는 내부 주소 또는 http://, https:// 주소로 입력해 주세요.",);
-
-                linkUrlInput.focus();
-            }
-        });
     }
+
     if (displayOrderInput !== null) {
         displayOrderInput.addEventListener("input", function () {
             updateDisplayOrderPreview();
         });
+
         displayOrderInput.addEventListener("blur", function () {
-            const displayOrder = Number(displayOrderInput.value);
-            if (!Number.isInteger(displayOrder)|| displayOrder<1) {
-                displayOrderInput.value="1";
+            const displayOrder =
+                Number(displayOrderInput.value);
+
+            if (
+                !Number.isInteger(displayOrder)
+                || displayOrder < 1
+            ) {
+                displayOrderInput.value = "1";
                 updateDisplayOrderPreview();
             }
-        },);
+        });
     }
+
     if (activeYnSelect !== null) {
         activeYnSelect.addEventListener("change", function () {
             updateActivePreview();
-        },);
+        });
     }
+
     if (startAtInput !== null) {
         startAtInput.addEventListener("change", function () {
             validateDisplayPeriod();
-        },);
+        });
     }
 
     if (endAtInput !== null) {
         endAtInput.addEventListener("change", function () {
             validateDisplayPeriod();
-        },);
+        });
     }
-    // 여기부터!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     if (bannerPreviewLink !== null) {
-        bannerPreviewLink.addEventListener(
-            "click",
-            function (event) {
-                const linkUrl =
-                    linkUrlInput === null
-                        ? ""
-                        : linkUrlInput.value.trim();
+        bannerPreviewLink.addEventListener("click", function (event) {
+            const linkUrl =
+                linkUrlInput === null
+                    ? ""
+                    : linkUrlInput.value.trim();
 
-                if (linkUrl.length === 0) {
-                    event.preventDefault();
+            if (linkUrl.length === 0) {
+                event.preventDefault();
 
-                    alert(
-                        "연결 링크를 입력하면 미리보기에서 확인할 수 있습니다.",
-                    );
+                alert(
+                    "연결 링크를 입력하면 미리보기에서 확인할 수 있습니다.",
+                );
 
-                    return;
-                }
+                return;
+            }
 
-                if (!isValidLinkUrl(linkUrl)) {
-                    event.preventDefault();
+            if (!isValidLinkUrl(linkUrl)) {
+                event.preventDefault();
 
-                    alert(
-                        "올바른 연결 링크를 입력해 주세요.",
-                    );
-                }
-            },
-        );
+                alert(
+                    "올바른 연결 링크를 입력해 주세요.",
+                );
+            }
+        });
     }
 
     if (form !== null) {
@@ -210,24 +248,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
                 alert(validationMessage);
+
                 return;
             }
 
             if (submitBannerButton !== null) {
                 submitBannerButton.disabled = true;
-                submitBannerButton.textContent =
-                    "등록 중...";
+                submitBannerButton.textContent = "등록 중...";
             }
         });
     }
 
     function getImageSourceType() {
         const checkedOption =
-            imageSourceOptions.find(
-                function (option) {
-                    return option.checked;
-                },
-            );
+            imageSourceOptions.find(function (option) {
+                return option.checked;
+            });
 
         if (checkedOption === undefined) {
             return "FILE";
@@ -263,14 +299,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const file =
-                bannerImageFile !== null
-                    ? bannerImageFile.files[0]
-                    : undefined;
+                bannerImageFile === null
+                    ? undefined
+                    : bannerImageFile.files[0];
 
-            if (file !== undefined) {
-                showFilePreview(file);
-            } else {
+            if (file === undefined) {
                 hidePreviewImage();
+            } else {
+                showFilePreview(file);
             }
 
             return;
@@ -311,8 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (selectedFileName !== null) {
-            selectedFileName.textContent =
-                file.name;
+            selectedFileName.textContent = file.name;
         }
     }
 
@@ -379,6 +414,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         bannerPreviewImage.src = imageSource;
+
         updatePreviewAltText();
     }
 
@@ -599,9 +635,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (imageSourceType === "FILE") {
             const file =
-                bannerImageFile !== null
-                    ? bannerImageFile.files[0]
-                    : undefined;
+                bannerImageFile === null
+                    ? undefined
+                    : bannerImageFile.files[0];
 
             if (file === undefined) {
                 return "등록할 배너 이미지 파일을 선택해 주세요.";
@@ -709,22 +745,63 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function isValidHttpUrl(value) {
         try {
-            const url =
-                new URL(value);
+            const url = new URL(value);
 
-            return (
-                url.protocol === "http:"
-                || url.protocol === "https:"
+            if (
+                url.protocol !== "http:"
+                && url.protocol !== "https:"
+            ) {
+                return false;
+            }
+
+            const hostname =
+                url.hostname.toLowerCase();
+
+            if (hostname === "localhost") {
+                return true;
+            }
+
+            const allowedDomainSuffixes = [
+                ".com",
+                ".net",
+                ".org",
+                ".io",
+                ".dev",
+                ".app",
+                ".ai",
+                ".me",
+                ".info",
+                ".biz",
+                ".shop",
+                ".store",
+                ".site",
+                ".online",
+                ".xyz",
+                ".kr",
+                ".co.kr",
+                ".or.kr",
+                ".go.kr",
+                ".ac.kr",
+                ".ne.kr",
+                ".jp",
+                ".co.jp",
+            ];
+
+            return allowedDomainSuffixes.some(
+                function (suffix) {
+                    return (
+                        hostname.endsWith(suffix)
+                        && hostname.length > suffix.length
+                    );
+                },
             );
+
         } catch (error) {
             return false;
         }
     }
 
-    window.addEventListener(
-        "beforeunload",
-        function () {
-            revokePreviewObjectUrl();
-        },
-    );
+    window.addEventListener("beforeunload", function () {
+        revokePreviewObjectUrl();
+    });
 });
