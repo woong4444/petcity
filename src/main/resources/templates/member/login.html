@@ -2,6 +2,7 @@
 <html lang="ko"
       xmlns:th="http://www.thymeleaf.org">
 
+
 <head>
 
     <meta charset="UTF-8">
@@ -30,58 +31,51 @@
 
         <h1>로그인</h1>
 
-        <div th:if="${param.error}" class="error-msg">
+        <!-- 일반 로그인 실패 -->
+        <p th:if="${param.error != null
+          and param.error[0] == 'local'}"
+           class="login-error">
+
             아이디 또는 비밀번호가 올바르지 않습니다.
-        </div>
 
-        <!-- ================================================= -->
-        <!-- 07-15 오후 추가_상각 : SNS 이메일 수집 동의 -->
-        <!-- ================================================= -->
+        </p>
 
-        <div class="agreement-box">
+        <!-- 소셜 로그인 실패 -->
+        <p th:if="${param.error != null
+          and param.error[0] == 'social'}"
+           class="login-error">
 
-            <label class="agreement-label">
+            소셜 로그인 처리 중 문제가 발생했습니다.
+            로그아웃 후 다시 시도해 주세요.
 
-                <input
-                        type="checkbox"
-                        id="agreementEmail">
+        </p>
 
-                <span>
 
-            이메일 수집 및 개인정보 이용에 동의합니다.
-            <strong>(필수)</strong>
 
-        </span>
 
-            </label>
-
-            <p class="agreement-desc">
-
-                SNS 회원가입을 위해 이메일 수집 동의가 필요합니다.
-
-            </p>
-
-        </div>
-
-        <a href="/oauth2/authorization/google"
+        <a th:href="@{/oauth2/authorization/google}"
            id="googleLoginBtn"
+           data-provider="google"
            class="sns-btn google">
 
             Google로 시작하기
 
         </a>
 
-        <!-- Kakao -->
-        <a href="/oauth2/authorization/kakao"
+        <a th:href="@{/oauth2/authorization/kakao}"
+           id="kakaoLoginBtn"
+           data-provider="kakao"
            class="sns-btn kakao">
 
             Kakao로 로그인
 
         </a>
 
-        <!-- Naver -->
-        <a href="/oauth2/authorization/naver"
+        <a th:href="@{/oauth2/authorization/naver}"
+           id="naverLoginBtn"
+           data-provider="naver"
            class="sns-btn naver">
+
             NAVER로 로그인
 
         </a>
@@ -152,6 +146,8 @@
     </div>
 
 </div>
+
+
 
 </body>
 </html>

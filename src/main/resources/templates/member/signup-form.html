@@ -3,134 +3,151 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>일반 회원가입 | PetCity</title>
 
-    <!-- Header -->
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
 
-    <!-- Signup -->
-    <link rel="stylesheet" th:href="@{/css/member/signup.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/member/signup.css}">
 
+    <style>
+        .password-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-input-wrap .input {
+            width: 100%;
+            padding-right: 72px;
+            box-sizing: border-box;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .password-toggle-btn:hover {
+            text-decoration: underline;
+        }
+
+        .email-action-wrap {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .email-action-wrap .input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .resend-email-btn {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- ================= HEADER ================= -->
+<header th:replace="~{common/head :: head}">
+</header>
 
-<header th:replace="~{common/head :: head}"></header>
-
-<!-- ================= CONTENT ================= -->
-
-<!--<section class="signup-section">-->
+<section class="signup-section">
 
     <div class="signup-container">
 
-        <!-- ================= LEFT ================= -->
-
+        <!-- 왼쪽 소개 영역 -->
         <div class="signup-left">
 
-            <img
-                    th:src="@{/images/signup.jpg}"
-                    class="signup-image"
-                    alt="signup">
+            <img th:src="@{/images/signup.jpg}"
+                 class="signup-image"
+                 alt="PetCity 회원가입">
 
             <h2>
-
                 우리 아이를 위한<br>
                 동물병원 플랫폼
-
             </h2>
 
             <p>
-
                 가까운 병원 찾기부터<br>
                 진료기록 관리까지<br>
                 PetCity 하나면 충분합니다.
-
             </p>
 
             <ul>
-
                 <li>🏥 가까운 동물병원 찾기</li>
-
                 <li>📋 진료기록 관리</li>
-
                 <li>💉 예방접종 일정 관리</li>
-
                 <li>⭐ 병원 리뷰 확인</li>
-
             </ul>
 
         </div>
 
-        <!-- ================= RIGHT ================= -->
-
+        <!-- 오른쪽 회원가입 영역 -->
         <div class="signup-right">
 
             <h1>🐾 일반 회원가입</h1>
 
             <p>
-
                 회원 정보를 입력하여 가입하세요.
-
             </p>
 
-            <!-- ================= ERROR ================= -->
+            <div th:if="${message}"
+                 class="alert">
 
-            <div
-                    th:if="${message}"
-                    class="alert alert-error mb-4">
-
-                <span th:text="${message}"></span>
+                <span th:text="${message}">
+                    회원가입 오류
+                </span>
 
             </div>
 
-            <!-- ================= FORM ================= -->
-
-            <!-- 07-16 상각: 일반 회원가입 브라우저 입력 제약 -->
-            <form
-                    action="/member/signup"
-                    method="post"
-                    id="signupForm">
+            <form th:action="@{/member/signup}"
+                  method="post"
+                  id="signupForm">
 
                 <!-- 아이디 -->
+                <div class="form-control">
 
-                <div class="form-control mb-3">
+                    <label for="loginId"
+                           class="label">
 
-                    <label class="label">
-
-        <span class="label-text">
-
-            아이디
-
-        </span>
+                        <span class="label-text">
+                            아이디
+                        </span>
 
                     </label>
 
-                    <!-- ================================================= -->
-                    <!-- 07-15 추가 : 아이디 입력 + 중복확인 -->
-                    <!-- ================================================= -->
-
                     <div class="id-check-wrap">
 
-                        <input
-                                type="text"
-                                id="loginId"
-                                name="loginId"
-                                class="input input-bordered"
-                                placeholder="아이디를 입력하세요"
-                                autocomplete="off"
-                                minlength="5"
-                                maxlength="20"
-                                pattern="[a-z][a-z0-9_]{4,19}"
-                                title="영문 소문자로 시작하는 5~20자의 영문 소문자, 숫자, 밑줄만 사용할 수 있습니다."
-                                required>
+                        <input type="text"
+                               id="loginId"
+                               name="loginId"
+                               class="input"
+                               th:value="${oldLoginId}"
+                               placeholder="영문 소문자로 시작하는 5~20자"
+                               autocomplete="username"
+                               minlength="5"
+                               maxlength="20"
+                               pattern="[a-z][a-z0-9]{4,19}"
+                               title="아이디는 영문 소문자로 시작하는 5~20자의 영문 소문자와 숫자만 사용할 수 있습니다."
+                               required>
 
-                        <button
-                                type="button"
+                        <button type="button"
                                 id="checkLoginIdBtn"
                                 class="check-btn">
 
@@ -140,192 +157,253 @@
 
                     </div>
 
-                    <!-- ================================================= -->
-                    <!-- 07-15 추가 : 아이디 중복확인 결과 -->
-                    <!-- ================================================= -->
+                    <p id="loginIdMessage"
+                       class="check-message">
+                    </p>
 
-                    <div id="loginIdMessage"
-                         class="check-message">
-
-                    </div>
                 </div>
+
                 <!-- 비밀번호 -->
+                <div class="form-control">
 
-                <div class="form-control mb-3">
-
-                    <label class="label">
+                    <label for="password"
+                           class="label">
 
                         <span class="label-text">
-
                             비밀번호
-
                         </span>
 
                     </label>
 
-                    <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="input input-bordered"
-                            minlength="9"
-                            maxlength="64"
-                            autocomplete="new-password"
-                            title="9~64자이며 영문 대·소문자, 숫자, 특수문자 중 3종 이상을 사용해주세요."
-                            placeholder="비밀번호"
-                            required>
+                    <div class="password-input-wrap">
 
-                </div>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               class="input"
+                               placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+                               autocomplete="new-password"
+                               minlength="8"
+                               maxlength="64"
+                               required>
 
+                        <button type="button"
+                                id="togglePasswordBtn"
+                                class="password-toggle-btn">
 
-                <!-- ========================= -->
-                <!-- 비밀번호 확인 -->
-                <!-- ========================= -->
+                            보기
 
-                <div class="form-control mb-3">
+                        </button>
 
-                    <label class="label">
-
-                        <span class="label-text">
-
-                            비밀번호 확인
-
-                        </span>
-
-                    </label>
-
-                    <input
-                            type="password"
-                            id="passwordCheck"
-                            name="passwordConfirm"
-                            class="input input-bordered"
-                            autocomplete="new-password"
-                            placeholder="비밀번호 확인"
-                            required>
-
-                    <label class="label">
-
-                        <span
-                                id="passwordMessage"
-                                class="label-text-alt">
-
-                        </span>
-
-                    </label>
-
-                </div>
-
-                <!-- ========================= -->
-                <!-- 닉네임 -->
-                <!-- ========================= -->
-
-                <div class="form-control mb-3">
-
-                    <label class="label">
-
-                        <span class="label-text">
-
-                            닉네임
-
-                        </span>
-
-                    </label>
-
-                    <input
-                            type="text"
-                            id="nickname"
-                            name="nickname"
-                            class="input input-bordered"
-                            minlength="2"
-                            maxlength="20"
-                            pattern="[가-힣a-zA-Z0-9_]+"
-                            title="닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다."
-                            placeholder="닉네임"
-                            required>
-
-                    <button type="button" id="checkNicknameBtn" class="check-btn" style="margin-top: 10px;">닉네임 중복확인</button>
-                    <div id="nicknameMessage" class="check-message"></div>
-
-                </div>
-
-                <!-- ========================= -->
-                <!-- 이메일 -->
-                <!-- ========================= -->
-
-                <div class="form-control mb-3">
-
-                    <label class="label">
-
-                        <span class="label-text">
-
-                            이메일
-
-                        </span>
-
-                    </label>
-
-                    <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            class="input input-bordered"
-                            maxlength="254"
-                            autocomplete="email"
-                            placeholder="example@email.com"
-                            disabled
-                            required>
-
-                    <!-- 07-16 상각: 이메일 중복확인 -->
-                    <div id="emailActivationMessage" class="check-message">아이디·비밀번호·닉네임 조건을 먼저 완료해주세요.</div>
-                    <button type="button" id="checkEmailBtn" class="check-btn" style="margin-top: 10px;" disabled>이메일 중복확인</button>
-                    <div id="emailDuplicateMessage" class="check-message"></div>
-
-                    <!-- 07-16 상각: 가입 전 이메일 인증 -->
-                    <div class="id-check-wrap" style="margin-top: 10px;">
-                        <button type="button" id="sendEmailCodeBtn" class="check-btn" disabled>인증번호 발송</button>
-                        <input type="text" id="emailCode" class="input input-bordered"
-                               placeholder="인증번호 6자리" inputmode="numeric" maxlength="6" disabled>
                     </div>
-                    <div id="emailVerificationMessage" class="check-message"></div>
+
+                    <p id="passwordStrengthMessage"
+                       class="check-message">
+                    </p>
 
                 </div>
 
-                <!-- ========================= -->
-                <!-- 전화번호 -->
-                <!-- ========================= -->
+                <!-- 비밀번호 확인 -->
+                <div class="form-control">
 
-                <div class="form-control mb-4">
-
-                    <label class="label">
+                    <label for="passwordCheck"
+                           class="label">
 
                         <span class="label-text">
-
-                            전화번호
-
+                            비밀번호 확인
                         </span>
 
                     </label>
 
-                    <input
-                            type="text"
-                            name="phone"
-                            class="input input-bordered"
-                            inputmode="tel"
-                            autocomplete="tel"
-                            maxlength="13"
-                            pattern="01[016789]-?[0-9]{3,4}-?[0-9]{4}"
-                            title="휴대전화 번호를 010-0000-0000 형식으로 입력해주세요."
-                            placeholder="010-0000-0000"
-                            required>
+                    <div class="password-input-wrap">
+
+                        <input type="password"
+                               id="passwordCheck"
+                               name="passwordConfirm"
+                               class="input"
+                               placeholder="비밀번호를 다시 입력하세요"
+                               autocomplete="new-password"
+                               minlength="8"
+                               maxlength="64"
+                               required>
+
+                        <button type="button"
+                                id="togglePasswordCheckBtn"
+                                class="password-toggle-btn">
+
+                            보기
+
+                        </button>
+
+                    </div>
+
+                    <p id="passwordMatchMessage"
+                       class="check-message">
+                    </p>
 
                 </div>
 
-                <!-- ========================= -->
-                <!-- 회원가입 버튼 -->
-                <!-- ========================= -->
+                <!-- 닉네임 -->
+                <div class="form-control">
 
-                <button
-                        type="submit"
+                    <label for="nickname"
+                           class="label">
+
+                        <span class="label-text">
+                            닉네임
+                        </span>
+
+                    </label>
+
+                    <div class="id-check-wrap">
+
+                        <input type="text"
+                               id="nickname"
+                               name="nickname"
+                               class="input"
+                               th:value="${oldNickname}"
+                               placeholder="닉네임을 입력하세요"
+                               minlength="2"
+                               maxlength="20"
+                               pattern="[가-힣a-zA-Z0-9_]+"
+                               title="닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다."
+                               required>
+
+                        <button type="button"
+                                id="checkNicknameBtn"
+                                class="check-btn">
+
+                            중복확인
+
+                        </button>
+
+                    </div>
+
+                    <p id="nicknameMessage"
+                       class="check-message">
+                    </p>
+
+                </div>
+
+                <!-- 이메일 -->
+                <div class="form-control">
+
+                    <label for="email"
+                           class="label">
+
+                        <span class="label-text">
+                            이메일
+                        </span>
+
+                    </label>
+
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           class="input"
+                           maxlength="254"
+                           autocomplete="email"
+                           placeholder="example@email.com"
+                           th:value="${emailVerified ? verifiedEmail : ''}"
+                           th:readonly="${emailVerified}"
+                           required>
+
+                    <p id="emailActivationMessage"
+                       class="check-message"
+                       th:classappend="${emailVerified ? ' text-success' : ' text-error'}"
+                       th:text="${emailVerified
+                                ? '이메일 인증이 완료되었습니다.'
+                                : '아이디·비밀번호·닉네임 조건을 먼저 완료해주세요.'}">
+
+                        아이디·비밀번호·닉네임 조건을 먼저 완료해주세요.
+
+                    </p>
+
+                    <button type="button"
+                            id="checkEmailBtn"
+                            class="check-btn"
+                            style="margin-top: 10px;"
+                            th:disabled="${emailVerified}">
+
+                        이메일 중복확인
+
+                    </button>
+
+                    <p id="emailDuplicateMessage"
+                       class="check-message">
+                    </p>
+
+                    <div class="email-action-wrap">
+
+                        <button type="button"
+                                id="sendEmailCodeBtn"
+                                class="check-btn"
+                                th:disabled="${emailVerified}"
+                                th:classappend="${emailVerified ? ' is-complete' : ''}"
+                                th:text="${emailVerified ? '인증 완료' : '인증번호 발송'}">
+
+                            인증번호 발송
+
+                        </button>
+
+                        <input type="text"
+                               id="emailCode"
+                               class="input"
+                               placeholder="인증번호 6자리"
+                               inputmode="numeric"
+                               autocomplete="one-time-code"
+                               pattern="[0-9]{6}"
+                               maxlength="6"
+                               disabled>
+
+                    </div>
+
+                    <button type="button"
+                            id="resendEmailCodeBtn"
+                            class="check-btn resend-email-btn">
+
+                        인증번호 재발송
+
+                    </button>
+
+                    <p id="emailVerificationMessage"
+                       class="check-message"
+                       th:classappend="${emailVerified ? ' text-success' : ''}"
+                       th:text="${emailVerified
+                                ? '이미 인증이 완료된 이메일입니다.'
+                                : ''}">
+                    </p>
+
+                </div>
+
+                <!-- 전화번호 -->
+                <div class="form-control">
+
+                    <label for="phone"
+                           class="label">
+
+                        <span class="label-text">
+                            전화번호
+                        </span>
+
+                    </label>
+
+                    <input type="tel"
+                           id="phone"
+                           name="phone"
+                           class="input"
+                           th:value="${oldPhone}"
+                           inputmode="tel"
+                           autocomplete="tel"
+                           maxlength="13"
+                           pattern="01[016789]-?[0-9]{3,4}-?[0-9]{4}"
+                           title="휴대전화 번호를 010-0000-0000 형식으로 입력해주세요."
+                           placeholder="010-0000-0000"
+                           required>
+
+                </div>
+
+                <button type="submit"
                         class="normal-btn">
 
                     회원가입
@@ -334,31 +412,25 @@
 
             </form>
 
-            <!-- ========================= -->
-            <!-- SNS -->
-            <!-- ========================= -->
-
             <div class="divider">
-
                 <span>또는</span>
-
             </div>
 
-            <a href="/oauth2/authorization/google"
+            <a th:href="@{/oauth2/authorization/google}"
                class="sns-btn google">
 
                 Google로 시작하기
 
             </a>
 
-            <a href="/oauth2/authorization/kakao"
+            <a th:href="@{/oauth2/authorization/kakao}"
                class="sns-btn kakao">
 
                 Kakao로 시작하기
 
             </a>
 
-            <a href="/oauth2/authorization/naver"
+            <a th:href="@{/oauth2/authorization/naver}"
                class="sns-btn naver">
 
                 NAVER로 시작하기
@@ -369,10 +441,8 @@
 
                 이미 회원이신가요?
 
-                <a href="/member/login">
-
+                <a th:href="@{/member/login}">
                     로그인
-
                 </a>
 
             </div>
@@ -383,48 +453,144 @@
 
 </section>
 
-<script>
+<script th:inline="javascript">
 
-    const password = document.querySelector("#password");
-    const passwordCheck = document.querySelector("#passwordCheck");
-    const passwordMessage = document.querySelector("#passwordMessage");
-    const signupForm = document.querySelector("#signupForm");
-    const email = document.querySelector("#email");
-    const checkEmailBtn = document.querySelector("#checkEmailBtn");
-    const emailActivationMessage = document.querySelector("#emailActivationMessage");
-    const emailDuplicateMessage = document.querySelector("#emailDuplicateMessage");
-    const nickname = document.querySelector("#nickname");
-    const checkNicknameBtn = document.querySelector("#checkNicknameBtn");
-    const nicknameMessage = document.querySelector("#nicknameMessage");
-    const sendEmailCodeBtn = document.querySelector("#sendEmailCodeBtn");
-    const emailCode = document.querySelector("#emailCode");
-    const emailVerificationMessage = document.querySelector("#emailVerificationMessage");
-    let emailVerified = false;
-    let emailCodeSent = false;
-    let emailChecked = false;
+    const serverEmailVerified =
+        /*[[${emailVerified}]]*/ false;
+
+    const serverVerifiedEmail =
+        /*[[${verifiedEmail}]]*/ "";
+
+    const signupForm =
+        document.querySelector("#signupForm");
+
+    const loginId =
+        document.querySelector("#loginId");
+
+    const checkLoginIdBtn =
+        document.querySelector("#checkLoginIdBtn");
+
+    const loginIdMessage =
+        document.querySelector("#loginIdMessage");
+
+    const password =
+        document.querySelector("#password");
+
+    const passwordCheck =
+        document.querySelector("#passwordCheck");
+
+    const passwordStrengthMessage =
+        document.querySelector("#passwordStrengthMessage");
+
+    const passwordMatchMessage =
+        document.querySelector("#passwordMatchMessage");
+
+    const togglePasswordBtn =
+        document.querySelector("#togglePasswordBtn");
+
+    const togglePasswordCheckBtn =
+        document.querySelector("#togglePasswordCheckBtn");
+
+    const nickname =
+        document.querySelector("#nickname");
+
+    const checkNicknameBtn =
+        document.querySelector("#checkNicknameBtn");
+
+    const nicknameMessage =
+        document.querySelector("#nicknameMessage");
+
+    const email =
+        document.querySelector("#email");
+
+    const checkEmailBtn =
+        document.querySelector("#checkEmailBtn");
+
+    const emailActivationMessage =
+        document.querySelector("#emailActivationMessage");
+
+    const emailDuplicateMessage =
+        document.querySelector("#emailDuplicateMessage");
+
+    const sendEmailCodeBtn =
+        document.querySelector("#sendEmailCodeBtn");
+
+    const resendEmailCodeBtn =
+        document.querySelector("#resendEmailCodeBtn");
+
+    const emailCode =
+        document.querySelector("#emailCode");
+
+    const emailVerificationMessage =
+        document.querySelector("#emailVerificationMessage");
+
+    const phone =
+        document.querySelector("#phone");
+
+    let loginIdChecked = false;
     let nicknameChecked = false;
 
-    // 07-16 상각: 비밀번호 정책 사전 검증
-    function isStrongPassword(value) {
+    let emailChecked =
+        serverEmailVerified;
 
-        if (value.length < 9 || value.length > 64 || /\s/.test(value)) {
-            return false;
-        }
+    let emailCodeSent = false;
 
-        let characterTypes = 0;
-        if (/[a-z]/.test(value)) characterTypes++;
-        if (/[A-Z]/.test(value)) characterTypes++;
-        if (/\d/.test(value)) characterTypes++;
-        if (/[^a-zA-Z0-9]/.test(value)) characterTypes++;
+    let emailVerified =
+        serverEmailVerified;
 
-        return characterTypes >= 3;
+    function showMessage(
+        element,
+        message,
+        success
+    ) {
+
+        element.textContent =
+            message;
+
+        element.classList.remove(
+            "text-success",
+            "text-error"
+        );
+
+        element.classList.add(
+            success
+                ? "text-success"
+                : "text-error"
+        );
     }
 
-    // 07-16 상각: 추측 쉬운 아이디 사전 차단
+    function clearMessage(element) {
+
+        element.textContent = "";
+
+        element.classList.remove(
+            "text-success",
+            "text-error"
+        );
+    }
+
+    function isValidLoginId(value) {
+
+        return /^[a-z][a-z0-9]{4,19}$/
+            .test(value);
+    }
+
     function isWeakLoginId(value) {
 
-        const weakIds = ["administrator", "root", "manager", "test", "test01",
-            "guest", "user", "member", "petcity", "qwerty", "asdf", "abcde"];
+        const weakIds = [
+            "administrator",
+            "root",
+            "manager",
+            "test",
+            "test01",
+            "guest",
+            "user",
+            "member",
+            "petcity",
+            "qwerty",
+            "asdf",
+            "abcde"
+        ];
 
         return weakIds.includes(value)
             || /^(.)\1{4,}$/.test(value)
@@ -433,295 +599,922 @@
             || value.includes("abcde");
     }
 
-    // 07-16 상각: 필수 정보 검증 후 이메일 인증 활성화
-    function updateEmailActivation() {
-        const passwordReady = isStrongPassword(password.value)
-            && password.value === passwordCheck.value;
-        const canVerifyEmail = loginIdChecked && nicknameChecked && passwordReady;
+    checkLoginIdBtn.addEventListener(
+        "click",
+        async () => {
 
-        email.disabled = !canVerifyEmail;
-        checkEmailBtn.disabled = !canVerifyEmail || emailVerified;
-        sendEmailCodeBtn.disabled = !canVerifyEmail || !emailChecked || emailCodeSent;
+            const value =
+                loginId.value
+                    .trim()
+                    .toLowerCase();
 
-        emailActivationMessage.textContent = canVerifyEmail
-            ? "이메일 중복확인 후 인증번호를 발송할 수 있습니다."
-            : "아이디 중복확인, 비밀번호 조건, 닉네임 중복확인을 먼저 완료해주세요.";
-        emailActivationMessage.className = canVerifyEmail
-            ? "check-message text-success"
-            : "check-message text-error";
+            loginId.value =
+                value;
 
-        if (!canVerifyEmail) {
-            emailVerified = false;
-            emailCodeSent = false;
-            emailChecked = false;
-            emailCode.value = "";
-            emailCode.disabled = true;
-            sendEmailCodeBtn.textContent = "인증번호 발송";
-        }
-    }
+            if (!isValidLoginId(value)) {
 
-    // 07-16 상각: 가입 전 이메일 인증 요청 및 확인
-    async function requestEmailVerification(url, params) {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams(params)
-        });
+                loginIdChecked = false;
 
-        const message = await response.text();
-        emailVerificationMessage.textContent = message;
-        emailVerificationMessage.className = response.ok ? "check-message text-success" : "check-message text-error";
-        return response.ok;
-    }
+                showMessage(
+                    loginIdMessage,
+                    "아이디는 영문 소문자로 시작하는 " +
+                    "5~20자의 영문 소문자와 숫자만 사용할 수 있습니다.",
+                    false
+                );
 
-    sendEmailCodeBtn.addEventListener("click", async () => {
-        if (!emailCodeSent) {
-            if (!email.reportValidity()) return;
-
-            emailVerified = false;
-            emailCode.value = "";
-            const sent = await requestEmailVerification("/member/signup/email/send", { email: email.value });
-            if (sent) {
-                emailCodeSent = true;
-                emailCode.disabled = false;
-                sendEmailCodeBtn.textContent = "이메일 인증";
-                sendEmailCodeBtn.classList.add("is-verifying");
-                emailCode.focus();
+                loginId.focus();
+                updateEmailControls();
+                return;
             }
-            return;
+
+            if (isWeakLoginId(value)) {
+
+                loginIdChecked = false;
+
+                showMessage(
+                    loginIdMessage,
+                    "보안에 취약하거나 쉽게 추측되는 아이디는 사용할 수 없습니다.",
+                    false
+                );
+
+                loginId.focus();
+                updateEmailControls();
+                return;
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/member/check-loginId" +
+                        "?loginId=" +
+                        encodeURIComponent(value)
+                    );
+
+                if (!response.ok) {
+                    throw new Error();
+                }
+
+                const exists =
+                    await response.json();
+
+                loginIdChecked =
+                    !exists;
+
+                showMessage(
+                    loginIdMessage,
+                    exists
+                        ? "이미 사용 중인 아이디입니다."
+                        : "사용 가능한 아이디입니다.",
+                    !exists
+                );
+
+            } catch (error) {
+
+                loginIdChecked = false;
+
+                showMessage(
+                    loginIdMessage,
+                    "아이디 중복확인 중 오류가 발생했습니다.",
+                    false
+                );
+            }
+
+            updateEmailControls();
+        }
+    );
+
+    loginId.addEventListener(
+        "input",
+        () => {
+
+            loginIdChecked = false;
+
+            showMessage(
+                loginIdMessage,
+                "아이디 중복확인이 필요합니다.",
+                false
+            );
+
+            updateEmailControls();
+        }
+    );
+
+    function getPasswordError(value) {
+
+        if (value.length === 0) {
+            return "";
         }
 
-        const verified = await requestEmailVerification("/member/signup/email/verify", {
-            email: email.value,
-            code: emailCode.value
-        });
-        emailVerified = verified;
-        if (verified) {
-            email.readOnly = true;
-            emailCode.disabled = true;
-            sendEmailCodeBtn.disabled = true;
-            sendEmailCodeBtn.textContent = "인증 완료";
-            sendEmailCodeBtn.classList.remove("is-verifying");
-            sendEmailCodeBtn.classList.add("is-complete");
-        }
-    });
+        if (value.length < 8
+            || value.length > 64) {
 
-    email.addEventListener("input", () => {
-        emailVerified = false;
-        emailCodeSent = false;
-        emailChecked = false;
-        emailCode.disabled = true;
-        sendEmailCodeBtn.disabled = false;
-        sendEmailCodeBtn.textContent = "인증번호 발송";
-        sendEmailCodeBtn.classList.remove("is-verifying", "is-complete");
-        emailVerificationMessage.textContent = "";
-        emailDuplicateMessage.textContent = "";
-        updateEmailActivation();
-    });
-
-    // 07-16 상각: 이메일 중복확인 후 인증번호 발송 허용
-    checkEmailBtn.addEventListener("click", () => {
-        if (!email.reportValidity()) return;
-
-        fetch("/member/check-email?email=" + encodeURIComponent(email.value))
-            .then(response => response.json())
-            .then(exists => {
-                emailChecked = !exists;
-                emailDuplicateMessage.textContent = exists
-                    ? "이미 사용 중인 이메일입니다."
-                    : "사용 가능한 이메일입니다.";
-                emailDuplicateMessage.className = exists
-                    ? "check-message text-error"
-                    : "check-message text-success";
-                updateEmailActivation();
-            });
-    });
-
-    function checkPassword() {
-
-        if (passwordCheck.value === "") {
-
-            passwordMessage.innerHTML = "";
-            return;
-
+            return "비밀번호는 8~64자로 입력해주세요.";
         }
 
-        if (password.value === passwordCheck.value) {
+        if (/\s/.test(value)) {
 
-            passwordMessage.innerHTML = "비밀번호가 일치합니다.";
-            passwordMessage.className = "label-text-alt text-success";
+            return "비밀번호에는 공백을 사용할 수 없습니다.";
+        }
+
+        if (!/[A-Za-z]/.test(value)) {
+
+            return "비밀번호에 영문을 최소 1개 포함해주세요.";
+        }
+
+        if (!/[0-9]/.test(value)) {
+
+            return "비밀번호에 숫자를 최소 1개 포함해주세요.";
+        }
+
+        if (!/[^A-Za-z0-9\s]/.test(value)) {
+
+            return "비밀번호에 특수문자를 최소 1개 포함해주세요.";
+        }
+
+        return "";
+    }
+
+    function isStrongPassword(value) {
+
+        return value.length > 0
+            && getPasswordError(value) === "";
+    }
+
+    function updatePasswordMessages() {
+
+        const passwordError =
+            getPasswordError(
+                password.value
+            );
+
+        if (password.value.length === 0) {
+
+            clearMessage(
+                passwordStrengthMessage
+            );
+
+        } else if (passwordError) {
+
+            showMessage(
+                passwordStrengthMessage,
+                passwordError,
+                false
+            );
 
         } else {
 
-            passwordMessage.innerHTML = "비밀번호가 일치하지 않습니다.";
-            passwordMessage.className = "label-text-alt text-error";
-
+            showMessage(
+                passwordStrengthMessage,
+                "사용 가능한 비밀번호입니다.",
+                true
+            );
         }
 
+        if (passwordCheck.value.length === 0) {
+
+            clearMessage(
+                passwordMatchMessage
+            );
+
+        } else if (
+            password.value
+            === passwordCheck.value
+        ) {
+
+            showMessage(
+                passwordMatchMessage,
+                "비밀번호가 일치합니다.",
+                true
+            );
+
+        } else {
+
+            showMessage(
+                passwordMatchMessage,
+                "비밀번호가 일치하지 않습니다.",
+                false
+            );
+        }
     }
 
-    password.addEventListener("keyup", () => {
-        checkPassword();
-        updateEmailActivation();
-    });
-    passwordCheck.addEventListener("keyup", () => {
-        checkPassword();
-        updateEmailActivation();
-    });
+    password.addEventListener(
+        "input",
+        () => {
 
-    // =====================================================
-    // 07-15 수정 : 회원가입 검사
-    // =====================================================
-    signupForm.addEventListener("submit", function (e) {
-
-        if (!emailVerified) {
-            alert("이메일 인증을 완료해주세요.");
-            email.focus();
-            e.preventDefault();
-            return;
+            updatePasswordMessages();
+            updateEmailControls();
         }
+    );
 
-        if (isWeakLoginId(loginId.value.trim().toLowerCase())) {
+    passwordCheck.addEventListener(
+        "input",
+        () => {
 
-            alert("보안에 취약하거나 쉽게 추측되는 아이디는 사용할 수 없습니다.");
-
-            loginId.focus();
-
-            e.preventDefault();
-
-            return;
-
+            updatePasswordMessages();
+            updateEmailControls();
         }
+    );
 
-        if (!isStrongPassword(password.value)) {
+    function togglePasswordVisibility(
+        input,
+        button
+    ) {
 
-            alert("비밀번호는 공백 없이 9~64자이며 영문 대·소문자, 숫자, 특수문자 중 3종 이상을 사용해주세요.");
+        const hidden =
+            input.type === "password";
 
-            password.focus();
+        input.type =
+            hidden
+                ? "text"
+                : "password";
 
-            e.preventDefault();
+        button.textContent =
+            hidden
+                ? "숨기기"
+                : "보기";
+    }
 
-            return;
+    togglePasswordBtn.addEventListener(
+        "click",
+        () => {
 
+            togglePasswordVisibility(
+                password,
+                togglePasswordBtn
+            );
         }
+    );
 
-        if (!loginIdChecked) {
+    togglePasswordCheckBtn.addEventListener(
+        "click",
+        () => {
 
-            alert("아이디 중복확인을 해주세요.");
-
-            loginId.focus();
-
-            e.preventDefault();
-
-            return;
-
+            togglePasswordVisibility(
+                passwordCheck,
+                togglePasswordCheckBtn
+            );
         }
+    );
 
-        if (password.value !== passwordCheck.value) {
+    checkNicknameBtn.addEventListener(
+        "click",
+        async () => {
 
-            alert("비밀번호가 일치하지 않습니다.");
+            const value =
+                nickname.value.trim();
 
-            passwordCheck.focus();
+            nickname.value =
+                value;
 
-            e.preventDefault();
+            if (!nickname.reportValidity()) {
 
-        }
+                nicknameChecked = false;
+                updateEmailControls();
+                return;
+            }
 
-    });
-    // =====================================================
-    // 07-15 추가 : 아이디 중복 확인(AJAX)
-    // =====================================================
+            try {
 
-    const checkLoginIdBtn = document.querySelector("#checkLoginIdBtn");
-    const loginId = document.querySelector("#loginId");
-    const loginIdMessage = document.querySelector("#loginIdMessage");
+                const response =
+                    await fetch(
+                        "/member/check-nickname" +
+                        "?nickname=" +
+                        encodeURIComponent(value)
+                    );
 
-    let loginIdChecked = false;
-
-    checkLoginIdBtn.addEventListener("click", function () {
-
-        if (loginId.value.trim() === "") {
-
-            loginIdMessage.innerHTML = "아이디를 입력하세요.";
-            loginIdMessage.className = "check-message text-error";
-
-            loginId.focus();
-
-            return;
-
-        }
-
-        fetch("/member/check-loginId?loginId=" + encodeURIComponent(loginId.value))
-
-            .then(response => response.json())
-
-            .then(result => {
-
-                if (result) {
-
-                    loginIdMessage.innerHTML = "❌ 이미 사용중인 아이디입니다.";
-                    loginIdMessage.className = "check-message text-error";
-
-                    loginIdChecked = false;
-
-                } else {
-
-                    loginIdMessage.innerHTML = "✅ 사용 가능한 아이디입니다.";
-                    loginIdMessage.className = "check-message text-success";
-
-                    loginIdChecked = true;
-
+                if (!response.ok) {
+                    throw new Error();
                 }
 
-                updateEmailActivation();
+                const exists =
+                    await response.json();
 
-            });
+                nicknameChecked =
+                    !exists;
 
-    });
+                showMessage(
+                    nicknameMessage,
+                    exists
+                        ? "이미 사용 중인 닉네임입니다."
+                        : "사용 가능한 닉네임입니다.",
+                    !exists
+                );
 
-    // =====================================================
-    // 07-15 추가 : 아이디 변경 시 다시 검사
-    // =====================================================
+            } catch (error) {
 
-    loginId.addEventListener("keyup", function () {
+                nicknameChecked = false;
 
-        loginIdChecked = false;
+                showMessage(
+                    nicknameMessage,
+                    "닉네임 중복확인 중 오류가 발생했습니다.",
+                    false
+                );
+            }
 
-        loginIdMessage.innerHTML = "";
-        updateEmailActivation();
+            updateEmailControls();
+        }
+    );
 
-    });
+    nickname.addEventListener(
+        "input",
+        () => {
 
-    // 07-16 상각: 닉네임 중복확인
-    checkNicknameBtn.addEventListener("click", () => {
-        if (!nickname.reportValidity()) return;
+            nicknameChecked = false;
 
-        fetch("/member/check-nickname?nickname=" + encodeURIComponent(nickname.value))
-            .then(response => response.json())
-            .then(exists => {
-                nicknameChecked = !exists;
-                nicknameMessage.textContent = exists
-                    ? "이미 사용 중인 닉네임입니다."
-                    : "사용 가능한 닉네임입니다.";
-                nicknameMessage.className = exists
-                    ? "check-message text-error"
-                    : "check-message text-success";
-                updateEmailActivation();
-            });
-    });
+            showMessage(
+                nicknameMessage,
+                "닉네임 중복확인이 필요합니다.",
+                false
+            );
 
-    nickname.addEventListener("input", () => {
-        nicknameChecked = false;
-        nicknameMessage.textContent = "";
-        updateEmailActivation();
-    });
+            updateEmailControls();
+        }
+    );
+
+    function isPreviousStepComplete() {
+
+        return loginIdChecked
+            && nicknameChecked
+            && isStrongPassword(
+                password.value
+            )
+            && password.value
+            === passwordCheck.value;
+    }
+
+    function updateEmailControls() {
+
+        if (emailVerified) {
+
+            email.disabled = false;
+            email.readOnly = true;
+
+            checkEmailBtn.disabled = true;
+            sendEmailCodeBtn.disabled = true;
+            emailCode.disabled = true;
+
+            resendEmailCodeBtn.style.display =
+                "none";
+
+            sendEmailCodeBtn.textContent =
+                "인증 완료";
+
+            sendEmailCodeBtn.classList.remove(
+                "is-verifying"
+            );
+
+            sendEmailCodeBtn.classList.add(
+                "is-complete"
+            );
+
+            showMessage(
+                emailActivationMessage,
+                "이메일 인증이 완료되었습니다.",
+                true
+            );
+
+            showMessage(
+                emailVerificationMessage,
+                "이미 인증이 완료된 이메일입니다.",
+                true
+            );
+
+            return;
+        }
+
+        const canUseEmail =
+            isPreviousStepComplete();
+
+        email.disabled =
+            !canUseEmail;
+
+        email.readOnly =
+            emailCodeSent;
+
+        checkEmailBtn.disabled =
+            !canUseEmail
+            || emailCodeSent;
+
+        sendEmailCodeBtn.disabled =
+            !canUseEmail
+            || !emailChecked;
+
+        emailCode.disabled =
+            !emailCodeSent;
+
+        if (emailCodeSent) {
+
+            resendEmailCodeBtn.style.display =
+                "inline-block";
+
+        } else {
+
+            resendEmailCodeBtn.style.display =
+                "none";
+        }
+
+        if (canUseEmail) {
+
+            showMessage(
+                emailActivationMessage,
+                "이메일 중복확인 후 인증번호를 발송할 수 있습니다.",
+                true
+            );
+
+        } else {
+
+            showMessage(
+                emailActivationMessage,
+                "아이디 중복확인, 비밀번호 조건, 닉네임 중복확인을 먼저 완료해주세요.",
+                false
+            );
+        }
+    }
+
+    function resetEmailVerificationUi() {
+
+        emailChecked = false;
+        emailCodeSent = false;
+        emailVerified = false;
+
+        emailCode.value = "";
+        emailCode.disabled = true;
+
+        sendEmailCodeBtn.textContent =
+            "인증번호 발송";
+
+        sendEmailCodeBtn.classList.remove(
+            "is-verifying",
+            "is-complete"
+        );
+
+        resendEmailCodeBtn.style.display =
+            "none";
+
+        clearMessage(
+            emailDuplicateMessage
+        );
+
+        clearMessage(
+            emailVerificationMessage
+        );
+    }
+
+    email.addEventListener(
+        "input",
+        () => {
+
+            if (emailVerified) {
+                return;
+            }
+
+            resetEmailVerificationUi();
+            updateEmailControls();
+        }
+    );
+
+    checkEmailBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!email.reportValidity()) {
+                return;
+            }
+
+            try {
+
+                const normalizedEmail =
+                    email.value
+                        .trim()
+                        .toLowerCase();
+
+                email.value =
+                    normalizedEmail;
+
+                const response =
+                    await fetch(
+                        "/member/check-email" +
+                        "?email=" +
+                        encodeURIComponent(
+                            normalizedEmail
+                        )
+                    );
+
+                if (!response.ok) {
+                    throw new Error();
+                }
+
+                const exists =
+                    await response.json();
+
+                emailChecked =
+                    !exists;
+
+                showMessage(
+                    emailDuplicateMessage,
+                    exists
+                        ? "이미 사용 중인 이메일입니다."
+                        : "사용 가능한 이메일입니다.",
+                    !exists
+                );
+
+            } catch (error) {
+
+                emailChecked = false;
+
+                showMessage(
+                    emailDuplicateMessage,
+                    "이메일 중복확인 중 오류가 발생했습니다.",
+                    false
+                );
+            }
+
+            updateEmailControls();
+        }
+    );
+
+    async function requestEmailVerification(
+        url,
+        parameters
+    ) {
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+
+                    body: new URLSearchParams(
+                        parameters
+                    )
+                }
+            );
+
+        const message =
+            await response.text();
+
+        showMessage(
+            emailVerificationMessage,
+            message,
+            response.ok
+        );
+
+        return {
+            success: response.ok,
+            message: message
+        };
+    }
+
+    async function sendVerificationEmail(
+        resend
+    ) {
+
+        if (!email.reportValidity()) {
+            return false;
+        }
+
+        const normalizedEmail =
+            email.value
+                .trim()
+                .toLowerCase();
+
+        email.value =
+            normalizedEmail;
+
+        const button =
+            resend
+                ? resendEmailCodeBtn
+                : sendEmailCodeBtn;
+
+        const originalText =
+            button.textContent;
+
+        button.disabled = true;
+
+        button.textContent =
+            "발송 중...";
+
+        try {
+
+            const result =
+                await requestEmailVerification(
+                    "/member/signup/email/send",
+                    {
+                        email:
+                        normalizedEmail
+                    }
+                );
+
+            if (!result.success) {
+                return false;
+            }
+
+            if (
+                result.message.includes(
+                    "이미 인증 완료"
+                )
+            ) {
+
+                emailVerified = true;
+                updateEmailControls();
+                return true;
+            }
+
+            emailCodeSent = true;
+
+            email.readOnly = true;
+            emailCode.disabled = false;
+            emailCode.value = "";
+            emailCode.focus();
+
+            sendEmailCodeBtn.textContent =
+                "이메일 인증";
+
+            sendEmailCodeBtn.classList.add(
+                "is-verifying"
+            );
+
+            resendEmailCodeBtn.style.display =
+                "inline-block";
+
+            if (resend) {
+
+                showMessage(
+                    emailVerificationMessage,
+                    "새 인증번호를 발송했습니다.",
+                    true
+                );
+            }
+
+            updateEmailControls();
+
+            return true;
+
+        } finally {
+
+            button.disabled = false;
+
+            if (resend) {
+
+                button.textContent =
+                    "인증번호 재발송";
+
+            } else if (!emailCodeSent) {
+
+                button.textContent =
+                    originalText;
+            }
+        }
+    }
+
+    sendEmailCodeBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!emailCodeSent) {
+
+                await sendVerificationEmail(
+                    false
+                );
+
+                return;
+            }
+
+            const code =
+                emailCode.value.trim();
+
+            if (!/^\d{6}$/.test(code)) {
+
+                showMessage(
+                    emailVerificationMessage,
+                    "인증번호 6자리를 입력해주세요.",
+                    false
+                );
+
+                emailCode.focus();
+                return;
+            }
+
+            const normalizedEmail =
+                email.value
+                    .trim()
+                    .toLowerCase();
+
+            const result =
+                await requestEmailVerification(
+                    "/member/signup/email/verify",
+                    {
+                        email:
+                        normalizedEmail,
+
+                        code:
+                        code
+                    }
+                );
+
+            if (result.success) {
+
+                emailVerified = true;
+
+                resendEmailCodeBtn.style.display =
+                    "none";
+
+                /*
+                    입력창과 버튼을 인증 완료 상태로 변경
+                */
+                updateEmailControls();
+
+                /*
+                    updateEmailControls()가 출력한
+                    '이미 인증이 완료된 이메일입니다.' 문구를
+                    최초 인증 성공 문구로 다시 변경
+                */
+                showMessage(
+                    emailVerificationMessage,
+                    "이메일 인증이 완료되었습니다.",
+                    true
+                );
+
+                return;
+            }
+
+            if (
+                result.message.includes("먼저 발송")
+                || result.message.includes("다시 발송")
+                || result.message.includes("만료")
+            ) {
+
+                resendEmailCodeBtn.style.display =
+                    "inline-block";
+            }
+        }
+    );
+
+    resendEmailCodeBtn.addEventListener(
+        "click",
+        async () => {
+
+            await sendVerificationEmail(
+                true
+            );
+        }
+    );
+
+    phone.addEventListener(
+        "input",
+        () => {
+
+            const numbers =
+                phone.value
+                    .replace(/[^0-9]/g, "")
+                    .slice(0, 11);
+
+            if (numbers.length <= 3) {
+
+                phone.value =
+                    numbers;
+
+            } else if (numbers.length <= 7) {
+
+                phone.value =
+                    numbers.slice(0, 3)
+                    + "-"
+                    + numbers.slice(3);
+
+            } else {
+
+                phone.value =
+                    numbers.slice(0, 3)
+                    + "-"
+                    + numbers.slice(
+                        3,
+                        numbers.length - 4
+                    )
+                    + "-"
+                    + numbers.slice(-4);
+            }
+        }
+    );
+
+    signupForm.addEventListener(
+        "submit",
+        event => {
+
+            const loginIdValue =
+                loginId.value
+                    .trim()
+                    .toLowerCase();
+
+            const passwordError =
+                getPasswordError(
+                    password.value
+                );
+
+            if (!loginIdChecked) {
+
+                event.preventDefault();
+                alert("아이디 중복확인을 완료해주세요.");
+                loginId.focus();
+                return;
+            }
+
+            if (!isValidLoginId(
+                loginIdValue
+            )) {
+
+                event.preventDefault();
+                alert(
+                    "아이디는 영문 소문자로 시작하는 " +
+                    "5~20자의 영문 소문자와 숫자만 사용할 수 있습니다."
+                );
+                loginId.focus();
+                return;
+            }
+
+            if (isWeakLoginId(
+                loginIdValue
+            )) {
+
+                event.preventDefault();
+                alert(
+                    "보안에 취약하거나 쉽게 추측되는 아이디는 사용할 수 없습니다."
+                );
+                loginId.focus();
+                return;
+            }
+
+            if (passwordError) {
+
+                event.preventDefault();
+                alert(passwordError);
+                password.focus();
+                return;
+            }
+
+            if (
+                password.value
+                !== passwordCheck.value
+            ) {
+
+                event.preventDefault();
+                alert("비밀번호 확인이 일치하지 않습니다.");
+                passwordCheck.focus();
+                return;
+            }
+
+            if (!nicknameChecked) {
+
+                event.preventDefault();
+                alert("닉네임 중복확인을 완료해주세요.");
+                nickname.focus();
+                return;
+            }
+
+            if (!emailVerified) {
+
+                event.preventDefault();
+                alert("이메일 인증을 완료해주세요.");
+                email.focus();
+                return;
+            }
+
+            email.disabled = false;
+            email.readOnly = true;
+        }
+    );
+
+    window.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            const savedLoginId =
+                loginId.value.trim();
+
+            const savedNickname =
+                nickname.value.trim();
+
+            if (savedLoginId !== "") {
+
+                checkLoginIdBtn.click();
+            }
+
+            if (savedNickname !== "") {
+
+                checkNicknameBtn.click();
+            }
+
+            updatePasswordMessages();
+            updateEmailControls();
+        }
+    );
 
 </script>
-<!-- ================================================= -->
-<!-- 07-15 오후 추가_상각 : 회원가입 JS -->
-<!-- ================================================= -->
-<script th:src="@{/js/member/signup.js}"></script>
 
 </body>
-
 </html>

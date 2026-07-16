@@ -4,6 +4,20 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.jjang051.petcity.admin.dao.AdminMainBannerDao">
+    <resultMap id="mainBannerResultMap" type="AdminMainBannerDto">
+        <id property="bannerId" column="BANNER_ID"/>
+        <result property="title" column="TITLE"/>
+        <result property="subTitle" column="SUB_TITLE"/>
+        <result property="imageUrl" column="IMAGE_URL"/>
+        <result property="linkUrl" column="LINK_URL"/>
+        <result property="displayOrder" column="DISPLAY_ORDER"/>
+        <result property="activeYn" column="ACTIVE_YN"/>
+        <result property="startAt" column="START_AT"/>
+        <result property="endAt" column="END_AT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+    </resultMap>
+
     <select id="countMainBanners" resultType="int">
         SELECT COUNT(*) FROM MAIN_BANNER
     </select>
@@ -11,23 +25,23 @@
     <update id="shiftDisplayOrderForInsert">
         UPDATE MAIN_BANNER
         SET DISPLAY_ORDER = DISPLAY_ORDER +1,
-            UPDATED_AT = SYSTIMESTAMP
+        UPDATED_AT = SYSTIMESTAMP
         WHERE DISPLAY_ORDER >= #{displayOrder}
     </update>
 
     <insert id="insertMainBanner">
         INSERT INTO MAIN_BANNER(
-            BANNER_ID,
+        BANNER_ID,
         TITLE,
-            SUB_TITLE,
-            IMAGE_URL,
-            LINK_URL,
-            DISPLAY_ORDER,
-            ACTIVE_YN,
-            START_AT,
-            END_AT,
-            CREATED_AT,
-            UPDATED_AT )
+        SUB_TITLE,
+        IMAGE_URL,
+        LINK_URL,
+        DISPLAY_ORDER,
+        ACTIVE_YN,
+        START_AT,
+        END_AT,
+        CREATED_AT,
+        UPDATED_AT )
         VALUES (
         MAIN_BANNER_SEQ.NEXTVAL,
         #{title, jdbcType=VARCHAR},
@@ -43,4 +57,95 @@
         )
     </insert>
 
+
+    <select id="findAllMainBanners" resultMap="mainBannerResultMap">
+        SELECT
+        BANNER_ID,
+        TITLE,
+        SUB_TITLE,
+        IMAGE_URL,
+        LINK_URL,
+        DISPLAY_ORDER,
+        ACTIVE_YN,
+        START_AT,
+        END_AT,
+        CREATED_AT,
+        UPDATED_AT
+        FROM MAIN_BANNER ORDER BY
+        DISPLAY_ORDER ASC,
+        BANNER_ID ASC
+    </select>
+
+    <select id="findVisibleMainBanners" resultMap="mainBannerResultMap">
+        SELECT
+        BANNER_ID,
+        TITLE,
+        SUB_TITLE,
+        IMAGE_URL,
+        LINK_URL,
+        DISPLAY_ORDER,
+        ACTIVE_YN,
+        START_AT,
+        END_AT,
+        CREATED_AT,
+        UPDATED_AT
+        FROM MAIN_BANNER
+        WHERE ACTIVE_YN = 'Y'
+        AND ( START_AT IS NULL OR START_AT <![CDATA[ <= ]]> LOCALTIMESTAMP )
+        AND ( END_AT IS NULL OR END_AT <![CDATA[ >= ]]> LOCALTIMESTAMP )
+        ORDER BY
+        DISPLAY_ORDER ASC,
+        BANNER_ID ASC
+    </select>
+
+    <select id="findMainBannerById" resultMap="mainBannerResultMap">
+        SELECT
+        BANNER_ID,
+        TITLE,
+        SUB_TITLE,
+        IMAGE_URL,
+        LINK_URL,
+        DISPLAY_ORDER,
+        ACTIVE_YN,
+        START_AT,
+        END_AT,
+        CREATED_AT,
+        UPDATED_AT
+        FROM MAIN_BANNER
+        WHERE BANNER_ID = #{bannerId}
+    </select>
+
+    <update id="shiftDisplayOrderWhenMovingLater">
+        UPDATE MAIN_BANNER
+        SET DISPLAY_ORDER = DISPLAY_ORDER -1,
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE BANNER_ID != #{bannerId}
+        AND DISPLAY_ORDER > #{oldDisplayOrder}
+        AND DISPLAY_ORDER <![CDATA[ <= ]]> #{newDisplayOrder}
+    </update>
+
+    <update id="shiftDisplayOrderWhenMovingEarlier">
+        UPDATE MAIN_BANNER
+        SET DISPLAY_ORDER = DISPLAY_ORDER +1,
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE BANNER_ID != #{bannerId}
+        AND DISPLAY_ORDER >= #{newDisplayOrder}
+        AND DISPLAY_ORDER <![CDATA[ < ]]> #{oldDisplayOrder}
+    </update>
+
+    <update id="updateMainBanner">
+        UPDATE MAIN_BANNER
+
+        SET
+        TITLE = #{title, jdbcType=VARCHAR},
+        SUB_TITLE = #{subTitle, jdbcType=VARCHAR},
+        IMAGE_URL = #{imageUrl, jdbcType=VARCHAR},
+        LINK_URL = #{linkUrl, jdbcType=VARCHAR},
+        DISPLAY_ORDER = #{displayOrder, jdbcType=NUMERIC},
+        ACTIVE_YN = #{activeYn, jdbcType=CHAR},
+        START_AT = #{startAt, jdbcType=TIMESTAMP},
+        END_AT = #{endAt, jdbcType=TIMESTAMP},
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE BANNER_ID = #{bannerId, jdbcType=NUMERIC}
+    </update>
 </mapper>
