@@ -148,4 +148,18 @@
         UPDATED_AT = SYSTIMESTAMP
         WHERE BANNER_ID = #{bannerId, jdbcType=NUMERIC}
     </update>
+
+
+
+    <delete id="deleteMainBanner">
+        DELETE FROM MAIN_BANNER
+        WHERE BANNER_ID = #{bannerId}
+    </delete>
+
+    <update id="shiftDisplayOrderAfterDelete">
+        UPDATE MAIN_BANNER
+        SET DISPLAY_ORDER = DISPLAY_ORDER -1,
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE DISPLAY_ORDER > #{deletedDisplayOrder}
+    </update>
 </mapper>

@@ -28,4 +28,7 @@ public interface AdminMainBannerDao {
 
     int updateMainBanner(AdminMainBannerDto mainBannerDto);
 
+    int deleteMainBanner(@Param("bannerId") Long bannerId);
+
+    int shiftDisplayOrderAfterDelete(@Param("deletedDisplayOrder") int deletedDisplayOrder);
 }

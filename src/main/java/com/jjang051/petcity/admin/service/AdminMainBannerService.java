@@ -33,6 +33,10 @@ public class AdminMainBannerService {
     private static final Set<String> ALLOWED_CONTENT_TYPES =
             Set.of("image/jpeg", "image/png", "image/webp", "image/gif", "image/avif");
 
+    private static final Set<String> ALLOWED_DOMAIN_SUFFIXES = Set.of(
+            ".com",".net",".org",".io",".dev",".app",".ai",".me",".info",".biz",".shop",
+            ".store",".site",".online",".xyz",".kr",".co.kr",".or.kr",".go.kr",".ac.kr",
+            ".ne.kr",".jp",".co.jp");
 
     private final AdminMainBannerDao adminMainBannerDao;
 
@@ -159,6 +163,19 @@ public class AdminMainBannerService {
         }
     }
 
+    @Transactional
+    public void deleteMainBanner(Long bannerId) {
+        AdminMainBannerDto existingBanner = findMainBannerById(bannerId);
+
+        int deletedRows = adminMainBannerDao.deleteMainBanner(bannerId);
+
+        if (deletedRows != 1) {
+            throw new IllegalArgumentException("메인 배너 삭제에 실패했습니다.");
+        }
+        adminMainBannerDao.shiftDisplayOrderAfterDelete(existingBanner.getDisplayOrder());
+
+        deleteLocalBannerFileQuietly(existingBanner.getImageUrl());
+    }
 
     private void validateCreateDto(AdminMainBannerCreateDto createDto) {
         if (createDto == null) {
@@ -388,7 +405,21 @@ public class AdminMainBannerService {
         try {
             URI uri = URI.create(value);
             String scheme = uri.getScheme();
-            return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))&& uri.getHost() != null;
+            String host = uri.getHost();
+            if (host == null || host.isBlank()) {
+                return false;
+            }
+            if (!"http".equalsIgnoreCase(scheme) &&
+                    !"https".equalsIgnoreCase(scheme)) {
+                return false;
+            }
+            String normalizedHost = host.toLowerCase(Locale.ROOT);
+
+            if ("localhost".equals(normalizedHost)) {
+                return true;
+            }
+            return ALLOWED_DOMAIN_SUFFIXES.stream().anyMatch(suffix ->
+                    normalizedHost.endsWith(suffix) && normalizedHost.length() > suffix.length());
         } catch (IllegalArgumentException e) {
             return false;
         }

@@ -146,49 +146,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             showUrlPreview(imageUrl);
         });
-
-        imageUrlInput.addEventListener("blur", function () {
-            if (getImageChangeType() !== "URL") {
-                return;
-            }
-
-            const imageUrl =
-                imageUrlInput.value.trim();
-
-            if (imageUrl.length === 0) {
-                return;
-            }
-
-            if (!isAllowedImageUrl(imageUrl)) {
-                alert(
-                    "이미지 주소는 JPG, JPEG, PNG, WEBP, GIF, AVIF 형식이어야 합니다.",
-                );
-
-                imageUrlInput.focus();
-            }
-        });
     }
-
     if (linkUrlInput !== null) {
         linkUrlInput.addEventListener("input", function () {
             updateLinkPreview();
-        });
-
-        linkUrlInput.addEventListener("blur", function () {
-            const linkUrl =
-                linkUrlInput.value.trim();
-
-            if (linkUrl.length === 0) {
-                return;
-            }
-
-            if (!isValidLinkUrl(linkUrl)) {
-                alert(
-                    "연결 링크는 /로 시작하는 내부 주소 또는 http://, https:// 주소로 입력해 주세요.",
-                );
-
-                linkUrlInput.focus();
-            }
         });
     }
 
@@ -745,13 +706,57 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function isValidHttpUrl(value) {
         try {
-            const url =
-                new URL(value);
+            const url = new URL(value);
 
-            return (
-                url.protocol === "http:"
-                || url.protocol === "https:"
+            if (
+                url.protocol !== "http:"
+                && url.protocol !== "https:"
+            ) {
+                return false;
+            }
+
+            const hostname =
+                url.hostname.toLowerCase();
+
+            if (hostname === "localhost") {
+                return true;
+            }
+
+            const allowedDomainSuffixes = [
+                ".com",
+                ".net",
+                ".org",
+                ".io",
+                ".dev",
+                ".app",
+                ".ai",
+                ".me",
+                ".info",
+                ".biz",
+                ".shop",
+                ".store",
+                ".site",
+                ".online",
+                ".xyz",
+                ".kr",
+                ".co.kr",
+                ".or.kr",
+                ".go.kr",
+                ".ac.kr",
+                ".ne.kr",
+                ".jp",
+                ".co.jp",
+            ];
+
+            return allowedDomainSuffixes.some(
+                function (suffix) {
+                    return (
+                        hostname.endsWith(suffix)
+                        && hostname.length > suffix.length
+                    );
+                },
             );
+
         } catch (error) {
             return false;
         }

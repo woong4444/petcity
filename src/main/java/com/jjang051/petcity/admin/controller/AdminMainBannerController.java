@@ -7,6 +7,8 @@ import com.jjang051.petcity.admin.service.AdminMainBannerService;
 import com.jjang051.petcity.member.dto.MemberDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -116,8 +118,29 @@ public class AdminMainBannerController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/admin/main-banners/" + bannerId + "/edit";
+    }
 
 
+    @PostMapping("/{bannerId}/delete")
+    @ResponseBody
+    public ResponseEntity<Void> deleteMainBanner(@PathVariable Long bannerId, HttpSession session) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!"ADMIN".equals(loginMember.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            adminMainBannerService.deleteMainBanner(bannerId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
 
