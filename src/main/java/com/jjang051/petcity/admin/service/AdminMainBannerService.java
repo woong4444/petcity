@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -82,6 +83,18 @@ public class AdminMainBannerService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<AdminMainBannerDto> findAllMainBanners() {
+        return adminMainBannerDao.findAllMainBanners();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminMainBannerDto> findVisibleMainBanners() {
+        return adminMainBannerDao.findVisibleMainBanners();
+    }
+
+
+
     private void validateCreateDto(AdminMainBannerCreateDto createDto) {
         if (createDto == null) {
             throw new IllegalArgumentException("배너 등록 정보가 없습니다.");
@@ -95,7 +108,6 @@ public class AdminMainBannerService {
         validateDisplayPeriod(createDto);
     }
 
-
     private void validateTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("배너 제목을 입력해주세요");
@@ -104,7 +116,6 @@ public class AdminMainBannerService {
             throw new IllegalArgumentException("배너 제목은 200자 이내로 입력해 주세요.");
         }
     }
-
 
     private void validateSubTitle(String subTitle) {
         if (subTitle == null || subTitle.isBlank()) {
@@ -115,7 +126,6 @@ public class AdminMainBannerService {
             throw new IllegalArgumentException("배너 부제목은 500자 이내로 입력해 주세요.");
         }
     }
-
 
     private void validateImageSource(AdminMainBannerCreateDto createDto) {
         String imageSourceType = createDto.getImageSourceType();
@@ -151,7 +161,6 @@ public class AdminMainBannerService {
             throw new IllegalArgumentException("올바른 이미지 파일이 아닙니다.");
         }
     }
-
 
     private void validateLinkUrl(String linkUrl) {
         if (linkUrl == null || linkUrl.isBlank()) {

@@ -126,7 +126,7 @@
                 </svg>
             </span>
 
-                    <span class="nav-label">
+            <span class="nav-label">
                 병원장 신청
             </span>
 
@@ -172,27 +172,30 @@
 
         </a>
 
-        <!-- 메인 배너 관리 -->
-        <a href="#"
+
+        <a th:href="@{/admin/main-banners}"
            class="admin-nav-link"
+           th:classappend="${activeMenu == 'main-banners' ? ' active' : ''}"
            data-tooltip="메인 배너 관리">
 
-            <span class="nav-icon">
-                <svg viewBox="0 0 24 24"
-                     aria-hidden="true">
-                    <rect x="3" y="4"
-                          width="18" height="16"
-                          rx="2"/>
-                    <circle cx="9" cy="10" r="2"/>
-                    <path d="M3 17L8 13L12 16L16 11L21 16"/>
-                </svg>
-            </span>
+    <span class="nav-icon">
+        <svg viewBox="0 0 24 24"
+             aria-hidden="true">
+            <rect x="3" y="4"
+                  width="18" height="16"
+                  rx="2"/>
+            <circle cx="9" cy="10" r="2"/>
+            <path d="M3 17L8 13L12 16L16 11L21 16"/>
+        </svg>
+    </span>
 
             <span class="nav-label">
-                메인 배너 관리
-            </span>
+        메인 배너 관리
+    </span>
 
         </a>
+
+
         <a th:href="@{/member/logout}" id="adminLogoutLink"
            class="admin-nav-link">
             로그아웃
