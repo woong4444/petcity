@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Configuration
 @EnableWebSecurity
@@ -80,21 +81,37 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                 )
 
-                // ===========================
-                // 권한
-                // ===========================
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
                                 "/main",
-                                "/member/**",
+                                "/member/login",
+                                "/member/signup",
+                                "/member/signup-form",
+                                "/member/check-loginId",
+                                "/member/check-nickname",
+                                "/member/check-email",
+                                "/board/list",
+                                "/board/info-list",
+                                "/board/faq-list",
+
                                 "/oauth2/**",
                                 "/login/**",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**"
+                                "/images/**",
+                                "/uploads/**"
+
                         ).permitAll()
-                        .anyRequest().permitAll()
+
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(
+                                "/member/**",
+                                "/board/**"
+                        )
+                        .authenticated()
                 );
 
         return http.build();
