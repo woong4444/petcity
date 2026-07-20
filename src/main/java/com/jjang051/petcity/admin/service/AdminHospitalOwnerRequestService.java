@@ -55,9 +55,8 @@ public class AdminHospitalOwnerRequestService {
 
     @Transactional(readOnly = true)
     public AdminHospitalOwnerRequestDto getRequestsById(Long requestId) {
-        if (requestId == null || requestId <= 0) {
-            throw new IllegalArgumentException("신청 번호가 올바르지 않습니다.");
-        }
+        validateRequestId(requestId);
+
         AdminHospitalOwnerRequestDto request = adminHospitalOwnerRequestDao.findRequestById(requestId);
 
         if (request == null) {
@@ -69,6 +68,94 @@ public class AdminHospitalOwnerRequestService {
 
         return request;
     }
+
+
+    @Transactional
+    public void approveRequest(Long requestId, Long processedBy) {
+        validateRequestId(requestId);
+        validateProcessedBy(processedBy);
+
+        AdminHospitalOwnerRequestDto request = adminHospitalOwnerRequestDao.findRequestForUpdateById(requestId);
+
+        validatePendingRequest(request);
+        Long hospitalId = adminHospitalOwnerRequestDao.getNextHospitalId();
+
+        if (hospitalId == null) {
+            throw new IllegalArgumentException("병원 번호를 생성할 수 없습니다.");
+        }
+        int insertedHospital = adminHospitalOwnerRequestDao.insertHospitalFromRequest(requestId, hospitalId);
+
+        if (insertedHospital != 1) {
+            throw new IllegalArgumentException("병원 기본 정보를 생성할 수 없습니다.");
+        }
+        adminHospitalOwnerRequestDao.insertHospitalAnimalsFromRequest(requestId, hospitalId);
+        adminHospitalOwnerRequestDao.insertHospitalServicesFromRequest(requestId, hospitalId);
+        adminHospitalOwnerRequestDao.insertHospitalMedicalSubjectsFromRequest(requestId, hospitalId);
+        int updatedMember = adminHospitalOwnerRequestDao.updateMemberRoleToOwner(request.getMemberId());
+
+        if (updatedMember != 1) {
+            throw new IllegalArgumentException("신청 회원을 병원장으로 변경할 수 없습니다.");
+        }
+        int updatedRequest = adminHospitalOwnerRequestDao.approveOwnerRequest(requestId, hospitalId, processedBy);
+
+        if (updatedRequest != 1) {
+            throw new IllegalArgumentException("병원장 신청을 승인 처리할 수 없습니다.");
+        }
+
+    }
+
+    @Transactional
+    public void rejectRequest(Long requestId, Long processedBy, String rejectReason) {
+        validateRequestId(requestId);
+        validateProcessedBy(processedBy);
+        String normalizedReason = normalizeRejectReason(rejectReason);
+        AdminHospitalOwnerRequestDto request = adminHospitalOwnerRequestDao.findRequestForUpdateById(requestId);
+
+        validatePendingRequest(request);
+        int updatedRows = adminHospitalOwnerRequestDao.rejectOwnerRequest(requestId, normalizedReason, processedBy);
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException("병원장 신청을 반려 처리할 수 없습니다.");
+        }
+    }
+
+    private void validateRequestId(Long requestId) {
+        if (requestId == null || requestId <= 0) {
+            throw new IllegalArgumentException("신청 번호가 올바르지 않습니다.");
+        }
+
+    }
+
+    private void validateProcessedBy(Long processedBy) {
+        if (processedBy == null || processedBy <= 0) {
+            throw new IllegalArgumentException("처리 관리자 정보가 올바르지 않습니다.");
+        }
+
+    }
+
+    private void validatePendingRequest(AdminHospitalOwnerRequestDto request) {
+        if (request == null) {
+            throw new IllegalArgumentException("병원장 신청 내역을 찾을 수 없습니다.");
+        }
+        if (!"PENDING".equals(request.getStatus())) {
+            throw new IllegalArgumentException("이미 처리된 병원장 신청입니다.");
+        }
+        if (request.getHospitalId() != null) {
+            throw new IllegalArgumentException("이미 병원장 문의가 처리되었습니다.");
+        }
+    }
+
+    private String normalizeRejectReason(String rejectReason) {
+        if (rejectReason == null || rejectReason.isBlank()) {
+            throw new IllegalArgumentException("반려 사유를 입력해주세요");
+        }
+        String normalizedReason = rejectReason.trim();
+        if (normalizedReason.length() > 500) {
+            throw new IllegalArgumentException("반려 사유는 500자 이하로 입력해 주세요");
+        }
+        return normalizedReason;
+    }
+
 
     private String normalizeDirection(String direction) {
         if ("asc".equalsIgnoreCase(direction)) {
@@ -93,7 +180,6 @@ public class AdminHospitalOwnerRequestService {
             default -> "requestId";
         };
     }
-
 
     private String normalizeStatus(String status) {
         if (status == null || status.isBlank()) {

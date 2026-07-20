@@ -47,16 +47,9 @@ a {
     text-decoration: none;
 }
 
-/*
-    sticky가 다른 관리자 CSS의 overflow 영향을 받지 않게 함
-*/
-.admin-layout,
-.admin-main,
-.request-detail-main,
-.request-detail-container,
-.request-detail-layout {
-    overflow: visible !important;
-}
+/* =========================
+   전체 상세 화면
+   ========================= */
 
 .request-detail-main {
     min-width: 0;
@@ -67,7 +60,41 @@ a {
     width: 100%;
     max-width: 1440px;
     margin: 0 auto;
+
+    overflow: visible;
 }
+
+/* =========================
+   처리 결과 메시지
+   ========================= */
+
+.detail-result-message {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.success-message {
+    color: #14734d;
+    background-color: #e4f7ed;
+
+    border: 1px solid #caecd9;
+}
+
+.error-message {
+    color: #b23b3b;
+    background-color: #fff0f0;
+
+    border: 1px solid #ffd6d6;
+}
+
+/* =========================
+   상세 페이지 상단
+   ========================= */
 
 .detail-page-header {
     margin-bottom: 24px;
@@ -140,6 +167,10 @@ a {
     background-color: #d5dce6;
 }
 
+/* =========================
+   상태 배지
+   ========================= */
+
 .request-status-badge {
     display: inline-flex;
     align-items: center;
@@ -170,11 +201,17 @@ a {
     background-color: #ffe8e8;
 }
 
+/* =========================
+   왼쪽 + 오른쪽 레이아웃
+   ========================= */
+
 .request-detail-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 330px;
-    align-items: start;
+    align-items: stretch;
     gap: 24px;
+
+    overflow: visible;
 }
 
 .request-detail-content {
@@ -184,6 +221,20 @@ a {
 
     min-width: 0;
 }
+
+/*
+    aside는 왼쪽 콘텐츠 높이만큼 늘어나게 둔다.
+    실제 sticky는 안쪽 .action-card가 담당한다.
+*/
+.request-action-column {
+    align-self: stretch;
+
+    min-width: 0;
+}
+
+/* =========================
+   상세 카드 공통
+   ========================= */
 
 .detail-card {
     min-width: 0;
@@ -227,6 +278,10 @@ a {
     line-height: 1.6;
 }
 
+/* =========================
+   정보 목록
+   ========================= */
+
 .detail-info-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -267,6 +322,10 @@ a {
     line-height: 1.6;
 }
 
+/* =========================
+   링크
+   ========================= */
+
 .document-link {
     display: inline-flex;
     align-items: center;
@@ -291,6 +350,10 @@ a {
 .external-link:hover {
     text-decoration: underline;
 }
+
+/* =========================
+   태그 목록
+   ========================= */
 
 .tag-list {
     display: flex;
@@ -349,6 +412,10 @@ a {
     text-align: center;
 }
 
+/* =========================
+   병원 설명
+   ========================= */
+
 .long-text-section + .long-text-section {
     margin-top: 20px;
     padding-top: 20px;
@@ -375,7 +442,10 @@ a {
     white-space: pre-line;
 }
 
-/* 카카오 지도 */
+/* =========================
+   카카오 지도
+   ========================= */
+
 .map-card {
     padding: 16px;
 }
@@ -429,7 +499,10 @@ a {
     line-height: 1.5;
 }
 
-/* 대표 이미지 */
+/* =========================
+   병원 대표 이미지
+   ========================= */
+
 .hospital-image-area {
     display: flex;
     align-items: center;
@@ -492,26 +565,24 @@ a {
 }
 
 .hospital-image-empty strong {
-    margin-bottom: 7px;
-
     color: #566377;
 
     font-size: 13px;
 }
 
-/* 오른쪽 신청 처리 카드 */
-.request-action-column {
+/* =========================
+   오른쪽 신청 처리 카드
+   ========================= */
+
+/*
+    sticky를 실제 카드에 적용한다.
+    부모 aside는 왼쪽 콘텐츠와 동일한 높이를 가지므로
+    카드가 스크롤 이동할 공간이 생긴다.
+*/
+.action-card {
     position: sticky;
     top: 24px;
 
-    align-self: start;
-
-    height: max-content;
-
-    z-index: 20;
-}
-
-.action-card {
     padding: 23px;
 
     background-color: #ffffff;
@@ -672,7 +743,10 @@ a {
     margin: 0;
 }
 
-/* 모달 */
+/* =========================
+   모달
+   ========================= */
+
 .modal-overlay {
     position: fixed;
     z-index: 2000;
@@ -824,6 +898,8 @@ a {
 
 .reject-reason-textarea.is-invalid {
     border-color: #df6262;
+
+    box-shadow: 0 0 0 3px rgba(223, 98, 98, 0.1);
 }
 
 .textarea-information {
@@ -888,9 +964,17 @@ a {
     background-color: #347fe8;
 }
 
+.modal-approve-button:hover {
+    background-color: #286fce;
+}
+
 .modal-reject-button {
     color: #ffffff;
     background-color: #d94c4c;
+}
+
+.modal-reject-button:hover {
+    background-color: #c73f3f;
 }
 
 .modal-reject-button:disabled {
@@ -900,25 +984,9 @@ a {
     cursor: not-allowed;
 }
 
-.detail-toast {
-    position: fixed;
-    z-index: 3000;
-    right: 28px;
-    bottom: 28px;
-
-    max-width: 390px;
-    padding: 14px 17px;
-
-    color: #ffffff;
-    background-color: #263449;
-
-    border-radius: 9px;
-
-    box-shadow: 0 12px 32px rgba(23, 36, 57, 0.23);
-
-    font-size: 12px;
-    font-weight: 700;
-}
+/* =========================
+   반응형
+   ========================= */
 
 @media (max-width: 1180px) {
 
@@ -927,9 +995,11 @@ a {
     }
 
     .request-action-column {
-        position: static;
-
         width: 100%;
+    }
+
+    .action-card {
+        position: static;
     }
 }
 
@@ -941,6 +1011,16 @@ a {
 
     .detail-title-row {
         flex-direction: column;
+    }
+
+    .detail-summary {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .summary-divider {
+        display: none;
     }
 
     .detail-info-grid {
@@ -974,5 +1054,11 @@ a {
     .modal-actions {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .modal-cancel-button,
+    .modal-approve-button,
+    .modal-reject-button {
+        width: 100%;
     }
 }
