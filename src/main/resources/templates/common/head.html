@@ -62,7 +62,7 @@
                     </th:block>
 
                     <a th:if="${session.loginMember.role == 'ADMIN'}" href="/admin/dashboard">Admin</a>
-                    <a th:if="${session.loginMember.role == 'OWNER'}" href="/owner">병원관리</a>
+                    <a th:if="${session.loginMember.role == 'OWNER'}" href="/owner/hospital/update">병원관리</a>
                     <span>|</span><a href="/member/logout">로그아웃</a><span>|</span>
                 </th:block>
                 <a href="/pet/list">내 반려동물</a><span>|</span><a href="/board/list">고객센터</a>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjang051.petcity.hospital.dao.HospitalUpdateDao">
+
+    <!-- 병원장의 수정 요청 인서트 -->
+    <insert id="insertRequest" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        INSERT INTO HOSPITAL_UPDATE_REQUEST
+        (HOSPITAL_ID, MEMBER_ID, MEDICAL_SUBJECTS, OPEN_TIME, CLOSE_TIME, LUNCH_TIME, HOLIDAY)
+        VALUES
+        (#{hospitalId}, #{memberId}, #{medicalSubjects}, #{openTime}, #{closeTime}, #{lunchTime}, #{holiday})
+    </insert>
+
+    <!-- 관리자용: 대기중인 요청 목록 -->
+    <select id="findPendingRequests" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        SELECT R.*, H.NAME as hospitalName
+        FROM HOSPITAL_UPDATE_REQUEST R
+        JOIN HOSPITAL H ON R.HOSPITAL_ID = H.HOSPITAL_ID
+        WHERE R.STATUS = 'PENDING'
+        ORDER BY R.CREATED_AT DESC
+    </select>
+
+    <!-- 요청 상세 조회 -->
+    <select id="findRequestById" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        SELECT * FROM HOSPITAL_UPDATE_REQUEST WHERE REQUEST_ID = #{requestId}
+    </select>
+
+    <!-- 요청 상태 변경 (승인/거절) -->
+    <update id="updateRequestStatus" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        UPDATE HOSPITAL_UPDATE_REQUEST
+        SET STATUS = #{status},
+        PROCESSED_AT = SYSDATE,
+        REJECT_REASON = #{rejectReason}
+        WHERE REQUEST_ID = #{requestId}
+    </update>
+
+    <!-- ★ 관리자 승인 시 실제 HOSPITAL 테이블 덮어쓰기 ★ -->
+    <update id="applyHospitalUpdate" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        UPDATE HOSPITAL
+        SET MEDICAL_SUBJECTS = #{medicalSubjects},
+        OPEN_TIME = #{openTime},
+        CLOSE_TIME = #{closeTime},
+        LUNCH_TIME = #{lunchTime},
+        HOLIDAY = #{holiday}
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </update>
+
+    <!-- 로그인한 병원장의 병원 정보 찾기 -->
+    <select id="findHospitalByOwnerId" resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
+        SELECT * FROM HOSPITAL WHERE OWNER_ID = #{ownerId} FETCH FIRST 1 ROWS ONLY
+    </select>
+
+</mapper>
