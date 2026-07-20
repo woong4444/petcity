@@ -148,6 +148,7 @@
         HOSPITAL_NOTE,
 
         STATUS,
+        RESULT_READ_YN,
         CREATED_AT
 
         ) VALUES (
@@ -183,6 +184,7 @@
         #{hospitalNote},
 
         'PENDING',
+        'N',
         SYSTIMESTAMP
 
         )
@@ -295,5 +297,92 @@
 
     </select>
 
+
+
+    <!-- =================================================
+         로그인 회원의 병원장 신청 내역 조회
+    ================================================== -->
+
+    <select id="findOwnerRequestHistory"
+            resultType="com.jjang051.petcity.owner.dto.OwnerRequestDto">
+
+        SELECT
+            REQUEST_ID AS requestId,
+            MEMBER_ID AS memberId,
+            HOSPITAL_ID AS hospitalId,
+
+            APPLICANT_NAME AS applicantName,
+            BUSINESS_NUMBER AS businessNumber,
+
+            HOSPITAL_NAME AS hospitalName,
+            HOSPITAL_PHONE AS hospitalPhone,
+            HOSPITAL_ADDRESS AS hospitalAddress,
+
+            STATUS AS status,
+            REJECT_REASON AS rejectReason,
+            RESULT_READ_YN AS resultReadYn,
+
+            CREATED_AT AS createdAt,
+            PROCESSED_AT AS processedAt,
+            PROCESSED_BY AS processedBy
+
+        FROM HOSPITAL_OWNER_REQUEST
+
+        WHERE MEMBER_ID = #{memberId}
+
+        ORDER BY CREATED_AT DESC
+
+    </select>
+
+
+    <!-- =================================================
+         읽지 않은 승인·반려 결과 개수
+    ================================================== -->
+
+    <select id="countUnreadOwnerRequestResult"
+            resultType="int">
+
+        SELECT COUNT(*)
+
+        FROM HOSPITAL_OWNER_REQUEST
+
+        WHERE MEMBER_ID = #{memberId}
+
+        AND STATUS IN (
+            'APPROVED',
+            'REJECTED'
+        )
+
+        AND NVL(
+            RESULT_READ_YN,
+            'N'
+        ) = 'N'
+
+    </select>
+
+
+    <!-- =================================================
+         승인·반려 결과 읽음 처리
+    ================================================== -->
+
+    <update id="markOwnerRequestResultAsRead">
+
+        UPDATE HOSPITAL_OWNER_REQUEST
+
+        SET RESULT_READ_YN = 'Y'
+
+        WHERE MEMBER_ID = #{memberId}
+
+        AND STATUS IN (
+            'APPROVED',
+            'REJECTED'
+        )
+
+        AND NVL(
+            RESULT_READ_YN,
+            'N'
+        ) = 'N'
+
+    </update>
 
 </mapper>

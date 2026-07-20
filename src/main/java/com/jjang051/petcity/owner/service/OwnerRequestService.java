@@ -196,6 +196,87 @@ public class OwnerRequestService {
     }
 
 
+
+
+    /*
+        로그인 회원의 병원장 신청 내역 조회
+
+        최신 신청이 위쪽에 표시된다.
+    */
+    @Transactional(readOnly = true)
+    public List<OwnerRequestDto>
+    getOwnerRequestHistory(
+            Long memberId
+    ) {
+
+        validateMemberId(
+                memberId
+        );
+
+        return ownerRequestDao
+                .findOwnerRequestHistory(
+                        memberId
+                );
+    }
+
+
+    /*
+        아직 확인하지 않은 승인·반려 결과 개수
+    */
+    @Transactional(readOnly = true)
+    public int countUnreadOwnerRequestResult(
+            Long memberId
+    ) {
+
+        if (memberId == null
+                || memberId <= 0) {
+
+            return 0;
+        }
+
+        return ownerRequestDao
+                .countUnreadOwnerRequestResult(
+                        memberId
+                );
+    }
+
+
+    /*
+        신청 현황 페이지를 열면
+        승인·반려 결과를 읽음 처리한다.
+    */
+    public void markOwnerRequestResultAsRead(
+            Long memberId
+    ) {
+
+        validateMemberId(
+                memberId
+        );
+
+        ownerRequestDao
+                .markOwnerRequestResultAsRead(
+                        memberId
+                );
+    }
+
+
+    /*
+        공통 회원번호 검사
+    */
+    private void validateMemberId(
+            Long memberId
+    ) {
+
+        if (memberId == null
+                || memberId <= 0) {
+
+            throw new RuntimeException(
+                    "로그인 회원 정보를 확인할 수 없습니다."
+            );
+        }
+    }
+
+
     /*
         병원장 신청 등록
     */

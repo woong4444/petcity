@@ -64,10 +64,19 @@
 
             </div>
 
-            <a th:href="@{/}"
-               class="complete-button">
-                홈으로 이동
-            </a>
+            <div class="complete-button-group">
+
+                <a th:href="@{/owner/status}"
+                   class="complete-button">
+                    신청 현황 확인
+                </a>
+
+                <a th:href="@{/}"
+                   class="complete-button secondary">
+                    홈으로 이동
+                </a>
+
+            </div>
 
         </section>
 
