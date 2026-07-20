@@ -58,8 +58,16 @@ public class AdminHospitalOwnerRequestService {
         if (requestId == null || requestId <= 0) {
             throw new IllegalArgumentException("신청 번호가 올바르지 않습니다.");
         }
+        AdminHospitalOwnerRequestDto request = adminHospitalOwnerRequestDao.findRequestById(requestId);
 
-        return adminHospitalOwnerRequestDao.findRequestById(requestId);
+        if (request == null) {
+            return null;
+        }
+        request.setAnimalNames(adminHospitalOwnerRequestDao.findAnimalNamesByRequestId(requestId));
+        request.setServiceNames(adminHospitalOwnerRequestDao.findServiceNamesByRequestId(requestId));
+        request.setMedicalSubjectNames(adminHospitalOwnerRequestDao.findMedicalSubjectNamesByRequestId(requestId));
+
+        return request;
     }
 
     private String normalizeDirection(String direction) {

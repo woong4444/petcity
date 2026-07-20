@@ -8,8 +8,16 @@
         <where>
             <if test="keyword != null and keyword != ''">
                 AND (
-                UPPER(H.NAME) LIKE '%' || UPPER(#{keyword}) || '%'
-                OR UPPER(M.NICKNAME) LIKE '%' || UPPER(#{keyword}) || '%'
+                UPPER(HOR.HOSPITAL_NAME)
+                LIKE '%' || UPPER(#{keyword}) || '%'
+                OR UPPER(HOR.APPLICANT_NAME)
+                LIKE '%' || UPPER(#{keyword}) || '%'
+                OR UPPER(M.NICKNAME)
+                LIKE '%' || UPPER(#{keyword}) || '%'
+                OR UPPER(M.LOGIN_ID)
+                LIKE '%' || UPPER(#{keyword}) || '%'
+                OR HOR.BUSINESS_NUMBER
+                LIKE '%' || #{keyword} || '%'
                 )
             </if>
 
@@ -24,31 +32,27 @@
         FROM HOSPITAL_OWNER_REQUEST HOR
         JOIN APP_MEMBER M
         ON HOR.MEMBER_ID = M.MEMBER_ID
-        JOIN HOSPITAL H
-        ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
-            <include refid="requestSearchConditions"/>
+        <include refid="requestSearchConditions"/>
     </select>
 
 
     <select id="findRequestsByPage" resultType="AdminHospitalOwnerRequestDto">
         SELECT
-            HOR.REQUEST_ID AS requestId,
-            HOR.Member_id AS memberId,
-            HOR.HOSPITAL_ID AS hospitalId,
-            HOR.BUSINESS_NUMBER AS businessNumber,
-            HOR.DOCUMENT_Url AS documentUrl,
-            HOR.STATUS AS status,
-            HOR.REJECT_REASON AS rejectReason,
-            HOR.CREATED_AT AS createdAt,
-            HOR.PROCESSED_AT AS processedAt,
-            M.LOGIN_ID AS loginId,
-            M.NICKNAME AS nickname,
-            H.NAME AS hospitalName
+        HOR.REQUEST_ID AS requestId,
+        HOR.Member_id AS memberId,
+        HOR.HOSPITAL_ID AS hospitalId,
+        HOR.BUSINESS_NUMBER AS businessNumber,
+        HOR.DOCUMENT_Url AS documentUrl,
+        HOR.STATUS AS status,
+        HOR.REJECT_REASON AS rejectReason,
+        HOR.CREATED_AT AS createdAt,
+        HOR.PROCESSED_AT AS processedAt,
+        M.LOGIN_ID AS loginId,
+        M.NICKNAME AS nickname,
+        HOR.HOSPITAL_NAME AS hospitalName
         FROM HOSPITAL_OWNER_REQUEST HOR
         JOIN APP_MEMBER M
-            ON HOR.MEMBER_ID = M.MEMBER_ID
-        JOIN HOSPITAL H
-            ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
+        ON HOR.MEMBER_ID = M.MEMBER_ID
         <include refid="requestSearchConditions"/>
         ORDER BY
         <choose>
@@ -57,13 +61,13 @@
             </when>
 
             <when test="sort == 'hospitalInfo'">
-                H.NAME
+                HOR.HOSPITAL_NAME
             </when>
             <when test="sort == 'status'">
                 CASE HOR.STATUS
-                    WHEN 'PENDING' THEN 1
-                    WHEN 'APPROVED' THEN 2
-                    WHEN 'REJECTED' THEN 3
+                WHEN 'PENDING' THEN 1
+                WHEN 'APPROVED' THEN 2
+                WHEN 'REJECTED' THEN 3
                 ELSE 4
                 END
             </when>
@@ -92,6 +96,8 @@
         <if test="sort != 'requestId'">
             , HOR.REQUEST_ID DESC
         </if>
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{pageSize} ROWS ONLY
     </select>
 
     <select id="findRequestById" resultType="AdminHospitalOwnerRequestDto">
@@ -106,17 +112,59 @@
             HOR.REJECT_REASON AS rejectReason,
             HOR.CREATED_AT AS createdAt,
             HOR.PROCESSED_AT AS processedAt,
+            HOR.PROCESSED_BY AS processedBy,
+            HOR.APPLICANT_NAME AS applicantName,
+            HOR.HOSPITAL_NAME AS hospitalName,
+            HOR.HOSPITAL_PHONE AS hospitalPhone,
+            HOR.HOSPITAL_ADDRESS AS hospitalAddress,
+            HOR.HOSPITAL_DETAIL_ADDRESS AS hospitalDetailAddress,
+            HOR.HOSPITAL_DISTRICT AS hospitalDistrict,
+            HOR.HOSPITAL_WEBSITE_URL AS hospitalWebsiteUrl,
+            HOR.HOSPITAL_LATITUDE AS hospitalLatitude,
+            HOR.HOSPITAL_LONGITUDE AS hospitalLongitude,
+            HOR.HOSPITAL_OPEN_TIME AS hospitalOpenTime,
+            HOR.HOSPITAL_CLOSE_TIME AS hospitalCloseTime,
+            HOR.HOSPITAL_BREAK_TIME AS hospitalBreakTime,
+            HOR.HOSPITAL_CLOSED_DAYS AS hospitalClosedDays,
+            HOR.HOSPITAL_DOCTOR_INFO AS hospitalDoctorInfo,
+            HOR.HOSPITAL_DESCRIPTION AS hospitalDescription,
+            HOR.HOSPITAL_IMAGE_URL AS hospitalImageUrl,
+            HOR.HOSPITAL_NOTE AS hospitalNote,
             M.LOGIN_ID AS loginId,
-            M.NICKNAME AS nickname,
-            H.NAME AS hospitalName
+            M.NICKNAME AS nickname
         FROM HOSPITAL_OWNER_REQUEST HOR
         JOIN APP_MEMBER M
-            ON HOR.MEMBER_ID = M.MEMBER_ID
-        JOIN HOSPITAL H
-            ON HOR.HOSPITAL_ID = H.HOSPITAL_ID
+        ON HOR.MEMBER_ID = M.MEMBER_ID
         WHERE HOR.REQUEST_ID = #{requestId}
     </select>
 
 
+
+    <select id="findAnimalNamesByRequestId" resultType="string">
+        SELECT AT.ANIMAL_NAME
+        FROM OWNER_REQUEST_ANIMAL ORA
+        JOIN ANIMAL_TYPE AT
+            ON ORA.ANIMAL_ID = AT.ANIMAL_ID
+        WHERE ORA.REQUEST_ID = #{requestId}
+        ORDER BY AT.ANIMAL_ID
+    </select>
+
+    <select id="findServiceNamesByRequestId" resultType="string">
+        SELECT MS.SERVICE_NAME
+        FROM OWNER_REQUEST_SERVICE ORS
+        JOIN MEDICAL_SERVICE MS
+        ON ORS.SERVICE_ID = MS.SERVICE_ID
+        WHERE ORS.REQUEST_ID = #{requestId}
+        ORDER BY MS.SERVICE_ID
+    </select>
+
+    <select id="findMedicalSubjectNamesByRequestId" resultType="string">
+        SELECT MS.SUBJECT_NAME
+        FROM OWNER_REQUEST_MEDICAL_SUBJECT ORMS
+        JOIN MEDICAL_SUBJECT MS
+        ON ORMS.SUBJECT_ID = MS.SUBJECT_ID
+        WHERE ORMS.REQUEST_ID = #{requestId}
+        ORDER BY MS.SUBJECT_ID
+    </select>
 
 </mapper>
