@@ -101,4 +101,31 @@ public interface OwnerRequestDao {
             @Param("requestId") int requestId,
             @Param("subjectId") int subjectId
     );
+
+
+    /*
+        로그인 회원의 병원장 신청 내역 조회
+    */
+    List<OwnerRequestDto>
+    findOwnerRequestHistory(
+            @Param("memberId") Long memberId
+    );
+
+
+    /*
+        승인 또는 반려 결과 중
+        아직 확인하지 않은 개수
+    */
+    int countUnreadOwnerRequestResult(
+            @Param("memberId") Long memberId
+    );
+
+
+    /*
+        승인 또는 반려 결과 읽음 처리
+    */
+    int markOwnerRequestResultAsRead(
+            @Param("memberId") Long memberId
+    );
+
 }

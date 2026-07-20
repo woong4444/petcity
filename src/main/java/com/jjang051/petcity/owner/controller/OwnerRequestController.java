@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/owner")
@@ -227,6 +230,104 @@ public class OwnerRequestController {
 
             return "redirect:/owner/apply";
         }
+    }
+
+
+
+
+    /*
+        병원장 신청 현황 페이지
+
+        주소:
+        /owner/status
+    */
+    @GetMapping("/status")
+    public String ownerRequestStatusPage(
+            HttpSession session,
+            Model model
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+
+            return "redirect:/member/login";
+        }
+
+        /*
+            현재 로그인 회원의 신청 내역만 조회
+        */
+        List<OwnerRequestDto> requestList =
+                ownerRequestService
+                        .getOwnerRequestHistory(
+                                loginMember.getMemberId()
+                        );
+
+        model.addAttribute(
+                "requestList",
+                requestList
+        );
+
+        /*
+            신청 현황 페이지를 열었으므로
+            승인 또는 반려 결과를 읽음 처리
+        */
+        ownerRequestService
+                .markOwnerRequestResultAsRead(
+                        loginMember.getMemberId()
+                );
+
+        return "owner/status";
+    }
+
+
+    /*
+        헤더의 병원장 신청 결과 알림 개수
+
+        승인 또는 반려된 결과 중
+        아직 현황 페이지에서 확인하지 않은 개수를 반환한다.
+    */
+    @ResponseBody
+    @GetMapping("/unread-count")
+    public Map<String, Integer>
+    ownerRequestUnreadCount(
+            HttpSession session
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        /*
+            비로그인 또는 관리자 계정은 알림 없음
+        */
+        if (loginMember == null
+                || loginMember.getMemberId() == null
+                || "ADMIN".equals(
+                        loginMember.getRole()
+                )) {
+
+            return Map.of(
+                    "count",
+                    0
+            );
+        }
+
+        int unreadCount =
+                ownerRequestService
+                        .countUnreadOwnerRequestResult(
+                                loginMember.getMemberId()
+                        );
+
+        return Map.of(
+                "count",
+                unreadCount
+        );
     }
 
 

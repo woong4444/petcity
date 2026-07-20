@@ -1094,3 +1094,220 @@ button.animal-category-header {
     }
 }
 
+
+/* ========================================
+   병원장 신청 현황 페이지
+======================================== */
+
+.owner-status-list {
+    display: grid;
+    gap: 18px;
+}
+
+.owner-status-card,
+.owner-status-empty {
+    padding: 30px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    background: #ffffff;
+
+    box-shadow:
+            0 12px 35px rgba(15, 23, 42, 0.05);
+}
+
+.owner-status-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.owner-request-number {
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.owner-status-card-header h2 {
+    margin: 7px 0 0;
+
+    color: #0f172a;
+    font-size: 23px;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+}
+
+.owner-status-badge {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 88px;
+    min-height: 38px;
+    padding: 7px 14px;
+
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #475569;
+
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.owner-status-badge.pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.owner-status-badge.approved {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.owner-status-badge.rejected {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.owner-status-info-grid {
+    display: grid;
+    grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    gap: 12px;
+
+    margin-top: 20px;
+}
+
+.owner-status-info {
+    padding: 15px;
+
+    border-radius: 13px;
+    background: #f8fafc;
+}
+
+.owner-status-info span {
+    display: block;
+
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.owner-status-info strong {
+    display: block;
+    margin-top: 6px;
+
+    color: #334155;
+    font-size: 14px;
+    font-weight: 800;
+    word-break: break-word;
+}
+
+.owner-status-message {
+    margin-top: 18px;
+    padding: 17px 18px;
+
+    border-radius: 13px;
+
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.owner-status-message.pending {
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+.owner-status-message.approved {
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.owner-status-message.rejected {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.owner-status-message.rejected strong {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.owner-status-message.rejected p {
+    margin: 0;
+}
+
+.owner-status-empty {
+    padding: 55px 30px;
+    text-align: center;
+}
+
+.owner-status-empty-icon {
+    font-size: 44px;
+}
+
+.owner-status-empty h2 {
+    margin: 17px 0 0;
+
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.owner-status-empty p {
+    margin: 13px 0 0;
+
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.complete-button-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-top: 28px;
+}
+
+.complete-button-group .complete-button {
+    margin-top: 0;
+}
+
+.complete-button.secondary {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+@media (max-width: 900px) {
+
+    .owner-status-info-grid {
+        grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+
+    .owner-status-card,
+    .owner-status-empty {
+        padding: 22px 18px;
+    }
+
+    .owner-status-card-header {
+        flex-direction: column;
+    }
+
+    .owner-status-info-grid {
+        grid-template-columns: 1fr;
+    }
+}

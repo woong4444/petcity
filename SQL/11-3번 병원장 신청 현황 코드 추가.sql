@@ -1,0 +1,64 @@
+--병원장 신청 현황 추가 코드--
+ALTER TABLE HOSPITAL_OWNER_REQUEST
+    ADD RESULT_READ_YN CHAR(1) DEFAULT 'N' NOT NULL;
+
+ALTER TABLE HOSPITAL_OWNER_REQUEST
+    ADD CONSTRAINT CK_OWNER_REQ_RESULT_READ
+        CHECK (RESULT_READ_YN IN ('Y', 'N'));
+
+CREATE INDEX IDX_OWNER_REQ_RESULT_ALERT
+    ON HOSPITAL_OWNER_REQUEST (
+                               MEMBER_ID,
+                               STATUS,
+                               RESULT_READ_YN
+        );
+
+COMMIT;
+
+--seq_hospital  번호 맞추기용--
+DECLARE
+V_MAX_ID NUMBER;
+    V_NEXT_ID NUMBER;
+    V_GAP NUMBER;
+BEGIN
+
+SELECT NVL(
+               MAX(HOSPITAL_ID),
+               0
+       )
+INTO V_MAX_ID
+FROM HOSPITAL;
+
+
+SELECT SEQ_HOSPITAL.NEXTVAL
+INTO V_NEXT_ID
+FROM DUAL;
+
+
+IF V_NEXT_ID <= V_MAX_ID THEN
+
+        V_GAP :=
+            V_MAX_ID
+            + 1
+            - V_NEXT_ID;
+
+
+EXECUTE IMMEDIATE
+    'ALTER SEQUENCE SEQ_HOSPITAL '
+        || 'INCREMENT BY '
+        || V_GAP;
+
+
+SELECT SEQ_HOSPITAL.NEXTVAL
+INTO V_NEXT_ID
+FROM DUAL;
+
+
+EXECUTE IMMEDIATE
+    'ALTER SEQUENCE SEQ_HOSPITAL '
+        || 'INCREMENT BY 1';
+
+END IF;
+
+END;
+/

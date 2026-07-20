@@ -10,15 +10,12 @@
 
     <title>병원장 신청 상세</title>
 
-    <!-- 관리자 사이드바 CSS -->
     <link rel="stylesheet"
           th:href="@{/css/admin/sidebar.css}">
 
-    <!-- 병원장 신청 상세 CSS -->
     <link rel="stylesheet"
           th:href="@{/css/admin/hospital-owner-request-detail.css}">
 
-    <!-- 관리자 사이드바 JS -->
     <script defer
             th:src="@{/js/admin/sidebar.js}">
     </script>
@@ -27,7 +24,6 @@
     <script th:src="|https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJavascriptKey}&libraries=services&autoload=false|">
     </script>
 
-    <!-- 병원장 신청 상세 JS -->
     <script defer
             th:src="@{/js/admin/hospital-owner-request-detail.js}">
     </script>
@@ -37,7 +33,6 @@
 
 <div class="admin-layout">
 
-    <!-- 관리자 사이드바 -->
     <th:block
             th:replace="~{admin/fragments/sidebar
                 :: sidebar('ownerRequests')}">
@@ -49,6 +44,20 @@
                    data-request-status=${request.status}">
 
         <div class="request-detail-container">
+
+            <!-- 처리 성공 메시지 -->
+            <div class="detail-result-message success-message"
+                 th:if="${successMessage != null}"
+                 th:text="${successMessage}">
+                처리가 완료되었습니다.
+            </div>
+
+            <!-- 처리 실패 메시지 -->
+            <div class="detail-result-message error-message"
+                 th:if="${errorMessage != null}"
+                 th:text="${errorMessage}">
+                처리 중 오류가 발생했습니다.
+            </div>
 
             <!-- 페이지 상단 -->
             <header class="detail-page-header">
@@ -117,10 +126,10 @@
 
             </header>
 
-            <!-- 왼쪽 상세 정보 + 오른쪽 신청 처리 -->
+            <!-- 왼쪽 상세 내용 + 오른쪽 신청 처리 -->
             <div class="request-detail-layout">
 
-                <!-- 왼쪽 상세 정보 -->
+                <!-- 왼쪽 상세 내용 -->
                 <div class="request-detail-content">
 
                     <!-- 신청자 정보 -->
@@ -196,7 +205,7 @@
 
                     </section>
 
-                    <!-- 사업자 및 제출 서류 -->
+                    <!-- 사업자 정보 -->
                     <section class="detail-card">
 
                         <div class="detail-card-header">
@@ -509,7 +518,7 @@
 
                     </section>
 
-                    <!-- 제공 진료 서비스 -->
+                    <!-- 진료 서비스 -->
                     <section class="detail-card">
 
                         <div class="detail-card-header">
@@ -587,7 +596,7 @@
 
                     </section>
 
-                    <!-- 의료진 및 병원 소개 -->
+                    <!-- 의료진과 병원 소개 -->
                     <section class="detail-card">
 
                         <div class="detail-card-header">
@@ -674,6 +683,7 @@
                                      ? request.hospitalName + ' 대표 이미지'
                                      : '병원 대표 이미지'}">
 
+                            <!-- 이미지 오류가 발생하면 JS가 이 영역을 보여줌 -->
                             <div class="hospital-image-empty"
                                  id="hospitalImageEmpty"
                                  th:classappend="${request.hospitalImageUrl != null
@@ -698,9 +708,10 @@
 
                 </div>
 
-                <!-- 오른쪽 신청 처리 카드 -->
+                <!-- 오른쪽 신청 처리 영역 -->
                 <aside class="request-action-column">
 
+                    <!-- 이 카드가 sticky로 움직임 -->
                     <section class="action-card">
 
                         <div class="action-card-header">
@@ -844,7 +855,17 @@
      aria-labelledby="approveModalTitle"
      hidden>
 
-    <div class="modal-card">
+    <form class="modal-card"
+          method="post"
+          th:action="@{/admin/hospital-owner-requests/{requestId}/approve(
+              requestId=${request.requestId}
+          )}">
+
+        <!-- CSRF 토큰은 form 안에 위치 -->
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
 
         <div class="modal-header">
 
@@ -902,20 +923,19 @@
                 취소
             </button>
 
-            <button type="button"
+            <button type="submit"
                     class="modal-approve-button"
-                    id="confirmApproveButton"
-                    th:attr="data-request-id=${request.requestId}">
+                    id="confirmApproveButton">
                 승인 확인
             </button>
 
         </div>
 
-    </div>
+    </form>
 
 </div>
 
-<!-- 반려 사유 입력 모달 -->
+<!-- 반려 사유 모달 -->
 <div class="modal-overlay"
      id="rejectModal"
      role="dialog"
@@ -923,7 +943,18 @@
      aria-labelledby="rejectModalTitle"
      hidden>
 
-    <div class="modal-card">
+    <form class="modal-card"
+          id="rejectForm"
+          method="post"
+          th:action="@{/admin/hospital-owner-requests/{requestId}/reject(
+              requestId=${request.requestId}
+          )}">
+
+        <!-- CSRF 토큰 -->
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
 
         <div class="modal-header">
 
@@ -959,8 +990,10 @@
             </label>
 
             <textarea id="rejectReason"
+                      name="rejectReason"
                       class="reject-reason-textarea"
                       maxlength="500"
+                      required
                       placeholder="신청자가 확인할 수 있도록 구체적인 반려 사유를 입력해 주세요."></textarea>
 
             <div class="textarea-information">
@@ -990,25 +1023,17 @@
                 취소
             </button>
 
-            <button type="button"
+            <button type="submit"
                     class="modal-reject-button"
                     id="confirmRejectButton"
-                    th:attr="data-request-id=${request.requestId}"
                     disabled>
                 반려 처리
             </button>
 
         </div>
 
-    </div>
+    </form>
 
-</div>
-
-<div class="detail-toast"
-     id="detailToast"
-     role="status"
-     aria-live="polite"
-     hidden>
 </div>
 
 </body>

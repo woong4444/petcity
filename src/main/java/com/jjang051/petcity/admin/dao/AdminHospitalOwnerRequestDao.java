@@ -10,6 +10,27 @@ import java.util.List;
 public interface AdminHospitalOwnerRequestDao {
     long countRequestsByCondition(@Param("keyword") String keyword, @Param("status") String status);
 
+    AdminHospitalOwnerRequestDto findRequestForUpdateById(@Param("requestId") Long requestId);
+
+    Long getNextHospitalId();
+
+    int insertHospitalFromRequest(@Param("requestId") Long requestId, @Param("hospitalId") Long hospitalId);
+
+    int insertHospitalAnimalsFromRequest(@Param("requestId") Long requestId, @Param("hospitalId") Long hospitalId);
+
+    int insertHospitalServicesFromRequest(@Param("requestId") Long requestId, @Param("hospitalId") Long hospitalId);
+
+    int insertHospitalMedicalSubjectsFromRequest(@Param("requestId") Long requestId, @Param("hospitalId") Long hospitalId);
+
+    int updateMemberRoleToOwner(@Param("memberId") Long memberId);
+
+    int approveOwnerRequest(@Param("requestId") Long requestId, @Param("hospitalId") Long hospitalId, @Param("processedBy") Long processedBy);
+
+    int rejectOwnerRequest(@Param("requestId") Long requestId, @Param("rejectReason") String rejectReason, @Param("processedBy") Long processedBy);
+
+
+
+
 
     List<AdminHospitalOwnerRequestDto> findRequestsByPage(@Param("offset") int offset, @Param("pageSize") int pageSize,
                                                           @Param("sort") String sort, @Param("direction") String direction,
