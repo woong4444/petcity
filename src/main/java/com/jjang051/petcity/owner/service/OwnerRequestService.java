@@ -3,6 +3,7 @@ package com.jjang051.petcity.owner.service;
 import com.jjang051.petcity.owner.dao.OwnerRequestDao;
 import com.jjang051.petcity.owner.dto.OwnerAnimalDto;
 import com.jjang051.petcity.owner.dto.OwnerMedicalServiceDto;
+import com.jjang051.petcity.owner.dto.OwnerMedicalSubjectDto;
 import com.jjang051.petcity.owner.dto.OwnerRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -182,6 +184,17 @@ public class OwnerRequestService {
                 .findMedicalServiceList();
     }
 
+    /*
+       진료 과목 조회
+       */
+    @Transactional(readOnly = true)
+    public List<OwnerMedicalSubjectDto>
+    getMedicalSubjectList() {
+
+        return ownerRequestDao
+                .findMedicalSubjectList();
+    }
+
 
     /*
         병원장 신청 등록
@@ -209,6 +222,14 @@ public class OwnerRequestService {
                 Long.valueOf(
                         requestDto.getMemberId()
                 )
+        );
+
+    /*
+        앞뒤 공백을 먼저 제거한 뒤
+        필수값과 글자 수를 검사한다.
+    */
+        normalizeTextFields(
+                requestDto
         );
 
     /*
@@ -281,6 +302,26 @@ public class OwnerRequestService {
                 normalizedAnimalIds
         );
 
+        /*
+          선택한 진료과목 번호 검증 및 중복 제거
+          */
+        List<Integer> normalizedSubjectIds =
+                normalizeSubjectIds(
+                        requestDto.getSubjectIds()
+                );
+
+        requestDto.setSubjectIds(
+                normalizedSubjectIds
+        );
+
+        /*
+         * 기존 문자열 컬럼에도 내과 외과 형식으로 저장*/
+        requestDto.setHospitalMedicalSubjects(
+                buildMedicalSubjectNames(
+                        normalizedSubjectIds
+                )
+        );
+
 
         /*
             진료 서비스 번호 중복 제거 및 검증
@@ -293,12 +334,6 @@ public class OwnerRequestService {
         requestDto.setServiceIds(
                 normalizedServiceIds
         );
-
-
-        /*
-            문자열 앞뒤 공백 정리
-        */
-        normalizeTextFields(requestDto);
 
 
         String documentUrl = null;
@@ -377,6 +412,22 @@ public class OwnerRequestService {
                         );
             }
 
+
+            /*
+                선택한 진료과목 저장
+            */
+            for (
+                    Integer subjectId
+                    : normalizedSubjectIds
+            ) {
+
+                ownerRequestDao
+                        .insertOwnerRequestMedicalSubject(
+                                requestDto.getRequestId(),
+                                subjectId
+                        );
+            }
+
             return requestDto.getRequestId();
 
         } catch (Exception exception) {
@@ -416,10 +467,22 @@ public class OwnerRequestService {
             );
         }
 
-        if (isBlank(dto.getApplicantName())) {
+        /*
+            신청자 정보
+        */
+        validateRequiredText(
+                dto.getApplicantName(),
+                "병원장 실명",
+                2,
+                50
+        );
+
+        if (!dto.getApplicantName().matches(
+                "^[가-힣a-zA-Z\\s·.'-]+$"
+        )) {
 
             throw new RuntimeException(
-                    "병원장 실명을 입력해 주세요."
+                    "병원장 실명은 한글, 영문, 공백만 입력해 주세요."
             );
         }
 
@@ -434,6 +497,10 @@ public class OwnerRequestService {
                 dto.getBusinessNumber()
         );
 
+
+        /*
+            증빙서류
+        */
         if (documentFile == null
                 || documentFile.isEmpty()) {
 
@@ -450,34 +517,73 @@ public class OwnerRequestService {
         /*
             병원 기본 정보
         */
-        if (isBlank(dto.getHospitalName())) {
+        validateRequiredText(
+                dto.getHospitalName(),
+                "병원명",
+                2,
+                100
+        );
 
-            throw new RuntimeException(
-                    "병원명을 입력해 주세요."
-            );
-        }
-
-        if (isBlank(dto.getHospitalPhone())) {
-
-            throw new RuntimeException(
-                    "병원 전화번호를 입력해 주세요."
-            );
-        }
-
-        if (isBlank(dto.getHospitalAddress())) {
-
-            throw new RuntimeException(
-                    "병원 주소를 입력해 주세요."
-            );
-        }
+        validateRequiredText(
+                dto.getHospitalPhone(),
+                "병원 전화번호",
+                11,
+                13
+        );
 
         /*
-            주소 검색 후 자동으로 입력되는 값
+            선택 가능한 앞자리:
+            010, 02, 031~033, 041~044,
+            051~055, 061~064, 070
+
+            저장 형식:
+            앞자리-가운데 3~4자리-마지막 4자리
         */
-        if (isBlank(dto.getHospitalDistrict())) {
+        if (!dto.getHospitalPhone().matches(
+                "^(010|02|031|032|033|041|042|043|044|"
+                        + "051|052|053|054|055|061|062|063|064|070)"
+                        + "-\\d{3,4}-\\d{4}$"
+        )) {
 
             throw new RuntimeException(
-                    "주소 검색을 통해 지역 정보를 입력해 주세요."
+                    "병원 전화번호 앞자리를 선택하고 "
+                            + "가운데 번호 3~4자리와 마지막 번호 4자리를 입력해 주세요."
+            );
+        }
+
+        validateRequiredText(
+                dto.getHospitalAddress(),
+                "병원 주소",
+                1,
+                300
+        );
+
+        validateOptionalText(
+                dto.getHospitalDetailAddress(),
+                "병원 상세주소",
+                200
+        );
+
+        validateRequiredText(
+                dto.getHospitalDistrict(),
+                "지역",
+                1,
+                50
+        );
+
+        validateOptionalText(
+                dto.getHospitalWebsiteUrl(),
+                "병원 홈페이지 주소",
+                500
+        );
+
+        if (!isBlank(dto.getHospitalWebsiteUrl())
+                && !dto.getHospitalWebsiteUrl().matches(
+                "^https?://.+"
+        )) {
+
+            throw new RuntimeException(
+                    "병원 홈페이지 주소는 http:// 또는 https://로 시작해야 합니다."
             );
         }
 
@@ -493,19 +599,23 @@ public class OwnerRequestService {
         /*
             운영 정보
         */
-        if (isBlank(dto.getHospitalOpenTime())) {
+        validateTime(
+                dto.getHospitalOpenTime(),
+                "진료 시작 시간"
+        );
 
-            throw new RuntimeException(
-                    "진료 시작 시간을 입력해 주세요."
-            );
-        }
+        validateTime(
+                dto.getHospitalCloseTime(),
+                "진료 종료 시간"
+        );
 
-        if (isBlank(dto.getHospitalCloseTime())) {
+        validateBreakTime(
+                dto.getHospitalBreakTime()
+        );
 
-            throw new RuntimeException(
-                    "진료 종료 시간을 입력해 주세요."
-            );
-        }
+        validateClosedDays(
+                dto.getHospitalClosedDays()
+        );
 
 
         /*
@@ -527,16 +637,42 @@ public class OwnerRequestService {
             );
         }
 
+        if (dto.getSubjectIds() == null
+                || dto.getSubjectIds().isEmpty()) {
+
+            throw new RuntimeException(
+                    "진료과목을 하나 이상 선택해 주세요."
+            );
+        }
+
+        validateOptionalText(
+                dto.getHospitalMedicalSubjects(),
+                "진료과목",
+                1000
+        );
+
+        validateOptionalText(
+                dto.getHospitalDoctorInfo(),
+                "의료진 정보",
+                1000
+        );
+
 
         /*
             병원 공개 정보
         */
-        if (isBlank(dto.getHospitalDescription())) {
+        validateRequiredText(
+                dto.getHospitalDescription(),
+                "병원 소개",
+                10,
+                2000
+        );
 
-            throw new RuntimeException(
-                    "병원 소개를 입력해 주세요."
-            );
-        }
+        validateOptionalText(
+                dto.getHospitalNote(),
+                "추가 안내사항",
+                1000
+        );
 
         if (hospitalImage == null
                 || hospitalImage.isEmpty()) {
@@ -549,6 +685,207 @@ public class OwnerRequestService {
         validateImageFile(
                 hospitalImage
         );
+    }
+
+
+    /*
+        필수 문자열 길이 검사
+    */
+    private void validateRequiredText(
+            String value,
+            String fieldName,
+            int minLength,
+            int maxLength
+    ) {
+
+        if (isBlank(value)) {
+
+            throw new RuntimeException(
+                    fieldName
+                            + "을(를) 입력해 주세요."
+            );
+        }
+
+        int length =
+                value.length();
+
+        if (length < minLength
+                || length > maxLength) {
+
+            throw new RuntimeException(
+                    fieldName
+                            + "은(는) "
+                            + minLength
+                            + "~"
+                            + maxLength
+                            + "자로 입력해 주세요."
+            );
+        }
+    }
+
+
+    /*
+        선택 문자열 최대 길이 검사
+    */
+    private void validateOptionalText(
+            String value,
+            String fieldName,
+            int maxLength
+    ) {
+
+        if (isBlank(value)) {
+            return;
+        }
+
+        if (value.length() > maxLength) {
+
+            throw new RuntimeException(
+                    fieldName
+                            + "은(는) "
+                            + maxLength
+                            + "자 이하로 입력해 주세요."
+            );
+        }
+    }
+
+
+    /*
+        시간 형식 검사
+    */
+    private void validateTime(
+            String value,
+            String fieldName
+    ) {
+
+        if (isBlank(value)) {
+
+            throw new RuntimeException(
+                    fieldName
+                            + "을(를) 입력해 주세요."
+            );
+        }
+
+        if (!value.matches(
+                "^([01]\\d|2[0-3]):[0-5]\\d$"
+        )) {
+
+            throw new RuntimeException(
+                    fieldName
+                            + " 형식이 올바르지 않습니다."
+            );
+        }
+    }
+
+
+    /*
+        휴게시간 검사
+
+        저장 형식:
+        12:30~13:30
+    */
+    private void validateBreakTime(
+            String breakTime
+    ) {
+
+        if (isBlank(breakTime)) {
+            return;
+        }
+
+        if (!breakTime.matches(
+                "^([01]\\d|2[0-3]):[0-5]\\d~([01]\\d|2[0-3]):[0-5]\\d$"
+        )) {
+
+            throw new RuntimeException(
+                    "휴게시간 형식이 올바르지 않습니다."
+            );
+        }
+
+        String[] times =
+                breakTime.split("~");
+
+        LocalTime startTime =
+                LocalTime.parse(
+                        times[0]
+                );
+
+        LocalTime endTime =
+                LocalTime.parse(
+                        times[1]
+                );
+
+        if (!endTime.isAfter(
+                startTime
+        )) {
+
+            throw new RuntimeException(
+                    "휴게시간 종료 시간은 시작 시간보다 늦어야 합니다."
+            );
+        }
+    }
+
+
+    /*
+        정기 휴무일 검사
+
+        저장 예:
+        월요일, 화요일, 일요일
+    */
+    private void validateClosedDays(
+            String closedDays
+    ) {
+
+        if (isBlank(closedDays)) {
+            return;
+        }
+
+        validateOptionalText(
+                closedDays,
+                "정기 휴무일",
+                100
+        );
+
+        Set<String> allowedDays =
+                Set.of(
+                        "월요일",
+                        "화요일",
+                        "수요일",
+                        "목요일",
+                        "금요일",
+                        "토요일",
+                        "일요일"
+                );
+
+        String[] selectedDays =
+                closedDays.split(
+                        "\\s*,\\s*"
+                );
+
+        Set<String> duplicateCheck =
+                new LinkedHashSet<>();
+
+        for (
+                String selectedDay
+                : selectedDays
+        ) {
+
+            if (!allowedDays.contains(
+                    selectedDay
+            )) {
+
+                throw new RuntimeException(
+                        "정기 휴무일 선택값이 올바르지 않습니다."
+                );
+            }
+
+            if (!duplicateCheck.add(
+                    selectedDay
+            )) {
+
+                throw new RuntimeException(
+                        "정기 휴무일은 같은 요일을 중복해서 선택할 수 없습니다."
+                );
+            }
+        }
     }
 
 
@@ -724,6 +1061,100 @@ public class OwnerRequestService {
         return new ArrayList<>(
                 normalizedIds
         );
+    }
+
+
+    /*
+        진료과목 선택값 검증 및 중복 제거
+    */
+    private List<Integer> normalizeSubjectIds(
+            List<Integer> subjectIds
+    ) {
+
+        if (subjectIds == null
+                || subjectIds.isEmpty()) {
+
+            throw new RuntimeException(
+                    "진료과목을 하나 이상 선택해 주세요."
+            );
+        }
+
+        List<OwnerMedicalSubjectDto> allSubjects =
+                ownerRequestDao
+                        .findMedicalSubjectList();
+
+        Set<Integer> validSubjectIds =
+                allSubjects
+                        .stream()
+                        .map(
+                                OwnerMedicalSubjectDto
+                                        ::getSubjectId
+                        )
+                        .collect(
+                                Collectors.toSet()
+                        );
+
+        LinkedHashSet<Integer> normalizedIds =
+                subjectIds
+                        .stream()
+                        .filter(
+                                subjectId ->
+                                        subjectId != null
+                        )
+                        .filter(
+                                validSubjectIds::contains
+                        )
+                        .collect(
+                                Collectors.toCollection(
+                                        LinkedHashSet::new
+                                )
+                        );
+
+        if (normalizedIds.isEmpty()) {
+
+            throw new RuntimeException(
+                    "올바른 진료과목을 선택해 주세요."
+            );
+        }
+
+        return new ArrayList<>(
+                normalizedIds
+        );
+    }
+
+
+    /*
+        선택한 진료과목 이름 문자열 생성
+
+        예:
+        1, 2, 4
+        → 내과, 외과, 피부과
+    */
+    private String buildMedicalSubjectNames(
+            List<Integer> subjectIds
+    ) {
+
+        Set<Integer> selectedSubjectIds =
+                new LinkedHashSet<>(
+                        subjectIds
+                );
+
+        return ownerRequestDao
+                .findMedicalSubjectList()
+                .stream()
+                .filter(
+                        subject ->
+                                selectedSubjectIds.contains(
+                                        subject.getSubjectId()
+                                )
+                )
+                .map(
+                        OwnerMedicalSubjectDto
+                                ::getSubjectName
+                )
+                .collect(
+                        Collectors.joining(", ")
+                );
     }
 
 
@@ -962,6 +1393,10 @@ public class OwnerRequestService {
 
         dto.setApplicantName(
                 trim(dto.getApplicantName())
+        );
+
+        dto.setBusinessNumber(
+                trim(dto.getBusinessNumber())
         );
 
         dto.setHospitalName(

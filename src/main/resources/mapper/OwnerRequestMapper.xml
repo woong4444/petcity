@@ -86,6 +86,16 @@
 
     </select>
 
+    <select id="findMedicalSubjectList"
+            resultType="com.jjang051.petcity.owner.dto.OwnerMedicalSubjectDto">
+
+        SELECT
+            SUBJECT_ID AS subjectId,
+            SUBJECT_NAME AS subjectName
+        FROM MEDICAL_SUBJECT
+        ORDER BY SUBJECT_ID
+    </select>
+
 
     <!-- =================================================
          병원장 신청 기본 정보 저장
@@ -215,6 +225,22 @@
         ) VALUES (
         #{requestId},
         #{serviceId}
+        )
+
+    </insert>
+
+    <!-- =================================================
+     병원장 신청자가 선택한 진료과목 저장
+================================================== -->
+
+    <insert id="insertOwnerRequestMedicalSubject">
+
+        INSERT INTO OWNER_REQUEST_MEDICAL_SUBJECT (
+        REQUEST_ID,
+        SUBJECT_ID
+        ) VALUES (
+        #{requestId},
+        #{subjectId}
         )
 
     </insert>
