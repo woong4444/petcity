@@ -93,6 +93,16 @@ public class OwnerRequestController {
         );
 
         /*
+         내과, 외과 ,피부과 등
+         진료과목 목록
+         */
+        model.addAttribute(
+                "medicalSubjectList",
+                ownerRequestService
+                        .getMedicalSubjectList()
+        );
+
+        /*
             신청 실패 후 돌아온 경우에는
             기존 입력값을 유지한다.
         */

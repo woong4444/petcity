@@ -212,7 +212,9 @@
                         <input type="text"
                                id="applicantName"
                                th:field="*{applicantName}"
-                               maxlength="100"
+                               minlength="2"
+                               maxlength="50"
+                               data-character-count="true"
                                placeholder="증빙서류에 기재된 실명을 입력하세요."
                                required>
 
@@ -295,7 +297,9 @@
                         <input type="text"
                                id="hospitalName"
                                th:field="*{hospitalName}"
-                               maxlength="200"
+                               minlength="2"
+                               maxlength="100"
+                               data-character-count="true"
                                placeholder="병원명을 입력하세요."
                                required>
 
@@ -304,17 +308,83 @@
 
                     <div class="form-group">
 
-                        <label for="hospitalPhone">
+                        <label for="hospitalPhonePrefix">
                             병원 대표 전화번호
                             <span class="required">*</span>
                         </label>
 
-                        <input type="text"
+                        <!--
+                            화면에서는 앞자리·가운데·뒷자리를 나누어 입력하고,
+                            JavaScript가 합친 값을 hospitalPhone에 저장한다.
+                        -->
+                        <div class="phone-number-row">
+
+                            <select id="hospitalPhonePrefix"
+                                    class="phone-prefix-select"
+                                    required>
+
+                                <option value="">
+                                    앞자리
+                                </option>
+
+                                <option value="010">010</option>
+                                <option value="02">02</option>
+                                <option value="031">031</option>
+                                <option value="032">032</option>
+                                <option value="033">033</option>
+                                <option value="041">041</option>
+                                <option value="042">042</option>
+                                <option value="043">043</option>
+                                <option value="044">044</option>
+                                <option value="051">051</option>
+                                <option value="052">052</option>
+                                <option value="053">053</option>
+                                <option value="054">054</option>
+                                <option value="055">055</option>
+                                <option value="061">061</option>
+                                <option value="062">062</option>
+                                <option value="063">063</option>
+                                <option value="064">064</option>
+                                <option value="070">070</option>
+
+                            </select>
+
+                            <span class="phone-separator">-</span>
+
+                            <input type="text"
+                                   id="hospitalPhoneMiddle"
+                                   class="phone-part-input"
+                                   inputmode="numeric"
+                                   pattern="[0-9]{3,4}"
+                                   minlength="3"
+                                   maxlength="4"
+                                   placeholder="1111"
+                                   title="가운데 번호는 숫자 3~4자리로 입력해 주세요."
+                                   required>
+
+                            <span class="phone-separator">-</span>
+
+                            <input type="text"
+                                   id="hospitalPhoneLast"
+                                   class="phone-part-input"
+                                   inputmode="numeric"
+                                   pattern="[0-9]{4}"
+                                   minlength="4"
+                                   maxlength="4"
+                                   placeholder="1111"
+                                   title="마지막 번호는 숫자 4자리로 입력해 주세요."
+                                   required>
+
+                        </div>
+
+                        <!-- 서버로 실제 전송되는 값 -->
+                        <input type="hidden"
                                id="hospitalPhone"
-                               th:field="*{hospitalPhone}"
-                               maxlength="50"
-                               placeholder="02-1234-5678"
-                               required>
+                               th:field="*{hospitalPhone}">
+
+                        <p class="form-help">
+                            앞자리를 선택하고 나머지 전화번호를 각각 입력해 주세요.
+                        </p>
 
                     </div>
 
@@ -331,6 +401,7 @@
                             <input type="text"
                                    id="hospitalAddress"
                                    th:field="*{hospitalAddress}"
+                                   maxlength="300"
                                    placeholder="주소 검색 버튼을 눌러주세요."
                                    readonly
                                    required>
@@ -355,7 +426,8 @@
                         <input type="text"
                                id="hospitalDetailAddress"
                                th:field="*{hospitalDetailAddress}"
-                               maxlength="500"
+                               maxlength="200"
+                               data-character-count="true"
                                placeholder="건물명, 층, 호수 등을 입력하세요.">
 
                     </div>
@@ -370,6 +442,7 @@
                         <input type="text"
                                id="hospitalDistrict"
                                th:field="*{hospitalDistrict}"
+                               maxlength="50"
                                placeholder="주소에서 자동으로 입력됩니다."
                                readonly
                                required>
@@ -390,7 +463,7 @@
                         <input type="url"
                                id="hospitalWebsiteUrl"
                                th:field="*{hospitalWebsiteUrl}"
-                               maxlength="1000"
+                               maxlength="500"
                                placeholder="https://example.com">
 
                     </div>
@@ -470,30 +543,113 @@
 
                     <div class="form-group">
 
-                        <label for="hospitalBreakTime">
+                        <label>
                             휴게시간
                         </label>
 
-                        <input type="text"
+                        <!-- 실제 서버로 전송되는 값: 12:30~13:30 -->
+                        <input type="hidden"
                                id="hospitalBreakTime"
-                               th:field="*{hospitalBreakTime}"
-                               maxlength="1000"
-                               placeholder="예: 12:30~13:30">
+                               th:field="*{hospitalBreakTime}">
+
+                        <div class="time-range-row">
+
+                            <div class="time-field">
+                                <span>시작</span>
+
+                                <input type="time"
+                                       id="hospitalBreakStart"
+                                       aria-label="휴게시간 시작">
+                            </div>
+
+                            <span class="time-range-separator">
+                                ~
+                            </span>
+
+                            <div class="time-field">
+                                <span>종료</span>
+
+                                <input type="time"
+                                       id="hospitalBreakEnd"
+                                       aria-label="휴게시간 종료">
+                            </div>
+
+                        </div>
+
+                        <p class="form-help">
+                            휴게시간이 없으면 두 칸 모두 비워두세요.
+                        </p>
 
                     </div>
 
 
                     <div class="form-group">
 
-                        <label for="hospitalClosedDays">
+                        <label>
                             정기 휴무일
                         </label>
 
-                        <input type="text"
+                        <!-- 실제 서버로 전송되는 값: 월요일, 화요일 -->
+                        <input type="hidden"
                                id="hospitalClosedDays"
-                               th:field="*{hospitalClosedDays}"
-                               maxlength="500"
-                               placeholder="예: 매주 일요일, 공휴일 휴무">
+                               th:field="*{hospitalClosedDays}">
+
+                        <div class="closed-day-grid">
+
+                            <label class="closed-day-option">
+                                <input type="checkbox"
+                                       class="closed-day-checkbox"
+                                       value="월요일">
+                                <span>월</span>
+                            </label>
+
+                            <label class="closed-day-option">
+                                <input type="checkbox"
+                                       class="closed-day-checkbox"
+                                       value="화요일">
+                                <span>화</span>
+                            </label>
+
+                            <label class="closed-day-option">
+                                <input type="checkbox"
+                                       class="closed-day-checkbox"
+                                       value="수요일">
+                                <span>수</span>
+                            </label>
+
+                            <label class="closed-day-option">
+                                <input type="checkbox"
+                                       class="closed-day-checkbox"
+                                       value="목요일">
+                                <span>목</span>
+                            </label>
+
+                            <label class="closed-day-option">
+                                <input type="checkbox"
+                                       class="closed-day-checkbox"
+                                       value="금요일">
+                                <span>금</span>
+                            </label>
+
+                            <label class="closed-day-option">
+                                <input type="checkbox"
+                                       class="closed-day-checkbox"
+                                       value="토요일">
+                                <span>토</span>
+                            </label>
+
+                            <label class="closed-day-option">
+                                <input type="checkbox"
+                                       class="closed-day-checkbox"
+                                       value="일요일">
+                                <span>일</span>
+                            </label>
+
+                        </div>
+
+                        <p class="form-help">
+                            여러 요일을 중복 선택할 수 있습니다.
+                        </p>
 
                     </div>
 
@@ -535,12 +691,14 @@
                          th:if="${parent.parentId == null}"
                          th:attr="data-category-id=${parent.animalId}">
 
-                        <!-- 대분류 열기 -->
-                        <label class="animal-category-header">
-
-                            <input type="checkbox"
-                                   class="animal-parent-toggle"
-                                   th:attr="data-category-id=${parent.animalId}">
+                        <!--
+                            대분류 이름은 세부 목록을 열고 닫는 역할만 한다.
+                            내부에서 선택한 동물은 닫아도 그대로 유지된다.
+                        -->
+                        <button type="button"
+                                class="animal-category-header animal-parent-toggle"
+                                th:attr="data-category-id=${parent.animalId}"
+                                aria-expanded="false">
 
                             <span th:text="${parent.animalName}">
                                 강아지
@@ -550,7 +708,12 @@
                                 세부 선택
                             </span>
 
-                        </label>
+                            <span class="category-toggle-icon"
+                                  aria-hidden="true">
+                                ▾
+                            </span>
+
+                        </button>
 
 
                         <!-- 하위 동물 영역 -->
@@ -692,14 +855,49 @@
 
                     <div class="form-group full-width">
 
-                        <label for="hospitalMedicalSubjects">
-                            진료과목 상세
+                        <label>
+                            진료과목
+                            <span class="required">*</span>
                         </label>
 
-                        <textarea id="hospitalMedicalSubjects"
-                                  th:field="*{hospitalMedicalSubjects}"
-                                  maxlength="2000"
-                                  placeholder="예: 내과, 외과, 피부과, 치과, 영상진단"></textarea>
+                        <p class="form-help">
+                            병원에서 진료하는 과목을 중복 선택할 수 있습니다.
+                        </p>
+
+
+                        <!-- 전체 선택 -->
+                        <div class="service-all-area">
+
+                            <label class="service-option all-option">
+
+                                <input type="checkbox"
+                                       id="subjectSelectAll">
+
+                                <span>전체 선택</span>
+
+                            </label>
+
+                        </div>
+
+
+                        <!-- 진료과목 목록 -->
+                        <div class="service-grid medical-subject-grid">
+
+                            <label class="service-option"
+                                   th:each="subject : ${medicalSubjectList}">
+
+                                <input type="checkbox"
+                                       class="subject-checkbox"
+                                       th:field="*{subjectIds}"
+                                       th:value="${subject.subjectId}">
+
+                                <span th:text="${subject.subjectName}">
+                내과
+            </span>
+
+                            </label>
+
+                        </div>
 
                     </div>
 
@@ -713,6 +911,7 @@
                         <textarea id="hospitalDoctorInfo"
                                   th:field="*{hospitalDoctorInfo}"
                                   maxlength="1000"
+                                  data-character-count="true"
                                   placeholder="예: 수의사 3명, 외과 전담 수의사 1명"></textarea>
 
                     </div>
@@ -754,7 +953,9 @@
 
                         <textarea id="hospitalDescription"
                                   th:field="*{hospitalDescription}"
+                                  minlength="10"
                                   maxlength="2000"
+                                  data-character-count="true"
                                   placeholder="병원의 특징과 전문 진료 분야를 소개해 주세요."
                                   required></textarea>
 
@@ -795,7 +996,8 @@
 
                         <textarea id="hospitalNote"
                                   th:field="*{hospitalNote}"
-                                  maxlength="2000"
+                                  maxlength="1000"
+                                  data-character-count="true"
                                   placeholder="주차, 예약, 야간진료, 방문 시 주의사항 등을 입력하세요."></textarea>
 
                     </div>

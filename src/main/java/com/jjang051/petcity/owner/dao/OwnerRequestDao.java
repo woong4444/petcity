@@ -2,6 +2,7 @@ package com.jjang051.petcity.owner.dao;
 
 import com.jjang051.petcity.owner.dto.OwnerAnimalDto;
 import com.jjang051.petcity.owner.dto.OwnerMedicalServiceDto;
+import com.jjang051.petcity.owner.dto.OwnerMedicalSubjectDto;
 import com.jjang051.petcity.owner.dto.OwnerRequestDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -91,5 +92,13 @@ public interface OwnerRequestDao {
     int countActiveRequestByBusinessNumber(
             @Param("businessNumber")
             String businessNumber
+    );
+
+    List<OwnerMedicalSubjectDto>
+    findMedicalSubjectList();
+
+    void insertOwnerRequestMedicalSubject(
+            @Param("requestId") int requestId,
+            @Param("subjectId") int subjectId
     );
 }

@@ -3,11 +3,16 @@ document.addEventListener(
     function () {
 
         initBusinessNumber();
+        initHospitalPhone();
+        initBreakTime();
+        initClosedDays();
         initAnimalSelection();
         initServiceSelection();
+        initMedicalSubjectSelection();
         initAddressSearch();
         initHospitalImagePreview();
         initDocumentFileName();
+        initCharacterCounters();
         /*
             ADMIN, OWNER 신청 버튼 클릭 차단
             필수 입력값 검사보다 먼저 실행
@@ -69,6 +74,350 @@ function initBusinessNumber() {
 }
 
 
+
+/* ========================================
+   병원 전화번호 분리 입력
+======================================== */
+
+function initHospitalPhone() {
+
+    const hiddenInput =
+        document.getElementById(
+            "hospitalPhone"
+        );
+
+    const prefixSelect =
+        document.getElementById(
+            "hospitalPhonePrefix"
+        );
+
+    const middleInput =
+        document.getElementById(
+            "hospitalPhoneMiddle"
+        );
+
+    const lastInput =
+        document.getElementById(
+            "hospitalPhoneLast"
+        );
+
+    if (!hiddenInput
+        || !prefixSelect
+        || !middleInput
+        || !lastInput) {
+
+        return;
+    }
+
+
+    /*
+        신청 실패 후 다시 돌아왔을 때
+        기존 전화번호를 세 칸으로 복원한다.
+
+        예:
+        031-1234-5678
+    */
+    const savedPhone =
+        hiddenInput.value.trim();
+
+    if (savedPhone) {
+
+        const phoneParts =
+            savedPhone.split("-");
+
+        if (phoneParts.length === 3) {
+
+            prefixSelect.value =
+                phoneParts[0];
+
+            middleInput.value =
+                phoneParts[1]
+                    .replace(/[^0-9]/g, "")
+                    .slice(0, 4);
+
+            lastInput.value =
+                phoneParts[2]
+                    .replace(/[^0-9]/g, "")
+                    .slice(0, 4);
+        }
+    }
+
+
+    /*
+        가운데와 마지막 칸에는
+        숫자만 입력할 수 있게 한다.
+    */
+    middleInput.addEventListener(
+        "input",
+        function () {
+
+            this.value =
+                this.value
+                    .replace(/[^0-9]/g, "")
+                    .slice(0, 4);
+
+            updateHospitalPhoneValue();
+        }
+    );
+
+    lastInput.addEventListener(
+        "input",
+        function () {
+
+            this.value =
+                this.value
+                    .replace(/[^0-9]/g, "")
+                    .slice(0, 4);
+
+            updateHospitalPhoneValue();
+        }
+    );
+
+    prefixSelect.addEventListener(
+        "change",
+        updateHospitalPhoneValue
+    );
+
+
+    /*
+        select + 가운데 + 마지막 값을 합쳐서
+        DTO의 hospitalPhone으로 전송한다.
+    */
+    function updateHospitalPhoneValue() {
+
+        const prefix =
+            prefixSelect.value;
+
+        const middle =
+            middleInput.value;
+
+        const last =
+            lastInput.value;
+
+        if (!prefix
+            || !middle
+            || !last) {
+
+            hiddenInput.value = "";
+            return;
+        }
+
+        hiddenInput.value =
+            prefix
+            + "-"
+            + middle
+            + "-"
+            + last;
+    }
+
+
+    updateHospitalPhoneValue();
+}
+
+
+/* ========================================
+   휴게시간 시작·종료 입력
+======================================== */
+
+function initBreakTime() {
+
+    const hiddenInput =
+        document.getElementById(
+            "hospitalBreakTime"
+        );
+
+    const startInput =
+        document.getElementById(
+            "hospitalBreakStart"
+        );
+
+    const endInput =
+        document.getElementById(
+            "hospitalBreakEnd"
+        );
+
+    if (!hiddenInput
+        || !startInput
+        || !endInput) {
+
+        return;
+    }
+
+    /*
+        신청 실패 후 돌아왔을 때
+        기존 12:30~13:30 값을 다시 나눈다.
+    */
+    const savedValue =
+        hiddenInput.value.trim();
+
+    if (savedValue.includes("~")) {
+
+        const [
+            savedStart,
+            savedEnd
+        ] = savedValue.split("~");
+
+        startInput.value =
+            savedStart || "";
+
+        endInput.value =
+            savedEnd || "";
+    }
+
+    function updateBreakTime() {
+
+        const start =
+            startInput.value;
+
+        const end =
+            endInput.value;
+
+        /*
+            두 값이 모두 없으면 휴게시간 없음
+        */
+        if (!start && !end) {
+
+            hiddenInput.value = "";
+            startInput.setCustomValidity("");
+            endInput.setCustomValidity("");
+            return;
+        }
+
+        /*
+            한쪽만 입력한 경우
+        */
+        if (!start || !end) {
+
+            hiddenInput.value = "";
+
+            const message =
+                "휴게시간 시작과 종료 시간을 모두 선택해 주세요.";
+
+            startInput.setCustomValidity(
+                message
+            );
+
+            endInput.setCustomValidity(
+                message
+            );
+
+            return;
+        }
+
+        /*
+            종료 시간이 시작 시간보다 빠르거나 같으면 차단
+        */
+        if (start >= end) {
+
+            hiddenInput.value = "";
+
+            endInput.setCustomValidity(
+                "휴게시간 종료 시간은 시작 시간보다 늦어야 합니다."
+            );
+
+            startInput.setCustomValidity("");
+            return;
+        }
+
+        startInput.setCustomValidity("");
+        endInput.setCustomValidity("");
+
+        hiddenInput.value =
+            start
+            + "~"
+            + end;
+    }
+
+    startInput.addEventListener(
+        "change",
+        updateBreakTime
+    );
+
+    endInput.addEventListener(
+        "change",
+        updateBreakTime
+    );
+
+    updateBreakTime();
+}
+
+
+/* ========================================
+   정기 휴무일 다중 선택
+======================================== */
+
+function initClosedDays() {
+
+    const hiddenInput =
+        document.getElementById(
+            "hospitalClosedDays"
+        );
+
+    const checkboxes =
+        document.querySelectorAll(
+            ".closed-day-checkbox"
+        );
+
+    if (!hiddenInput
+        || checkboxes.length === 0) {
+
+        return;
+    }
+
+    /*
+        신청 실패 후 돌아왔을 때
+        기존 선택 요일 복원
+    */
+    const savedDays =
+        hiddenInput.value
+            .split(",")
+            .map(
+                day => day.trim()
+            )
+            .filter(
+                day => day
+            );
+
+    checkboxes.forEach(
+        function (checkbox) {
+
+            checkbox.checked =
+                savedDays.includes(
+                    checkbox.value
+                );
+
+            checkbox.addEventListener(
+                "change",
+                updateClosedDays
+            );
+        }
+    );
+
+    function updateClosedDays() {
+
+        const selectedDays =
+            Array.from(
+                checkboxes
+            )
+                .filter(
+                    checkbox =>
+                        checkbox.checked
+                )
+                .map(
+                    checkbox =>
+                        checkbox.value
+                );
+
+        hiddenInput.value =
+            selectedDays.join(
+                ", "
+            );
+    }
+
+    updateClosedDays();
+}
+
+
 /* ========================================
    진료 가능 동물 선택
 ======================================== */
@@ -83,14 +432,8 @@ function initAnimalSelection() {
     categoryElements.forEach(
         function (categoryElement) {
 
-            const categoryId =
-                categoryElement.dataset.categoryId;
-
-            /*
-     체크박스 요소라는 것을 IntelliJ에 알려줌
- */
             const parentToggle =
-                /** @type {HTMLInputElement | null} */ (
+                /** @type {HTMLButtonElement | null} */ (
                 categoryElement.querySelector(
                     ".animal-parent-toggle"
                 )
@@ -117,7 +460,6 @@ function initAnimalSelection() {
                 )
             );
 
-
             if (!parentToggle
                 || !childArea
                 || !allCheckbox) {
@@ -125,10 +467,9 @@ function initAnimalSelection() {
                 return;
             }
 
-
             /*
-                화면을 다시 열었을 때
-                기존 선택값이 있으면 자동으로 펼치기
+                신청 실패 후 돌아왔을 때
+                선택값이 있는 동물 그룹은 자동으로 펼친다.
             */
             const hasSelectedValue =
                 allCheckbox.checked
@@ -141,18 +482,48 @@ function initAnimalSelection() {
 
             if (hasSelectedValue) {
 
-                parentToggle.checked = true;
-
                 openAnimalCategory(
                     categoryElement,
-                    childArea
+                    childArea,
+                    parentToggle
                 );
             }
 
+            /*
+                대분류 버튼은 목록을 열고 닫기만 한다.
+                닫더라도 기존 선택값은 절대 지우지 않는다.
+            */
+            parentToggle.addEventListener(
+                "click",
+                function () {
+
+                    const isOpen =
+                        childArea.classList.contains(
+                            "open"
+                        );
+
+                    if (isOpen) {
+
+                        closeAnimalCategory(
+                            categoryElement,
+                            childArea,
+                            parentToggle
+                        );
+
+                    } else {
+
+                        openAnimalCategory(
+                            categoryElement,
+                            childArea,
+                            parentToggle
+                        );
+                    }
+                }
+            );
 
             /*
-                전체 가능이 선택된 상태라면
-                하위 품종 비활성화
+                전체 진료 가능을 선택하면
+                같은 그룹의 하위 품종 선택만 해제하고 비활성화한다.
             */
             if (allCheckbox.checked) {
 
@@ -168,63 +539,12 @@ function initAnimalSelection() {
                 );
             }
 
-
-            /*
-                대분류 선택 또는 해제
-            */
-            parentToggle.addEventListener(
-                "change",
-                function () {
-
-                    if (this.checked) {
-
-                        openAnimalCategory(
-                            categoryElement,
-                            childArea
-                        );
-
-                        return;
-                    }
-
-                    /*
-                        대분류 해제 시
-                        해당 그룹 선택 전부 초기화
-                    */
-                    closeAnimalCategory(
-                        categoryElement,
-                        childArea
-                    );
-
-                    allCheckbox.checked =
-                        false;
-
-                    childCheckboxes.forEach(
-                        function (childCheckbox) {
-
-                            childCheckbox.checked =
-                                false;
-
-                            childCheckbox.disabled =
-                                false;
-                        }
-                    );
-                }
-            );
-
-
-            /*
-                해당 동물 전부 가능
-            */
             allCheckbox.addEventListener(
                 "change",
                 function () {
 
                     if (this.checked) {
 
-                        /*
-                            기존 하위 품종 선택을
-                            전부 해제하고 비활성화
-                        */
                         childCheckboxes.forEach(
                             function (childCheckbox) {
 
@@ -238,10 +558,6 @@ function initAnimalSelection() {
 
                     } else {
 
-                        /*
-                            전체 가능 해제 시
-                            하위 품종 다시 활성화
-                        */
                         childCheckboxes.forEach(
                             function (childCheckbox) {
 
@@ -253,9 +569,9 @@ function initAnimalSelection() {
                 }
             );
 
-
             /*
-                하위 품종 개별 선택
+                하위 품종을 선택하면
+                전체 진료 가능 선택은 자동 해제한다.
             */
             childCheckboxes.forEach(
                 function (childCheckbox) {
@@ -264,14 +580,18 @@ function initAnimalSelection() {
                         "change",
                         function () {
 
-                            /*
-                                안전을 위해 하위 품종 선택 시
-                                전체 가능은 자동 해제
-                            */
                             if (this.checked) {
 
                                 allCheckbox.checked =
                                     false;
+
+                                childCheckboxes.forEach(
+                                    function (checkbox) {
+
+                                        checkbox.disabled =
+                                            false;
+                                    }
+                                );
                             }
                         }
                     );
@@ -284,7 +604,8 @@ function initAnimalSelection() {
 
 function openAnimalCategory(
     categoryElement,
-    childArea
+    childArea,
+    parentToggle
 ) {
 
     categoryElement.classList.add(
@@ -294,12 +615,18 @@ function openAnimalCategory(
     childArea.classList.add(
         "open"
     );
+
+    parentToggle.setAttribute(
+        "aria-expanded",
+        "true"
+    );
 }
 
 
 function closeAnimalCategory(
     categoryElement,
-    childArea
+    childArea,
+    parentToggle
 ) {
 
     categoryElement.classList.remove(
@@ -308,6 +635,11 @@ function closeAnimalCategory(
 
     childArea.classList.remove(
         "open"
+    );
+
+    parentToggle.setAttribute(
+        "aria-expanded",
+        "false"
     );
 }
 
@@ -333,8 +665,6 @@ function initServiceSelection() {
 
         return;
     }
-
-
     /*
         전체 선택 체크박스
     */
@@ -388,6 +718,93 @@ function initServiceSelection() {
             checkedCount > 0
             && checkedCount
             < serviceCheckboxes.length;
+    }
+}
+
+
+/* ========================================
+   진료과목 전체 선택
+======================================== */
+
+function initMedicalSubjectSelection() {
+
+    const selectAllCheckbox =
+        document.getElementById(
+            "subjectSelectAll"
+        );
+
+    const subjectCheckboxes =
+        document.querySelectorAll(
+            ".subject-checkbox"
+        );
+
+    if (!selectAllCheckbox
+        || subjectCheckboxes.length === 0) {
+
+        return;
+    }
+
+
+    /*
+        전체 선택 또는 전체 해제
+    */
+    selectAllCheckbox.addEventListener(
+        "change",
+        function () {
+
+            subjectCheckboxes.forEach(
+                function (subjectCheckbox) {
+
+                    subjectCheckbox.checked =
+                        selectAllCheckbox.checked;
+                }
+            );
+
+            /*
+                사용자가 전체 선택을 직접 누른 경우
+                중간 상태 표시를 해제한다.
+            */
+            selectAllCheckbox.indeterminate =
+                false;
+        }
+    );
+
+
+    /*
+        개별 선택 상태에 따라
+        전체 선택 체크박스 상태 변경
+    */
+    subjectCheckboxes.forEach(
+        function (subjectCheckbox) {
+
+            subjectCheckbox.addEventListener(
+                "change",
+                updateSubjectSelectAll
+            );
+        }
+    );
+
+    updateSubjectSelectAll();
+
+
+    function updateSubjectSelectAll() {
+
+        const checkedCount =
+            Array.from(
+                subjectCheckboxes
+            ).filter(
+                checkbox =>
+                    checkbox.checked
+            ).length;
+
+        selectAllCheckbox.checked =
+            checkedCount
+            === subjectCheckboxes.length;
+
+        selectAllCheckbox.indeterminate =
+            checkedCount > 0
+            && checkedCount
+            < subjectCheckboxes.length;
     }
 }
 
@@ -818,6 +1235,67 @@ function initDocumentFileName() {
     );
 }
 /* ========================================
+   글자 수 표시
+======================================== */
+
+function initCharacterCounters() {
+
+    const targets =
+        document.querySelectorAll(
+            "[data-character-count='true'][maxlength]"
+        );
+
+    targets.forEach(
+        function (target) {
+
+            const maxLength =
+                Number(target.maxLength);
+
+            const counter =
+                document.createElement(
+                    "p"
+                );
+
+            counter.className =
+                "character-count";
+
+            target.insertAdjacentElement(
+                "afterend",
+                counter
+            );
+
+            function updateCounter() {
+
+                const currentLength =
+                    target.value.length;
+
+                counter.textContent =
+                    currentLength
+                    + " / "
+                    + maxLength
+                    + "자";
+
+                counter.classList.toggle(
+                    "limit-warning",
+                    currentLength
+                    >= Math.floor(
+                        maxLength * 0.9
+                    )
+                );
+            }
+
+            target.addEventListener(
+                "input",
+                updateCounter
+            );
+
+            updateCounter();
+        }
+    );
+}
+
+
+/* ========================================
    관리자 및 병원장 신청 차단
 ======================================== */
 
@@ -985,6 +1463,31 @@ function initOwnerApplyForm() {
                 scrollToElement(
                     document.querySelector(
                         ".service-grid"
+                    )
+                );
+
+                return;
+            }
+
+            /*
+    진료과목 선택 검사
+*/
+            const selectedSubjects =
+                document.querySelectorAll(
+                    "input[name='subjectIds']:checked"
+                );
+
+            if (selectedSubjects.length === 0) {
+
+                event.preventDefault();
+
+                alert(
+                    "진료과목을 하나 이상 선택해 주세요."
+                );
+
+                scrollToElement(
+                    document.querySelector(
+                        ".medical-subject-grid"
                     )
                 );
 

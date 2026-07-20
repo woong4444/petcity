@@ -140,6 +140,8 @@ public class OwnerRequestDto {
 
     private List<Integer> serviceIds;
 
+    private List<Integer> subjectIds;
+
 
     /*
         APP_MEMBER에서 JOIN해서 가져오는 화면 표시용 정보

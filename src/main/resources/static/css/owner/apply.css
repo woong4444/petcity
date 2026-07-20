@@ -293,6 +293,25 @@ a {
 
 
 /* ========================================
+   글자 수 표시
+======================================== */
+
+.character-count {
+    margin: 7px 2px 0;
+
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.character-count.limit-warning {
+    color: #dc2626;
+    font-weight: 900;
+}
+
+
+/* ========================================
    주소
 ======================================== */
 
@@ -782,6 +801,181 @@ a {
 }
 
 
+
+/* ========================================
+   전화번호·휴게시간·정기 휴무일
+======================================== */
+
+.phone-number-row {
+    display: grid;
+    grid-template-columns:
+        minmax(92px, 0.9fr)
+        auto
+        minmax(90px, 1fr)
+        auto
+        minmax(90px, 1fr);
+    align-items: center;
+    gap: 8px;
+}
+
+.phone-prefix-select,
+.phone-part-input {
+    width: 100%;
+    height: 52px;
+    padding: 0 13px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    outline: none;
+
+    background: #ffffff;
+    color: #1e293b;
+
+    transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+}
+
+.phone-prefix-select {
+    cursor: pointer;
+}
+
+.phone-part-input {
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+
+.phone-prefix-select:focus,
+.phone-part-input:focus {
+    border-color: #38bdf8;
+    box-shadow:
+            0 0 0 4px rgba(56, 189, 248, 0.13);
+}
+
+.phone-separator {
+    color: #64748b;
+    font-size: 16px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.time-range-row {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto
+        minmax(0, 1fr);
+    align-items: end;
+    gap: 10px;
+}
+
+.time-field {
+    min-width: 0;
+}
+
+.time-field > span {
+    display: block;
+    margin: 0 0 7px 2px;
+
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.time-field input {
+    width: 100%;
+}
+
+.time-range-separator {
+    padding-bottom: 16px;
+
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.closed-day-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(7, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.closed-day-option {
+    margin: 0;
+    cursor: pointer;
+}
+
+.closed-day-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.closed-day-option span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    background: #ffffff;
+    color: #475569;
+
+    font-size: 13px;
+    font-weight: 900;
+
+    transition:
+            border-color 0.2s,
+            background-color 0.2s,
+            color 0.2s,
+            transform 0.2s;
+}
+
+.closed-day-option:hover span {
+    border-color: #7dd3fc;
+    transform: translateY(-1px);
+}
+
+.closed-day-option input:checked + span {
+    border-color: #0ea5e9;
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+
+/* ========================================
+   진료 가능 동물 접기·펼치기
+======================================== */
+
+button.animal-category-header {
+    width: 100%;
+
+    border: 0;
+    text-align: left;
+}
+
+.animal-category-header .category-toggle-icon {
+    flex-shrink: 0;
+
+    color: #64748b;
+    font-size: 17px;
+    font-weight: 900;
+
+    transition: transform 0.2s;
+}
+
+.animal-category-header[aria-expanded="true"]
+.category-toggle-icon {
+    transform: rotate(180deg);
+}
+
 /* ========================================
    반응형
 ======================================== */
@@ -866,3 +1060,37 @@ a {
         padding: 40px 22px;
     }
 }
+
+@media (max-width: 620px) {
+
+    .phone-number-row {
+        grid-template-columns:
+            minmax(82px, 0.9fr)
+            auto
+            minmax(78px, 1fr)
+            auto
+            minmax(78px, 1fr);
+        gap: 5px;
+    }
+
+    .phone-prefix-select,
+    .phone-part-input {
+        padding: 0 8px;
+        font-size: 13px;
+    }
+
+    .time-range-row {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .time-range-separator {
+        display: none;
+    }
+
+    .closed-day-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+}
+
