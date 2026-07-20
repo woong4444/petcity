@@ -168,14 +168,6 @@ public class SecurityConfig {
     private final CustomAuthorizationRequestResolver
             customAuthorizationRequestResolver;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder, LoginSuccessHandler loginSuccessHandler, CustomAuthorizationRequestResolver customAuthorizationRequestResolver) {
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.customUserDetailsService = customUserDetailsService;
-        this.passwordEncoder = passwordEncoder;
-        this.loginSuccessHandler = loginSuccessHandler;
-        this.customAuthorizationRequestResolver = customAuthorizationRequestResolver;
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http
