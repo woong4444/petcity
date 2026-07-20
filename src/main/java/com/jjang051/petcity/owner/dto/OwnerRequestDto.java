@@ -120,6 +120,17 @@ public class OwnerRequestDto {
 
     private Integer processedBy;
 
+    /*
+        승인 또는 반려 결과 확인 여부
+
+        N:
+        아직 신청 현황 페이지에서 확인하지 않음
+
+        Y:
+        신청 현황 페이지에서 확인함
+    */
+    private String resultReadYn;
+
 
     /*
         신청 화면에서 선택한 동물 번호들

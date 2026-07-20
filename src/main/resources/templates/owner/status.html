@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>병원장 신청 현황 | PetCity</title>
+
+    <!-- 기존 병원장 신청 CSS를 같이 사용 -->
+    <link rel="stylesheet"
+          th:href="@{/css/owner/apply.css}">
+</head>
+
+<body>
+
+<!-- 공통 헤더 -->
+<div th:replace="~{common/head :: head}">
+</div>
+
+<main class="owner-apply-page">
+
+    <div class="owner-apply-container">
+
+        <section class="page-header">
+
+            <span class="page-badge">
+                OWNER REQUEST STATUS
+            </span>
+
+            <h1>병원장 신청 현황</h1>
+
+            <p>
+                제출한 병원장 권한 신청의 심사 상태와
+                승인 또는 반려 결과를 확인할 수 있습니다.
+            </p>
+
+        </section>
+
+
+        <!-- 신청 내역이 없을 때 -->
+        <section class="owner-status-empty"
+                 th:if="${#lists.isEmpty(requestList)}">
+
+            <div class="owner-status-empty-icon">
+                📋
+            </div>
+
+            <h2>
+                아직 제출한 병원장 신청이 없습니다
+            </h2>
+
+            <p>
+                병원장 권한 신청을 제출하면
+                이 페이지에서 심사 상태를 확인할 수 있습니다.
+            </p>
+
+            <a th:href="@{/owner/apply}"
+               class="complete-button">
+                병원장 권한 신청하기
+            </a>
+
+        </section>
+
+
+        <!-- 신청 내역이 있을 때 -->
+        <section class="owner-status-list"
+                 th:unless="${#lists.isEmpty(requestList)}">
+
+            <article class="owner-status-card"
+                     th:each="request : ${requestList}">
+
+                <div class="owner-status-card-header">
+
+                    <div>
+
+                        <span class="owner-request-number"
+                              th:text="|신청번호 #${request.requestId}|">
+                            신청번호 #1
+                        </span>
+
+                        <h2 th:text="${request.hospitalName}">
+                            펫시티 동물병원
+                        </h2>
+
+                    </div>
+
+
+                    <span class="owner-status-badge pending"
+                          th:if="${request.status == 'PENDING'}">
+                        심사 중
+                    </span>
+
+                    <span class="owner-status-badge approved"
+                          th:if="${request.status == 'APPROVED'}">
+                        승인 완료
+                    </span>
+
+                    <span class="owner-status-badge rejected"
+                          th:if="${request.status == 'REJECTED'}">
+                        반려
+                    </span>
+
+                    <span class="owner-status-badge"
+                          th:if="${request.status != 'PENDING'
+                              and request.status != 'APPROVED'
+                              and request.status != 'REJECTED'}"
+                          th:text="${request.status}">
+                        상태 확인
+                    </span>
+
+                </div>
+
+
+                <div class="owner-status-info-grid">
+
+                    <div class="owner-status-info">
+
+                        <span>
+                            신청자
+                        </span>
+
+                        <strong th:text="${request.applicantName}">
+                            홍길동
+                        </strong>
+
+                    </div>
+
+
+                    <div class="owner-status-info">
+
+                        <span>
+                            사업자등록번호
+                        </span>
+
+                        <strong th:text="${request.businessNumber}">
+                            123-45-67890
+                        </strong>
+
+                    </div>
+
+
+                    <div class="owner-status-info">
+
+                        <span>
+                            신청일
+                        </span>
+
+                        <strong th:text="${request.createdAt == null
+                            ? '-'
+                            : #temporals.format(
+                                request.createdAt,
+                                'yyyy.MM.dd HH:mm'
+                            )}">
+                            2026.07.20 14:00
+                        </strong>
+
+                    </div>
+
+
+                    <div class="owner-status-info">
+
+                        <span>
+                            처리일
+                        </span>
+
+                        <strong th:text="${request.processedAt == null
+                            ? '-'
+                            : #temporals.format(
+                                request.processedAt,
+                                'yyyy.MM.dd HH:mm'
+                            )}">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="owner-status-message pending"
+                     th:if="${request.status == 'PENDING'}">
+
+                    관리자가 증빙서류와 병원 정보를 확인하고 있습니다.
+                    승인 또는 반려 결과가 등록되면 헤더에 알림이 표시됩니다.
+
+                </div>
+
+
+                <div class="owner-status-message approved"
+                     th:if="${request.status == 'APPROVED'}">
+
+                    병원장 권한 신청이 승인되었습니다.
+                    병원장 권한과 등록된 병원 정보를 확인해 주세요.
+
+                </div>
+
+
+                <div class="owner-status-message rejected"
+                     th:if="${request.status == 'REJECTED'}">
+
+                    <strong>
+                        반려 사유
+                    </strong>
+
+                    <p th:text="${#strings.isEmpty(request.rejectReason)
+                        ? '반려 사유가 등록되지 않았습니다. 관리자에게 문의해 주세요.'
+                        : request.rejectReason}">
+                        제출 서류를 다시 확인해 주세요.
+                    </p>
+
+                </div>
+
+            </article>
+
+        </section>
+
+    </div>
+
+</main>
+
+</body>
+</html>

@@ -5,6 +5,11 @@
 
 <head>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
+
+    <!-- 공통 헤더 기능 -->
+    <script defer
+            th:src="@{/js/common/head.js}">
+    </script>
 </head>
 
 <body>
@@ -31,7 +36,31 @@
                     <span th:if="${session.loginMember.role == 'OWNER'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-warning badge-sm">병원장</span></span>
                     <span th:if="${session.loginMember.role == 'ADMIN'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-error badge-sm">관리자</span></span>
 
-                    <a th:if="${session.loginMember.role != 'ADMIN'}" href="/member/mypage">마이페이지</a>
+                    <a th:if="${session.loginMember.role != 'ADMIN'}"
+                       href="/member/mypage">
+                        마이페이지
+                    </a>
+
+                    <th:block th:if="${session.loginMember.role != 'ADMIN'}">
+
+                        <span>|</span>
+
+                        <a href="/owner/status"
+                           class="owner-status-header-link">
+
+                            병원장 신청 현황
+
+                            <span id="ownerStatusUnreadBadge"
+                                  class="owner-status-notification-badge"
+                                  aria-label="확인하지 않은 병원장 신청 결과"
+                                  hidden>
+                                0
+                            </span>
+
+                        </a>
+
+                    </th:block>
+
                     <a th:if="${session.loginMember.role == 'ADMIN'}" href="/admin/dashboard">Admin</a>
                     <a th:if="${session.loginMember.role == 'OWNER'}" href="/owner">병원관리</a>
                     <span>|</span><a href="/member/logout">로그아웃</a><span>|</span>
@@ -136,11 +165,12 @@
 
             </div>
             <div class="right-menu">
-                <a href="/board/notice">고객센터</a><span>|</span><a href="/owner/apply">병원장 문의</a>
+                <a href="/board/notice">고객센터</a><span>|</span><a href="/owner/apply">병원장 신청</a>
             </div>
         </div>
 
     </nav>
+
 </header>
 </body>
 </html>

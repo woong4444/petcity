@@ -17,3 +17,4 @@ public class OwnerMedicalServiceDto {
 
     private String serviceName;
 }
+
