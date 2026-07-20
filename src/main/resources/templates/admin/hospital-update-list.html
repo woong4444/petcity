@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 병원 정보 수정 | PetCity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+</head>
+<body class="bg-slate-50 text-slate-800">
+<div th:replace="~{common/head :: head}"></div>
+<main class="max-w-3xl mx-auto py-16 px-6">
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+
+        <!-- 🌟 병원 관리 페이지 상단에 현재 내 병원 이름 명확히 표시 -->
+        <div class="mb-4 p-4 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between">
+            <div>
+                <span class="text-xs font-bold text-sky-600 block mb-1">현재 관리 중인 병원</span>
+                <h2 class="text-xl font-extrabold text-sky-900" th:text="${hospital.name}">병원 이름</h2>
+            </div>
+            <span class="text-sm font-bold text-slate-500" th:text="'병원 ID: #' + ${hospital.hospitalId}">ID: 1</span>
+        </div>
+
+        <h1 class="text-2xl font-bold mb-2">내 병원 정보 수정 요청</h1>
+        <p class="text-slate-500 mb-6">수정을 요청하시면 관리자 승인 후 반영됩니다.</p>
+
+        <div th:if="${param.success}" class="bg-emerald-50 text-emerald-600 p-4 rounded-lg font-bold mb-6">
+            ✅ 정보 수정 요청이 성공적으로 접수되었습니다.
+        </div>
+
+        <form th:action="@{/owner/hospital/update}" method="post">
+            <input type="hidden" name="hospitalId" th:value="${hospital.hospitalId}">
+
+            <!-- 진료과목 (1~19번) -->
+            <div class="mb-8">
+                <label class="block font-bold text-slate-700 mb-3">진료 과목 1~19 (다중선택 가능)</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="1"> 1. 내과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="2"> 2. 외과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="3"> 3. 정형외과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="4"> 4. 피부과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="5"> 5. 안과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="6"> 6. 치과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="7"> 7. 영상의학과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="8"> 8. 이비인후과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="9"> 9. 비뇨기과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="10"> 10. 신경외과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="11"> 11. 산과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="12"> 12. 심장내과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="13"> 13. 마취통증의학과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="14"> 14. 예방의학과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="15"> 15. 재활의학과</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="16"> 16. 중성화</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="17"> 17. 영양상담</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="18"> 18. 헌혈</label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border rounded hover:bg-sky-50"><input type="checkbox" name="medicalSubjects" value="19"> 19. 미용</label>
+                </div>
+            </div>
+
+            <!-- 영업 시간 등 -->
+            <div class="grid sm:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-2">오픈 시간</label>
+                    <input type="time" name="openTime" th:value="${hospital.openTime}" class="w-full border border-slate-300 p-3 rounded-lg outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-2">종료 시간</label>
+                    <input type="time" name="closeTime" th:value="${hospital.closeTime}" class="w-full border border-slate-300 p-3 rounded-lg outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-2">휴게 시간</label>
+                    <input type="text" name="lunchTime" th:value="${hospital.lunchTime}" class="w-full border border-slate-300 p-3 rounded-lg outline-none focus:border-sky-500" placeholder="예: 13:00~14:00">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-2">휴무일</label>
+                    <input type="text" name="holiday" th:value="${hospital.holiday}" class="w-full border border-slate-300 p-3 rounded-lg outline-none focus:border-sky-500" placeholder="예: 연중무휴">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 rounded-xl text-lg transition">수정 요청하기</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

@@ -1,5 +1,7 @@
 package com.jjang051.petcity.hospital.service;
 
+
+
 import com.jjang051.petcity.hospital.dao.HospitalDao;
 import com.jjang051.petcity.hospital.dto.HospitalDto;
 import com.jjang051.petcity.hospital.dto.HospitalListPageDto;
@@ -19,37 +21,52 @@ public class HospitalService {
 
     private final HospitalDao hospitalDao;
 
-    // 🌟 DB에 숫자로 저장된 진료과목을 한글 이름으로 자동 변환해 주는 메서드
+    // 🌟 쉼표로 연결된 숫자(예: "1,3,4")를 여러 한글 과목명(예: "내과, 정형외과, 피부과")으로 분리 및 변환하는 로직
     private void refineMedicalSubjects(HospitalDto h) {
         if (h.getMedicalSubjects() == null) return;
         String sub = h.getMedicalSubjects().trim();
-        // 만약 데이터가 순수 숫자로만 이루어져 있다면 (예: "3", "2" 등)
-        if (sub.matches("^[0-9]+$")) {
-            int id = Integer.parseInt(sub);
-            switch (id) {
-                case 1: h.setMedicalSubjects("내과"); break;
-                case 2: h.setMedicalSubjects("외과"); break;
-                case 3: h.setMedicalSubjects("정형외과"); break;
-                case 4: h.setMedicalSubjects("피부과"); break;
-                case 5: h.setMedicalSubjects("안과"); break;
-                case 6: h.setMedicalSubjects("치과"); break;
-                case 7: h.setMedicalSubjects("영상의학과"); break;
-                case 8: h.setMedicalSubjects("이비인후과"); break;
-                case 9: h.setMedicalSubjects("비뇨기과"); break;
-                case 10: h.setMedicalSubjects("신경외과"); break;
-                case 11: h.setMedicalSubjects("산과"); break;
-                case 12: h.setMedicalSubjects("심장내과"); break;
-                case 13: h.setMedicalSubjects("마취통증의학과"); break;
-                case 14: h.setMedicalSubjects("예방의학과"); break;
-                case 15: h.setMedicalSubjects("재활의학과"); break;
-                case 16: h.setMedicalSubjects("중성화"); break;
-                case 17: h.setMedicalSubjects("영양상담"); break;
-                case 18: h.setMedicalSubjects("헌혈"); break;
-                case 19: h.setMedicalSubjects("미용"); break;
-                default: h.setMedicalSubjects("정보 없음"); break;
+
+        // 데이터가 숫자와 쉼표로 이루어져 있다면 (예: "1", "1,2,3" 등)
+        if (sub.matches("^[0-9, ]+$")) {
+            String[] ids = sub.split(",");
+            java.util.List<String> subjectNames = new java.util.ArrayList<>();
+            for (String idStr : ids) {
+                if(idStr.trim().isEmpty()) continue;
+                try {
+                    int id = Integer.parseInt(idStr.trim());
+                    switch (id) {
+                        case 1: subjectNames.add("내과"); break;
+                        case 2: subjectNames.add("외과"); break;
+                        case 3: subjectNames.add("정형외과"); break;
+                        case 4: subjectNames.add("피부과"); break;
+                        case 5: subjectNames.add("안과"); break;
+                        case 6: subjectNames.add("치과"); break;
+                        case 7: subjectNames.add("영상의학과"); break;
+                        case 8: subjectNames.add("이비인후과"); break;
+                        case 9: subjectNames.add("비뇨기과"); break;
+                        case 10: subjectNames.add("신경외과"); break;
+                        case 11: subjectNames.add("산과"); break;
+                        case 12: subjectNames.add("심장내과"); break;
+                        case 13: subjectNames.add("마취통증의학과"); break;
+                        case 14: subjectNames.add("예방의학과"); break;
+                        case 15: subjectNames.add("재활의학과"); break;
+                        case 16: subjectNames.add("중성화"); break;
+                        case 17: subjectNames.add("영양상담"); break;
+                        case 18: subjectNames.add("헌혈"); break;
+                        case 19: subjectNames.add("미용"); break;
+                    }
+                } catch (NumberFormatException e) {
+                    // 숫자가 아닌 값이 섞여있을 경우 무시
+                }
+            }
+            if (!subjectNames.isEmpty()) {
+                h.setMedicalSubjects(String.join(", ", subjectNames));
+            } else {
+                h.setMedicalSubjects("정보 없음");
             }
         }
     }
+
     private void applyCurrentStatus(HospitalDto h) {
         refineMedicalSubjects(h); // 🌟 병원 정보가 불려올 때 진료과목 숫자부터 한글로 정제합니다!
 
@@ -188,3 +205,4 @@ public class HospitalService {
         hospitalDao.deleteReview(reviewId);
     }
 }
+
