@@ -712,24 +712,76 @@ public class MemberController {
 
     }
 
-    // 07-16 상각: 로그인한 회원 본인의 마이페이지 조회
+    /*
+     로그인한 회원 본인의 마이페이지 조회
+ */
     @GetMapping("/member/mypage")
-    public String mypage(HttpSession session, Model model, RedirectAttributes rttr) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null) {
-            rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
+    public String mypage(
+            HttpSession session,
+            Model model,
+            RedirectAttributes rttr
+    ) {
+
+    /*
+        로그인 성공 시 세션에 저장된 회원
+    */
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+
+            rttr.addFlashAttribute(
+                    "message",
+                    "로그인 후 이용해주세요."
+            );
+
             return "redirect:/member/login";
         }
 
-        MemberDto member = memberService.findByMemberId(loginMember.getMemberId());
-        if (member == null || !"ACTIVE".equals(member.getMemberStatus())) {
+    /*
+        DB에서 최신 회원 정보 조회
+    */
+        MemberDto member =
+                memberService.findByMemberId(
+                        loginMember.getMemberId()
+                );
+
+    /*
+        STATUS가 ACTIVE인지 확인
+
+        memberStatus가 아니라 status를 사용한다.
+    */
+        if (member == null
+                || !"ACTIVE".equals(
+                member.getStatus()
+        )) {
+
             session.invalidate();
-            rttr.addFlashAttribute("message", "이용할 수 없는 계정입니다.");
+
+            rttr.addFlashAttribute(
+                    "message",
+                    "이용할 수 없는 계정입니다."
+            );
+
             return "redirect:/member/login";
         }
 
-        session.setAttribute("loginMember", member);
-        model.addAttribute("member", member);
+    /*
+        최신 회원 정보로 세션 갱신
+    */
+        session.setAttribute(
+                "loginMember",
+                member
+        );
+
+        model.addAttribute(
+                "member",
+                member
+        );
+
         return "member/mypage";
     }
 
