@@ -1,48 +1,43 @@
 package com.jjang051.petcity.hospital.dto;
 
-import lombok.*;
-import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@ToString
 public class HospitalDto {
     private int hospitalId;
-    private Integer ownerId;
+    private int ownerId;
     private String name;
     private String address;
     private String detailAddress;
     private String phone;
     private String district;
-    private Double latitude;
-    private Double longitude;
+    private double latitude;
+    private double longitude;
     private String openTime;
     private String closeTime;
-
     private String lunchTime;
     private String holiday;
-
     private String status;
     private String description;
     private String imageUrl;
     private String websiteUrl;
-    private Date createdAt;
-    private Date updatedAt;
+    private String createdAt;
+    private String updatedAt;
+
+    private String medicalSubjects; // 🌟 진료과목 컬럼 변수 추가 완료!
 
     private String animalNames;
     private String serviceNames;
-    private int matchCount;
     private String matchedServiceNames;
-
+    private int matchCount;
     private int reviewCount;
     private int likeCount;
     private int zzimCount;
-
-    private Double distance;
-    private Double avgRating;
-
-    // 🌟 신규 추가: 실시간 영업 상태 (진료중, 휴무일, 휴게시간, 진료종료)
+    private double avgRating;
+    private double distance;
     private String currentStatus;
 }

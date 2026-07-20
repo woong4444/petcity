@@ -88,4 +88,26 @@ public class PetApiController {
         }
         return resultMap;
     }
+
+    // 🌟 삭제 기능 메서드 추가
+    @PostMapping("/delete")
+    public Map<String, Object> deletePet(@RequestParam("petId") int petId, HttpSession session) {
+        Map<String, Object> resultMap = new HashMap<>();
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            resultMap.put("isSuccess", false);
+            return resultMap;
+        }
+
+        try {
+            // PetDao에 deletePet 메서드가 구현되어 있어야 합니다.
+            petDao.deletePet(petId);
+            resultMap.put("isSuccess", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("isSuccess", false);
+        }
+        return resultMap;
+    }
 }

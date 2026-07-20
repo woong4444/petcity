@@ -2,249 +2,221 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>맞춤검색 - PetCity</title>
+    <title>맞춤 동물병원 검색 - PetCity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <link rel="stylesheet" th:href="@{/css/hospital/search.css}">
+    <link rel="stylesheet" th:href="@{/css/hospital/list.css}">
+    <style>
+        .custom-search-wrap { max-width: 1024px; margin: 52px auto 90px; padding: 0 20px; color: #172033; }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 <div th:replace="~{common/head :: head}"></div>
 
-<main class="max-w-5xl mx-auto py-12 px-4">
+<main class="custom-search-wrap">
     <div class="text-center mb-10">
-        <h1 class="text-3xl font-extrabold text-slate-800 mb-3">반려동물 맞춤 병원검색</h1>
-        <p class="text-slate-500 font-bold">우리아이에게 꼭 맞는 진료를 선택하여 검색해보세요.</p>
+        <h1 class="text-3xl font-extrabold text-slate-800 mb-3">내 반려동물 맞춤 병원 찾기</h1>
+        <p class="text-slate-500 font-bold">우리 아이에게 딱 맞는 동물병원을 쉽고 빠르게 찾아보세요.</p>
     </div>
-
     <form id="customSearchForm" action="/hospital/list" method="get">
         <input type="hidden" name="animalId" id="searchAnimalId">
         <input type="hidden" name="subAnimalId" id="searchSubAnimalId">
         <input type="hidden" name="sort" value="recommend">
-
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-8">
-
-            <!-- STEP 01: 반려동물 선택 -->
             <div class="step-section border-b border-slate-200">
                 <div class="step-header flex cursor-pointer" onclick="toggleStep('step1')">
                     <div class="bg-slate-800 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">01 반려동물 선택</div>
                     <div class="flex-1 p-5 flex justify-between items-center bg-white hover:bg-slate-50 transition">
-                        <span class="font-extrabold text-slate-700">반려동물 선택하기 (반려동물 등록)</span>
+                        <span class="font-extrabold text-slate-700">진료받을 반려동물을 선택해주세요 (필수)</span>
                         <span class="text-2xl text-slate-400" id="icon-step1">−</span>
                     </div>
                 </div>
                 <div id="content-step1" class="step-content p-8 bg-slate-50 border-t border-slate-100">
-
-                    <!-- 🌟 등록된 펫이 없을 경우 -->
                     <div th:if="${#lists.isEmpty(myPets)}" id="emptyPetArea" class="text-center py-10 bg-white border border-dashed border-slate-300 rounded-xl mb-6">
-                        <p class="text-slate-500 font-bold mb-4">등록된 반려동물이 없습니다. 아이를 먼저 등록해주세요!</p>
+                        <p class="text-slate-500 font-bold mb-4">등록된 반려동물이 없습니다!</p>
                         <button type="button" onclick="openPetModalForAdd()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-6 rounded-full transition inline-flex items-center gap-2">
-                            <span class="text-xl leading-none">+</span> 반려동물 등록하기
+                            <span class="text-xl leading-none">+</span> 반려동물 추가하기
                         </button>
                     </div>
-
-                    <!-- 🌟 등록된 펫이 있을 경우 -->
                     <div th:unless="${#lists.isEmpty(myPets)}" id="myPetListArea" class="mb-6 space-y-4">
                         <div th:each="pet : ${myPets}" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-6 shadow-sm hover:border-sky-300 transition">
-
-                            <!-- 프로필 사진 영역 -->
                             <div class="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-3xl overflow-hidden border border-slate-200">
                                 <img th:if="${pet.photoUrl != null and pet.photoUrl != ''}" th:src="${pet.photoUrl}" class="w-full h-full object-cover">
                                 <span th:unless="${pet.photoUrl != null and pet.photoUrl != ''}">🐾</span>
                             </div>
-
-                            <!-- 상세 정보 영역 -->
                             <div class="flex-1 grid grid-cols-2 gap-y-2 text-sm">
                                 <div class="col-span-2 mb-2">
                                     <strong class="text-xl text-slate-800 mr-2" th:text="${pet.petName}">이름</strong>
-                                    <span class="text-sky-600 font-bold bg-sky-50 px-2 py-1 rounded" th:text="${pet.animalName}">유형</span>
+                                    <span class="text-sky-600 font-bold bg-sky-50 px-2 py-1 rounded" th:text="${pet.animalName}">동물종류</span>
                                 </div>
-                                <div class="text-slate-600" th:text="'생일 : ' + ${pet.birthDate} + ' (' + ${pet.age} + '살)'"></div>
+                                <div class="text-slate-600" th:text="'생년월일 : ' + ${pet.birthDate} + ' (' + ${pet.age} + '살)'"></div>
                                 <div class="text-slate-600">
                                     성별 :
-                                    <span th:if="${pet.gender == 'M'}">남</span><span th:if="${pet.gender == 'F'}">여</span>
-                                    <span th:if="${pet.gender == 'NM'}">남(중성화)</span><span th:if="${pet.gender == 'NF'}">여(중성화)</span>
+                                    <span th:if="${pet.gender == 'M'}">수컷</span><span th:if="${pet.gender == 'F'}">암컷</span>
+                                    <span th:if="${pet.gender == 'NM'}">수컷(중성화)</span><span th:if="${pet.gender == 'NF'}">암컷(중성화)</span>
                                 </div>
-                                <div class="text-slate-600" th:text="'견/묘종 : ' + ${pet.breedName}"></div>
+                                <div class="text-slate-600" th:text="'품종 : ' + ${pet.breedName}"></div>
                                 <div class="text-slate-600" th:text="'몸무게 : ' + ${pet.weight} + 'kg'"></div>
                                 <div class="col-span-2 text-slate-500 text-xs mt-1" th:text="'등록번호 : ' + (${pet.registrationNo != null and pet.registrationNo != '' ? pet.registrationNo : '미등록'})"></div>
                             </div>
-
-                            <!-- 버튼 영역 -->
                             <div class="flex flex-col gap-2 w-24">
-                                <button type="button" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 rounded-lg text-sm transition" th:onclick="selectPet([[${pet.animalId}]], [[${pet.subAnimalId}]])">선택</button>
-
+                                <button type="button" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 rounded-lg text-sm transition btn-select-pet" th:data-animal-id="${pet.animalId}" th:data-sub-animal-id="${pet.subAnimalId}">선택</button>
                                 <button type="button" class="btn-edit-pet bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold py-2 rounded-lg text-sm transition"
-                                        th:data-id="${pet.petId}"
-                                        th:data-name="${pet.petName}"
-                                        th:data-animal="${pet.animalId}"
-                                        th:data-breed="${pet.breedName}"
-                                        th:data-gender="${pet.gender}"
-                                        th:data-birth="${pet.birthDate}"
-                                        th:data-weight="${pet.weight}"
-                                        th:data-reg="${pet.registrationNo != null ? pet.registrationNo : ''}">수정</button>
+                                        th:data-id="${pet.petId}" th:data-name="${pet.petName}" th:data-animal="${pet.animalId}" th:data-breed="${pet.breedName}"
+                                        th:data-gender="${pet.gender}" th:data-birth="${pet.birthDate}" th:data-weight="${pet.weight}"
+                                        th:data-reg="${pet.registrationNo != null ? pet.registrationNo : ''}" onclick="loadPetModal(this)">수정</button>
                             </div>
                         </div>
-
-                        <!-- 다른 아이 추가 등록 버튼 -->
                         <div class="text-center mt-4">
                             <button type="button" onclick="openPetModalForAdd()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold py-2 px-6 rounded-full transition inline-flex items-center gap-2 text-sm">
-                                <span class="text-lg leading-none">+</span> 다른 아이 추가등록
+                                <span class="text-lg leading-none">+</span> 다른 반려동물 추가
                             </button>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            <!-- STEP 02: 진료과목 선택 -->
+            <!-- 🌟 STEP 02: 진료 과목 및 옵션 선택으로 분할 -->
             <div class="step-section border-b border-slate-200">
                 <div class="step-header flex cursor-pointer" onclick="toggleStep('step2')">
-                    <div class="bg-slate-700 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">02 의료상품 선택</div>
+                    <div class="bg-slate-700 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">02 진료 항목 선택</div>
                     <div class="flex-1 p-5 flex justify-between items-center bg-white hover:bg-slate-50 transition">
-                        <span class="font-extrabold text-slate-700">진료 과목 선택하기</span>
+                        <span class="font-extrabold text-slate-700">원하시는 진료 항목을 선택해주세요</span>
                         <span class="text-2xl text-slate-400" id="icon-step2">+</span>
                     </div>
                 </div>
                 <div id="content-step2" class="step-content p-8 bg-slate-50 border-t border-slate-100 hidden">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <label class="custom-chk-btn" th:each="svc : ${medicalServiceList}">
-                            <input type="checkbox" name="serviceIds" th:value="${svc.serviceId}">
-                            <span th:text="${svc.serviceName}">일반진료</span>
+
+                    <!-- 진료 과목 영역 -->
+                    <h4 class="font-bold text-slate-700 mb-3">진료 과목 <span class="text-sm font-normal text-slate-500">(다중 선택)</span></h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+                        <label class="custom-chk-btn" th:each="subj : ${medicalSubjectList}">
+                            <input type="checkbox" name="subjects" class="step2-subject-chk" th:value="${subj}">
+                            <span th:text="${subj}">과목명</span>
                         </label>
                     </div>
-                    <div class="text-right mt-6">
+
+                    <!-- 진료 옵션 영역 -->
+                    <h4 class="font-bold text-slate-700 mb-3 border-t border-slate-200 pt-6">진료 옵션 및 시설 <span class="text-sm font-normal text-slate-500">(다중 선택)</span></h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <label class="custom-chk-btn" th:each="svc : ${medicalServiceList}">
+                            <input type="checkbox" name="serviceIds" class="step2-service-chk" th:value="${svc.serviceId}">
+                            <span th:text="${svc.serviceName}">옵션명</span>
+                        </label>
+                    </div>
+
+                    <div class="text-right mt-8">
                         <button type="button" class="bg-slate-800 text-white font-bold py-2 px-6 rounded-lg text-sm hover:bg-slate-900 transition" onclick="toggleStep('step3')">다음 단계로</button>
                     </div>
                 </div>
             </div>
 
-            <!-- STEP 03: 지역 선택 -->
             <div class="step-section">
                 <div class="step-header flex cursor-pointer" onclick="toggleStep('step3')">
-                    <div class="bg-slate-600 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">03 지역 선택</div>
+                    <div class="bg-slate-600 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">03 의료지역 선택</div>
                     <div class="flex-1 p-5 flex justify-between items-center bg-white hover:bg-slate-50 transition">
-                        <span class="font-extrabold text-slate-700">의료지역 선택하기</span>
+                        <span class="font-extrabold text-slate-700">방문하실 지역을 선택해주세요</span>
                         <span class="text-2xl text-slate-400" id="icon-step3">+</span>
                     </div>
                 </div>
                 <div id="content-step3" class="step-content p-8 bg-slate-50 border-t border-slate-100 hidden">
                     <div class="mb-4">
                         <label class="custom-chk-btn seoul-all">
-                            <input type="checkbox" id="seoulAllSearch">
-                            <span>서울특별시 전체</span>
+                            <input type="checkbox" id="seoulAllSearch" class="step3-district-chk">
+                            <span>서울 전체</span>
                         </label>
                     </div>
                     <div class="grid grid-cols-3 sm:grid-cols-5 gap-3 border-t border-slate-200 pt-4">
                         <label class="custom-chk-btn" th:each="item : ${districtList}">
-                            <input type="checkbox" name="districts" th:value="${item}">
-                            <span th:text="${item}">강남구</span>
+                            <input type="checkbox" name="districts" class="step3-district-chk" th:value="${item}">
+                            <span th:text="${item}">지역명</span>
                         </label>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div id="ajaxDynamicResult" class="mt-8 hidden"></div>
+
         <div class="text-center mt-8">
-            <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white text-lg font-extrabold py-4 px-20 rounded-xl shadow-lg transition transform hover:-translate-y-1">맞춤검색 시작하기</button>
+            <button type="submit" id="btnFullSearch" class="bg-sky-500 hover:bg-sky-600 text-white text-lg font-extrabold py-4 px-20 rounded-xl shadow-lg transition transform hover:-translate-y-1">전체 맞춤 검색 결과 보기</button>
         </div>
     </form>
-
     <div class="mt-12 bg-white p-8 border border-slate-200 rounded-xl shadow-sm text-sm text-slate-600 leading-relaxed">
-        <strong class="text-slate-800 block mb-2 text-base">반려동물 의료상품 맞춤검색이란?</strong>
-        <p class="mb-6">보호자의 반려동물 특성(반려동물 유형, 성별, 몸무게, 나이)에 맞게 진료 항목을 자동으로 매칭하여 제공하는 맞춤 검색 서비스 입니다.</p>
-
-        <strong class="text-slate-800 block mb-2 text-base">반려동물 의료상품 맞춤검색 방법 안내</strong>
-        <ol class="list-decimal pl-5 space-y-1">
-            <li>진료 또는 수술을 받고자 하는 반려동물을 선택합니다. (미 등록시 신규 등록 필수)</li>
-            <li class="text-xs text-sky-600 font-bold mb-2">* 정확한 매칭을 위해 반려동물의 유형, 품종, 성별, 몸무게, 생일이 정확히 등록되어 있어야 합니다.</li>
-            <li>선택한 반려동물에게 해주시려는 진료 과목(의료상품)을 선택합니다.</li>
-            <li>진료 받으실 지역(서울시 구)을 선택합니다.</li>
-            <li>'맞춤검색 시작하기' 버튼을 클릭하시면 조건에 딱 맞는 병원 리스트를 조회하실 수 있습니다.</li>
-        </ol>
+        <strong class="text-slate-800 block mb-2 text-base">맞춤 검색이란?</strong>
+        <p class="mb-6">등록하신 반려동물의 정보(동물분류 등)와 원하시는 진료과목, 옵션, 지역을 조합하여 가장 적합한 병원을 우선적으로 찾아주는 기능입니다.</p>
     </div>
 </main>
 
-<!-- 🌟 반려동물 등록 모달 -->
 <div id="petModal" class="fixed top-0 left-0 w-full h-full bg-slate-900/60 z-50 hidden items-center justify-center backdrop-blur-sm p-4">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         <div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50">
-            <h3 class="text-xl font-extrabold text-slate-800">반려동물 정보 등록</h3>
+            <h3 class="text-xl font-extrabold text-slate-800">반려동물 정보</h3>
             <button type="button" id="btnClosePetModal" class="text-3xl text-slate-400 hover:text-slate-600 leading-none">&times;</button>
         </div>
-
         <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
             <form id="petRegForm">
                 <input type="hidden" name="petId" id="petIdInput" value="0">
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-
                 <div class="border-t border-slate-200">
                     <div class="flex border-b border-slate-200">
                         <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">이름(애칭) <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3"><input type="text" name="petName" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required></div>
                     </div>
-
                     <div class="flex border-b border-slate-200">
-                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">유형 <span class="text-red-500 text-xs">필수</span></div>
+                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">동물 분류 <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3">
                             <select id="modalAnimalType" name="animalId" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required>
-                                <option value="">선택해주세요</option>
+                                <option value="">선택하세요</option>
                                 <option th:each="animal : ${animalTypeList}" th:value="${animal.animalId}" th:text="${animal.animalName}"></option>
                             </select>
                         </div>
                     </div>
-
                     <div class="flex border-b border-slate-200">
-                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">품종 <span class="text-red-500 text-xs">필수</span></div>
+                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">상세 품종 <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3">
-                            <!-- 🌟 MEMBER_PET DB 컬럼명에 맞게 breedName으로 수정 -->
                             <select id="modalSubAnimalType" name="breedName" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required>
-                                <option value="">유형을 먼저 선택해주세요</option>
+                                <option value="">분류를 먼저 선택해주세요</option>
                             </select>
                         </div>
                     </div>
-
                     <div class="flex border-b border-slate-200">
                         <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">성별 <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3">
                             <select name="gender" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required>
-                                <option value="M">남</option>
-                                <option value="F">여</option>
-                                <option value="NM">남(중성화)</option>
-                                <option value="NF">여(중성화)</option>
+                                <option value="M">수컷</option>
+                                <option value="F">암컷</option>
+                                <option value="NM">수컷(중성화)</option>
+                                <option value="NF">암컷(중성화)</option>
                             </select>
                         </div>
                     </div>
-
                     <div class="flex border-b border-slate-200">
-                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">생일 <span class="text-red-500 text-xs">필수</span></div>
+                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">생년월일 <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3">
                             <input type="date" name="birthDate" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required>
                         </div>
                     </div>
-
                     <div class="flex border-b border-slate-200">
                         <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">몸무게 <span class="text-red-500 text-xs">필수</span></div>
                         <div class="flex-1 p-3 flex items-center gap-2">
-                            <!-- 🌟 마이너스 원천 차단! min="0"과 oninput 로직 추가 -->
                             <input type="number" step="0.1" min="0" max="150" name="weight" placeholder="예: 4.5"
                                    oninput="if(this.value < 0) this.value = Math.abs(this.value);"
                                    class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500" required> kg
                         </div>
                     </div>
-
                     <div class="flex border-b border-slate-200">
-                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">사진 <span class="text-slate-400 text-xs">선택</span></div>
+                        <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">프로필 사진 <span class="text-slate-400 text-xs">선택</span></div>
                         <div class="flex-1 p-3">
                             <input type="file" name="file" accept="image/*" class="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
                         </div>
                     </div>
-
                     <div class="flex border-b border-slate-200">
                         <div class="w-32 bg-slate-50 p-4 font-bold text-slate-700 flex items-center justify-between">등록번호 <span class="text-slate-400 text-xs">선택</span></div>
                         <div class="flex-1 p-3">
-                            <!-- 🌟 MEMBER_PET DB 컬럼명에 맞게 registrationNo로 수정 -->
-                            <input type="text" name="registrationNo" placeholder="동물등록번호 15자리 입력" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500">
+                            <input type="text" name="registrationNo" maxlength="15" placeholder="동물등록번호 최대 15자리" class="w-full sm:w-1/2 border border-slate-300 p-2 rounded outline-none focus:border-sky-500">
                         </div>
                     </div>
                 </div>
@@ -260,7 +232,134 @@
 <script th:inline="javascript">
     const subAnimalList = /*[[${subAnimalTypeList}]]*/ [];
 </script>
-<script th:src="@{/js/hospital/search.js?v=4}"></script>
 
+<script>
+    function openPetModalForAdd() {
+        document.getElementById('petRegForm').reset();
+        document.getElementById('petIdInput').value = '0';
+        document.getElementById('modalSubAnimalType').innerHTML = '<option value="">분류를 먼저 선택해주세요</option>';
+        document.getElementById('petModal').classList.remove('hidden');
+        document.getElementById('petModal').classList.add('flex');
+    }
+
+    function closePetModal() {
+        document.getElementById('petModal').classList.add('hidden');
+        document.getElementById('petModal').classList.remove('flex');
+    }
+
+    function loadPetModal(button) {
+        document.getElementById('petIdInput').value = button.getAttribute('data-id');
+        document.querySelector('#petRegForm input[name="petName"]').value = button.getAttribute('data-name');
+        document.getElementById('modalAnimalType').value = button.getAttribute('data-animal');
+
+        fillModalBreeds(button.getAttribute('data-breed'));
+
+        document.querySelector('#petRegForm select[name="gender"]').value = button.getAttribute('data-gender');
+        document.querySelector('#petRegForm input[name="birthDate"]').value = button.getAttribute('data-birth');
+        document.querySelector('#petRegForm input[name="weight"]').value = button.getAttribute('data-weight');
+        document.querySelector('#petRegForm input[name="registrationNo"]').value = button.getAttribute('data-reg') || '';
+
+        document.getElementById('petModal').classList.remove('hidden');
+        document.getElementById('petModal').classList.add('flex');
+    }
+
+    function fillModalBreeds(selectedBreed) {
+        const animalId = document.getElementById('modalAnimalType').value;
+        const breedSelect = document.getElementById('modalSubAnimalType');
+        breedSelect.innerHTML = '<option value="">선택</option>';
+
+        if (typeof subAnimalList !== 'undefined') {
+            subAnimalList.filter(item => String(item.parentId) === String(animalId)).forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.animalName;
+                option.textContent = item.animalName;
+                if(item.animalName === selectedBreed) option.selected = true;
+                breedSelect.appendChild(option);
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnClose = document.getElementById('btnClosePetModal');
+        const btnCancel = document.getElementById('btnCancelPetModal');
+        if (btnClose) btnClose.addEventListener('click', closePetModal);
+        if (btnCancel) btnCancel.addEventListener('click', closePetModal);
+
+        document.getElementById('modalAnimalType').addEventListener('change', () => fillModalBreeds(''));
+
+        const petSelectBtns = document.querySelectorAll('.btn-select-pet');
+        petSelectBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const animalId = this.getAttribute('data-animal-id');
+                let subId = this.getAttribute('data-sub-animal-id');
+                if (subId === 'null' || subId === 'undefined' || !subId) {
+                    subId = '';
+                }
+
+                document.getElementById('searchAnimalId').value = animalId;
+                document.getElementById('searchSubAnimalId').value = subId;
+
+                document.querySelectorAll('#myPetListArea > div').forEach(el => el.classList.remove('border-sky-500', 'bg-sky-50'));
+                this.closest('div.bg-white').classList.add('border-sky-500', 'bg-sky-50');
+
+                if (typeof toggleStep === 'function') {
+                    toggleStep('step2');
+                }
+                fetchDynamicResults();
+            });
+        });
+
+        // 🌟 추가된 진료과목 필터(.step2-subject-chk) 리스너에 등록
+        const formElements = document.querySelectorAll('.step2-service-chk, .step3-district-chk, .step2-subject-chk');
+        formElements.forEach(el => {
+            el.addEventListener('change', fetchDynamicResults);
+        });
+
+        const seoulAllSearch = document.getElementById('seoulAllSearch');
+        if(seoulAllSearch) {
+            seoulAllSearch.addEventListener('change', function() {
+                const districtChks = document.querySelectorAll('input[name="districts"]');
+                districtChks.forEach(chk => chk.checked = this.checked);
+                fetchDynamicResults();
+            });
+        }
+
+        document.getElementById('ajaxDynamicResult').addEventListener('click', function(e) {
+            const detailLink = e.target.closest('.go-detail-link');
+            if (detailLink && detailLink.getAttribute('data-url')) {
+                location.href = detailLink.getAttribute('data-url');
+            }
+        });
+    });
+
+    function fetchDynamicResults() {
+        const form = document.getElementById('customSearchForm');
+        const formData = new FormData(form);
+        const searchParams = new URLSearchParams(formData);
+
+        if(!searchParams.get('animalId')) return;
+
+        const resultArea = document.getElementById('ajaxDynamicResult');
+        resultArea.classList.remove('hidden');
+        resultArea.innerHTML = '<div class="text-center py-10 text-slate-500 font-bold">맞춤 병원을 불러오는 중입니다...</div>';
+
+        fetch('/hospital/list/ajax?' + searchParams.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(res => res.text())
+            .then(html => {
+                resultArea.innerHTML = html;
+                resultArea.classList.add('bg-white', 'p-6', 'rounded-xl', 'border', 'border-slate-200', 'shadow-sm');
+            })
+            .catch(err => {
+                console.error(err);
+                resultArea.innerHTML = '<div class="text-center py-10 text-red-500 font-bold">결과를 불러오는 중 오류가 발생했습니다.</div>';
+            });
+    }
+</script>
+<script th:src="@{/js/hospital/search.js?v=4}"></script>
 </body>
 </html>

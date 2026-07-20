@@ -135,9 +135,12 @@ package com.jjang051.petcity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -162,6 +165,14 @@ public class SecurityConfig {
 */
     private final CustomAuthorizationRequestResolver
             customAuthorizationRequestResolver;
+
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder, LoginSuccessHandler loginSuccessHandler, CustomAuthorizationRequestResolver customAuthorizationRequestResolver) {
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.customUserDetailsService = customUserDetailsService;
+        this.passwordEncoder = passwordEncoder;
+        this.loginSuccessHandler = loginSuccessHandler;
+        this.customAuthorizationRequestResolver = customAuthorizationRequestResolver;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -314,7 +325,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider() {
 
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(
