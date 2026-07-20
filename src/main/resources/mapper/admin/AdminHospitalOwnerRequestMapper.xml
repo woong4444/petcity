@@ -101,37 +101,36 @@
     </select>
 
     <select id="findRequestById" resultType="AdminHospitalOwnerRequestDto">
-
         SELECT
-            HOR.REQUEST_ID AS requestId,
-            HOR.Member_id AS memberId,
-            HOR.HOSPITAL_ID AS hospitalId,
-            HOR.BUSINESS_NUMBER AS businessNumber,
-            HOR.DOCUMENT_Url AS documentUrl,
-            HOR.STATUS AS status,
-            HOR.REJECT_REASON AS rejectReason,
-            HOR.CREATED_AT AS createdAt,
-            HOR.PROCESSED_AT AS processedAt,
-            HOR.PROCESSED_BY AS processedBy,
-            HOR.APPLICANT_NAME AS applicantName,
-            HOR.HOSPITAL_NAME AS hospitalName,
-            HOR.HOSPITAL_PHONE AS hospitalPhone,
-            HOR.HOSPITAL_ADDRESS AS hospitalAddress,
-            HOR.HOSPITAL_DETAIL_ADDRESS AS hospitalDetailAddress,
-            HOR.HOSPITAL_DISTRICT AS hospitalDistrict,
-            HOR.HOSPITAL_WEBSITE_URL AS hospitalWebsiteUrl,
-            HOR.HOSPITAL_LATITUDE AS hospitalLatitude,
-            HOR.HOSPITAL_LONGITUDE AS hospitalLongitude,
-            HOR.HOSPITAL_OPEN_TIME AS hospitalOpenTime,
-            HOR.HOSPITAL_CLOSE_TIME AS hospitalCloseTime,
-            HOR.HOSPITAL_BREAK_TIME AS hospitalBreakTime,
-            HOR.HOSPITAL_CLOSED_DAYS AS hospitalClosedDays,
-            HOR.HOSPITAL_DOCTOR_INFO AS hospitalDoctorInfo,
-            HOR.HOSPITAL_DESCRIPTION AS hospitalDescription,
-            HOR.HOSPITAL_IMAGE_URL AS hospitalImageUrl,
-            HOR.HOSPITAL_NOTE AS hospitalNote,
-            M.LOGIN_ID AS loginId,
-            M.NICKNAME AS nickname
+        HOR.REQUEST_ID AS requestId,
+        HOR.Member_id AS memberId,
+        HOR.HOSPITAL_ID AS hospitalId,
+        HOR.BUSINESS_NUMBER AS businessNumber,
+        HOR.DOCUMENT_Url AS documentUrl,
+        HOR.STATUS AS status,
+        HOR.REJECT_REASON AS rejectReason,
+        HOR.CREATED_AT AS createdAt,
+        HOR.PROCESSED_AT AS processedAt,
+        HOR.PROCESSED_BY AS processedBy,
+        HOR.APPLICANT_NAME AS applicantName,
+        HOR.HOSPITAL_NAME AS hospitalName,
+        HOR.HOSPITAL_PHONE AS hospitalPhone,
+        HOR.HOSPITAL_ADDRESS AS hospitalAddress,
+        HOR.HOSPITAL_DETAIL_ADDRESS AS hospitalDetailAddress,
+        HOR.HOSPITAL_DISTRICT AS hospitalDistrict,
+        HOR.HOSPITAL_WEBSITE_URL AS hospitalWebsiteUrl,
+        HOR.HOSPITAL_LATITUDE AS hospitalLatitude,
+        HOR.HOSPITAL_LONGITUDE AS hospitalLongitude,
+        HOR.HOSPITAL_OPEN_TIME AS hospitalOpenTime,
+        HOR.HOSPITAL_CLOSE_TIME AS hospitalCloseTime,
+        HOR.HOSPITAL_BREAK_TIME AS hospitalBreakTime,
+        HOR.HOSPITAL_CLOSED_DAYS AS hospitalClosedDays,
+        HOR.HOSPITAL_DOCTOR_INFO AS hospitalDoctorInfo,
+        HOR.HOSPITAL_DESCRIPTION AS hospitalDescription,
+        HOR.HOSPITAL_IMAGE_URL AS hospitalImageUrl,
+        HOR.HOSPITAL_NOTE AS hospitalNote,
+        M.LOGIN_ID AS loginId,
+        M.NICKNAME AS nickname
         FROM HOSPITAL_OWNER_REQUEST HOR
         JOIN APP_MEMBER M
         ON HOR.MEMBER_ID = M.MEMBER_ID
@@ -139,12 +138,11 @@
     </select>
 
 
-
     <select id="findAnimalNamesByRequestId" resultType="string">
         SELECT AT.ANIMAL_NAME
         FROM OWNER_REQUEST_ANIMAL ORA
         JOIN ANIMAL_TYPE AT
-            ON ORA.ANIMAL_ID = AT.ANIMAL_ID
+        ON ORA.ANIMAL_ID = AT.ANIMAL_ID
         WHERE ORA.REQUEST_ID = #{requestId}
         ORDER BY AT.ANIMAL_ID
     </select>
@@ -166,5 +164,146 @@
         WHERE ORMS.REQUEST_ID = #{requestId}
         ORDER BY MS.SUBJECT_ID
     </select>
+
+    <select id="findRequestForUpdateById" resultType="AdminHospitalOwnerRequestDto">
+        SELECT
+        REQUEST_ID AS requestId,
+        MEMBER_ID AS memberId,
+        HOSPITAL_ID AS hospitalId,
+        STATUS AS status
+        FROM HOSPITAL_OWNER_REQUEST
+        WHERE REQUEST_ID = #{requestId}
+        FOR UPDATE
+    </select>
+
+    <select id="getNextHospitalId" resultType="long">
+        SELECT SEQ_HOSPITAL.NEXTVAL
+        from dual
+    </select>
+
+    <insert id="insertHospitalFromRequest">
+        INSERT INTO HOSPITAL (
+        HOSPITAL_ID,
+        OWNER_ID,
+        NAME,
+        ADDRESS,
+        DETAIL_ADDRESS,
+        PHONE,
+        LATITUDE,
+        LONGITUDE,
+        OPEN_TIME,
+        CLOSE_TIME,
+        BREAK_TIME,
+        CLOSED_DAYS,
+        STATUS,
+        DESCRIPTION,
+        IMAGE_URL,
+        WEBSITE_URL,
+        DISTRICT,
+        DOCTOR_INFO,
+        OWNER_NAME,
+        NOTE,
+        CREATED_AT,
+        UPDATED_AT
+        )
+        SELECT
+        #{hospitalId},
+        HOR.MEMBER_ID,
+        HOR.HOSPITAL_NAME,
+        HOR.HOSPITAL_ADDRESS,
+        HOR.HOSPITAL_DETAIL_ADDRESS,
+        HOR.HOSPITAL_PHONE,
+        HOR.HOSPITAL_LATITUDE,
+        HOR.HOSPITAL_LONGITUDE,
+        HOR.HOSPITAL_OPEN_TIME,
+        HOR.HOSPITAL_CLOSE_TIME,
+        HOR.HOSPITAL_BREAK_TIME,
+        HOR.HOSPITAL_CLOSED_DAYS,
+        'OPEN',
+        HOR.HOSPITAL_DESCRIPTION,
+        HOR.HOSPITAL_IMAGE_URL,
+        HOR.HOSPITAL_WEBSITE_URL,
+        HOR.HOSPITAL_DISTRICT,
+        HOR.HOSPITAL_DOCTOR_INFO,
+        HOR.APPLICANT_NAME,
+        HOR.HOSPITAL_NOTE,
+        SYSTIMESTAMP,
+        SYSTIMESTAMP
+        FROM HOSPITAL_OWNER_REQUEST HOR
+        WHERE HOR.REQUEST_ID = #{requestId}
+        AND HOR.STATUS = 'PENDING'
+        AND HOR.HOSPITAL_ID IS NULL
+    </insert>
+
+    <insert id="insertHospitalAnimalsFromRequest">
+        INSERT INTO HOSPITAL_ANIMAL(
+        HOSPITAL_ID,
+        ANIMAL_ID
+        )
+        SELECT DISTINCT
+        #{hospitalId},
+        ORA.ANIMAL_ID
+        FROM OWNER_REQUEST_ANIMAL ORA
+        WHERE ORA.REQUEST_ID = #{requestId}
+    </insert>
+
+    <insert id="insertHospitalServicesFromRequest">
+        INSERT INTO HOSPITAL_SERVICE (
+        HOSPITAL_ID,
+        SERVICE_ID
+        )
+        SELECT DISTINCT
+        #{hospitalId},
+        ORS.SERVICE_ID
+        FROM OWNER_REQUEST_SERVICE ORS
+        WHERE ORS.REQUEST_ID = #{requestId}
+    </insert>
+
+    <insert id="insertHospitalMedicalSubjectsFromRequest">
+        INSERT INTO HOSPITAL_MEDICAL_SUBJECT (
+        HOSPITAL_ID,
+        SUBJECT_ID
+        )
+        SELECT DISTINCT
+        #{hospitalId},
+        ORMS.SUBJECT_ID
+        FROM OWNER_REQUEST_MEDICAL_SUBJECT ORMS
+        WHERE ORMS.REQUEST_ID = #{requestId}
+    </insert>
+
+    <update id="updateMemberRoleToOwner">
+        UPDATE APP_MEMBER
+        SET ROLE = 'OWNER',
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE MEMBER_ID = #{memberId}
+        AND ROLE != 'ADMIN'
+        AND STATUS = 'ACTIVE'
+        AND MEMBER_STATUS = 'ACTIVE'
+    </update>
+
+    <update id="approveOwnerRequest">
+        UPDATE HOSPITAL_OWNER_REQUEST
+        SET
+        HOSPITAL_ID = #{hospitalId},
+        STATUS='APPROVED',
+        REJECT_REASON=NULL,
+        PROCESSED_AT = SYSTIMESTAMP,
+        PROCESSED_BY = #{processedBy}
+        WHERE REQUEST_ID = #{requestId}
+        AND STATUS = 'PENDING'
+        AND HOSPITAL_ID IS NULL
+    </update>
+
+    <update id="rejectOwnerRequest">
+        UPDATE HOSPITAL_OWNER_REQUEST
+        SET
+        STATUS='REJECTED',
+        REJECT_REASON=#{rejectReason, jdbcType=VARCHAR},
+        PROCESSED_AT = SYSTIMESTAMP,
+        PROCESSED_BY = #{processedBy}
+        WHERE REQUEST_ID = #{requestId}
+        AND STATUS = 'PENDING'
+        AND HOSPITAL_ID IS NULL
+    </update>
 
 </mapper>

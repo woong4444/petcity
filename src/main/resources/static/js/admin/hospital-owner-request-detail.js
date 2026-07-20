@@ -12,11 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const openRejectModalButton =
         document.querySelector("#openRejectModal");
 
-    const confirmApproveButton =
-        document.querySelector("#confirmApproveButton");
-
     const confirmRejectButton =
         document.querySelector("#confirmRejectButton");
+
+    const rejectForm =
+        document.querySelector("#rejectForm");
 
     const rejectReason =
         document.querySelector("#rejectReason");
@@ -27,22 +27,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const rejectErrorMessage =
         document.querySelector("#rejectErrorMessage");
 
-    const detailToast =
-        document.querySelector("#detailToast");
-
     const modalCloseButtons =
         document.querySelectorAll("[data-modal-close]");
 
     let activeModal = null;
-    let toastTimer = null;
 
     initializeHospitalMap();
     initializeHospitalImage();
 
 
-    /* =========================
-       승인 모달 열기
-       ========================= */
 
     if (openApproveModalButton !== null) {
 
@@ -56,9 +49,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* =========================
-       반려 모달 열기
-       ========================= */
 
     if (openRejectModalButton !== null) {
 
@@ -73,9 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* =========================
-       모달 닫기 버튼
-       ========================= */
 
     modalCloseButtons.forEach(function (button) {
 
@@ -92,9 +79,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    /* =========================
-       모달 바깥 클릭
-       ========================= */
 
     if (approveModal !== null) {
 
@@ -108,6 +92,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         );
     }
+
+
 
     if (rejectModal !== null) {
 
@@ -123,9 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* =========================
-       ESC 키로 모달 닫기
-       ========================= */
 
     document.addEventListener(
         "keydown",
@@ -141,9 +124,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-    /* =========================
-       반려 사유 입력
-       ========================= */
 
     if (rejectReason !== null) {
 
@@ -181,45 +161,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* =========================
-       승인 확인
-       ========================= */
 
-    if (confirmApproveButton !== null) {
+    if (
+        rejectForm !== null &&
+        rejectReason !== null
+    ) {
 
-        confirmApproveButton.addEventListener(
-            "click",
-            function () {
-
-                closeModal(approveModal);
-
-                showToast(
-                    "승인 화면 동작을 확인했습니다. " +
-                    "백엔드 연결 후 실제 승인 처리가 실행됩니다."
-                );
-            }
-        );
-    }
-
-
-    /* =========================
-       반려 확인
-       ========================= */
-
-    if (confirmRejectButton !== null) {
-
-        confirmRejectButton.addEventListener(
-            "click",
-            function () {
-
-                if (rejectReason === null) {
-                    return;
-                }
+        rejectForm.addEventListener(
+            "submit",
+            function (event) {
 
                 const reason =
                     rejectReason.value.trim();
 
                 if (reason === "") {
+
+                    event.preventDefault();
 
                     rejectReason.classList.add(
                         "is-invalid"
@@ -229,25 +186,17 @@ document.addEventListener("DOMContentLoaded", function () {
                         rejectErrorMessage.hidden = false;
                     }
 
+                    if (confirmRejectButton !== null) {
+                        confirmRejectButton.disabled = true;
+                    }
+
                     rejectReason.focus();
-
-                    return;
                 }
-
-                closeModal(rejectModal);
-
-                showToast(
-                    "반려 화면 동작을 확인했습니다. " +
-                    "백엔드 연결 후 반려 사유가 저장됩니다."
-                );
             }
         );
     }
 
 
-    /* =========================
-       모달 열기
-       ========================= */
 
     function openModal(modal) {
 
@@ -261,12 +210,18 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.classList.add(
             "modal-open"
         );
+
+        const firstInput =
+            modal.querySelector(
+                "textarea, button"
+            );
+
+        if (firstInput !== null) {
+            firstInput.focus();
+        }
     }
 
 
-    /* =========================
-       모달 닫기
-       ========================= */
 
     function closeModal(modal) {
 
@@ -289,9 +244,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* =========================
-       반려 모달 초기화
-       ========================= */
 
     function resetRejectModal() {
 
@@ -317,41 +269,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-
-    /* =========================
-       안내 메시지
-       ========================= */
-
-    function showToast(message) {
-
-        if (detailToast === null) {
-            return;
-        }
-
-        if (toastTimer !== null) {
-            clearTimeout(toastTimer);
-        }
-
-        detailToast.textContent = message;
-        detailToast.hidden = false;
-
-        toastTimer = setTimeout(
-            function () {
-
-                detailToast.hidden = true;
-                toastTimer = null;
-
-            },
-            3000
-        );
-    }
-
 });
 
 
-/* =========================
-   카카오 지도 초기화
-   ========================= */
 
 function initializeHospitalMap() {
 
@@ -421,6 +341,7 @@ function initializeHospitalMap() {
 
         const informationContent = `
             <div class="map-information-window">
+
                 <strong>
                     ${escapeHtml(hospitalName)}
                 </strong>
@@ -428,6 +349,7 @@ function initializeHospitalMap() {
                 <span>
                     ${escapeHtml(hospitalAddress)}
                 </span>
+
             </div>
         `;
 
@@ -461,12 +383,14 @@ function initializeHospitalMap() {
             kakao.maps.ControlPosition.RIGHT
         );
 
-        setTimeout(function () {
+        setTimeout(
+            function () {
 
-            map.relayout();
-            map.setCenter(hospitalPosition);
-
-        }, 100);
+                map.relayout();
+                map.setCenter(hospitalPosition);
+            },
+            100
+        );
     });
 
 
@@ -481,9 +405,6 @@ function initializeHospitalMap() {
 }
 
 
-/* =========================
-   이미지 로딩 실패 처리
-   ========================= */
 
 function initializeHospitalImage() {
 
@@ -518,9 +439,6 @@ function initializeHospitalImage() {
 }
 
 
-/* =========================
-   지도 말풍선 문자열 보호
-   ========================= */
 
 function escapeHtml(value) {
 

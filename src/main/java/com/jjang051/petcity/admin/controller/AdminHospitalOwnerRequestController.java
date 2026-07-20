@@ -9,10 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -62,6 +60,42 @@ public class AdminHospitalOwnerRequestController {
 
         return "admin/hospital-owner-request-detail";
     }
+
+    @PostMapping("/hospital-owner-requests/{requestId}/approve")
+    public String approveRequest(@PathVariable("requestId") Long requestId, HttpSession session, RedirectAttributes redirectAttributes) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        String redirectUrl = checkAdminAccess(loginMember);
+        if (redirectUrl != null) {
+            return redirectUrl;
+        }
+        try {
+            adminHospitalOwnerRequestService.approveRequest(requestId, loginMember.getMemberId());
+
+            redirectAttributes.addFlashAttribute("successMessage", "병원장 신청이 승인되었습니다.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/hospital-owner-requests/" + requestId;
+    }
+
+    @PostMapping("/hospital-owner-requests/{requestId}/reject")
+    public String rejectRequest(@PathVariable("requestId") Long requestId,@RequestParam("rejectReason") String rejectReason,
+                                HttpSession session, RedirectAttributes redirectAttributes) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        String redirectUrl = checkAdminAccess(loginMember);
+        if (redirectUrl != null) {
+            return redirectUrl;
+        }
+        try {
+            adminHospitalOwnerRequestService.rejectRequest(requestId, loginMember.getMemberId(), rejectReason);
+            redirectAttributes.addFlashAttribute("successMessage", "병원장 신청이 반려되었습니다.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/hospital-owner-requests/" + requestId;
+    }
+
+
 
     private String checkAdminAccess(MemberDto loginMember) {
         if (loginMember == null) {
