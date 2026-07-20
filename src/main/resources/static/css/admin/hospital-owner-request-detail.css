@@ -1,0 +1,978 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.is-hidden {
+    display: none !important;
+}
+
+body {
+    margin: 0;
+
+    color: #253248;
+    background-color: #f4f7fb;
+
+    font-family:
+            Pretendard,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+button,
+textarea {
+    font: inherit;
+}
+
+button {
+    border: 0;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/*
+    sticky가 다른 관리자 CSS의 overflow 영향을 받지 않게 함
+*/
+.admin-layout,
+.admin-main,
+.request-detail-main,
+.request-detail-container,
+.request-detail-layout {
+    overflow: visible !important;
+}
+
+.request-detail-main {
+    min-width: 0;
+    padding: 34px 38px 70px;
+}
+
+.request-detail-container {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.detail-page-header {
+    margin-bottom: 24px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 16px;
+
+    color: #6d798b;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.back-link:hover {
+    color: #347fe8;
+}
+
+.detail-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.detail-page-title {
+    margin: 0 0 8px;
+
+    color: #172033;
+
+    font-size: 29px;
+    font-weight: 800;
+}
+
+.detail-page-description {
+    margin: 0;
+
+    color: #7c8899;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.detail-summary {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    margin-top: 17px;
+
+    color: #7a8698;
+
+    font-size: 12px;
+}
+
+.detail-summary strong {
+    margin-left: 5px;
+
+    color: #39475c;
+}
+
+.summary-divider {
+    width: 1px;
+    height: 12px;
+
+    background-color: #d5dce6;
+}
+
+.request-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 92px;
+    height: 32px;
+    padding: 0 13px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.status-pending {
+    color: #a36116;
+    background-color: #fff0d8;
+}
+
+.status-approved {
+    color: #14734d;
+    background-color: #def6e9;
+}
+
+.status-rejected {
+    color: #b33d3d;
+    background-color: #ffe8e8;
+}
+
+.request-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    align-items: start;
+    gap: 24px;
+}
+
+.request-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    min-width: 0;
+}
+
+.detail-card {
+    min-width: 0;
+    padding: 25px 27px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e1e7ef;
+    border-radius: 14px;
+
+    box-shadow: 0 8px 24px rgba(31, 48, 75, 0.04);
+}
+
+.detail-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid #edf1f6;
+}
+
+.detail-card-title {
+    margin: 0 0 6px;
+
+    color: #202c40;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.detail-card-description {
+    margin: 0;
+
+    color: #8792a3;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 30px;
+
+    margin: 0;
+}
+
+.detail-info-item {
+    min-width: 0;
+    padding: 16px 0;
+
+    border-bottom: 1px solid #f0f3f7;
+}
+
+.detail-info-wide {
+    grid-column: 1 / -1;
+}
+
+.detail-info-item dt {
+    margin-bottom: 7px;
+
+    color: #8b96a6;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.detail-info-item dd {
+    overflow-wrap: anywhere;
+
+    margin: 0;
+
+    color: #2b384c;
+
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.document-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 12px;
+
+    color: #347fe8;
+    background-color: #edf5ff;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.external-link {
+    color: #347fe8;
+}
+
+.document-link:hover,
+.external-link:hover {
+    text-decoration: underline;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.information-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 34px;
+    padding: 0 14px;
+
+    color: #315d94;
+    background-color: #edf5ff;
+
+    border: 1px solid #d7e9ff;
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.service-tag {
+    color: #41704f;
+    background-color: #edf8f0;
+
+    border-color: #d9eddd;
+}
+
+.subject-tag {
+    color: #72539a;
+    background-color: #f4edff;
+
+    border-color: #e4d6f7;
+}
+
+.empty-information-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 100px;
+    padding: 24px;
+
+    color: #7c8899;
+    background-color: #f8fafc;
+
+    border: 1px dashed #d7dee8;
+    border-radius: 11px;
+
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.long-text-section + .long-text-section {
+    margin-top: 20px;
+    padding-top: 20px;
+
+    border-top: 1px solid #edf1f6;
+}
+
+.long-text-section h4 {
+    margin: 0 0 10px;
+
+    color: #6e7b8e;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.long-text-section p {
+    margin: 0;
+
+    color: #344156;
+
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-line;
+}
+
+/* 카카오 지도 */
+.map-card {
+    padding: 16px;
+}
+
+.hospital-map {
+    width: 100%;
+    height: 390px;
+
+    overflow: hidden;
+
+    background-color: #edf1f6;
+
+    border: 1px solid #dce3ed;
+    border-radius: 12px;
+}
+
+.map-error-message {
+    margin: 12px 0 0;
+
+    color: #d74747;
+
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.map-information-window {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    min-width: 180px;
+    max-width: 240px;
+    padding: 10px 13px;
+
+    color: #273449;
+    background-color: #ffffff;
+
+    text-align: center;
+}
+
+.map-information-window strong {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.map-information-window span {
+    color: #768296;
+
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+/* 대표 이미지 */
+.hospital-image-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 300px;
+
+    overflow: hidden;
+
+    background-color: #f8fafc;
+
+    border: 1px solid #e5eaf1;
+    border-radius: 12px;
+}
+
+.hospital-preview-image {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+    max-height: 620px;
+
+    margin: 0 auto;
+
+    object-fit: contain;
+    object-position: center;
+}
+
+.hospital-image-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 100%;
+    min-height: 300px;
+    padding: 30px;
+
+    color: #8792a3;
+
+    text-align: center;
+}
+
+.image-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+    margin-bottom: 14px;
+
+    color: #9aa5b5;
+    background-color: #e9eef5;
+
+    border-radius: 12px;
+
+    font-size: 22px;
+}
+
+.hospital-image-empty strong {
+    margin-bottom: 7px;
+
+    color: #566377;
+
+    font-size: 13px;
+}
+
+/* 오른쪽 신청 처리 카드 */
+.request-action-column {
+    position: sticky;
+    top: 24px;
+
+    align-self: start;
+
+    height: max-content;
+
+    z-index: 20;
+}
+
+.action-card {
+    padding: 23px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dce4ee;
+    border-radius: 14px;
+
+    box-shadow: 0 10px 28px rgba(31, 48, 75, 0.07);
+}
+
+.action-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    margin-bottom: 19px;
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid #edf1f6;
+}
+
+.action-card-header h3 {
+    margin: 0;
+
+    color: #202c40;
+
+    font-size: 17px;
+}
+
+.action-summary-list {
+    margin: 0;
+}
+
+.action-summary-list div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #f0f3f7;
+}
+
+.action-summary-list dt {
+    color: #8b96a6;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.action-summary-list dd {
+    margin: 0;
+
+    color: #334155;
+
+    font-size: 12px;
+    font-weight: 800;
+    text-align: right;
+}
+
+.action-guide {
+    margin: 19px 0;
+    padding: 15px;
+
+    color: #6f7c8e;
+    background-color: #f6f9fd;
+
+    border: 1px solid #e5ebf3;
+    border-radius: 10px;
+}
+
+.action-guide strong {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #445267;
+
+    font-size: 12px;
+}
+
+.action-guide p {
+    margin: 0;
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.approve-button,
+.reject-button {
+    width: 100%;
+    height: 43px;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+.approve-button {
+    color: #ffffff;
+    background-color: #347fe8;
+}
+
+.approve-button:hover {
+    background-color: #286fce;
+}
+
+.reject-button {
+    color: #b43b3b;
+    background-color: #fff1f1;
+
+    border: 1px solid #ffd9d9;
+}
+
+.reject-button:hover {
+    background-color: #ffe7e7;
+}
+
+.processed-information {
+    margin-top: 18px;
+    padding: 15px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.approved-information {
+    color: #14734d;
+    background-color: #e5f7ed;
+}
+
+.rejected-information {
+    color: #a43b3b;
+    background-color: #fff0f0;
+}
+
+.rejected-information strong {
+    display: block;
+
+    margin-bottom: 7px;
+}
+
+.rejected-information p {
+    margin: 0;
+}
+
+/* 모달 */
+.modal-overlay {
+    position: fixed;
+    z-index: 2000;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background-color: rgba(20, 31, 48, 0.52);
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 520px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dce3ed;
+    border-radius: 15px;
+
+    box-shadow: 0 24px 70px rgba(17, 29, 48, 0.23);
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 23px 24px 19px;
+
+    border-bottom: 1px solid #edf1f6;
+}
+
+.modal-header h3 {
+    margin: 7px 0 0;
+
+    color: #202c40;
+
+    font-size: 18px;
+}
+
+.modal-label {
+    display: inline-flex;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.approve-label {
+    color: #176f4c;
+    background-color: #e1f5e9;
+}
+
+.reject-label {
+    color: #b03c3c;
+    background-color: #ffe9e9;
+}
+
+.modal-close-button {
+    width: 34px;
+    height: 34px;
+
+    color: #7b8797;
+    background-color: #f3f6fa;
+
+    border-radius: 8px;
+
+    font-size: 21px;
+
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 23px 24px;
+}
+
+.modal-description {
+    margin: 0;
+
+    color: #667386;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.approval-result-list {
+    margin: 18px 0 0;
+    padding: 15px 17px 15px 34px;
+
+    color: #4d5b70;
+    background-color: #f7f9fc;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    line-height: 2;
+}
+
+.reject-reason-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 9px;
+
+    color: #445267;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.reject-reason-label span {
+    color: #d74747;
+
+    font-size: 10px;
+}
+
+.reject-reason-textarea {
+    display: block;
+    resize: vertical;
+
+    width: 100%;
+    min-height: 145px;
+    padding: 14px 15px;
+
+    color: #2e3b4f;
+
+    border: 1px solid #d8e0ea;
+    border-radius: 9px;
+    outline: none;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.reject-reason-textarea:focus {
+    border-color: #5f9bec;
+
+    box-shadow: 0 0 0 3px rgba(52, 127, 232, 0.11);
+}
+
+.reject-reason-textarea.is-invalid {
+    border-color: #df6262;
+}
+
+.textarea-information {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 8px;
+
+    color: #8a95a5;
+
+    font-size: 10px;
+}
+
+.reject-error-message {
+    margin: 0;
+
+    color: #d74747;
+
+    font-weight: 700;
+}
+
+.textarea-information > span {
+    margin-left: auto;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+
+    padding: 17px 24px;
+
+    background-color: #f8fafc;
+
+    border-top: 1px solid #edf1f6;
+    border-radius: 0 0 15px 15px;
+}
+
+.modal-cancel-button,
+.modal-approve-button,
+.modal-reject-button {
+    min-width: 88px;
+    height: 39px;
+    padding: 0 16px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+.modal-cancel-button {
+    color: #59667a;
+    background-color: #e9eef5;
+}
+
+.modal-approve-button {
+    color: #ffffff;
+    background-color: #347fe8;
+}
+
+.modal-reject-button {
+    color: #ffffff;
+    background-color: #d94c4c;
+}
+
+.modal-reject-button:disabled {
+    color: #9ba5b4;
+    background-color: #e4e8ee;
+
+    cursor: not-allowed;
+}
+
+.detail-toast {
+    position: fixed;
+    z-index: 3000;
+    right: 28px;
+    bottom: 28px;
+
+    max-width: 390px;
+    padding: 14px 17px;
+
+    color: #ffffff;
+    background-color: #263449;
+
+    border-radius: 9px;
+
+    box-shadow: 0 12px 32px rgba(23, 36, 57, 0.23);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+@media (max-width: 1180px) {
+
+    .request-detail-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .request-action-column {
+        position: static;
+
+        width: 100%;
+    }
+}
+
+@media (max-width: 760px) {
+
+    .request-detail-main {
+        padding: 24px 18px 50px;
+    }
+
+    .detail-title-row {
+        flex-direction: column;
+    }
+
+    .detail-info-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .detail-info-wide {
+        grid-column: auto;
+    }
+
+    .detail-card {
+        padding: 22px 19px;
+    }
+
+    .map-card {
+        padding: 12px;
+    }
+
+    .hospital-map {
+        height: 300px;
+    }
+
+    .hospital-preview-image {
+        max-height: 460px;
+    }
+
+    .modal-overlay {
+        padding: 14px;
+    }
+
+    .modal-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

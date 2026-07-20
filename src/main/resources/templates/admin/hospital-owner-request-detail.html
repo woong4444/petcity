@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>병원장 신청 상세</title>
+
+    <!-- 관리자 사이드바 CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <!-- 병원장 신청 상세 CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/admin/hospital-owner-request-detail.css}">
+
+    <!-- 관리자 사이드바 JS -->
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+
+    <!-- 카카오 지도 SDK -->
+    <script th:src="|https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJavascriptKey}&libraries=services&autoload=false|">
+    </script>
+
+    <!-- 병원장 신청 상세 JS -->
+    <script defer
+            th:src="@{/js/admin/hospital-owner-request-detail.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- 관리자 사이드바 -->
+    <th:block
+            th:replace="~{admin/fragments/sidebar
+                :: sidebar('ownerRequests')}">
+    </th:block>
+
+    <main class="admin-main request-detail-main"
+          id="requestDetailPage"
+          th:attr="data-request-id=${request.requestId},
+                   data-request-status=${request.status}">
+
+        <div class="request-detail-container">
+
+            <!-- 페이지 상단 -->
+            <header class="detail-page-header">
+
+                <a class="back-link"
+                   th:href="@{/admin/hospital-owner-requests}">
+
+                    <span aria-hidden="true">←</span>
+                    병원장 신청 목록
+
+                </a>
+
+                <div class="detail-title-row">
+
+                    <div>
+
+                        <h2 class="detail-page-title">
+                            병원장 신청 상세
+                        </h2>
+
+                        <p class="detail-page-description">
+                            신청자가 제출한 병원 정보와 증빙 자료를 확인하고
+                            승인 또는 반려합니다.
+                        </p>
+
+                    </div>
+
+                    <span class="request-status-badge"
+                          th:classappend="${request.status != null
+                              ? ' status-' + #strings.toLowerCase(request.status)
+                              : ''}"
+                          th:text="${request.status != null
+                              ? request.status
+                              : '-'}">
+                        PENDING
+                    </span>
+
+                </div>
+
+                <div class="detail-summary">
+
+                    <span>
+                        신청 번호
+
+                        <strong th:text="|#${request.requestId}|">
+                            #1
+                        </strong>
+                    </span>
+
+                    <span class="summary-divider"></span>
+
+                    <span>
+                        신청일
+
+                        <strong th:text="${request.createdAt != null
+                            ? #temporals.format(
+                                request.createdAt,
+                                'yyyy-MM-dd HH:mm'
+                              )
+                            : '-'}">
+                            -
+                        </strong>
+                    </span>
+
+                </div>
+
+            </header>
+
+            <!-- 왼쪽 상세 정보 + 오른쪽 신청 처리 -->
+            <div class="request-detail-layout">
+
+                <!-- 왼쪽 상세 정보 -->
+                <div class="request-detail-content">
+
+                    <!-- 신청자 정보 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    신청자 정보
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    병원장 권한을 신청한 회원의 정보입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <dl class="detail-info-grid">
+
+                            <div class="detail-info-item">
+
+                                <dt>회원 번호</dt>
+
+                                <dd th:text="${request.memberId != null
+                                    ? request.memberId
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>로그인 아이디</dt>
+
+                                <dd th:text="${request.loginId != null
+                                    ? request.loginId
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>회원 닉네임</dt>
+
+                                <dd th:text="${request.nickname != null
+                                    ? request.nickname
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>신청자 이름</dt>
+
+                                <dd th:text="${request.applicantName != null
+                                    ? request.applicantName
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                        </dl>
+
+                    </section>
+
+                    <!-- 사업자 및 제출 서류 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    사업자 및 제출 서류
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    사업자 등록번호와 제출된 증빙 자료입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <dl class="detail-info-grid">
+
+                            <div class="detail-info-item">
+
+                                <dt>사업자 번호</dt>
+
+                                <dd th:text="${request.businessNumber != null
+                                    ? request.businessNumber
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>제출 서류</dt>
+
+                                <dd>
+
+                                    <a class="document-link"
+                                       th:if="${request.documentUrl != null
+                                           and not #strings.isEmpty(request.documentUrl)}"
+                                       th:href="${request.documentUrl}"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+
+                                        제출 서류 보기
+                                        <span aria-hidden="true">↗</span>
+
+                                    </a>
+
+                                    <span th:unless="${request.documentUrl != null
+                                        and not #strings.isEmpty(request.documentUrl)}">
+                                        등록된 서류가 없습니다.
+                                    </span>
+
+                                </dd>
+
+                            </div>
+
+                        </dl>
+
+                    </section>
+
+                    <!-- 병원 기본 정보 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    병원 기본 정보
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    신청자가 입력한 병원의 기본 정보입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <dl class="detail-info-grid">
+
+                            <div class="detail-info-item detail-info-wide">
+
+                                <dt>병원 이름</dt>
+
+                                <dd th:text="${request.hospitalName != null
+                                    ? request.hospitalName
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>병원 전화번호</dt>
+
+                                <dd th:text="${request.hospitalPhone != null
+                                    ? request.hospitalPhone
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>지역</dt>
+
+                                <dd th:text="${request.hospitalDistrict != null
+                                    ? request.hospitalDistrict
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item detail-info-wide">
+
+                                <dt>기본 주소</dt>
+
+                                <dd th:text="${request.hospitalAddress != null
+                                    ? request.hospitalAddress
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item detail-info-wide">
+
+                                <dt>상세 주소</dt>
+
+                                <dd th:text="${request.hospitalDetailAddress != null
+                                    ? request.hospitalDetailAddress
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item detail-info-wide">
+
+                                <dt>웹사이트</dt>
+
+                                <dd>
+
+                                    <a class="external-link"
+                                       th:if="${request.hospitalWebsiteUrl != null
+                                           and not #strings.isEmpty(request.hospitalWebsiteUrl)}"
+                                       th:href="${request.hospitalWebsiteUrl}"
+                                       th:text="${request.hospitalWebsiteUrl}"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        병원 웹사이트
+                                    </a>
+
+                                    <span th:unless="${request.hospitalWebsiteUrl != null
+                                        and not #strings.isEmpty(request.hospitalWebsiteUrl)}">
+                                        -
+                                    </span>
+
+                                </dd>
+
+                            </div>
+
+                        </dl>
+
+                    </section>
+
+                    <!-- 카카오 지도 -->
+                    <section class="detail-card map-card">
+
+                        <div id="hospitalMap"
+                             class="hospital-map"
+                             th:if="${request.hospitalLatitude != null
+                                 and request.hospitalLongitude != null}"
+                             th:attr="data-latitude=${request.hospitalLatitude},
+                                      data-longitude=${request.hospitalLongitude},
+                                      data-hospital-name=${request.hospitalName},
+                                      data-hospital-address=${request.hospitalAddress}">
+                        </div>
+
+                        <div class="empty-information-box"
+                             th:unless="${request.hospitalLatitude != null
+                                 and request.hospitalLongitude != null}">
+                            등록된 병원 위치 정보가 없습니다.
+                        </div>
+
+                        <p class="map-error-message"
+                           id="mapErrorMessage"
+                           hidden>
+                            카카오 지도를 불러오지 못했습니다.
+                        </p>
+
+                    </section>
+
+                    <!-- 병원 운영 정보 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    병원 운영 정보
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    진료 시간과 휴게 시간, 휴무일 정보입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <dl class="detail-info-grid">
+
+                            <div class="detail-info-item">
+
+                                <dt>진료 시작 시간</dt>
+
+                                <dd th:text="${request.hospitalOpenTime != null
+                                    ? request.hospitalOpenTime
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>진료 종료 시간</dt>
+
+                                <dd th:text="${request.hospitalCloseTime != null
+                                    ? request.hospitalCloseTime
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>휴게 시간</dt>
+
+                                <dd th:text="${request.hospitalBreakTime != null
+                                    ? request.hospitalBreakTime
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div class="detail-info-item">
+
+                                <dt>휴무일</dt>
+
+                                <dd th:text="${request.hospitalClosedDays != null
+                                    ? request.hospitalClosedDays
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                        </dl>
+
+                    </section>
+
+                    <!-- 진료 가능 동물 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    진료 가능 동물
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    신청자가 선택한 진료 가능 동물입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tag-list"
+                             th:if="${request.animalNames != null
+                                 and not #lists.isEmpty(request.animalNames)}">
+
+                            <span class="information-tag animal-tag"
+                                  th:each="animalName : ${request.animalNames}"
+                                  th:text="${animalName}">
+                                강아지
+                            </span>
+
+                        </div>
+
+                        <div class="empty-information-box"
+                             th:if="${request.animalNames == null
+                                 or #lists.isEmpty(request.animalNames)}">
+                            선택된 진료 가능 동물이 없습니다.
+                        </div>
+
+                    </section>
+
+                    <!-- 제공 진료 서비스 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    제공 진료 서비스
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    신청자가 선택한 병원 제공 서비스입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tag-list"
+                             th:if="${request.serviceNames != null
+                                 and not #lists.isEmpty(request.serviceNames)}">
+
+                            <span class="information-tag service-tag"
+                                  th:each="serviceName : ${request.serviceNames}"
+                                  th:text="${serviceName}">
+                                예방 접종
+                            </span>
+
+                        </div>
+
+                        <div class="empty-information-box"
+                             th:if="${request.serviceNames == null
+                                 or #lists.isEmpty(request.serviceNames)}">
+                            선택된 진료 서비스가 없습니다.
+                        </div>
+
+                    </section>
+
+                    <!-- 진료 과목 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    진료 과목
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    신청자가 선택한 병원의 전문 진료 과목입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tag-list"
+                             th:if="${request.medicalSubjectNames != null
+                                 and not #lists.isEmpty(request.medicalSubjectNames)}">
+
+                            <span class="information-tag subject-tag"
+                                  th:each="subjectName : ${request.medicalSubjectNames}"
+                                  th:text="${subjectName}">
+                                내과
+                            </span>
+
+                        </div>
+
+                        <div class="empty-information-box"
+                             th:if="${request.medicalSubjectNames == null
+                                 or #lists.isEmpty(request.medicalSubjectNames)}">
+                            선택된 진료 과목이 없습니다.
+                        </div>
+
+                    </section>
+
+                    <!-- 의료진 및 병원 소개 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    의료진 및 병원 소개
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    의료진 구성과 병원 소개 내용입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="long-text-section">
+
+                            <h4>의료진 정보</h4>
+
+                            <p th:text="${request.hospitalDoctorInfo != null
+                                ? request.hospitalDoctorInfo
+                                : '-'}">
+                                -
+                            </p>
+
+                        </div>
+
+                        <div class="long-text-section">
+
+                            <h4>병원 소개</h4>
+
+                            <p th:text="${request.hospitalDescription != null
+                                ? request.hospitalDescription
+                                : '-'}">
+                                -
+                            </p>
+
+                        </div>
+
+                        <div class="long-text-section">
+
+                            <h4>신청자 추가 메모</h4>
+
+                            <p th:text="${request.hospitalNote != null
+                                ? request.hospitalNote
+                                : '-'}">
+                                -
+                            </p>
+
+                        </div>
+
+                    </section>
+
+                    <!-- 병원 대표 이미지 -->
+                    <section class="detail-card">
+
+                        <div class="detail-card-header">
+
+                            <div>
+
+                                <h3 class="detail-card-title">
+                                    병원 대표 이미지
+                                </h3>
+
+                                <p class="detail-card-description">
+                                    신청자가 등록한 병원 대표 이미지입니다.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="hospital-image-area">
+
+                            <img class="hospital-preview-image"
+                                 id="hospitalPreviewImage"
+                                 th:if="${request.hospitalImageUrl != null
+                                     and not #strings.isEmpty(request.hospitalImageUrl)}"
+                                 th:src="${request.hospitalImageUrl}"
+                                 th:alt="${request.hospitalName != null
+                                     ? request.hospitalName + ' 대표 이미지'
+                                     : '병원 대표 이미지'}">
+
+                            <div class="hospital-image-empty"
+                                 id="hospitalImageEmpty"
+                                 th:classappend="${request.hospitalImageUrl != null
+                                     and not #strings.isEmpty(request.hospitalImageUrl)
+                                     ? ' is-hidden'
+                                     : ''}">
+
+                                <span class="image-empty-icon"
+                                      aria-hidden="true">
+                                    □
+                                </span>
+
+                                <strong>
+                                    등록된 대표 이미지가 없습니다.
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+                <!-- 오른쪽 신청 처리 카드 -->
+                <aside class="request-action-column">
+
+                    <section class="action-card">
+
+                        <div class="action-card-header">
+
+                            <h3>신청 처리</h3>
+
+                            <span class="request-status-badge"
+                                  th:classappend="${request.status != null
+                                      ? ' status-' + #strings.toLowerCase(request.status)
+                                      : ''}"
+                                  th:text="${request.status != null
+                                      ? request.status
+                                      : '-'}">
+                                PENDING
+                            </span>
+
+                        </div>
+
+                        <dl class="action-summary-list">
+
+                            <div>
+
+                                <dt>신청 번호</dt>
+
+                                <dd th:text="|#${request.requestId}|">
+                                    #1
+                                </dd>
+
+                            </div>
+
+                            <div>
+
+                                <dt>신청일</dt>
+
+                                <dd th:text="${request.createdAt != null
+                                    ? #temporals.format(
+                                        request.createdAt,
+                                        'yyyy-MM-dd HH:mm'
+                                      )
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div>
+
+                                <dt>처리일</dt>
+
+                                <dd th:text="${request.processedAt != null
+                                    ? #temporals.format(
+                                        request.processedAt,
+                                        'yyyy-MM-dd HH:mm'
+                                      )
+                                    : '-'}">
+                                    -
+                                </dd>
+
+                            </div>
+
+                            <div>
+
+                                <dt>생성 병원 번호</dt>
+
+                                <dd th:text="${request.hospitalId != null
+                                    ? request.hospitalId
+                                    : '승인 전'}">
+                                    승인 전
+                                </dd>
+
+                            </div>
+
+                        </dl>
+
+                        <div class="action-guide"
+                             th:if="${request.status == 'PENDING'}">
+
+                            <strong>
+                                승인 전 확인해 주세요.
+                            </strong>
+
+                            <p>
+                                병원 정보, 제출 서류, 진료 가능 동물,
+                                진료 서비스와 진료 과목을 확인합니다.
+                            </p>
+
+                        </div>
+
+                        <div class="action-buttons"
+                             th:if="${request.status == 'PENDING'}">
+
+                            <button type="button"
+                                    class="approve-button"
+                                    id="openApproveModal">
+                                신청 승인
+                            </button>
+
+                            <button type="button"
+                                    class="reject-button"
+                                    id="openRejectModal">
+                                신청 반려
+                            </button>
+
+                        </div>
+
+                        <div class="processed-information approved-information"
+                             th:if="${request.status == 'APPROVED'}">
+                            승인 처리가 완료된 신청입니다.
+                        </div>
+
+                        <div class="processed-information rejected-information"
+                             th:if="${request.status == 'REJECTED'}">
+
+                            <strong>반려 사유</strong>
+
+                            <p th:text="${request.rejectReason != null
+                                ? request.rejectReason
+                                : '-'}">
+                                -
+                            </p>
+
+                        </div>
+
+                    </section>
+
+                </aside>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- 승인 확인 모달 -->
+<div class="modal-overlay"
+     id="approveModal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="approveModalTitle"
+     hidden>
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="modal-label approve-label">
+                    승인
+                </span>
+
+                <h3 id="approveModalTitle">
+                    병원장 신청을 승인하시겠습니까?
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    class="modal-close-button"
+                    data-modal-close
+                    aria-label="승인 창 닫기">
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p class="modal-description">
+
+                <strong th:text="${request.hospitalName}">
+                    병원
+                </strong>
+
+                신청을 승인합니다.
+
+            </p>
+
+            <ul class="approval-result-list">
+
+                <li>병원 기본 정보 생성</li>
+                <li>진료 가능 동물 연결</li>
+                <li>진료 서비스 연결</li>
+                <li>진료 과목 연결</li>
+                <li>회원 권한을 OWNER로 변경</li>
+                <li>신청 상태를 APPROVED로 변경</li>
+
+            </ul>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button type="button"
+                    class="modal-cancel-button"
+                    data-modal-close>
+                취소
+            </button>
+
+            <button type="button"
+                    class="modal-approve-button"
+                    id="confirmApproveButton"
+                    th:attr="data-request-id=${request.requestId}">
+                승인 확인
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 반려 사유 입력 모달 -->
+<div class="modal-overlay"
+     id="rejectModal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="rejectModalTitle"
+     hidden>
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="modal-label reject-label">
+                    반려
+                </span>
+
+                <h3 id="rejectModalTitle">
+                    신청 반려 사유를 입력해 주세요.
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    class="modal-close-button"
+                    data-modal-close
+                    aria-label="반려 창 닫기">
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <label for="rejectReason"
+                   class="reject-reason-label">
+
+                반려 사유
+                <span>필수</span>
+
+            </label>
+
+            <textarea id="rejectReason"
+                      class="reject-reason-textarea"
+                      maxlength="500"
+                      placeholder="신청자가 확인할 수 있도록 구체적인 반려 사유를 입력해 주세요."></textarea>
+
+            <div class="textarea-information">
+
+                <p id="rejectErrorMessage"
+                   class="reject-error-message"
+                   hidden>
+                    반려 사유를 입력해 주세요.
+                </p>
+
+                <span>
+                    <strong id="rejectReasonLength">
+                        0
+                    </strong>
+                    / 500
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button type="button"
+                    class="modal-cancel-button"
+                    data-modal-close>
+                취소
+            </button>
+
+            <button type="button"
+                    class="modal-reject-button"
+                    id="confirmRejectButton"
+                    th:attr="data-request-id=${request.requestId}"
+                    disabled>
+                반려 처리
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="detail-toast"
+     id="detailToast"
+     role="status"
+     aria-live="polite"
+     hidden>
+</div>
+
+</body>
+</html>

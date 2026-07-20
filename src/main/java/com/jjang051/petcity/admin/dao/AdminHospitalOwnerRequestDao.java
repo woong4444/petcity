@@ -16,6 +16,13 @@ public interface AdminHospitalOwnerRequestDao {
                                                           @Param("keyword") String keyword, @Param("status") String status
     );
 
+
+    List<String> findAnimalNamesByRequestId(@Param("requestId") Long requestId);
+
+    List<String> findServiceNamesByRequestId(@Param("requestId") Long requestId);
+
+    List<String> findMedicalSubjectNamesByRequestId(@Param("requestId") Long requestId);
+
     AdminHospitalOwnerRequestDto findRequestById(@Param("requestId") Long requestId);
 
 

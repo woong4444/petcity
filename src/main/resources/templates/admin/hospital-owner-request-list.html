@@ -533,8 +533,12 @@
                                     동물병원
                                 </strong>
 
-                                <small th:text="|병원 번호 ${request.hospitalId}|">
+                                <small th:if="${request.hospitalId != null}"
+                                        th:text="|병원 번호 ${request.hospitalId}|">
                                     병원 번호 1
+                                </small>
+                                <small th:unless="${request.hospitalId != null}">
+                                    승인 전
                                 </small>
 
                             </div>
