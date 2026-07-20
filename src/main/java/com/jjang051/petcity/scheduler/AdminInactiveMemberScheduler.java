@@ -17,8 +17,18 @@ public class AdminInactiveMemberScheduler {
     //위에는 새벽 3시마다 작동 아래는 연습용 (테스트 완료 후 아래는 끄세요)
 //    @Scheduled(fixedDelay = 10000)
     public void blockInactiveMembers() {
+        int hardDeletedCount = adminInactiveMemberService.hardDeleteExpiredInactiveMembers();
+        int deletedCount = adminInactiveMemberService.markBlockedMembersAsDeleted();
         int blockedCount = adminInactiveMemberService.blockInactiveMembers();
-        log.info("1년 이상 미 로그인 회원 차단 완료 - 처리 인원: {}명", blockedCount);
+
+        log.info(
+                "장기 미로그인 회원 처리 완료 - 차단: {}명, 삭제 상태 전환: {}명, 하드 삭제: {}명",
+                blockedCount,
+                deletedCount,
+                hardDeletedCount
+        );
 
     }
+
+
 }

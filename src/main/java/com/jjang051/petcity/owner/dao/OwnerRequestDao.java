@@ -22,7 +22,7 @@ public interface OwnerRequestDao {
         을 표시하기 위해 사용
     */
     OwnerRequestDto findMemberForOwnerRequest(
-            @Param("loginId") String loginId
+            @Param("memberId") Long memberId
     );
 
 

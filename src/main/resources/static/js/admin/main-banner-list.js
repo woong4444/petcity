@@ -75,24 +75,32 @@ document.addEventListener("DOMContentLoaded", function () {
     },);
 
     if (confirmDeleteBanner !== null) {
-        confirmDeleteBanner.addEventListener("click", function () {
+        confirmDeleteBanner.addEventListener("click", async function () {
             if (deleteTargetBanner === null) {
                 return;
             }
             const bannerId = deleteTargetBanner.dataset.bannerId;
 
-            const previewSlide = document.querySelector('.swiper-slide[data-banner-id="'+bannerId+'"]',);
-            deleteTargetBanner.remove();
-            if (previewSlide!==null){
-                previewSlide.remove();
-            }
-            deleteTargetBanner=null;
+            confirmDeleteBanner.disabled = true;
+            confirmDeleteBanner.textContent="삭제 중";
+            try {
+                const response = await fetch(
+                    `/admin/main-banners/${bannerId}/delete`, {
+                        method: "POST",
+                    },
+                );
+                if (!response.ok) {
+                    throw new Error("메인 배너 삭제에 실패했습니다.",);
+                }
+                window.location.reload();
+            } catch (error){
+                alert(error.message);
 
-            updateBannerOrders();
-            updateBannerCount();
-            previewSwiper.update();
-            previewSwiper.slideTo(0);
-            closeDeleteModal();
+                confirmDeleteBanner.disabled = false;
+                confirmDeleteBanner.textContent="삭제";
+
+            }
+
         },);
     }
 
