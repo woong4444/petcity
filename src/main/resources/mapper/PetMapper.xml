@@ -8,7 +8,8 @@
         GENDER, NEUTERED, BIRTH_DATE, WEIGHT, PHOTO_URL, REGISTRATION_NO
         ) VALUES (
         SEQ_MEMBER_PET.NEXTVAL, #{memberId}, #{animalId}, #{petName}, #{breedName},
-        #{dbGender}, #{neutered}, TO_DATE(#{birthDate}, 'YYYY-MM-DD'), #{weight}, #{photoUrl}, #{registrationNo}
+        #{gender}, #{neutered}, TO_DATE(#{birthDate}, 'YYYY-MM-DD'), #{weight},
+        #{photoUrl, jdbcType=VARCHAR}, #{registrationNo, jdbcType=VARCHAR}
         )
     </insert>
 
@@ -55,4 +56,10 @@
         WHERE P.MEMBER_ID = #{memberId} AND P.STATUS = 'ACTIVE'
         ORDER BY P.IS_MAIN DESC, P.PET_ID ASC
     </select>
+
+    <!-- ★ 삭제 쿼리 추가 부분 ★ -->
+    <delete id="deletePet" parameterType="int">
+        DELETE FROM MEMBER_PET WHERE PET_ID = #{petId}
+    </delete>
+
 </mapper>

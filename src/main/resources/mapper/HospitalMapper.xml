@@ -9,6 +9,7 @@
         H.PHONE AS phone, H.DISTRICT AS district, H.LATITUDE AS latitude, H.LONGITUDE AS longitude,
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS lunchTime, H.CLOSED_DAYS AS holiday,
         H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl, H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
+        H.MEDICAL_SUBJECTS AS medicalSubjects,
         (SELECT LISTAGG(AT.ANIMAL_NAME, ', ') WITHIN GROUP (ORDER BY AT.ANIMAL_ID) FROM HOSPITAL_ANIMAL HA2 JOIN ANIMAL_TYPE AT ON HA2.ANIMAL_ID = AT.ANIMAL_ID WHERE HA2.HOSPITAL_ID = H.HOSPITAL_ID) AS animalNames,
         (SELECT LISTAGG(MS.SERVICE_NAME, ', ') WITHIN GROUP (ORDER BY MS.SERVICE_ID) FROM HOSPITAL_SERVICE HS2 JOIN MEDICAL_SERVICE MS ON HS2.SERVICE_ID = MS.SERVICE_ID WHERE HS2.HOSPITAL_ID = H.HOSPITAL_ID) AS serviceNames,
         <if test="serviceIds != null and serviceIds.size() > 0">
@@ -39,6 +40,16 @@
             <when test="subAnimalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND HA.ANIMAL_ID = #{subAnimalId})</when>
             <when test="animalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))</when>
         </choose>
+
+        <!-- 🌟 진료 과목 동적 쿼리 조건 추가 -->
+        <if test="subjects != null and subjects.size() > 0">
+            AND (
+            <foreach collection="subjects" item="subj" separator=" OR ">
+                REGEXP_LIKE(H.MEDICAL_SUBJECTS, '(^|/)' || #{subj} || '(/|$)')
+            </foreach>
+            )
+        </if>
+
         <if test="serviceIds != null and serviceIds.size() > 0">AND EXISTS (SELECT 1 FROM HOSPITAL_SERVICE HS WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID AND HS.SERVICE_ID IN <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>)</if>
         <if test="districts != null and districts.size() > 0">AND TRIM(H.DISTRICT) IN <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach></if>
         <if test="keyword != null and keyword != ''">AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')</if>
@@ -62,6 +73,16 @@
             <when test="subAnimalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND HA.ANIMAL_ID = #{subAnimalId})</when>
             <when test="animalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))</when>
         </choose>
+
+        <!-- 🌟 카운트 쿼리에도 진료 과목 조건 추가 -->
+        <if test="subjects != null and subjects.size() > 0">
+            AND (
+            <foreach collection="subjects" item="subj" separator=" OR ">
+                REGEXP_LIKE(H.MEDICAL_SUBJECTS, '(^|/)' || #{subj} || '(/|$)')
+            </foreach>
+            )
+        </if>
+
         <if test="serviceIds != null and serviceIds.size() > 0">AND EXISTS (SELECT 1 FROM HOSPITAL_SERVICE HS WHERE HS.HOSPITAL_ID = H.HOSPITAL_ID AND HS.SERVICE_ID IN <foreach collection="serviceIds" item="svcId" open="(" separator="," close=")">#{svcId}</foreach>)</if>
         <if test="districts != null and districts.size() > 0">AND TRIM(H.DISTRICT) IN <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach></if>
         <if test="keyword != null and keyword != ''">AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')</if>
@@ -72,12 +93,18 @@
     <select id="findSubAnimalTypeList" resultType="com.jjang051.petcity.hospital.dto.HospitalSubAnimalDto">SELECT ANIMAL_ID AS animalId, ANIMAL_NAME AS animalName, CATEGORY AS category, PARENT_ID AS parentId FROM ANIMAL_TYPE WHERE PARENT_ID IS NOT NULL ORDER BY ANIMAL_ID</select>
     <select id="findMedicalServiceList" resultType="com.jjang051.petcity.hospital.dto.MedicalServiceDto">SELECT SERVICE_ID AS serviceId, SERVICE_NAME AS serviceName FROM MEDICAL_SERVICE ORDER BY SERVICE_ID</select>
 
+    <!-- 🌟 진료 과목 목록 조회 쿼리 추가 -->
+    <select id="findMedicalSubjectList" resultType="string">
+        SELECT SUBJECT_NAME FROM MEDICAL_SUBJECT ORDER BY SUBJECT_ID
+    </select>
+
     <select id="findHospitalById" resultType="HospitalDto">
         SELECT
         H.HOSPITAL_ID AS hospitalId, H.OWNER_ID AS ownerId, H.NAME AS name, H.ADDRESS AS address, H.DETAIL_ADDRESS AS detailAddress,
         H.PHONE AS phone, H.DISTRICT AS district, H.LATITUDE AS latitude, H.LONGITUDE AS longitude,
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS lunchTime, H.CLOSED_DAYS AS holiday,
         H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl, H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
+        H.MEDICAL_SUBJECTS AS medicalSubjects,
         (SELECT LISTAGG(AT.ANIMAL_NAME, ', ') WITHIN GROUP (ORDER BY AT.ANIMAL_ID) FROM HOSPITAL_ANIMAL HA2 JOIN ANIMAL_TYPE AT ON HA2.ANIMAL_ID = AT.ANIMAL_ID WHERE HA2.HOSPITAL_ID = H.HOSPITAL_ID) AS animalNames,
         (SELECT LISTAGG(MS.SERVICE_NAME, ', ') WITHIN GROUP (ORDER BY MS.SERVICE_ID) FROM HOSPITAL_SERVICE HS2 JOIN MEDICAL_SERVICE MS ON HS2.SERVICE_ID = MS.SERVICE_ID WHERE HS2.HOSPITAL_ID = H.HOSPITAL_ID) AS serviceNames,
         (SELECT COUNT(*) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS reviewCount,
@@ -98,13 +125,11 @@
     <insert id="insertLike">INSERT INTO HOSPITAL_LIKE (MEMBER_ID, HOSPITAL_ID, CREATED_AT) VALUES (#{memberId}, #{hospitalId}, SYSTIMESTAMP)</insert>
     <delete id="deleteLike">DELETE FROM HOSPITAL_LIKE WHERE HOSPITAL_ID = #{hospitalId} AND MEMBER_ID = #{memberId}</delete>
 
-    <!-- 🌟 수정됨: petId가 null로 넘어올 때 발생하는 에러를 방지하기 위해 jdbcType=INTEGER 추가 -->
     <insert id="insertReview">
         INSERT INTO HOSPITAL_REVIEW (REVIEW_ID, HOSPITAL_ID, MEMBER_ID, RATING, CONTENT, CREATED_AT, PET_ID)
         VALUES (SEQ_HOSPITAL_REVIEW.NEXTVAL, #{hospitalId}, #{memberId}, #{rating}, #{content}, SYSTIMESTAMP, #{petId, jdbcType=INTEGER})
     </insert>
 
-    <!-- 답글(REPLY) 관련 컬럼 가져오기 -->
     <select id="findReviewListByHospitalId" resultType="com.jjang051.petcity.hospital.dto.HospitalReviewDto">
         SELECT R.REVIEW_ID AS reviewId, R.HOSPITAL_ID AS hospitalId, R.MEMBER_ID AS memberId,
         R.RATING AS rating, R.CONTENT AS content, R.CREATED_AT AS createdAt, M.NICKNAME AS nickname,
@@ -114,7 +139,6 @@
         WHERE R.HOSPITAL_ID = #{hospitalId} ORDER BY R.REVIEW_ID DESC
     </select>
 
-    <!-- 신규: 답글 작성 쿼리 -->
     <update id="updateReviewReply">
         UPDATE HOSPITAL_REVIEW
         SET REPLY_CONTENT = #{replyContent},
@@ -122,5 +146,18 @@
         REPLY_ROLE = #{replyRole}
         WHERE REVIEW_ID = #{reviewId}
     </update>
+
+    <update id="updateReview" parameterType="com.jjang051.petcity.hospital.dto.HospitalReviewDto">
+        UPDATE HOSPITAL_REVIEW
+        SET CONTENT = #{content},
+        CREATED_AT = SYSTIMESTAMP
+        WHERE REVIEW_ID = #{reviewId}
+        AND MEMBER_ID = #{memberId}
+    </update>
+
+    <delete id="deleteReview" parameterType="int">
+        DELETE FROM HOSPITAL_REVIEW
+        WHERE REVIEW_ID = #{reviewId}
+    </delete>
 
 </mapper>

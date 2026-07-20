@@ -19,7 +19,40 @@ public class HospitalService {
 
     private final HospitalDao hospitalDao;
 
+    // 🌟 DB에 숫자로 저장된 진료과목을 한글 이름으로 자동 변환해 주는 메서드
+    private void refineMedicalSubjects(HospitalDto h) {
+        if (h.getMedicalSubjects() == null) return;
+        String sub = h.getMedicalSubjects().trim();
+        // 만약 데이터가 순수 숫자로만 이루어져 있다면 (예: "3", "2" 등)
+        if (sub.matches("^[0-9]+$")) {
+            int id = Integer.parseInt(sub);
+            switch (id) {
+                case 1: h.setMedicalSubjects("내과"); break;
+                case 2: h.setMedicalSubjects("외과"); break;
+                case 3: h.setMedicalSubjects("정형외과"); break;
+                case 4: h.setMedicalSubjects("피부과"); break;
+                case 5: h.setMedicalSubjects("안과"); break;
+                case 6: h.setMedicalSubjects("치과"); break;
+                case 7: h.setMedicalSubjects("영상의학과"); break;
+                case 8: h.setMedicalSubjects("이비인후과"); break;
+                case 9: h.setMedicalSubjects("비뇨기과"); break;
+                case 10: h.setMedicalSubjects("신경외과"); break;
+                case 11: h.setMedicalSubjects("산과"); break;
+                case 12: h.setMedicalSubjects("심장내과"); break;
+                case 13: h.setMedicalSubjects("마취통증의학과"); break;
+                case 14: h.setMedicalSubjects("예방의학과"); break;
+                case 15: h.setMedicalSubjects("재활의학과"); break;
+                case 16: h.setMedicalSubjects("중성화"); break;
+                case 17: h.setMedicalSubjects("영양상담"); break;
+                case 18: h.setMedicalSubjects("헌혈"); break;
+                case 19: h.setMedicalSubjects("미용"); break;
+                default: h.setMedicalSubjects("정보 없음"); break;
+            }
+        }
+    }
     private void applyCurrentStatus(HospitalDto h) {
+        refineMedicalSubjects(h); // 🌟 병원 정보가 불려올 때 진료과목 숫자부터 한글로 정제합니다!
+
         if (h.getOpenTime() == null || h.getCloseTime() == null) {
             h.setCurrentStatus("정보 없음");
             return;
@@ -57,26 +90,22 @@ public class HospitalService {
         h.setCurrentStatus("진료중");
     }
 
-    public HospitalListPageDto getHospitalListPage(int page, Integer animalId, Integer subAnimalId, List<Integer> serviceIds, List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
+    public HospitalListPageDto getHospitalListPage(int page, Integer animalId, Integer subAnimalId, List<String> subjects, List<Integer> serviceIds, List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
         int limit = 12;
 
-        // 🌟 1. 전체 데이터 개수와 전체 페이지 수를 '먼저' 계산합니다.
-        int totalCount = hospitalDao.countHospitalList(animalId, subAnimalId, serviceIds, districts, keyword, openStatus);
+        int totalCount = hospitalDao.countHospitalList(animalId, subAnimalId, subjects, serviceIds, districts, keyword, openStatus);
         int totalPages = (int) Math.ceil((double) totalCount / limit);
         if (totalPages == 0) totalPages = 1;
 
-        // 🌟 2. URL 파라미터 조작 방어 로직 (음수, 0, 초과값 접근 차단)
         if (page < 1) {
-            page = 1; // 0이나 음수 입력 시 1페이지로 강제 이동
+            page = 1;
         } else if (page > totalPages) {
-            page = totalPages; // 최대 페이지 초과 입력 시 마지막 페이지로 강제 이동
+            page = totalPages;
         }
 
-        // 🌟 3. 안전하게 보정된 페이지 번호로 오프셋(건너뛸 데이터 수) 계산
         int offset = (page - 1) * limit;
 
-        // 🌟 4. 데이터베이스에서 목록 조회 및 상태 반영
-        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng, offset, limit);
+        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(page, offset, limit, animalId, subAnimalId, subjects, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
         for(HospitalDto h : hospitalList) {
             applyCurrentStatus(h);
         }
@@ -92,14 +121,16 @@ public class HospitalService {
                 .animalTypeList(hospitalDao.findAnimalTypeList())
                 .subAnimalTypeList(hospitalDao.findSubAnimalTypeList())
                 .medicalServiceList(hospitalDao.findMedicalServiceList())
+                .medicalSubjectList(hospitalDao.findMedicalSubjectList())
                 .animalId(animalId)
                 .subAnimalId(subAnimalId)
+                .subjects(subjects)
                 .serviceIds(serviceIds)
                 .districts(districts)
                 .keyword(keyword)
                 .openStatus(openStatus)
                 .sort(sort)
-                .page(page) // 보정된 안전한 페이지 번호를 화면에 반환
+                .page(page)
                 .totalCount(totalCount)
                 .totalPages(totalPages)
                 .startPage(startPage)
@@ -129,11 +160,10 @@ public class HospitalService {
     public void insertReview(HospitalReviewDto reviewDto) { hospitalDao.insertReview(reviewDto); }
     public List<HospitalReviewDto> getReviewList(int hospitalId) { return hospitalDao.findReviewListByHospitalId(hospitalId); }
 
-    // 병원장/관리자 전용 답글 업데이트
     public void addReviewReply(int reviewId, String replyContent, String replyRole) {
         hospitalDao.updateReviewReply(reviewId, replyContent, replyRole);
     }
-    // --- 🌟 맞춤검색(Custom Search)을 위한 단일 리스트 조회 메서드 추가 ---
+
     public List<String> getDistrictList() {
         return hospitalDao.findDistrictList();
     }
@@ -145,5 +175,16 @@ public class HospitalService {
     }
     public List<com.jjang051.petcity.hospital.dto.MedicalServiceDto> getMedicalServiceList() {
         return hospitalDao.findMedicalServiceList();
+    }
+    public List<String> getMedicalSubjectList() {
+        return hospitalDao.findMedicalSubjectList();
+    }
+
+    public void updateReview(HospitalReviewDto reviewDto) {
+        hospitalDao.updateReview(reviewDto);
+    }
+
+    public void deleteReview(int reviewId) {
+        hospitalDao.deleteReview(reviewId);
     }
 }

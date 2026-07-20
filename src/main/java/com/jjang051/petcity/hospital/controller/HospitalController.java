@@ -27,15 +27,14 @@ import java.util.Map;
 public class HospitalController {
 
     private final HospitalService hospitalService;
-    private final PetDao petDao; // 🌟 펫 DAO 주입 완료!
+    private final PetDao petDao;
 
-    // 🌟 안전한 페이지 파라미터 변환기 (글자 입력 방어)
     private int parsePage(String pageParam) {
         try {
             int page = Integer.parseInt(pageParam.trim());
-            return Math.max(page, 1); // 1보다 작으면 1 반환
+            return Math.max(page, 1);
         } catch (NumberFormatException e) {
-            return 1; // 문자열(ㄱㄴㅇㄹ) 입력 시 에러 내지 않고 1페이지 반환
+            return 1;
         }
     }
 
@@ -43,6 +42,7 @@ public class HospitalController {
     public String hospitalList(@RequestParam(name = "page", defaultValue = "1") String pageParam,
                                @RequestParam(required = false) Integer animalId,
                                @RequestParam(required = false) Integer subAnimalId,
+                               @RequestParam(required = false) List<String> subjects, // 🌟 진료과목 추가
                                @RequestParam(required = false) List<Integer> serviceIds,
                                @RequestParam(required = false) List<String> districts,
                                @RequestParam(required = false) String keyword,
@@ -52,16 +52,18 @@ public class HospitalController {
                                @RequestParam(required = false) Double userLng,
                                HttpSession session, Model model) {
 
-        int page = parsePage(pageParam); // 파라미터 검증
+        int page = parsePage(pageParam);
 
-        HospitalListPageDto pageDto = hospitalService.getHospitalListPage(page, animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
+        HospitalListPageDto pageDto = hospitalService.getHospitalListPage(page, animalId, subAnimalId, subjects, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
         model.addAttribute("hospitalList", pageDto.getHospitalList());
         model.addAttribute("districtList", pageDto.getDistrictList());
         model.addAttribute("animalTypeList", pageDto.getAnimalTypeList());
         model.addAttribute("subAnimalTypeList", pageDto.getSubAnimalTypeList());
         model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList());
+        model.addAttribute("medicalSubjectList", pageDto.getMedicalSubjectList()); // 🌟 추가
         model.addAttribute("animalId", pageDto.getAnimalId());
         model.addAttribute("subAnimalId", pageDto.getSubAnimalId());
+        model.addAttribute("subjects", pageDto.getSubjects()); // 🌟 추가
         model.addAttribute("serviceIds", pageDto.getServiceIds());
         model.addAttribute("districts", pageDto.getDistricts());
         model.addAttribute("keyword", pageDto.getKeyword());
@@ -81,6 +83,7 @@ public class HospitalController {
     public String hospitalListAjax(@RequestParam(name = "page", defaultValue = "1") String pageParam,
                                    @RequestParam(required = false) Integer animalId,
                                    @RequestParam(required = false) Integer subAnimalId,
+                                   @RequestParam(required = false) List<String> subjects, // 🌟 진료과목 추가
                                    @RequestParam(required = false) List<Integer> serviceIds,
                                    @RequestParam(required = false) List<String> districts,
                                    @RequestParam(required = false) String keyword,
@@ -90,14 +93,15 @@ public class HospitalController {
                                    @RequestParam(required = false) Double userLng,
                                    HttpSession session, Model model) {
 
-        int page = parsePage(pageParam); // 파라미터 검증
+        int page = parsePage(pageParam);
 
-        HospitalListPageDto pageDto = hospitalService.getHospitalListPage(page, animalId, subAnimalId, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
+        HospitalListPageDto pageDto = hospitalService.getHospitalListPage(page, animalId, subAnimalId, subjects, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
         model.addAttribute("hospitalList", pageDto.getHospitalList());
         model.addAttribute("districtList", pageDto.getDistrictList());
         model.addAttribute("animalTypeList", pageDto.getAnimalTypeList());
         model.addAttribute("subAnimalTypeList", pageDto.getSubAnimalTypeList());
         model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList());
+        model.addAttribute("medicalSubjectList", pageDto.getMedicalSubjectList()); // 🌟 추가
         model.addAttribute("pageDto", pageDto);
         model.addAttribute("sort", sort);
         model.addAttribute("openStatus", openStatus);
@@ -182,23 +186,41 @@ public class HospitalController {
         return resultMap;
     }
 
-    // 🌟 맞춤검색 (Custom Search) 페이지 이동
+    @PostMapping("/review/update")
+    public String updateReview(HospitalReviewDto reviewDto, HttpSession session) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        if (loginMember != null) {
+            reviewDto.setMemberId(loginMember.getMemberId().intValue());
+            hospitalService.updateReview(reviewDto);
+        }
+        return "redirect:/hospital/view?hospitalId=" + reviewDto.getHospitalId();
+    }
+
+    @PostMapping("/review/delete")
+    public String deleteReview(@RequestParam("reviewId") int reviewId,
+                               @RequestParam("hospitalId") int hospitalId,
+                               HttpSession session) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        if (loginMember != null) {
+            hospitalService.deleteReview(reviewId);
+        }
+        return "redirect:/hospital/view?hospitalId=" + hospitalId;
+    }
+
     @GetMapping("/search")
     public String customSearch(HttpSession session, Model model) {
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
 
-        // 1차 방어: 비로그인 유저 튕겨내기
         if (loginMember == null) {
             return "redirect:/member/login";
         }
 
-        // DB에서 지역, 동물 종류, 진료 과목 리스트를 불러와 화면에 전달
         model.addAttribute("districtList", hospitalService.getDistrictList());
         model.addAttribute("animalTypeList", hospitalService.getAnimalTypeList());
         model.addAttribute("subAnimalTypeList", hospitalService.getSubAnimalTypeList());
         model.addAttribute("medicalServiceList", hospitalService.getMedicalServiceList());
+        model.addAttribute("medicalSubjectList", hospitalService.getMedicalSubjectList());
 
-        // 🌟 DB에서 내 반려동물 목록을 조회하여 화면에 전달!
         List<PetDto> myPets = petDao.findPetsByMemberId(loginMember.getMemberId().intValue());
         model.addAttribute("myPets", myPets);
 
