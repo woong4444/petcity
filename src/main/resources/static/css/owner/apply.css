@@ -1343,3 +1343,35 @@ button.animal-category-header {
     background: #0284c7;
     transform: translateY(-2px);
 }
+
+/* 신청 현황 상단의 추가 병원 신청 버튼 */
+.owner-status-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 18px;
+}
+
+.owner-status-new-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 0 18px;
+
+    border-radius: 12px;
+    background: #0ea5e9;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+
+    box-shadow: 0 8px 18px rgba(14, 165, 233, 0.2);
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.owner-status-new-button:hover {
+    background: #0284c7;
+    transform: translateY(-2px);
+}
