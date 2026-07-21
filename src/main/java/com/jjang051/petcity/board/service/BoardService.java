@@ -599,7 +599,11 @@ public class BoardService {
     /*
         게시글 삭제
     */
-    public String deleteBoard(int boardId) {
+    public String deleteBoard(
+            int boardId,
+            int loginMemberId,
+            boolean admin
+    ) {
 
         BoardDto boardDto =
                 boardDao.findBoardView(boardId);
@@ -610,6 +614,12 @@ public class BoardService {
                             + boardId
             );
         }
+
+        validateBoardManagePermission(
+                boardDto,
+                loginMemberId,
+                admin
+        );
 
         String boardType =
                 boardDto.getBoardType();
@@ -1050,6 +1060,7 @@ public class BoardService {
             BoardDto boardDto,
             MultipartFile[] imageFiles,
             String linkUrl,
+            int loginMemberId,
             boolean admin
     ) throws IOException {
 
@@ -1063,6 +1074,12 @@ public class BoardService {
                     "수정할 게시글을 찾을 수 없습니다."
             );
         }
+
+        validateBoardManagePermission(
+                savedBoard,
+                loginMemberId,
+                admin
+        );
 
         String boardType =
                 savedBoard.getBoardType();
@@ -1218,5 +1235,28 @@ public class BoardService {
                 0,
                 text.length()
         );
+    }
+    private void validateBoardManagePermission(
+            BoardDto boardDto,
+            int loginMemberId,
+            boolean admin
+    ) {
+        if (admin) {
+            return;
+        }
+
+        if("NOTICES".equals(boardDto.getBoardType())
+        || "FAQ".equals(boardDto.getBoardType())) {
+
+            throw  new RuntimeException(
+                    "공지사항과 FAQ는 관리자만 수정 또는 삭제할 수 있습니다."
+            );
+        }
+
+        if(boardDto.getMemberId() != loginMemberId) {
+            throw new RuntimeException(
+                    "본인이 작성한 게시글만 수정 또는 삭제할 수 있습니다."
+            );
+        }
     }
 }
