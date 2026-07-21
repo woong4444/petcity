@@ -360,6 +360,140 @@
 
     </select>
 
+    <!-- 수정 화면용 신청서 조회
+   본인 회원번호 일치
+   관리자가 검토하기 전 상태 -->
+
+    <select id="findPendingOwnerRequestForEdit"
+            resultType="com.jjang051.petcity.owner.dto.OwnerRequestDto">
+
+        SELECT
+        REQUEST_ID AS requestId,
+        MEMBER_ID AS memberId,
+
+        APPLICANT_NAME AS applicantName,
+        BUSINESS_NUMBER AS businessNumber,
+        DOCUMENT_URL AS documentUrl,
+
+        HOSPITAL_NAME AS hospitalName,
+        HOSPITAL_PHONE AS hospitalPhone,
+        HOSPITAL_ADDRESS AS hospitalAddress,
+        HOSPITAL_DETAIL_ADDRESS AS hospitalDetailAddress,
+        HOSPITAL_DISTRICT AS hospitalDistrict,
+        HOSPITAL_WEBSITE_URL AS hospitalWebsiteUrl,
+
+        HOSPITAL_LATITUDE AS hospitalLatitude,
+        HOSPITAL_LONGITUDE AS hospitalLongitude,
+
+        HOSPITAL_OPEN_TIME AS hospitalOpenTime,
+        HOSPITAL_CLOSE_TIME AS hospitalCloseTime,
+        HOSPITAL_BREAK_TIME AS hospitalBreakTime,
+        HOSPITAL_CLOSED_DAYS AS hospitalClosedDays,
+
+        HOSPITAL_DOCTOR_INFO AS hospitalDoctorInfo,
+        HOSPITAL_DESCRIPTION AS hospitalDescription,
+        HOSPITAL_IMAGE_URL AS hospitalImageUrl,
+        HOSPITAL_NOTE AS hospitalNote,
+
+        STATUS AS status
+
+        FROM HOSPITAL_OWNER_REQUEST
+        WHERE REQUEST_ID = #{requestId}
+          AND MEMBER_ID = #{memberId}
+          AND STATUS = 'PENDING'
+
+    </select>
+
+    <!-- 기존 체크박스 선택 조회-->
+    <select id="findOwnerRequestAnimalIds" resultType="int">
+        SELECT ANIMAL_ID
+        FROM OWNER_REQUEST_ANIMAL
+        WHERE REQUEST_ID = #{requestId}
+    </select>
+
+    <select id="findOwnerRequestServiceIds" resultType="int">
+        SELECT SERVICE_ID
+        FROM OWNER_REQUEST_SERVICE
+        WHERE REQUEST_ID = #{requestId}
+    </select>
+
+    <select id="findOwnerRequestSubjectIds" resultType="int">
+        SELECT SUBJECT_ID
+        FROM OWNER_REQUEST_MEDICAL_SUBJECT
+        WHERE REQUEST_ID = #{requestId}
+    </select>
+
+    <!--
+    수정 대상인 본인 신청서는 제외하고
+    같은 사업자등록번호가 심사 중/승인 상태인지 검사
+-->
+    <select id="countActiveRequestByBusinessNumberExceptRequest"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM HOSPITAL_OWNER_REQUEST
+        WHERE REPLACE(BUSINESS_NUMBER,'_','')
+              =REPLACE(#{businessNumber},'_','')
+          AND REQUEST_ID != #{requestId}
+          AND STATUS IN ('PENDING' , 'APPROVED')
+    </select>
+
+
+    <!-- 'PENDING' 조건 상태에만 UPDATE 가능하게-->
+
+    <update id="updatePendingOwnerRequest">
+
+        UPDATE HOSPITAL_OWNER_REQUEST
+        SET
+            APPLICANT_NAME = #{applicantName},
+            BUSINESS_NUMBER = #{businessNumber},
+            DOCUMENT_URL = #{documentUrl},
+
+            HOSPITAL_NAME = #{hospitalName},
+            HOSPITAL_PHONE = #{hospitalPhone},
+            HOSPITAL_ADDRESS = #{hospitalAddress},
+            HOSPITAL_DETAIL_ADDRESS = #{hospitalDetailAddress},
+            HOSPITAL_DISTRICT = #{hospitalDistrict},
+            HOSPITAL_WEBSITE_URL = #{hospitalWebsiteUrl},
+
+
+            HOSPITAL_LATITUDE = #{hospitalLatitude},
+            HOSPITAL_LONGITUDE = #{hospitalLongitude},
+
+            HOSPITAL_OPEN_TIME = #{hospitalOpenTime},
+            HOSPITAL_CLOSE_TIME = #{hospitalCloseTime},
+            HOSPITAL_BREAK_TIME = #{hospitalBreakTime},
+            HOSPITAL_CLOSED_DAYS = #{hospitalClosedDays},
+
+            HOSPITAL_MEDICAL_SUBJECTS = #{hospitalMedicalSubjects},
+            HOSPITAL_DOCTOR_INFO = #{hospitalDoctorInfo},
+            HOSPITAL_DESCRIPTION = #{hospitalDescription},
+            HOSPITAL_IMAGE_URL = #{hospitalImageUrl},
+            HOSPITAL_NOTE = #{hospitalNote}
+
+        WHERE REQUEST_ID = #{requestId}
+            AND MEMBER_ID =#{memberId}
+            AND STATUS = 'PENDING'
+
+    </update>
+
+    <!-- 체크항목 모두 삭제 후 새 값으로 INSERT-->
+    <delete id="deleteOwnerRequestAnimals">
+        DELETE FROM OWNER_REQUEST_ANIMAL
+        WHERE REQUEST_ID = #{requestId}
+    </delete>
+
+    <delete id="deleteOwnerRequestServices">
+        DELETE FROM OWNER_REQUEST_SERVICE
+        WHERE REQUEST_ID = #{requestId}
+    </delete>
+
+    <delete id="deleteOwnerRequestSubjects">
+        DELETE FROM OWNER_REQUEST_MEDICAL_SUBJECT
+        WHERE REQUEST_ID =#{requestId}
+    </delete>
+
+
 
     <!-- =================================================
          승인·반려 결과 읽음 처리

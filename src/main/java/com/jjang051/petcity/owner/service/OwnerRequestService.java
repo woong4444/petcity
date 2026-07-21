@@ -1580,4 +1580,204 @@ public class OwnerRequestService {
                 dotIndex
         );
     }
+
+    /* 수정화면*/
+
+    @Transactional(readOnly = true)
+    public OwnerRequestDto getPendingOwnerRequestForEdit(
+            Long memberId,
+            int requestId
+    ) {
+        OwnerRequestDto requestDto =
+                ownerRequestDao.findPendingOwnerRequestForEdit(
+                        memberId,
+                        requestId
+                );
+
+        if(requestDto == null) {
+            throw  new RuntimeException(
+                    "수정할 수 없는 신청입니다. 이미 처리되었거나 본인 신청이 아닙니다."
+            );
+        }
+
+        requestDto.setAnimalIds(
+                ownerRequestDao.findOwnerRequestAnimalIds(requestId)
+        );
+        requestDto.setServiceIds(
+                ownerRequestDao.findOwnerRequestServiceIds(requestId)
+        );
+        requestDto.setSubjectIds(
+                ownerRequestDao.findOwnerRequestSubjectIds(requestId)
+        );
+
+         return requestDto;
+    }
+
+    public void updateOwnerRequest(
+            OwnerRequestDto requestDto,
+            MultipartFile documentFile,
+            MultipartFile hospitalImage
+    ) throws IOException {
+
+        OwnerRequestDto existing =
+                getPendingOwnerRequestForEdit(
+                        Long.valueOf(requestDto.getMemberId()),
+                        requestDto.getRequestId()
+                );
+
+        normalizeTextFields(requestDto);
+
+        String businessNumber =
+                formatBusinessNumber(requestDto.getBusinessNumber());
+
+        requestDto.setBusinessNumber(businessNumber);
+
+        int duplicateCount =
+                ownerRequestDao
+                        .countActiveRequestByBusinessNumberExceptRequest(
+                                businessNumber,
+                                requestDto.getRequestId()
+                        );
+            if(duplicateCount > 0) {
+                throw  new RuntimeException(
+                        "이미 신청되었거나 승인된 사업자등록번호입니다."
+                );
+            }
+
+            validateOwnerRequestForUpdate(
+                    requestDto,
+                    documentFile,
+                    hospitalImage
+            );
+
+            List<Integer> animalIds =
+                    normalizeAnimalIds(requestDto.getAnimalIds());
+
+            List<Integer> serviceIds =
+                    normalizeServiceIds(requestDto.getServiceIds());
+
+            List<Integer> subjectIds =
+                    normalizeSubjectIds(requestDto.getSubjectIds());
+
+            requestDto.setAnimalIds(animalIds);
+            requestDto.setServiceIds(serviceIds);
+            requestDto.setSubjectIds(subjectIds);
+
+            requestDto.setHospitalMedicalSubjects(
+                    buildMedicalSubjectNames(subjectIds)
+            );
+
+            String oldDocumentUrl = existing.getDocumentUrl();
+            String oldHospitalImageUrl = existing.getHospitalImageUrl();
+
+            String newDocumentUrl = oldDocumentUrl;
+            String newHospitalImageUrl = oldHospitalImageUrl;
+
+            boolean documentChanged =
+                    documentFile != null && !documentFile.isEmpty();
+
+            boolean imageChanged =
+                    hospitalImage != null && !hospitalImage.isEmpty();
+
+        if (documentChanged) {
+            newDocumentUrl = saveFile(
+                    documentFile,
+                    "owner/document",
+                    false
+            );
+        }
+
+        if (imageChanged) {
+            newHospitalImageUrl = saveFile(
+                    hospitalImage,
+                    "owner/hospital",
+                    true
+            );
+        }
+
+        requestDto.setDocumentUrl(newDocumentUrl);
+        requestDto.setHospitalImageUrl(newHospitalImageUrl);
+
+            try{
+
+                int updatedCount =
+                        ownerRequestDao.updatePendingOwnerRequest(requestDto);
+
+                if(updatedCount == 0) {
+                    throw new RuntimeException(
+                            "신청이 이미 처리되어 수정할 수 없습니다."
+                    );
+                }
+
+                ownerRequestDao.deleteOwnerRequestAnimals(
+                        requestDto.getRequestId()
+                );
+
+                ownerRequestDao.deleteOwnerRequestServices(
+                        requestDto.getRequestId()
+                );
+
+                ownerRequestDao.deleteOwnerRequestSubjects(
+                        requestDto.getRequestId()
+                );
+
+                for( Integer animalId : animalIds) {
+                    ownerRequestDao.insertOwnerRequestAnimal(
+                            requestDto.getRequestId(),
+                            animalId
+                    );
+                }
+
+                for( Integer serviceId : serviceIds) {
+                    ownerRequestDao.insertOwnerRequestService(
+                            requestDto.getRequestId(),
+                            serviceId
+                    );
+                }
+
+                for( Integer subjectId : subjectIds) {
+                    ownerRequestDao.insertOwnerRequestMedicalSubject(
+                            requestDto.getRequestId(),
+                            subjectId
+                    );
+                }
+
+                if(documentChanged) {
+                    deleteSavedFile(oldDocumentUrl);
+                }
+
+                if(imageChanged) {
+                    deleteSavedFile(oldHospitalImageUrl);
+                }
+            } catch (Exception exception) {
+
+                if (documentChanged) {
+                    deleteSavedFile(newDocumentUrl);
+                }
+
+                if (imageChanged) {
+                    deleteSavedFile(newHospitalImageUrl);
+                }
+
+                throw exception;
+            }
+
+
+    }
+
+    private void validateOwnerRequestForUpdate(
+            OwnerRequestDto dto,
+            MultipartFile documentFile,
+            MultipartFile hospitalImage
+    ) {
+
+        if(documentFile !=null && !documentFile.isEmpty()) {
+            validateDocumentFile(documentFile);
+        }
+
+        if(hospitalImage !=null && !hospitalImage.isEmpty()) {
+            validateImageFile(hospitalImage);
+        }
+    }
+
 }

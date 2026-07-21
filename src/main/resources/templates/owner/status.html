@@ -189,6 +189,20 @@
 
                 </div>
 
+                <!-- 심사 중인 신청만 수정 가능 -->
+                <div class="owner-status-actions"
+                     th:if="${request.status == 'PENDING'}">
+
+                    <a class="owner-status-edit-button"
+                       th:href="@{/owner/edit/{requestId}(requestId=${request.requestId})}">
+                        신청 내용 수정
+                    </a>
+
+                </div>
+
+                <div class="owner-status-message approved"
+                     th:if="${request.status == 'APPROVED'}">
+
 
                 <div class="owner-status-message approved"
                      th:if="${request.status == 'APPROVED'}">
