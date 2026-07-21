@@ -16,10 +16,27 @@ public class VisitCountInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String requestUri = request.getRequestURI();
+        if (shouldSkipRequest(requestUri)) {
+            return true;
+        }
         HttpSession session = request.getSession();
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        visitRedisService.countVisit(session, loginMember);
+        visitRedisService.countVisit(request, session, loginMember);
 
         return true;
+    }
+
+    private boolean shouldSkipRequest(String requestUri) {
+        if (requestUri == null) {
+            return true;
+        }
+        return requestUri.startsWith("/css/")
+                || requestUri.startsWith("/js/")
+                || requestUri.startsWith("/images/")
+                || requestUri.startsWith("/upload/")
+                || requestUri.startsWith("/webjars/")
+                || requestUri.startsWith("/favicon/")
+                || requestUri.equals("/error/");
     }
 }
