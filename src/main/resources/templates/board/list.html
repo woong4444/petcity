@@ -522,6 +522,7 @@
 
             <!-- 글쓰기 -->
             <div class="board-bottom"
+                 th:if="${(boardType != 'NOTICE' and boardType != 'FAQ') or isAdmin}"
                  style="justify-content: flex-end;">
 
                 <a th:href="@{/board/write(
