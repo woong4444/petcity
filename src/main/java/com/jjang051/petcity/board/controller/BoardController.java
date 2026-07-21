@@ -27,7 +27,7 @@ public class BoardController {
         현재 집에서 로그인 기능 없이 테스트하려면 true.
         member 브랜치의 Security를 연결한 뒤에는 반드시 false로 변경.
     */
-    private static final boolean SECURITY_TEST_MODE = true;
+    private static final boolean SECURITY_TEST_MODE = false;
 
     private static final int TEMP_MEMBER_ID = 1;
     private static final String TEMP_ROLE = "ADMIN";
