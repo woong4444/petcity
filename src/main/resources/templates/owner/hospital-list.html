@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 병원 관리 | PetCity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+</head>
+<body class="bg-[#f8f9fa] text-slate-800">
+<div th:replace="~{common/head :: head}"></div>
+
+<main class="max-w-4xl mx-auto py-12 px-6">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900">내 병원 관리 센터</h1>
+            <p class="text-slate-500 mt-1">운영 중인 병원 목록을 관리하고 정보를 수정할 수 있습니다.</p>
+        </div>
+        <!-- 🌟 내 병원 추가 버튼 (기존 병원 등록 신청 페이지 /owner/apply 로 이동) -->
+        <a th:href="@{/owner/apply}" class="bg-[#1ea1f2] hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-xl transition shadow-sm">
+            + 내 병원 추가하기
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+            <tr class="bg-slate-50 text-slate-500 text-sm border-b">
+                <th class="p-4">병원 ID</th>
+                <th class="p-4">병원 이름</th>
+                <th class="p-4">운영 상태</th>
+                <th class="p-4 text-center">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(hospitalList)}">
+                <td colspan="4" class="p-12 text-center text-slate-400">등록된 병원이 없습니다. 우측 상단에서 병원을 추가해 주세요.</td>
+            </tr>
+            <tr th:each="h : ${hospitalList}" class="border-b hover:bg-slate-50 transition">
+                <td class="p-4 font-bold text-slate-500" th:text="${'#' + h.hospitalId}">#1</td>
+                <td class="p-4 font-bold text-slate-900" th:text="${h.name}">동물병원 이름</td>
+                <td class="p-4">
+                    <span th:if="${h.status == 'OPEN'}" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">🟢 정상 운영중</span>
+                    <span th:if="${h.status == 'CLOSED'}" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">🔴 폐업/삭제 대기중</span>
+                </td>
+                <td class="p-4 text-center">
+                    <a th:href="@{/owner/hospital/update(hospitalId=${h.hospitalId})}" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold transition">
+                        정보 수정 및 관리
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

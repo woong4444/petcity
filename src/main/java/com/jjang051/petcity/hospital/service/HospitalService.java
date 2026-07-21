@@ -1,7 +1,5 @@
 package com.jjang051.petcity.hospital.service;
 
-
-
 import com.jjang051.petcity.hospital.dao.HospitalDao;
 import com.jjang051.petcity.hospital.dto.HospitalDto;
 import com.jjang051.petcity.hospital.dto.HospitalListPageDto;
@@ -21,12 +19,12 @@ public class HospitalService {
 
     private final HospitalDao hospitalDao;
 
-    // 🌟 쉼표로 연결된 숫자(예: "1,3,4")를 여러 한글 과목명(예: "내과, 정형외과, 피부과")으로 분리 및 변환하는 로직
+    // 🌟 DB에서 이미 '내과/외과' 문자열로 쪼개져 오기 때문에, 만약 숫자가 섞여 있을 때만 동작하도록 유지
+    // 🌟 이 부분만 찾아가서 교체해 주시면 됩니다.
     private void refineMedicalSubjects(HospitalDto h) {
         if (h.getMedicalSubjects() == null) return;
         String sub = h.getMedicalSubjects().trim();
 
-        // 데이터가 숫자와 쉼표로 이루어져 있다면 (예: "1", "1,2,3" 등)
         if (sub.matches("^[0-9, ]+$")) {
             String[] ids = sub.split(",");
             java.util.List<String> subjectNames = new java.util.ArrayList<>();
@@ -56,11 +54,11 @@ public class HospitalService {
                         case 19: subjectNames.add("미용"); break;
                     }
                 } catch (NumberFormatException e) {
-                    // 숫자가 아닌 값이 섞여있을 경우 무시
                 }
             }
             if (!subjectNames.isEmpty()) {
-                h.setMedicalSubjects(String.join(", ", subjectNames));
+                // 🌟 여기서 "/" 기호로 합쳐줘야 html의 .split('/') 가 정확히 작동하여 화면에 표시됩니다!
+                h.setMedicalSubjects(String.join("/", subjectNames));
             } else {
                 h.setMedicalSubjects("정보 없음");
             }
@@ -68,7 +66,7 @@ public class HospitalService {
     }
 
     private void applyCurrentStatus(HospitalDto h) {
-        refineMedicalSubjects(h); // 🌟 병원 정보가 불려올 때 진료과목 숫자부터 한글로 정제합니다!
+        refineMedicalSubjects(h);
 
         if (h.getOpenTime() == null || h.getCloseTime() == null) {
             h.setCurrentStatus("정보 없음");
@@ -110,7 +108,9 @@ public class HospitalService {
     public HospitalListPageDto getHospitalListPage(int page, Integer animalId, Integer subAnimalId, List<String> subjects, List<Integer> serviceIds, List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
         int limit = 12;
 
-        int totalCount = hospitalDao.countHospitalList(animalId, subAnimalId, subjects, serviceIds, districts, keyword, openStatus);
+        // 🌟 에러 수정: 파라미터 순서를 HospitalDao.java와 정확히 일치시킴
+        int totalCount = hospitalDao.countHospitalList(openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword);
+
         int totalPages = (int) Math.ceil((double) totalCount / limit);
         if (totalPages == 0) totalPages = 1;
 
@@ -122,7 +122,9 @@ public class HospitalService {
 
         int offset = (page - 1) * limit;
 
-        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(page, offset, limit, animalId, subAnimalId, subjects, serviceIds, districts, keyword, openStatus, sort, userLat, userLng);
+        // 🌟 에러 수정: 파라미터 순서 및 개수를 HospitalDao.java와 정확히 일치시킴
+        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(offset, limit, openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword, sort, userLat, userLng);
+
         for(HospitalDto h : hospitalList) {
             applyCurrentStatus(h);
         }
@@ -156,43 +158,79 @@ public class HospitalService {
     }
 
     public HospitalDto getHospitalById(int hospitalId, Double userLat, Double userLng) {
-        HospitalDto h = hospitalDao.findHospitalById(hospitalId, userLat, userLng);
+        // 🌟 에러 수정: int를 Long으로 변환
+        HospitalDto h = hospitalDao.findHospitalById((long) hospitalId, userLat, userLng);
         if(h != null) applyCurrentStatus(h);
         return h;
     }
 
-    public List<Integer> getMyZzimList(int memberId) { return hospitalDao.findMyZzimList(memberId); }
-    public List<Integer> getMyLikeList(int memberId) { return hospitalDao.findMyLikeList(memberId); }
+    public List<Integer> getMyZzimList(int memberId) {
+        return hospitalDao.findMyZzimList((long) memberId);
+    }
+
+    public List<Integer> getMyLikeList(int memberId) {
+        return hospitalDao.findMyLikeList((long) memberId);
+    }
+
     public boolean isZzim(int hospitalId, int memberId) {
-        return hospitalDao.checkZzim(hospitalId, memberId) > 0;
+        return hospitalDao.checkZzim((long) hospitalId, (long) memberId) > 0;
     }
+
     public boolean toggleZzim(int hospitalId, int memberId) {
-        if(isZzim(hospitalId, memberId)) { hospitalDao.deleteZzim(hospitalId, memberId); return false; }
-        else { hospitalDao.insertZzim(hospitalId, memberId); return true; }
+        if(isZzim(hospitalId, memberId)) {
+            hospitalDao.deleteZzim((long) hospitalId, (long) memberId);
+            return false;
+        } else {
+            hospitalDao.insertZzim((long) hospitalId, (long) memberId);
+            return true;
+        }
     }
+
     public boolean toggleLike(int hospitalId, int memberId) {
-        if(hospitalDao.checkLike(hospitalId, memberId) > 0) { hospitalDao.deleteLike(hospitalId, memberId); return false; }
-        else { hospitalDao.insertLike(hospitalId, memberId); return true; }
+        if(hospitalDao.checkLike((long) hospitalId, (long) memberId) > 0) {
+            hospitalDao.deleteLike((long) hospitalId, (long) memberId);
+            return false;
+        } else {
+            hospitalDao.insertLike((long) hospitalId, (long) memberId);
+            return true;
+        }
     }
-    public void insertReview(HospitalReviewDto reviewDto) { hospitalDao.insertReview(reviewDto); }
-    public List<HospitalReviewDto> getReviewList(int hospitalId) { return hospitalDao.findReviewListByHospitalId(hospitalId); }
+
+    public void insertReview(HospitalReviewDto reviewDto) {
+        // 🌟 에러 수정: DTO 분해해서 파라미터로 넘김
+        hospitalDao.insertReview(
+                (long) reviewDto.getHospitalId(),
+                (long) reviewDto.getMemberId(),
+                reviewDto.getRating(),
+                reviewDto.getContent(),
+                reviewDto.getPetId()
+        );
+    }
+
+    public List<HospitalReviewDto> getReviewList(int hospitalId) {
+        return hospitalDao.findReviewListByHospitalId((long) hospitalId);
+    }
 
     public void addReviewReply(int reviewId, String replyContent, String replyRole) {
-        hospitalDao.updateReviewReply(reviewId, replyContent, replyRole);
+        hospitalDao.updateReviewReply((long) reviewId, replyContent, replyRole);
     }
 
     public List<String> getDistrictList() {
         return hospitalDao.findDistrictList();
     }
+
     public List<com.jjang051.petcity.animal.dto.AnimalTypeDto> getAnimalTypeList() {
         return hospitalDao.findAnimalTypeList();
     }
+
     public List<com.jjang051.petcity.hospital.dto.HospitalSubAnimalDto> getSubAnimalTypeList() {
         return hospitalDao.findSubAnimalTypeList();
     }
+
     public List<com.jjang051.petcity.hospital.dto.MedicalServiceDto> getMedicalServiceList() {
         return hospitalDao.findMedicalServiceList();
     }
+
     public List<String> getMedicalSubjectList() {
         return hospitalDao.findMedicalSubjectList();
     }
@@ -205,4 +243,3 @@ public class HospitalService {
         hospitalDao.deleteReview(reviewId);
     }
 }
-

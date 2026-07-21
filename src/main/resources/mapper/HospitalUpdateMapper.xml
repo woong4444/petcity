@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jjang051.petcity.hospital.dao.HospitalUpdateDao">
 
-    <!-- 병원장의 수정 요청 인서트 -->
     <insert id="insertRequest" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
         INSERT INTO HOSPITAL_UPDATE_REQUEST
         (HOSPITAL_ID, MEMBER_ID, MEDICAL_SUBJECTS, OPEN_TIME, CLOSE_TIME, LUNCH_TIME, HOLIDAY)
@@ -10,7 +9,6 @@
         (#{hospitalId}, #{memberId}, #{medicalSubjects}, #{openTime}, #{closeTime}, #{lunchTime}, #{holiday})
     </insert>
 
-    <!-- 관리자용: 대기중인 요청 목록 -->
     <select id="findPendingRequests" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
         SELECT R.*, H.NAME as hospitalName
         FROM HOSPITAL_UPDATE_REQUEST R
@@ -19,12 +17,10 @@
         ORDER BY R.CREATED_AT DESC
     </select>
 
-    <!-- 요청 상세 조회 -->
     <select id="findRequestById" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
         SELECT * FROM HOSPITAL_UPDATE_REQUEST WHERE REQUEST_ID = #{requestId}
     </select>
 
-    <!-- 요청 상태 변경 (승인/거절) -->
     <update id="updateRequestStatus" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
         UPDATE HOSPITAL_UPDATE_REQUEST
         SET STATUS = #{status},
@@ -33,20 +29,86 @@
         WHERE REQUEST_ID = #{requestId}
     </update>
 
-    <!-- ★ 관리자 승인 시 실제 HOSPITAL 테이블 덮어쓰기 ★ -->
     <update id="applyHospitalUpdate" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
         UPDATE HOSPITAL
-        SET MEDICAL_SUBJECTS = #{medicalSubjects},
-        OPEN_TIME = #{openTime},
+        SET OPEN_TIME = #{openTime},
         CLOSE_TIME = #{closeTime},
-        LUNCH_TIME = #{lunchTime},
-        HOLIDAY = #{holiday}
+        BREAK_TIME = #{lunchTime},
+        CLOSED_DAYS = #{holiday}
         WHERE HOSPITAL_ID = #{hospitalId}
     </update>
 
-    <!-- 로그인한 병원장의 병원 정보 찾기 -->
-    <select id="findHospitalByOwnerId" resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
-        SELECT * FROM HOSPITAL WHERE OWNER_ID = #{ownerId} FETCH FIRST 1 ROWS ONLY
+    <!-- 원장님이 가진 모든 병원 목록 조회 -->
+    <select id="findHospitalsByOwnerId" resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
+        SELECT
+        HOSPITAL_ID AS hospitalId, OWNER_ID AS ownerId, NAME AS name,
+        OPEN_TIME AS openTime, CLOSE_TIME AS closeTime, BREAK_TIME AS lunchTime,
+        CLOSED_DAYS AS holiday, STATUS AS status, NOTE AS note,
+        MEDICAL_SUBJECTS AS medicalSubjects
+        FROM HOSPITAL WHERE OWNER_ID = #{ownerId} ORDER BY HOSPITAL_ID DESC
     </select>
+
+    <!-- 🌟 [핵심 수정] 특정 병원 단건 조회 시 MEDICAL_SUBJECTS 컬럼 추가! -->
+    <select id="findHospitalById" resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
+        SELECT
+        HOSPITAL_ID AS hospitalId,
+        OWNER_ID AS ownerId,
+        NAME AS name,
+        OPEN_TIME AS openTime,
+        CLOSE_TIME AS closeTime,
+        BREAK_TIME AS lunchTime,
+        CLOSED_DAYS AS holiday,
+        STATUS AS status,
+        NOTE AS note,
+        MEDICAL_SUBJECTS AS medicalSubjects
+        FROM HOSPITAL
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </select>
+
+    <select id="findSubjectIdsByHospitalId" resultType="int">
+        SELECT SUBJECT_ID FROM HOSPITAL_MEDICAL_SUBJECT WHERE HOSPITAL_ID = #{hospitalId}
+    </select>
+
+    <delete id="deleteHospitalMedicalSubjects">
+        DELETE FROM HOSPITAL_MEDICAL_SUBJECT WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <insert id="insertHospitalMedicalSubject">
+        INSERT INTO HOSPITAL_MEDICAL_SUBJECT (HOSPITAL_ID, SUBJECT_ID)
+        VALUES (#{hospitalId}, #{subjectId})
+    </insert>
+
+    <select id="findLatestRequestByHospitalId" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        SELECT * FROM HOSPITAL_UPDATE_REQUEST
+        WHERE HOSPITAL_ID = #{hospitalId}
+        ORDER BY CREATED_AT DESC
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <update id="markHospitalAsClosedForDeletion">
+        UPDATE HOSPITAL
+        SET STATUS = 'CLOSED', NOTE = 'DELETE_PENDING', UPDATED_AT = SYSTIMESTAMP
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </update>
+
+    <update id="cancelHospitalClosure">
+        UPDATE HOSPITAL
+        SET STATUS = 'OPEN', NOTE = NULL, UPDATED_AT = SYSTIMESTAMP
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </update>
+
+    <update id="markClosedForWithdrawnMembers">
+        UPDATE HOSPITAL
+        SET STATUS = 'CLOSED', NOTE = 'DELETE_PENDING', UPDATED_AT = SYSTIMESTAMP
+        WHERE OWNER_ID IN (SELECT MEMBER_ID FROM APP_MEMBER WHERE MEMBER_STATUS = 'DELETED')
+        AND (NOTE IS NULL OR NOTE != 'DELETE_PENDING')
+    </update>
+
+    <delete id="deleteOldClosedHospitals">
+        DELETE FROM HOSPITAL
+        WHERE STATUS = 'CLOSED'
+        AND NOTE = 'DELETE_PENDING'
+        AND UPDATED_AT &lt;= SYSTIMESTAMP - INTERVAL '1' HOUR
+    </delete>
 
 </mapper>

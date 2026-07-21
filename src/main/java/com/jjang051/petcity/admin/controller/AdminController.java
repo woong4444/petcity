@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,7 +34,6 @@ public class AdminController {
         }
 
         AdminDashboardDto dashboard = adminService.getDashboard();
-
         model.addAttribute("dashboard", dashboard);
 
         return "admin/dashboard";
@@ -72,7 +70,6 @@ public class AdminController {
         } catch (IllegalArgumentException e) {
             return "redirect:/admin/members?page=1";
         }
-
     }
 
     @GetMapping("/members/all-ids")
@@ -93,7 +90,6 @@ public class AdminController {
         }
         List<Long> memberIds = adminService.getAllMemberIds(keyword, role, status, memberStatus);
         return ResponseEntity.ok(memberIds);
-
     }
 
     private Integer parsePage(String pageParam) {
@@ -129,7 +125,5 @@ public class AdminController {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", e.getMessage()));
         }
-
     }
-
 }

@@ -35,18 +35,6 @@ public class OwnerRequestService {
     @Value("${file.upload}")
     private String uploadPath;
 
-
-    /*
-     병원장 신청 화면에서 사용할
-     현재 로그인 회원 정보 조회
- */
-   /*
-    병원장 신청 페이지에 표시할
-    현재 로그인 회원 정보 조회
-
-    여기서는 회원 정보만 조회한다.
-    ADMIN, OWNER도 페이지에 들어갈 수 있다.
-*/
     @Transactional(readOnly = true)
     public OwnerRequestDto getMemberForRequest(
             Long memberId
@@ -73,10 +61,6 @@ public class OwnerRequestService {
             );
         }
 
-    /*
-        이메일 인증을 하지 않은 회원은
-        신청 페이지 이용 불가
-    */
         if (!"Y".equals(
                 memberDto.getEmailVerified()
         )) {
@@ -86,20 +70,9 @@ public class OwnerRequestService {
             );
         }
 
-    /*
-        ADMIN과 OWNER 검사 코드는
-        여기에서 하지 않는다.
-    */
-
         return memberDto;
     }
 
-    /*
-    실제 병원장 신청이 가능한 회원인지 검사
-
-    페이지 진입 때가 아니라
-    신청 버튼을 눌렀을 때 실행한다.
-*/
     @Transactional(readOnly = true)
     public void validateOwnerApplicationRole(
             Long memberId
@@ -126,9 +99,7 @@ public class OwnerRequestService {
             );
         }
 
-    /*
-        관리자 신청 차단
-    */
+        /* 관리자 신청만 차단합니다. */
         if ("ADMIN".equals(
                 memberDto.getMemberRole()
         )) {
@@ -138,11 +109,11 @@ public class OwnerRequestService {
             );
         }
 
+        /*
+            🌟 핵심 수정 1: 기존에 있던 "OWNER" 차단 로직을 완전히 삭제했습니다!
+            이제 원장님도 마음껏 추가 병원을 신청할 수 있습니다.
+        */
 
-
-    /*
-        이메일 인증 확인
-    */
         if (!"Y".equals(
                 memberDto.getEmailVerified()
         )) {
@@ -153,9 +124,6 @@ public class OwnerRequestService {
         }
     }
 
-    /*
-        동물 대분류와 하위 동물 조회
-    */
     @Transactional(readOnly = true)
     public List<OwnerAnimalDto> getAnimalList() {
 
@@ -163,9 +131,6 @@ public class OwnerRequestService {
     }
 
 
-    /*
-        진료 서비스 조회
-    */
     @Transactional(readOnly = true)
     public List<OwnerMedicalServiceDto>
     getMedicalServiceList() {
@@ -174,9 +139,6 @@ public class OwnerRequestService {
                 .findMedicalServiceList();
     }
 
-    /*
-       진료 과목 조회
-       */
     @Transactional(readOnly = true)
     public List<OwnerMedicalSubjectDto>
     getMedicalSubjectList() {
@@ -185,14 +147,6 @@ public class OwnerRequestService {
                 .findMedicalSubjectList();
     }
 
-
-
-
-    /*
-        로그인 회원의 병원장 신청 내역 조회
-
-        최신 신청이 위쪽에 표시된다.
-    */
     @Transactional(readOnly = true)
     public List<OwnerRequestDto>
     getOwnerRequestHistory(
@@ -209,10 +163,6 @@ public class OwnerRequestService {
                 );
     }
 
-
-    /*
-        아직 확인하지 않은 승인·반려 결과 개수
-    */
     @Transactional(readOnly = true)
     public int countUnreadOwnerRequestResult(
             Long memberId
@@ -230,11 +180,6 @@ public class OwnerRequestService {
                 );
     }
 
-
-    /*
-        신청 현황 페이지를 열면
-        승인·반려 결과를 읽음 처리한다.
-    */
     public void markOwnerRequestResultAsRead(
             Long memberId
     ) {
@@ -249,10 +194,6 @@ public class OwnerRequestService {
                 );
     }
 
-
-    /*
-        공통 회원번호 검사
-    */
     private void validateMemberId(
             Long memberId
     ) {
@@ -266,10 +207,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        병원장 신청 등록
-    */
     public int insertOwnerRequest(
             OwnerRequestDto requestDto,
             MultipartFile documentFile,
@@ -283,42 +220,32 @@ public class OwnerRequestService {
             );
         }
 
-    /*
-        신청 버튼을 눌렀을 때
-        실제 회원 권한 검사
-
-        ADMIN과 OWNER는 여기서 차단된다.
-    */
         validateOwnerApplicationRole(
                 Long.valueOf(
                         requestDto.getMemberId()
                 )
         );
 
-    /*
-        앞뒤 공백을 먼저 제거한 뒤
-        필수값과 글자 수를 검사한다.
-    */
         normalizeTextFields(
                 requestDto
         );
 
-    /*
-        신청서 입력값 검사
-    */
         validateOwnerRequest(
                 requestDto,
                 documentFile,
                 hospitalImage
         );
 
-
-
-
         /*
-            사업자등록번호 형식 통일
-            123-45-67890 형식으로 저장
+            🌟 핵심 수정 2: 이미 심사 중인 신청이 있어도 여러 병원을 동시 다발적으로
+            신청할 수 있도록 차단벽을 제거했습니다. (주석 처리 완료)
         */
+        // int pendingCount = ownerRequestDao.countPendingRequestByMember(requestDto.getMemberId());
+        // if (pendingCount > 0) {
+        //     throw new RuntimeException("이미 심사 중인 병원장 신청이 있습니다.");
+        // }
+
+
         String formattedBusinessNumber =
                 formatBusinessNumber(
                         requestDto.getBusinessNumber()
@@ -328,10 +255,6 @@ public class OwnerRequestService {
                 formattedBusinessNumber
         );
 
-
-        /*
-            사업자등록번호 중복 확인
-        */
         int businessNumberCount =
                 ownerRequestDao
                         .countActiveRequestByBusinessNumber(
@@ -345,11 +268,6 @@ public class OwnerRequestService {
             );
         }
 
-
-        /*
-            부모 동물 전체 가능과
-            하위 품종 중복 선택 정리
-        */
         List<Integer> normalizedAnimalIds =
                 normalizeAnimalIds(
                         requestDto.getAnimalIds()
@@ -359,9 +277,6 @@ public class OwnerRequestService {
                 normalizedAnimalIds
         );
 
-        /*
-          선택한 진료과목 번호 검증 및 중복 제거
-          */
         List<Integer> normalizedSubjectIds =
                 normalizeSubjectIds(
                         requestDto.getSubjectIds()
@@ -371,18 +286,12 @@ public class OwnerRequestService {
                 normalizedSubjectIds
         );
 
-        /*
-         * 기존 문자열 컬럼에도 내과 외과 형식으로 저장*/
         requestDto.setHospitalMedicalSubjects(
                 buildMedicalSubjectNames(
                         normalizedSubjectIds
                 )
         );
 
-
-        /*
-            진료 서비스 번호 중복 제거 및 검증
-        */
         List<Integer> normalizedServiceIds =
                 normalizeServiceIds(
                         requestDto.getServiceIds()
@@ -398,9 +307,6 @@ public class OwnerRequestService {
 
         try {
 
-            /*
-                증빙서류 저장
-            */
             documentUrl =
                     saveFile(
                             documentFile,
@@ -408,9 +314,6 @@ public class OwnerRequestService {
                             false
                     );
 
-            /*
-                병원 대표 이미지 저장
-            */
             hospitalImageUrl =
                     saveFile(
                             hospitalImage,
@@ -427,20 +330,10 @@ public class OwnerRequestService {
             );
 
 
-            /*
-                병원장 신청 기본 정보 저장
-
-                selectKey로 생성된 신청 번호가
-                requestDto.requestId에 들어감
-            */
             ownerRequestDao.insertOwnerRequest(
                     requestDto
             );
 
-
-            /*
-                선택한 진료 가능 동물 저장
-            */
             for (
                     Integer animalId
                     : normalizedAnimalIds
@@ -453,10 +346,6 @@ public class OwnerRequestService {
                         );
             }
 
-
-            /*
-                선택한 진료 서비스 저장
-            */
             for (
                     Integer serviceId
                     : normalizedServiceIds
@@ -469,10 +358,6 @@ public class OwnerRequestService {
                         );
             }
 
-
-            /*
-                선택한 진료과목 저장
-            */
             for (
                     Integer subjectId
                     : normalizedSubjectIds
@@ -489,10 +374,6 @@ public class OwnerRequestService {
 
         } catch (Exception exception) {
 
-            /*
-                DB 저장이 실패하면
-                먼저 저장된 실제 파일도 삭제
-            */
             deleteSavedFile(documentUrl);
             deleteSavedFile(hospitalImageUrl);
 
@@ -500,10 +381,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        신청 정보 필수값 검사
-    */
     private void validateOwnerRequest(
             OwnerRequestDto dto,
             MultipartFile documentFile,
@@ -524,9 +401,6 @@ public class OwnerRequestService {
             );
         }
 
-        /*
-            신청자 정보
-        */
         validateRequiredText(
                 dto.getApplicantName(),
                 "병원장 실명",
@@ -555,9 +429,6 @@ public class OwnerRequestService {
         );
 
 
-        /*
-            증빙서류
-        */
         if (documentFile == null
                 || documentFile.isEmpty()) {
 
@@ -570,10 +441,6 @@ public class OwnerRequestService {
                 documentFile
         );
 
-
-        /*
-            병원 기본 정보
-        */
         validateRequiredText(
                 dto.getHospitalName(),
                 "병원명",
@@ -588,14 +455,6 @@ public class OwnerRequestService {
                 13
         );
 
-        /*
-            선택 가능한 앞자리:
-            010, 02, 031~033, 041~044,
-            051~055, 061~064, 070
-
-            저장 형식:
-            앞자리-가운데 3~4자리-마지막 4자리
-        */
         if (!dto.getHospitalPhone().matches(
                 "^(010|02|031|032|033|041|042|043|044|"
                         + "051|052|053|054|055|061|062|063|064|070)"
@@ -652,10 +511,6 @@ public class OwnerRequestService {
             );
         }
 
-
-        /*
-            운영 정보
-        */
         validateTime(
                 dto.getHospitalOpenTime(),
                 "진료 시작 시간"
@@ -674,10 +529,6 @@ public class OwnerRequestService {
                 dto.getHospitalClosedDays()
         );
 
-
-        /*
-            진료 정보
-        */
         if (dto.getAnimalIds() == null
                 || dto.getAnimalIds().isEmpty()) {
 
@@ -714,10 +565,6 @@ public class OwnerRequestService {
                 1000
         );
 
-
-        /*
-            병원 공개 정보
-        */
         validateRequiredText(
                 dto.getHospitalDescription(),
                 "병원 소개",
@@ -744,10 +591,6 @@ public class OwnerRequestService {
         );
     }
 
-
-    /*
-        필수 문자열 길이 검사
-    */
     private void validateRequiredText(
             String value,
             String fieldName,
@@ -780,10 +623,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        선택 문자열 최대 길이 검사
-    */
     private void validateOptionalText(
             String value,
             String fieldName,
@@ -805,10 +644,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        시간 형식 검사
-    */
     private void validateTime(
             String value,
             String fieldName
@@ -833,13 +668,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        휴게시간 검사
-
-        저장 형식:
-        12:30~13:30
-    */
     private void validateBreakTime(
             String breakTime
     ) {
@@ -880,13 +708,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        정기 휴무일 검사
-
-        저장 예:
-        월요일, 화요일, 일요일
-    */
     private void validateClosedDays(
             String closedDays
     ) {
@@ -945,16 +766,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        동물 선택값 정리
-
-        예:
-        강아지 전체 ID 1과
-        말티즈 ID 6이 같이 넘어오면
-
-        부모 ID 1만 남김
-    */
     private List<Integer> normalizeAnimalIds(
             List<Integer> animalIds
     ) {
@@ -970,10 +781,6 @@ public class OwnerRequestService {
         List<OwnerAnimalDto> allAnimals =
                 ownerRequestDao.findAnimalList();
 
-
-        /*
-            실제 DB에 존재하는 동물 번호
-        */
         Set<Integer> validAnimalIds =
                 allAnimals
                         .stream()
@@ -984,10 +791,6 @@ public class OwnerRequestService {
                                 Collectors.toSet()
                         );
 
-
-        /*
-            null과 중복 제거
-        */
         LinkedHashSet<Integer> selectedIds =
                 animalIds
                         .stream()
@@ -1011,13 +814,6 @@ public class OwnerRequestService {
             );
         }
 
-
-        /*
-            선택된 대분류 번호 확인
-
-            parentId가 null인 동물:
-            강아지, 고양이, 어류 등의 대분류
-        */
         Set<Integer> selectedParentIds =
                 allAnimals
                         .stream()
@@ -1036,11 +832,6 @@ public class OwnerRequestService {
                                 Collectors.toSet()
                         );
 
-
-        /*
-            대분류 전체 가능이 선택된 경우
-            같은 대분류에 속한 하위 동물 제거
-        */
         for (
                 OwnerAnimalDto animal
                 : allAnimals
@@ -1064,10 +855,6 @@ public class OwnerRequestService {
         );
     }
 
-
-    /*
-        진료 서비스 선택값 정리
-    */
     private List<Integer> normalizeServiceIds(
             List<Integer> serviceIds
     ) {
@@ -1120,10 +907,6 @@ public class OwnerRequestService {
         );
     }
 
-
-    /*
-        진료과목 선택값 검증 및 중복 제거
-    */
     private List<Integer> normalizeSubjectIds(
             List<Integer> subjectIds
     ) {
@@ -1179,14 +962,6 @@ public class OwnerRequestService {
         );
     }
 
-
-    /*
-        선택한 진료과목 이름 문자열 생성
-
-        예:
-        1, 2, 4
-        → 내과, 외과, 피부과
-    */
     private String buildMedicalSubjectNames(
             List<Integer> subjectIds
     ) {
@@ -1214,10 +989,6 @@ public class OwnerRequestService {
                 );
     }
 
-
-    /*
-        사업자등록번호 검사
-    */
     private void validateBusinessNumber(
             String businessNumber
     ) {
@@ -1237,13 +1008,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        사업자등록번호 형식 통일
-
-        1234567890
-        → 123-45-67890
-    */
     private String formatBusinessNumber(
             String businessNumber
     ) {
@@ -1262,10 +1026,6 @@ public class OwnerRequestService {
                 + numberOnly.substring(5);
     }
 
-
-    /*
-        증빙서류 확장자 검사
-    */
     private void validateDocumentFile(
             MultipartFile file
     ) {
@@ -1293,10 +1053,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        병원 대표 이미지 검사
-    */
     private void validateImageFile(
             MultipartFile file
     ) {
@@ -1337,10 +1093,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        실제 파일 저장
-    */
     private String saveFile(
             MultipartFile file,
             String folder,
@@ -1390,10 +1142,6 @@ public class OwnerRequestService {
                 + savedName;
     }
 
-
-    /*
-        DB 저장 실패 시 파일 삭제
-    */
     private void deleteSavedFile(
             String fileUrl
     ) {
@@ -1440,10 +1188,6 @@ public class OwnerRequestService {
         }
     }
 
-
-    /*
-        입력 문자열 앞뒤 공백 제거
-    */
     private void normalizeTextFields(
             OwnerRequestDto dto
     ) {
@@ -1513,7 +1257,6 @@ public class OwnerRequestService {
         );
     }
 
-
     private String trim(
             String value
     ) {
@@ -1525,7 +1268,6 @@ public class OwnerRequestService {
         return value.trim();
     }
 
-
     private boolean isBlank(
             String value
     ) {
@@ -1533,7 +1275,6 @@ public class OwnerRequestService {
         return value == null
                 || value.isBlank();
     }
-
 
     private String getFileExtension(
             String filename

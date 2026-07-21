@@ -21,7 +21,6 @@ public class AdminService {
     private static final int PAGE_SIZE = 10;
     private static final int PAGE_BLOCK_SIZE = 10;
 
-
     public AdminDashboardDto getDashboard() {
         return AdminDashboardDto.builder()
                 .todayVisitorCount(visitRedisService.getTodayVisitorCount())
@@ -37,7 +36,6 @@ public class AdminService {
     }
 
     public AdminMemberPageDto getMemberPage(int requestedPage, String requestedSort, String requestedDirection, String keyword, String role, String status, String memberStatus) {
-
         String sort = normalizeSort(requestedSort);
         String direction = normalizeDirection(requestedDirection);
 
@@ -54,12 +52,12 @@ public class AdminService {
         int offset = (requestedPage - 1) * PAGE_SIZE;
 
         List<AdminMemberListDto> members;
-
         if (totalElements == 0) {
             members = Collections.emptyList();
         } else {
             members = adminDao.findMembersByPage(offset, PAGE_SIZE, sort, direction,keyword,role,status,memberStatus);
         }
+
         int startPage;
         int endPage;
 
@@ -68,9 +66,9 @@ public class AdminService {
             endPage = 0;
         } else {
             startPage = ((requestedPage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
-
             endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
         }
+
         return AdminMemberPageDto.builder()
                 .members(members)
                 .currentPage(requestedPage)
@@ -90,15 +88,11 @@ public class AdminService {
                 .build();
     }
 
-
-
-
     public List<Long> getAllMemberIds(String keyword, String role, String status, String memberStatus) {
         keyword = normalizeKeyword(keyword);
         role = normalizeRole(role);
         status = normalizeStatus(status);
         memberStatus = normalizeMemberStatus(memberStatus);
-
         return adminDao.findAllMemberIds(keyword, role, status, memberStatus);
     }
 
@@ -128,7 +122,6 @@ public class AdminService {
         if (deletedCount != memberIds.size()) {
             throw new IllegalArgumentException("일부 회원이 존재하지 않거나 이미 삭제된 상태입니다.");
         }
-
         return deletedCount;
     }
 
@@ -137,7 +130,6 @@ public class AdminService {
             throw new IllegalArgumentException("회원 삭제 이유를 입력해 주세요.");
         }
         String normalizeDeleteReason = deleteReason.trim();
-
         if (normalizeDeleteReason.length() > 500) {
             throw new IllegalArgumentException("회원 삭제 사유는 500자 이하로 입력해 주세요.");
         }
@@ -145,7 +137,6 @@ public class AdminService {
     }
 
     private void validatePage(int requestedPage, int totalPages) {
-
         if (totalPages == 0) {
             if (requestedPage != 1) {
                 throw new IllegalArgumentException("존재하지 않는 페이지입니다.");
@@ -165,7 +156,6 @@ public class AdminService {
             return "asc";
         }
         return "desc";
-
     }
 
     private String normalizeSort(String requestedSort) {
@@ -174,24 +164,14 @@ public class AdminService {
         }
         String sort = requestedSort.trim();
         return switch (sort) {
-            case "memberId",
-                 "loginId",
-                 "nickname",
-                 "role",
-                 "status",
-                 "memberStatus",
-                 "createdAt",
-                 "lastLoginAt" -> sort;
+            case "memberId", "loginId", "nickname", "role", "status", "memberStatus", "createdAt", "lastLoginAt" -> sort;
             default -> "memberId";
         };
     }
 
     private String normalizeMemberStatus(String memberStatus) {
-        if (memberStatus == null) {
-            return "";
-        }
+        if (memberStatus == null) return "";
         String normalizeMemberStatus = memberStatus.trim().toUpperCase();
-
         return switch (normalizeMemberStatus) {
             case "ACTIVE","DELETE_PENDING","DELETED" -> normalizeMemberStatus;
             default -> "";
@@ -199,11 +179,8 @@ public class AdminService {
     }
 
     private String normalizeStatus(String status) {
-        if (status == null) {
-            return "";
-        }
+        if (status == null) return "";
         String normalizeStatus = status.trim().toUpperCase();
-
         return switch (normalizeStatus) {
             case "ACTIVE","BLOCKED","DELETED" -> normalizeStatus;
             default -> "";
@@ -211,9 +188,7 @@ public class AdminService {
     }
 
     private String normalizeRole(String role) {
-        if (role == null) {
-            return "";
-        }
+        if (role == null) return "";
         String normalizeRole = role.trim().toUpperCase();
         return switch (normalizeRole) {
             case "USER","OWNER","ADMIN" -> normalizeRole;
@@ -222,11 +197,7 @@ public class AdminService {
     }
 
     private String normalizeKeyword(String keyword) {
-        if (keyword == null) {
-            return "";
-        }
+        if (keyword == null) return "";
         return keyword.trim();
     }
-
 }
-
