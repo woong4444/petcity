@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>방문자 통계</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/visitor-statistics.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <th:block th:replace="~{admin/fragments/sidebar
+                           :: sidebar('visitorStatistics')}">
+    </th:block>
+
+    <main class="admin-main visitor-statistics-main">
+
+        <header class="page-header">
+
+            <div class="page-title-area">
+
+                <p class="page-category">
+                    사이트 운영
+                </p>
+
+                <h1>
+                    방문자 통계
+                </h1>
+
+                <p class="page-description">
+                    전체 방문 현황과 최근 7일간의 방문 추이를 확인합니다.
+                </p>
+
+            </div>
+
+        </header>
+
+        <section class="summary-grid">
+
+            <article class="summary-card total-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        전체 방문 수
+                    </span>
+
+                </div>
+
+                <strong th:text="|${#numbers.formatInteger(statistics.totalVisitorCount, 0, 'COMMA')}명|">
+                    0명
+                </strong>
+
+                <p>
+                    일별 고유 방문자 누적
+                </p>
+
+            </article>
+
+            <article class="summary-card today-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        오늘 방문
+                    </span>
+
+
+                </div>
+
+                <strong th:text="|${#numbers.formatInteger(statistics.todayVisitorCount, 0, 'COMMA')}명|">
+                    0명
+                </strong>
+
+                <p th:text="|로그인 ${statistics.todayLoginVisitorCount}명 · 비로그인 ${statistics.todayGuestVisitorCount}명|">
+                    로그인 0명 · 비로그인 0명
+                </p>
+
+            </article>
+
+            <article class="summary-card yesterday-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        어제 방문
+                    </span>
+
+
+                </div>
+
+                <strong th:text="|${#numbers.formatInteger(statistics.yesterdayVisitorCount, 0, 'COMMA')}명|">
+                    0명
+                </strong>
+
+                <p th:text="|로그인 ${statistics.yesterdayLoginVisitorCount}명 · 비로그인 ${statistics.yesterdayGuestVisitorCount}명|">
+                    로그인 0명 · 비로그인 0명
+                </p>
+
+            </article>
+
+            <article class="summary-card change-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        전일 대비
+                    </span>
+
+                    <span class="summary-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M4 18L9 13L13 16L20 8">
+                            </path>
+
+                            <path d="M15 8H20V13">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+                <strong class="change-up"
+                        th:if="${statistics.changeStatus == 'UP'}"
+                        th:text="|▲ ${statistics.visitorChangeRate}%|">
+                    ▲ 0%
+                </strong>
+
+                <strong class="change-down"
+                        th:if="${statistics.changeStatus == 'DOWN'}"
+                        th:text="|▼ ${statistics.visitorChangeRate * -1}%|">
+                    ▼ 0%
+                </strong>
+
+                <strong class="change-same"
+                        th:if="${statistics.changeStatus == 'SAME'}">
+                    － 0%
+                </strong>
+
+                <p th:if="${statistics.visitorDifference > 0}"
+                   th:text="|어제보다 ${statistics.visitorDifference}명 증가|">
+                    어제보다 0명 증가
+                </p>
+
+                <p th:if="${statistics.visitorDifference < 0}"
+                   th:text="|어제보다 ${statistics.visitorDifference * -1}명 감소|">
+                    어제보다 0명 감소
+                </p>
+
+                <p th:if="${statistics.visitorDifference == 0}">
+                    어제와 동일
+                </p>
+
+            </article>
+
+        </section>
+
+        <section class="chart-section">
+
+            <div class="section-heading">
+
+                <div class="section-title-area">
+
+                    <h2>
+                        최근 7일 방문 추이
+                    </h2>
+
+                    <p>
+                        로그인 방문자와 비로그인 방문자의 날짜별 변화를 확인합니다.
+                    </p>
+
+                </div>
+
+                <div class="chart-legend">
+
+                    <span class="legend-item">
+
+                        <i class="legend-dot login-dot">
+                        </i>
+
+                        로그인
+
+                    </span>
+
+                    <span class="legend-item">
+
+                        <i class="legend-dot guest-dot">
+                        </i>
+
+                        비로그인
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+
+                <canvas id="visitorTrendChart"
+                        th:attr="
+                            data-labels=${#strings.listJoin(chartLabels, '|')},
+                            data-login-values=${#strings.listJoin(chartLoginData, '|')},
+                            data-guest-values=${#strings.listJoin(chartGuestData, '|')}">
+                </canvas>
+
+            </div>
+
+        </section>
+
+        <section class="table-section">
+
+            <div class="section-heading">
+
+                <div class="section-title-area">
+
+                    <h2>
+                        최근 7일 상세 현황
+                    </h2>
+
+                    <p>
+                        날짜별 전체 방문 수와 전일 대비 증감률입니다.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table class="statistics-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            날짜
+                        </th>
+
+                        <th>
+                            전체 방문
+                        </th>
+
+                        <th>
+                            로그인
+                        </th>
+
+                        <th>
+                            비로그인
+                        </th>
+
+                        <th>
+                            전일 대비
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="daily : ${statistics.dailyStatistics}">
+
+                        <td class="date-cell"
+                            th:text="${daily.visitDate}">
+                            2026-07-21
+                        </td>
+
+                        <td>
+
+                            <strong th:text="|${#numbers.formatInteger(daily.totalVisitorCount, 0, 'COMMA')}명|">
+                                0명
+                            </strong>
+
+                        </td>
+
+                        <td th:text="|${#numbers.formatInteger(daily.loginVisitorCount, 0, 'COMMA')}명|">
+                            0명
+                        </td>
+
+                        <td th:text="|${#numbers.formatInteger(daily.guestVisitorCount, 0, 'COMMA')}명|">
+                            0명
+                        </td>
+
+                        <td>
+
+                            <span class="table-change change-up"
+                                  th:if="${daily.changeStatus == 'UP'}"
+                                  th:text="|▲ ${daily.visitorChangeRate}%|">
+                                ▲ 0%
+                            </span>
+
+                            <span class="table-change change-down"
+                                  th:if="${daily.changeStatus == 'DOWN'}"
+                                  th:text="|▼ ${daily.visitorChangeRate * -1}%|">
+                                ▼ 0%
+                            </span>
+
+                            <span class="table-change change-same"
+                                  th:if="${daily.changeStatus == 'SAME'}">
+                                －
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(statistics.dailyStatistics)}">
+
+                        <td colspan="5"
+                            class="empty-table-cell">
+
+                            조회된 방문자 통계가 없습니다.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
+</script>
+
+<script th:src="@{/js/admin/visitor-statistics.js}">
+</script>
+
+</body>
+</html>

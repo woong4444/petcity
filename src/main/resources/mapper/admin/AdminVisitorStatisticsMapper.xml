@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjang051.petcity.admin.dao.AdminVisitorStatisticsDao">
+
+    <resultMap id="dailyVisitorStatisticsResultMap" type="com.jjang051.petcity.admin.dto.DailyVisitorStatisticsDto">
+        <result property="visitDate" column="VISIT_DATE"/>
+        <result property="totalVisitorCount" column="TOTAL_VISITOR_COUNT"/>
+        <result property="loginVisitorCount" column="LOGIN_VISITOR_COUNT"/>
+        <result property="guestVisitorCount" column="GUEST_VISITOR_COUNT"/>
+    </resultMap>
+
+    <select id="countTotalVisitorsBeforeToday" resultType="long">
+        SELECT COUNT(*)
+        FROM SITE_VISIT_LOG
+        WHERE VISIT_DATE &lt; TRUNC(SYSDATE)
+    </select>
+
+    <select id="findRecentDailyStatistics" parameterType="int" resultMap="dailyVisitorStatisticsResultMap">
+        SELECT TO_CHAR(DAY_LIST.VISIT_DATE, 'YYYY-MM-DD') AS VISIT_DATE,
+            NVL(VISIT_STATS.TOTAL_VISITOR_COUNT,0) AS TOTAL_VISITOR_COUNT,
+            NVL(VISIT_STATS.LOGIN_VISITOR_COUNT,0) AS LOGIN_VISITOR_COUNT,
+            NVL(VISIT_STATS.GUEST_VISITOR_COUNT,0) AS GUEST_VISITOR_COUNT
+            FROM (
+                SELECT TRUNC(SYSDATE) - (LEVEL -1) AS VISIT_DATE
+                    FROM DUAL
+                        CONNECT BY LEVEL &lt;= #{days} )
+        DAY_LIST
+        LEFT JOIN(
+            SELECT VISIT_DATE, COUNT(*) AS TOTAL_VISITOR_COUNT,
+            SUM(
+                CASE WHEN VISITOR_TYPE = 'LOGIN' THEN 1 ELSE 0 END
+                ) AS LOGIN_VISITOR_COUNT,
+            SUM(
+                CASE WHEN VISITOR_TYPE = 'GUEST' THEN 1 ELSE 0 END
+                ) AS GUEST_VISITOR_COUNT
+        FROM SITE_VISIT_LOG
+        WHERE VISIT_DATE &gt;= TRUNC(SYSDATE) - (#{days} -1)
+        GROUP BY VISIT_DATE) VISIT_STATS
+        ON VISIT_STATS.VISIT_DATE = DAY_LIST.VISIT_DATE
+        ORDER BY DAY_LIST.VISIT_DATE DESC
+    </select>
+</mapper>
