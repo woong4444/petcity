@@ -265,8 +265,10 @@
 
                 <!-- FAQ는 관리자에게만 수정·삭제 표시 -->
                 <div class="right-buttons"
-                     th:if="${boardDto.boardType != 'FAQ'
-                              or isAdmin}">
+                     th:if="${isAdmin
+          or (isAuthenticated
+          and loginMemberId != null
+          and loginMemberId == boardDto.memberId)}">
 
                     <a th:href="@{/board/update(
                             boardId=${boardDto.boardId}

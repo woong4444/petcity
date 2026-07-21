@@ -6,6 +6,7 @@ import com.jjang051.petcity.owner.dto.OwnerMedicalSubjectDto;
 import com.jjang051.petcity.owner.dto.OwnerRequestDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -127,5 +128,43 @@ public interface OwnerRequestDao {
     int markOwnerRequestResultAsRead(
             @Param("memberId") Long memberId
     );
+
+    //  수정 화면에 기존 신청서를 채우기 위한 조회
+    // MEMBER_ID와 STATUS까지 검사하므로 다른 회원 신청서는 조회되지 않음
+    OwnerRequestDto  findPendingOwnerRequestForEdit(
+            @Param("memberId") Long memberId,
+            @Param("requestId") int requestId
+    );
+
+    // 수정 화면에 체크 상태 유지
+    // 기존에 선택한 동물/서비스/진료과목 번호 각각 조회
+
+    List<Integer> findOwnerRequestAnimalIds(
+            @Param("requestId") int requestId
+    );
+
+    List<Integer> findOwnerRequestServiceIds(
+            @Param("requestId") int requestId
+    );
+
+    List<Integer> findOwnerRequestSubjectIds(
+            @Param("requestId") int requestId
+    );
+
+    // 수정 중에는 자기 자신의 사업자등록번호는 제외하고 중복 검사
+    int countActiveRequestByBusinessNumberExceptRequest(
+            @Param("businessNumber") String businessNumber,
+            @Param("requestId") int requestId
+    );
+
+    // PENDING 상태일 때만 신청 기본 정보를 수정
+    int updatePendingOwnerRequest(OwnerRequestDto ownerRequestDto);
+
+    //선택 항목은 기존 값을 지운 뒤 새 선택값으로 다시 저장
+    void deleteOwnerRequestAnimals(@Param("requestId")int requestId);
+
+    void deleteOwnerRequestServices(@Param("requestId")int requestId);
+
+    void deleteOwnerRequestSubjects(@Param("requestId")int requestId);
 
 }

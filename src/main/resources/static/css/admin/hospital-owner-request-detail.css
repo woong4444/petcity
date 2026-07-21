@@ -54,6 +54,7 @@ a {
 .request-detail-main {
     min-width: 0;
     padding: 34px 38px 70px;
+    overflow: visible;
 }
 
 .request-detail-container {
@@ -222,14 +223,32 @@ a {
     min-width: 0;
 }
 
-/*
-    aside는 왼쪽 콘텐츠 높이만큼 늘어나게 둔다.
-    실제 sticky는 안쪽 .action-card가 담당한다.
-*/
+
 .request-action-column {
+    position: relative;
     align-self: stretch;
 
     min-width: 0;
+
+    overflow: visible;
+}
+
+.action-card {
+    position: sticky;
+    top: 24px;
+
+    height: fit-content;
+
+    padding: 23px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dce4ee;
+    border-radius: 14px;
+
+    box-shadow: 0 10px 28px rgba(31, 48, 75, 0.07);
+
+    z-index: 10;
 }
 
 /* =========================
@@ -983,12 +1002,33 @@ a {
 
     cursor: not-allowed;
 }
-
 /* =========================
    반응형
    ========================= */
 
 @media (max-width: 1180px) {
+
+    .request-detail-main {
+        padding: 32px 24px 60px;
+    }
+
+    .request-detail-layout {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 18px;
+    }
+
+    .request-action-column {
+        width: auto;
+    }
+
+    .action-card {
+        position: sticky;
+        top: 20px;
+    }
+}
+
+
+@media (max-width: 760px) {
 
     .request-detail-layout {
         grid-template-columns: minmax(0, 1fr);
@@ -1002,6 +1042,7 @@ a {
         position: static;
     }
 }
+
 
 @media (max-width: 760px) {
 

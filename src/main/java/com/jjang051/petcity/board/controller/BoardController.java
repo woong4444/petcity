@@ -27,7 +27,7 @@ public class BoardController {
         현재 집에서 로그인 기능 없이 테스트하려면 true.
         member 브랜치의 Security를 연결한 뒤에는 반드시 false로 변경.
     */
-    private static final boolean SECURITY_TEST_MODE = true;
+    private static final boolean SECURITY_TEST_MODE = false;
 
     private static final int TEMP_MEMBER_ID = 1;
     private static final String TEMP_ROLE = "ADMIN";
@@ -187,28 +187,7 @@ public class BoardController {
             Authentication authentication
     ) {
 
-    /*
-        Security 연결 전 임시 로그인 처리
 
-        현재 집에서는 TEMP_MEMBER_ID 회원으로
-        로그인한 것처럼 테스트
-    */
-        boolean authenticated = true;
-
-        String role =
-                TEMP_ROLE;
-
-        Integer loginMemberId =
-                TEMP_MEMBER_ID;
-
-
-    /*
-        실제 Spring Security를 사용할 때는
-        위 임시 코드 3줄을 지우고
-        아래 코드를 사용하면 됨.
-    */
-
-    /*
     boolean authenticated =
             isAuthenticated(authentication);
 
@@ -224,7 +203,7 @@ public class BoardController {
                         authentication.getName()
                 );
     }
-    */
+
 
 
     /*
@@ -480,17 +459,27 @@ public class BoardController {
         boolean admin =
                 isCurrentAdmin(authentication);
 
-        /*
-            공지사항과 FAQ는 관리자만 수정 가능
-        */
-        if ((
-                "NOTICE".equals(boardDto.getBoardType())
-                        || "FAQ".equals(boardDto.getBoardType())
-        ) && !admin) {
+        int loginMemberId =
+                getCurrentMemberId(authentication);
 
-            throw new RuntimeException(
-                    "공지사항과 FAQ는 관리자만 수정할 수 있습니다."
-            );
+        if (!admin) {
+
+            // 공지사항과 FAQ는 관리자만 수정 가능
+            if ("NOTICE".equals(boardDto.getBoardType())
+                    || "FAQ".equals(boardDto.getBoardType())) {
+
+                throw new RuntimeException(
+                        "공지사항과 FAQ는 관리자만 수정할 수 있습니다."
+                );
+            }
+
+            // 일반 게시글은 작성자 본인만 수정 가능
+            if (boardDto.getMemberId() != loginMemberId) {
+
+                throw new RuntimeException(
+                        "본인이 작성한 게시글만 수정할 수 있습니다."
+                );
+            }
         }
 
         model.addAttribute("boardDto", boardDto);
@@ -562,10 +551,14 @@ public class BoardController {
         boolean admin =
                 isCurrentAdmin(authentication);
 
+        int loginMemberId =
+                getCurrentMemberId(authentication);
+
         boardService.updateBoard(
                 boardDto,
                 imageFiles,
                 linkUrl,
+                loginMemberId,
                 admin
         );
 
@@ -670,7 +663,11 @@ public class BoardController {
         }
 
         String boardType =
-                boardService.deleteBoard(boardId);
+                boardService.deleteBoard(
+                        boardId,
+                        getCurrentMemberId(authentication),
+                        isCurrentAdmin(authentication)
+                );
 
         return "redirect:/board/list?type="
                 + boardType;

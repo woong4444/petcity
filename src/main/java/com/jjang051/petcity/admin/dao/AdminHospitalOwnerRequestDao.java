@@ -3,6 +3,7 @@ package com.jjang051.petcity.admin.dao;
 import com.jjang051.petcity.admin.dto.AdminHospitalOwnerRequestDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -28,8 +29,13 @@ public interface AdminHospitalOwnerRequestDao {
 
     int rejectOwnerRequest(@Param("requestId") Long requestId, @Param("rejectReason") String rejectReason, @Param("processedBy") Long processedBy);
 
+    int deleteRequestAnimals(@Param("requestId") Long requestId);
 
+    int deleteRequestService(@Param("requestId") Long requestId);
 
+    int deleteRequestMedicalSubjects(@Param("requestId") Long requestId);
+
+    int deleteProcessedRequest(@Param("requestId") Long requestId);
 
 
     List<AdminHospitalOwnerRequestDto> findRequestsByPage(@Param("offset") int offset, @Param("pageSize") int pageSize,

@@ -24,7 +24,8 @@ public class LoginHistoryArchiveService {
 
 
     // 10초만 지정해둠
-    private static final Duration ARCHIVE_AFTER = Duration.ofSeconds(10);
+//    private static final Duration ARCHIVE_AFTER = Duration.ofSeconds(10);
+    private static final Duration ARCHIVE_AFTER = Duration.ofMinutes(10);
 
     @Transactional
     public void archiveOldLoginHistories(){
