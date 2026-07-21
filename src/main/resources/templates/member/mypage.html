@@ -44,10 +44,8 @@
             <p>&#53448;&#53664; &#50836;&#52397; &#54980; 3&#51068; &#46041;&#50504; <b>DELETE_PENDING</b> &#49345;&#53468;&#47196; &#48372;&#44288;&#46104;&#47728;, &#44592;&#44036;&#51060; &#51648;&#45208;&#47732; &#49325;&#51228; &#52376;&#47532;&#46121;&#45768;&#45796;.</p>
         </div>
         <div th:if="${withdrawMessage}" class="message error" th:text="${withdrawMessage}"></div>
-        <form method="post" action="/member/mypage/withdraw" onsubmit="return confirm('&#53448;&#53748;&#47484; &#50836;&#52397;&#54616;&#49884;&#44192;&#49845;&#45768;&#44620;? &#50836;&#52397; &#54980; &#48148;&#47196; &#47196;&#44536;&#50500;&#50883;&#46121;&#45768;&#45796;.');" class="withdraw-form">
-            <label>&#54788;&#51116; &#48708;&#48128;&#48264;&#54840;
-                <input type="password" name="password" autocomplete="current-password" required placeholder="&#48708;&#48128;&#48264;&#54840;&#47484; &#51077;&#47141;&#54616;&#49464;&#50836;">
-            </label>
+        <!-- 상각_07-19: 일반/SNS 회원 모두 독립 탈퇴 사유 입력 화면을 거치도록 연결 -->
+        <form method="get" action="/member/feature/withdraw" class="withdraw-form">
             <button class="btn danger" type="submit">&#54924;&#50896; &#53448;&#53748; &#50836;&#52397;</button>
         </form>
     </section>
