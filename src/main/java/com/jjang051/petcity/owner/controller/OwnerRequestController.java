@@ -5,15 +5,11 @@ import com.jjang051.petcity.owner.dto.OwnerRequestDto;
 import com.jjang051.petcity.owner.service.OwnerRequestService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -21,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequestMapping("/owner")
 @RequiredArgsConstructor
@@ -118,6 +115,8 @@ public class OwnerRequestController {
                     new OwnerRequestDto()
             );
         }
+        // 일반 신청 화면은 수정 화면이 아님
+        model.addAttribute("editMode", false);
 
         model.addAttribute(
                 "kakaoJavascriptKey",
@@ -358,5 +357,116 @@ public class OwnerRequestController {
         );
 
         return "owner/apply-complete";
+    }
+
+    @GetMapping("/edit/{requestId}")
+    public String ownerRequestEditPage(
+            @PathVariable int requestId,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        MemberDto loginMember =
+                (MemberDto)  session.getAttribute("loginMember");
+
+        if(loginMember == null  || loginMember.getMemberId() == null) {
+            return "redirect:/member/login";
+        }
+
+        try {
+            OwnerRequestDto requestDto =
+                    ownerRequestService.getPendingOwnerRequestForEdit(
+                            loginMember.getMemberId(),
+                            requestId
+                    );
+
+            model.addAttribute(
+                    "member",
+                    ownerRequestService.getMemberForRequest(
+                            loginMember.getMemberId()
+                    )
+            );
+
+            model.addAttribute("ownerRequestDto", requestDto);
+            model.addAttribute("editMode",true);
+
+            model.addAttribute(
+                    "animalList",
+                    ownerRequestService.getAnimalList()
+            );
+
+            model.addAttribute(
+                    "medicalServiceList",
+                    ownerRequestService.getMedicalServiceList()
+            );
+
+            model.addAttribute(
+                    "medicalSubjectList",
+                    ownerRequestService.getMedicalSubjectList()
+            );
+            model.addAttribute(
+                    "kakaoJavascriptKey",
+                    kakaoJavascriptKey
+            );
+
+            return "owner/apply";
+
+        }  catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+
+            return "redirect:/owner/status";
+        }
+
+    }
+    @PostMapping("/edit/{requestId}")
+    public String ownerRequestEditProcess(
+            @PathVariable int requestId,
+            @ModelAttribute OwnerRequestDto ownerRequestDto,
+            @RequestParam(value = "documentFile", required = false)
+            MultipartFile documentFile,
+            @RequestParam(value = "hospitalImage", required = false)
+            MultipartFile hospitalImage,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        MemberDto loginMember =
+                (MemberDto)  session.getAttribute("loginMember");
+
+        if(loginMember == null || loginMember.getMemberId() == null) {
+            return  "redirect:/member/login";
+        }
+
+        try {
+
+            ownerRequestDto.setRequestId(requestId);
+            ownerRequestDto.setMemberId(loginMember.getMemberId().intValue());
+
+            ownerRequestService.updateOwnerRequest(
+                    ownerRequestDto,
+                    documentFile,
+                    hospitalImage
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "병원장 신청 정보를 수정했습니다."
+            );
+
+            return "redirect:/owner/status";
+
+        } catch (IOException | RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+
+            return "redirect:/owner/edit" + requestId;
+
+
+        }
+
     }
 }

@@ -1311,3 +1311,35 @@ button.animal-category-header {
         grid-template-columns: 1fr;
     }
 }
+
+/* 심사 중 신청서 수정 버튼 */
+.owner-status-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.owner-status-edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 0 18px;
+
+    border-radius: 12px;
+    background: #0ea5e9;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+
+    box-shadow: 0 8px 18px rgba(14, 165, 233, 0.22);
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.owner-status-edit-button:hover {
+    background: #0284c7;
+    transform: translateY(-2px);
+}

@@ -79,7 +79,9 @@
 
 
         <form id="ownerApplyForm"
-              th:action="@{/owner/apply}"
+              th:action="${editMode}
+          ? @{/owner/edit/{requestId}(requestId=${ownerRequestDto.requestId})}
+          : @{/owner/apply}"
               th:object="${ownerRequestDto}"
               th:data-member-role="${member.memberRole}"
               method="post"
@@ -246,17 +248,37 @@
                             <span class="required">*</span>
                         </label>
 
+                        <!-- 수정 화면에서는 새 파일을 올리지 않아도 기존 증빙서류 유지 -->
                         <input type="file"
                                id="documentFile"
                                name="documentFile"
                                accept=".pdf,.jpg,.jpeg,.png"
-                               required>
+                               th:required="${editMode == null or !editMode}">
 
                         <p class="form-help">
                             사업자등록증 또는 동물병원 개설신고증을
                             PDF, JPG, PNG 형식으로 첨부해 주세요.
                         </p>
+                        <!-- file input에는 보안상 기존 파일명이 표시되지 않으므로 링크로 확인 -->
+                        <p th:if="${editMode and ownerRequestDto.documentUrl != null}"
+                           class="form-help">
 
+                            현재 증빙서류:
+                            <a th:href="${ownerRequestDto.documentUrl}"
+                               target="_blank"
+                               rel="noopener">
+                                기존 증빙서류 보기
+                            </a>
+
+                            <br>
+                            새 파일을 선택하지 않으면 기존 파일이 유지됩니다.
+                        </p>
+
+                        <!-- 수정 화면에서만 안내 표시 -->
+                        <p th:if="${editMode and ownerRequestDto.documentUrl != null}"
+                           class="form-help">
+                            새 증빙서류를 선택하지 않으면 기존 파일이 유지됩니다.
+                        </p>
                     </div>
 
                 </div>
@@ -969,21 +991,44 @@
                             <span class="required">*</span>
                         </label>
 
+                        <!-- 수정 화면에서는 새 이미지를 올리지 않아도 기존 이미지 유지 -->
                         <input type="file"
                                id="hospitalImage"
                                name="hospitalImage"
                                accept=".jpg,.jpeg,.png,.webp"
-                               required>
+                               th:required="${!editMode}">
 
                         <p class="form-help">
                             병원 목록과 상세 페이지에 공개되는 이미지입니다.
                         </p>
 
+                        <!-- 수정 화면에서만 안내 표시 -->
+                        <p th:if="${editMode and ownerRequestDto.hospitalImageUrl != null}"
+                           class="form-help">
+                            새 병원 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.
+                        </p>
 
                         <!-- 이미지 미리보기 -->
+                        <!--
+       수정 화면에서는 기존 이미지를 먼저 보여줌.
+       새 파일을 선택하면 JavaScript가 이 영역을 새 이미지로 교체함.
+   -->
                         <div id="hospitalImagePreview"
-                             class="hospital-image-preview">
+                             class="hospital-image-preview"
+                             th:classappend="${editMode
+         and ownerRequestDto.hospitalImageUrl != null} ? ' show' : ''">
+
+                            <img th:if="${editMode
+        and ownerRequestDto.hospitalImageUrl != null}"
+                                 th:src="${ownerRequestDto.hospitalImageUrl}"
+                                 alt="현재 병원 대표 이미지">
+
                         </div>
+
+                        <p th:if="${editMode and ownerRequestDto.hospitalImageUrl != null}"
+                           class="form-help">
+                            새 이미지를 선택하지 않으면 현재 대표 이미지가 유지됩니다.
+                        </p>
 
                     </div>
 
@@ -1038,8 +1083,12 @@
                         취소
                     </a>
 
+                    <!-- 일반 신청과 수정 화면에서 버튼 문구를 구분 -->
                     <button type="submit"
-                            class="submit-button">
+                            class="submit-button"
+                            th:text="${editMode}
+            ? '수정 내용 저장'
+            : '병원장 권한 신청'">
                         병원장 권한 신청
                     </button>
 
