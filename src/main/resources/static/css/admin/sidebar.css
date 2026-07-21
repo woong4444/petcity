@@ -72,7 +72,7 @@ textarea {
 .admin-sidebar {
     position: sticky;
     top: 0;
-
+    flex-shrink:0;
     height: 100vh;
     padding: 25px 16px;
 
