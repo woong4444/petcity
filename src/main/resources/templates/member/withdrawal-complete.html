@@ -1,0 +1,26 @@
+<!-- 상각_07-19: 8080 독립 탈퇴 완료 및 복구코드 안내 화면 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="refresh" content="10;url=/">
+    <title>탈퇴 접수 완료 | PetCity</title>
+    <style>
+        body{font-family:sans-serif;background:#f6f8fb}.box{max-width:600px;margin:90px auto;padding:38px;background:#fff;border-radius:20px;box-shadow:0 12px 35px #1f35521a;text-align:center}.code{padding:20px;margin:24px 0;background:#0f172a;color:#fff;border-radius:12px;font-size:26px;font-weight:900;letter-spacing:3px}.warn{color:#b42318;font-weight:700}.auto-redirect{margin:20px 0;color:#667085;font-weight:700}.links a{display:inline-block;margin:8px;padding:13px 20px;border-radius:10px;background:#2563eb;color:#fff;text-decoration:none}
+    </style>
+</head>
+<body>
+<main class="box">
+    <h1>탈퇴 요청이 접수되었습니다</h1>
+    <p>탈퇴 대기 상태로 전환되었습니다. 3일 후 계정이 완전히 삭제되며, 삭제 전까지 복구를 신청할 수 있습니다.</p>
+    <div th:if="${recoveryCode != null}" class="code" th:text="${recoveryCode}"></div>
+    <p th:if="${recoveryCode == null}" class="warn">복구코드는 탈퇴 직후에만 표시됩니다.</p>
+    <p class="auto-redirect">10초 후 메인 화면으로 이동합니다.</p>
+    <div class="links">
+        <a th:href="${snsMember == true ? '/member/recovery?type=sns' : '/member/recovery?type=local'}">탈퇴 취소 및 복구 신청</a>
+        <a href="/">홈으로</a>
+    </div>
+</main>
+</body>
+</html>

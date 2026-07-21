@@ -1,0 +1,75 @@
+<!-- 상각_07-19: 8080 독립 탈퇴 취소 및 계정 복구 화면 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>탈퇴 취소 및 계정 복구 | PetCity</title>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <style>
+        body{background:#f6f8fb}.box{max-width:540px;margin:65px auto;padding:34px;background:#fff;border-radius:20px;box-shadow:0 12px 35px #1f35521a}.box p{color:#667085;line-height:1.7}.box label{display:block;font-weight:700;margin:17px 0 7px}.box input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #d4dce8;border-radius:10px}.box button{width:100%;margin-top:24px;padding:14px;border:0;border-radius:10px;background:#0f766e;color:#fff;font-weight:800}.msg{padding:14px;background:#fff1f2;color:#b42338;border-radius:10px}.note{padding:14px;background:#eff6ff;color:#1d4ed8;border-radius:10px}.help{margin:7px 0 0;font-size:14px}.email-link{text-align:center;margin-top:18px}
+    </style>
+</head>
+<body>
+<header th:replace="~{common/head :: head}"></header>
+<main class="box">
+    <h1>탈퇴 취소 및 계정 복구</h1>
+    <p id="snsNote" class="note" th:hidden="${!snsRecovery}">SNS에 등록된 이메일과 복구코드가 일치하면 즉시 복구됩니다.</p>
+    <p id="localNote" class="note" th:hidden="${snsRecovery}">등록된 이메일과 복구코드가 일치하면 즉시 복구됩니다.</p>
+    <div th:if="${message}" class="msg" th:text="${message}"></div>
+    <div th:if="${successMessage}" class="note" th:text="${successMessage}"></div>
+    <!-- 상각_07-19: 이메일 인증이 끝난 SNS 회원에게 복구코드 수신 주소만 읽기 전용 안내 -->
+    <p th:if="${verifiedEmailRecovery}" class="note">
+        복구코드 발송 이메일: <strong th:text="${prefillLoginId}"></strong>
+    </p>
+
+    <form method="post" action="/member/recovery">
+        <!-- 상각_07-19: 복구 실패 후에도 SNS 전용 분기를 유지하기 위한 화면 유형 -->
+        <input id="accountType" type="hidden" name="accountType" th:value="${snsRecovery ? 'sns' : 'local'}">
+        <label id="loginIdLabel" th:hidden="${verifiedEmailRecovery}" th:text="${snsRecovery ? 'SNS 등록 이메일' : '등록 이메일'}">등록 이메일</label>
+        <input id="loginId" name="loginId" th:hidden="${verifiedEmailRecovery}" th:value="${prefillLoginId}"
+               th:placeholder="${snsRecovery ? 'SNS 가입에 사용한 이메일 주소' : '가입 시 등록한 이메일 주소'}"
+               autocomplete="username" required>
+        <p id="snsHelp" class="help" th:hidden="${verifiedEmailRecovery or !snsRecovery}">Google·Kakao·Naver 가입에 사용한 이메일 주소를 입력해주세요.</p>
+
+        <label>복구코드</label>
+        <input name="recoveryCode" maxlength="12" autocomplete="off" required>
+        <button>탈퇴 취소하고 계정 복구하기</button>
+    </form>
+    <p class="email-link"><a id="recoveryEmailLink" th:href="${snsRecovery ? '/member/recovery-code-email?type=sns' : '/member/recovery-code-email?type=local'}">복구코드를 모르시나요? 이메일로 새 코드 받기</a></p>
+</main>
+<script th:inline="javascript">
+    const initialSns = /*[[${snsRecovery}]]*/ false;
+    const verifiedEmailRecovery = /*[[${verifiedEmailRecovery}]]*/ false;
+    const idInput = document.getElementById('loginId');
+    const snsNote = document.getElementById('snsNote');
+    const localNote = document.getElementById('localNote');
+    const snsHelp = document.getElementById('snsHelp');
+    const label = document.getElementById('loginIdLabel');
+    const accountType = document.getElementById('accountType');
+    const recoveryEmailLink = document.getElementById('recoveryEmailLink');
+
+    function syncType() {
+        if (verifiedEmailRecovery) {
+            label.hidden = true;
+            idInput.hidden = true;
+            snsHelp.hidden = true;
+            return;
+        }
+        // 상각_07-19: 일반회원도 이메일을 입력하므로 '@' 문자로 SNS를 추정하지 않음
+        const sns = initialSns;
+        accountType.value = sns ? 'sns' : 'local';
+        recoveryEmailLink.href = sns ? '/member/recovery-code-email?type=sns' : '/member/recovery-code-email?type=local';
+        snsNote.hidden = !sns;
+        localNote.hidden = sns;
+        snsHelp.hidden = !sns;
+        label.textContent = sns ? 'SNS 등록 이메일' : '등록 이메일';
+        idInput.placeholder = sns ? 'SNS 가입에 사용한 이메일 주소' : '가입 시 등록한 이메일 주소';
+    }
+
+    idInput.addEventListener('input', syncType);
+    idInput.addEventListener('change', syncType);
+    syncType();
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+package com.jjang051.petcity.memberfeature.controller;
+
+// 상각_07-19: 팀장 원본 MemberController를 변경하지 않는 독립 회원 기능 컨트롤러
+import com.jjang051.petcity.mail.service.EmailVerificationService;
+import com.jjang051.petcity.mail.service.RecoveryCodeEmailService;
+import com.jjang051.petcity.member.dto.MemberDto;
+import com.jjang051.petcity.member.service.MemberSecurityAuditService;
+import com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto;
+import com.jjang051.petcity.memberfeature.service.MemberFeatureService;
+import jakarta.servlet.http.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.*;
+
+@Controller
+@RequiredArgsConstructor
+public class MemberFeatureController {
+    private final MemberFeatureService service;
+    private final EmailVerificationService emailVerificationService;
+    private final RecoveryCodeEmailService recoveryCodeEmailService;
+    private final MemberSecurityAuditService auditService;
+
+    // 상각_07-19: 회원가입 화면에서 기존 SNS 계정으로 시도한 경우의 독립 안내 화면
+    @GetMapping("/member/feature/already-sns-member")
+    public String alreadySnsMember() {
+        return "member/feature-already-sns-member";
+    }
+
+    @GetMapping("/member/find-id") public String findIdForm(){return "member/find-id";}
+    @PostMapping("/member/find-id") public String findId(@RequestParam String email,RedirectAttributes r){try{r.addFlashAttribute("foundLoginId",service.findLoginId(email));}catch(IllegalArgumentException e){r.addFlashAttribute("message",e.getMessage());}return "redirect:/member/find-id";}
+    @GetMapping("/member/find-password") public String findPassword(HttpSession s,Model m){m.addAttribute("verificationPending",s.getAttribute("passwordResetMemberId")!=null);m.addAttribute("resetLoginId",s.getAttribute("passwordResetLoginId"));m.addAttribute("resetEmail",s.getAttribute("passwordResetEmail"));m.addAttribute("resetPhone",s.getAttribute("passwordResetPhone"));return "member/find-password";}
+    @PostMapping("/member/find-password/send") public String sendPassword(@RequestParam String loginId,@RequestParam String email,@RequestParam String phone,HttpSession s,RedirectAttributes r){try{var m=service.verifyResetIdentity(loginId,email,phone);emailVerificationService.sendVerificationCode(m.getEmail());s.setAttribute("passwordResetMemberId",m.getMemberId());s.setAttribute("passwordResetLoginId",m.getLoginId());s.setAttribute("passwordResetEmail",m.getEmail());s.setAttribute("passwordResetPhone",m.getPhone());s.removeAttribute("passwordResetVerifiedAt");r.addFlashAttribute("message","가입 이메일로 인증번호를 보냈습니다.");}catch(IllegalArgumentException|IllegalStateException e){r.addFlashAttribute("message",e.getMessage());}return "redirect:/member/find-password";}
+    @PostMapping("/member/find-password/verify") public String verifyPassword(@RequestParam String code,HttpSession s,RedirectAttributes r){String email=(String)s.getAttribute("passwordResetEmail");if(email==null||!emailVerificationService.verifyCode(email,code.trim())){r.addFlashAttribute("message","인증번호가 올바르지 않거나 만료되었습니다.");return "redirect:/member/find-password";}s.setAttribute("passwordResetVerifiedAt",System.currentTimeMillis());return "redirect:/member/reset-password";}
+    @PostMapping("/member/find-password/reset") public String clearPassword(HttpSession s){clear(s);return "redirect:/member/find-password";}
+    @GetMapping("/member/reset-password") public String resetForm(HttpSession s){return verified(s)?"member/reset-password":"redirect:/member/find-password";}
+    @PostMapping("/member/reset-password") public String reset(@RequestParam String newPassword,@RequestParam String newPasswordConfirm,HttpSession s,RedirectAttributes r){if(!verified(s))return "redirect:/member/find-password";if(!newPassword.equals(newPasswordConfirm)){r.addFlashAttribute("message","새 비밀번호 확인이 일치하지 않습니다.");return "redirect:/member/reset-password";}try{service.resetPassword((Long)s.getAttribute("passwordResetMemberId"),newPassword);clear(s);r.addFlashAttribute("message","비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.");return "redirect:/member/login";}catch(IllegalArgumentException e){r.addFlashAttribute("message",e.getMessage());return "redirect:/member/reset-password";}}
+
+    // 상각_07-19: 같은 브라우저에서 SNS 테스트 후 일반회원 복구 시 이전 SNS 인증 세션을 분리
+    @GetMapping("/member/recovery") public String recoveryForm(@RequestParam(required=false)String type,HttpSession s,Model m){if("local".equalsIgnoreCase(type))clearVerifiedRecovery(s);boolean verified=verifiedRecovery(s);boolean sns=verified||"sns".equalsIgnoreCase(type);m.addAttribute("verifiedEmailRecovery",verified);m.addAttribute("snsRecovery",sns);if(verified)m.addAttribute("prefillLoginId",s.getAttribute("verifiedRecoveryLoginId"));return "member/recovery";}
+    // 상각_07-19: SNS 복구 실패 시에도 Google·Kakao·Naver 전용 화면 유형을 유지
+    @PostMapping("/member/recovery") public String recover(@RequestParam(defaultValue="")String loginId,@RequestParam(defaultValue="")String accountType,@RequestParam String recoveryCode,HttpSession s,HttpServletRequest q,RedirectAttributes r){MemberFeatureAccountDto m=null;boolean snsAttempt=verifiedRecovery(s)||"sns".equalsIgnoreCase(accountType);try{if(verifiedRecovery(s)){m=service.verifyRecoveryCode((Long)s.getAttribute("verifiedRecoveryMemberId"),recoveryCode);}else{m=service.recoverableByEmail(loginId,accountType);snsAttempt=m.getLoginType()!=null&&!"LOCAL".equalsIgnoreCase(m.getLoginType());m=service.verifyRecoveryCode(m.getMemberId(),recoveryCode);}service.restore(m.getMemberId());clearVerifiedRecovery(s);audit(m,"ACCOUNT_RECOVERED","SUCCESS","등록 이메일과 복구코드 본인확인 후 즉시 복구",q);return "redirect:/member/recovery-complete";}catch(IllegalArgumentException e){if(m!=null)snsAttempt=m.getLoginType()!=null&&!"LOCAL".equalsIgnoreCase(m.getLoginType());audit(m,"ACCOUNT_RECOVERY_ATTEMPT","FAILURE",e.getMessage(),q);r.addFlashAttribute("message",e.getMessage());r.addFlashAttribute("prefillLoginId",loginId);return snsAttempt?"redirect:/member/recovery?type=sns":"redirect:/member/recovery?type=local";}}
+    @GetMapping("/member/recovery-complete") public String recoveryComplete(){return "member/recovery-complete";}
+    // 상각_07-19: 이메일은 가입 시 확인된 정보로 간주하고 인증번호 단계 없이 복구코드를 바로 발송
+    @GetMapping("/member/recovery-code-email") public String recoveryEmail(@RequestParam(required=false)String type,Model m){m.addAttribute("snsRecovery","sns".equalsIgnoreCase(type));return "member/recovery-code-email";}
+    @PostMapping("/member/recovery-code-email/send") public String sendRecovery(@RequestParam String loginId,@RequestParam(defaultValue="local")String accountType,HttpServletRequest q,RedirectAttributes r){MemberFeatureAccountDto m=null;try{m=service.recoverableByEmail(loginId,accountType);String code=UUID.randomUUID().toString().replace("-","").substring(0,12).toUpperCase(Locale.ROOT);service.replaceRecoveryCode(m.getMemberId(),code);recoveryCodeEmailService.sendNewRecoveryCode(m.getEmail(),code);audit(m,"RECOVERY_CODE_REISSUED","SUCCESS","등록 이메일로 복구코드 직접 재발급",q);boolean sns=m.getLoginType()!=null&&!"LOCAL".equalsIgnoreCase(m.getLoginType());r.addFlashAttribute("prefillLoginId",m.getEmail());r.addFlashAttribute("successMessage","새 복구코드를 등록 이메일로 발송했습니다. 이메일에서 코드를 확인해 입력해 주세요.");return sns?"redirect:/member/recovery?type=sns":"redirect:/member/recovery?type=local";}catch(IllegalArgumentException|IllegalStateException e){audit(m,"RECOVERY_CODE_REISSUED","FAILURE",e.getMessage(),q);r.addFlashAttribute("message",e.getMessage());r.addFlashAttribute("prefillLoginId",loginId);return "sns".equalsIgnoreCase(accountType)?"redirect:/member/recovery-code-email?type=sns":"redirect:/member/recovery-code-email?type=local";}}
+    @GetMapping("/member/recovery-code-email-complete") public String recoveryEmailComplete(){return "member/recovery-code-email-complete";}
+
+    @GetMapping("/member/feature/withdraw") public String withdrawForm(HttpSession s,Model m){MemberDto login=login(s);if(login==null)return "redirect:/member/login";m.addAttribute("member",service.findByMemberId(login.getMemberId()));return "member/feature-withdraw";}
+    @GetMapping("/member/feature/mypage") public String featureMypage(HttpSession s,Model m){MemberDto login=login(s);if(login==null)return "redirect:/member/login";m.addAttribute("member",service.findByMemberId(login.getMemberId()));return "member/feature-mypage";}
+    // 상각_07-19: SNS 회원 전화번호 없이 닉네임만 독립 수정
+    @PostMapping("/member/feature/mypage") public String updateFeatureMypage(@RequestParam String nickname,HttpSession s,RedirectAttributes r){MemberDto login=login(s);if(login==null)return "redirect:/member/login";try{service.updateSnsNickname(login.getMemberId(),nickname);MemberFeatureAccountDto updated=service.findByMemberId(login.getMemberId());login.setNickname(updated.getNickname());s.setAttribute("loginMember",login);r.addFlashAttribute("successMessage","회원 정보가 수정되었습니다.");}catch(IllegalArgumentException e){r.addFlashAttribute("message",e.getMessage());}return "redirect:/member/feature/mypage";}
+    @PostMapping("/member/feature/withdraw") public String withdraw(@RequestParam(defaultValue="")String password,@RequestParam String deleteReason,HttpSession s,HttpServletRequest q,RedirectAttributes r){MemberDto login=login(s);if(login==null)return "redirect:/member/login";var m=service.findByMemberId(login.getMemberId());try{String code=service.requestWithdrawal(login.getMemberId(),password,deleteReason);audit(m,"WITHDRAWAL_REQUESTED","SUCCESS",deleteReason,q);r.addFlashAttribute("snsMember",!"LOCAL".equals(m.getLoginType()));r.addFlashAttribute("recoveryCode",code);SecurityContextHolder.clearContext();s.invalidate();return "redirect:/member/withdrawal-complete";}catch(IllegalArgumentException e){audit(m,"WITHDRAWAL_REQUESTED","FAILURE",e.getMessage(),q);r.addFlashAttribute("withdrawMessage",e.getMessage());return "redirect:/member/feature/withdraw";}}
+    @GetMapping("/member/withdrawal-complete") public String withdrawalComplete(){return "member/withdrawal-complete";}
+    @GetMapping("/member/feature/account-status") public String accountStatus(HttpSession s,Model m){Object id=s.getAttribute("featureAccountLoginId");if(id==null)return "redirect:/member/login";m.addAttribute("loginId",id);m.addAttribute("deleteReason",s.getAttribute("featureAccountReason"));m.addAttribute("pending",s.getAttribute("featureAccountPending"));m.addAttribute("snsMember",s.getAttribute("featureAccountSns"));s.removeAttribute("featureAccountLoginId");s.removeAttribute("featureAccountReason");s.removeAttribute("featureAccountPending");s.removeAttribute("featureAccountSns");return "member/feature-account-status";}
+    @GetMapping("/member/feature/password") public String passwordForm(HttpSession s,Model m){MemberDto login=login(s);if(login==null)return "redirect:/member/login";m.addAttribute("member",service.findByMemberId(login.getMemberId()));return "member/feature-change-password";}
+    @PostMapping("/member/feature/password") public String changePassword(@RequestParam String currentPassword,@RequestParam String newPassword,@RequestParam String newPasswordConfirm,HttpSession s,RedirectAttributes r){MemberDto login=login(s);if(login==null)return "redirect:/member/login";if(!newPassword.equals(newPasswordConfirm)){r.addFlashAttribute("message","새 비밀번호 확인이 일치하지 않습니다.");return "redirect:/member/feature/password";}try{service.changePassword(login.getMemberId(),currentPassword,newPassword);SecurityContextHolder.clearContext();s.invalidate();r.addFlashAttribute("message","비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.");return "redirect:/member/login";}catch(IllegalArgumentException e){r.addFlashAttribute("message",e.getMessage());return "redirect:/member/feature/password";}}
+
+    private MemberDto login(HttpSession s){return (MemberDto)s.getAttribute("loginMember");}
+    private boolean verified(HttpSession s){Object at=s.getAttribute("passwordResetVerifiedAt");return at instanceof Long&&System.currentTimeMillis()-(Long)at<=600000;}
+    private boolean verifiedRecovery(HttpSession s){Object at=s.getAttribute("verifiedRecoveryAt");return s.getAttribute("verifiedRecoveryMemberId") instanceof Long&&at instanceof Long&&System.currentTimeMillis()-(Long)at<=600000;}
+    private void clearVerifiedRecovery(HttpSession s){s.removeAttribute("verifiedRecoveryMemberId");s.removeAttribute("verifiedRecoveryLoginId");s.removeAttribute("verifiedRecoveryAt");}
+    private void clearRecoveryEmail(HttpSession s){s.removeAttribute("recoveryEmailMemberId");s.removeAttribute("recoveryEmailAddress");s.removeAttribute("recoveryEmailSns");}
+    private void clear(HttpSession s){s.removeAttribute("passwordResetMemberId");s.removeAttribute("passwordResetLoginId");s.removeAttribute("passwordResetEmail");s.removeAttribute("passwordResetPhone");s.removeAttribute("passwordResetVerifiedAt");}
+    private void audit(MemberFeatureAccountDto m,String type,String result,String reason,HttpServletRequest q){if(m==null)return;MemberDto dto=MemberDto.builder().memberId(m.getMemberId()).loginId(m.getLoginId()).nickname(m.getNickname()).loginType(m.getLoginType()).build();String f=q.getHeader("X-Forwarded-For");auditService.record(dto,type,result,reason,f==null||f.isBlank()?q.getRemoteAddr():f);}
+}

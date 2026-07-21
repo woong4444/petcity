@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page | PetCity</title>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+</head>
+<body>
+<header th:replace="~{common/head :: head}"></header>
+
+<!-- 상각_07-19: SNS 회원 전용 독립 마이페이지. 팀장 원본 mypage.html은 변경하지 않음. -->
+<main class="mypage-wrap">
+    <section class="mypage-card">
+        <div class="mypage-heading">
+            <span>🐾</span>
+            <div>
+                <h1>마이페이지</h1>
+                <p>SNS 회원 정보를 확인하고 수정할 수 있어요.</p>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="message success" th:text="${successMessage}"></div>
+        <div th:if="${message}" class="message error" th:text="${message}"></div>
+
+        <form method="post" action="/member/feature/mypage" class="profile-form">
+            <div class="field-grid">
+                <label>아이디<input type="text" th:value="${member.loginId}" readonly></label>
+                <label>이메일<input type="email" th:value="${member.email}" readonly></label>
+            </div>
+            <p class="field-help">SNS 아이디와 이메일은 이 화면에서 변경할 수 없습니다.</p>
+
+            <div class="field-grid">
+                <label>닉네임<input type="text" name="nickname" th:value="${member.nickname}" minlength="2" maxlength="20" required></label>
+                <label>가입 방식<input type="text" th:value="${member.loginType}" readonly></label>
+            </div>
+            <button class="btn primary" type="submit">회원 정보 저장</button>
+        </form>
+        <a class="pet-link" href="/member/mypage/pets">🐾 내 반려동물 관리하기</a>
+    </section>
+
+    <section class="withdraw-card">
+        <div>
+            <h2>회원 탈퇴</h2>
+            <p>SNS 회원은 현재 로그인된 SNS 인증으로 본인을 확인하므로 비밀번호를 입력하지 않습니다.</p>
+            <p>탈퇴 요청 즉시 로그아웃되며 3일 후 계정이 완전히 삭제됩니다. 삭제 전까지 복구를 신청할 수 있습니다.</p>
+        </div>
+        <a class="btn danger withdraw-link" href="/member/feature/withdraw">회원 탈퇴 요청</a>
+    </section>
+</main>
+
+<style>
+.mypage-wrap{max-width:980px;margin:56px auto 90px;padding:0 20px;color:#172033}.mypage-card,.withdraw-card{background:#fff;border:1px solid #e6ebf2;border-radius:20px;padding:34px;box-shadow:0 12px 30px rgba(31,53,82,.08);margin-bottom:24px}.mypage-heading{display:flex;gap:13px;align-items:center;border-bottom:1px solid #edf0f5;padding-bottom:22px;margin-bottom:25px}.mypage-heading span{font-size:34px}.mypage-heading h1{font-size:28px;margin:0}.mypage-heading p,.withdraw-card p{color:#718096;margin:6px 0 0;line-height:1.6}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.profile-form label{display:flex;flex-direction:column;gap:8px;font-weight:700;font-size:14px}.profile-form input{border:1px solid #d8e0ec;border-radius:10px;padding:13px 14px;font-size:15px}.profile-form input[readonly]{background:#f5f7fa;color:#778398}.field-help{font-size:13px;color:#8c98a9;margin:-8px 0 18px}.btn{display:inline-block;border:0;border-radius:10px;padding:13px 20px;font-weight:800;cursor:pointer;text-decoration:none}.primary{background:#2563eb;color:#fff}.pet-link{display:inline-block;margin-left:10px;color:#0f766e;font-weight:800;text-decoration:none}.withdraw-card{border-color:#ffe1e5}.withdraw-card h2{margin:0;color:#bd2739}.danger{background:#fff1f2;color:#d7374b;border:1px solid #fecdd3}.withdraw-link{margin-top:22px}.message{padding:13px 15px;border-radius:10px;margin:14px 0;font-weight:700}.success{background:#eafaf0;color:#167a40}.error{background:#fff0f1;color:#c43646}@media(max-width:650px){.field-grid{grid-template-columns:1fr}.pet-link{display:block;margin:16px 0 0}}
+</style>
+</body>
+</html>
