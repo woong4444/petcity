@@ -52,7 +52,6 @@ public class AdminHospitalOwnerRequestService {
     }
 
 
-
     @Transactional(readOnly = true)
     public AdminHospitalOwnerRequestDto getRequestsById(Long requestId) {
         validateRequestId(requestId);
@@ -119,8 +118,44 @@ public class AdminHospitalOwnerRequestService {
         }
     }
 
+    @Transactional
+    public int deleteProcessedRequest(List<Long> requestIds) {
+        if (requestIds == null || requestIds.isEmpty()) {
+            throw new IllegalArgumentException("삭제할 신청을 선택해주세요");
+        }
+        List<Long> uniqueRequestIds = requestIds.stream().distinct().toList();
+        for (Long requestId : uniqueRequestIds) {
+            validateRequestId(requestId);
+            AdminHospitalOwnerRequestDto request = adminHospitalOwnerRequestDao.findRequestForUpdateById(requestId);
+
+            validateDeletableRequest(request);
+
+            adminHospitalOwnerRequestDao.deleteRequestAnimals(requestId);
+            adminHospitalOwnerRequestDao.deleteRequestService(requestId);
+            adminHospitalOwnerRequestDao.deleteRequestMedicalSubjects(requestId);
+            int deletedRequest = adminHospitalOwnerRequestDao.deleteProcessedRequest(requestId);
+            if (deletedRequest != 1) {
+                throw new IllegalArgumentException("처리된 병원장 신청을 삭제할 수 없습니다.");
+            }
+        }
+        return uniqueRequestIds.size();
+    }
+
+    private void validateDeletableRequest(AdminHospitalOwnerRequestDto request) {
+        if (request == null) {
+            throw new IllegalArgumentException("병원장 신청 내역을 찾을 수 없습니다.");
+        }
+        if ("PENDING".equals(request.getStatus())) {
+            throw new IllegalArgumentException("처리되지 않은 신청은 삭제할 수 없습니다.");
+        }
+        if (!"APPROVED".equals(request.getStatus()) && !"REJECTED".equals(request.getStatus())) {
+            throw new IllegalArgumentException("승인 또는 반려된 신청만 삭제할 수 있습니다.");
+        }
+    }
+
     private void validateRequestId(Long requestId) {
         if (requestId == null || requestId <= 0) {
+
             throw new IllegalArgumentException("신청 번호가 올바르지 않습니다.");
         }
 
@@ -155,7 +190,6 @@ public class AdminHospitalOwnerRequestService {
         }
         return normalizedReason;
     }
-
 
     private String normalizeDirection(String direction) {
         if ("asc".equalsIgnoreCase(direction)) {
@@ -200,7 +234,6 @@ public class AdminHospitalOwnerRequestService {
         }
         return keyword.trim();
     }
-
 
 
 }

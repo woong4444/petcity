@@ -240,7 +240,7 @@
         HOSPITAL_ID,
         ANIMAL_ID
         )
-        SELECT DISTINCT
+        SELECT
         #{hospitalId},
         ORA.ANIMAL_ID
         FROM OWNER_REQUEST_ANIMAL ORA
@@ -252,7 +252,7 @@
         HOSPITAL_ID,
         SERVICE_ID
         )
-        SELECT DISTINCT
+        SELECT
         #{hospitalId},
         ORS.SERVICE_ID
         FROM OWNER_REQUEST_SERVICE ORS
@@ -264,7 +264,7 @@
         HOSPITAL_ID,
         SUBJECT_ID
         )
-        SELECT DISTINCT
+        SELECT
         #{hospitalId},
         ORMS.SUBJECT_ID
         FROM OWNER_REQUEST_MEDICAL_SUBJECT ORMS
@@ -305,5 +305,27 @@
         AND STATUS = 'PENDING'
         AND HOSPITAL_ID IS NULL
     </update>
+
+    <delete id="deleteRequestAnimals">
+        DELETE FROM OWNER_REQUEST_ANIMAL
+        WHERE REQUEST_ID = #{requestId}
+    </delete>
+
+    <delete id="deleteRequestService">
+        DELETE FROM OWNER_REQUEST_SERVICE
+        WHERE REQUEST_ID = #{requestId}
+    </delete>
+
+    <delete id="deleteRequestMedicalSubjects">
+        DELETE FROM OWNER_REQUEST_MEDICAL_SUBJECT
+        WHERE REQUEST_ID = #{requestId}
+    </delete>
+
+    <delete id="deleteProcessedRequest">
+        DELETE FROM HOSPITAL_OWNER_REQUEST
+        WHERE REQUEST_ID = #{requestId}
+        AND STATUS IN('APPROVED', 'REJECTED')
+    </delete>
+
 
 </mapper>
