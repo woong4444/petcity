@@ -3,6 +3,7 @@ package com.jjang051.petcity.admin.service;
 import com.jjang051.petcity.admin.dao.AdminMainBannerDao;
 import com.jjang051.petcity.admin.dto.AdminMainBannerCreateDto;
 import com.jjang051.petcity.admin.dto.AdminMainBannerDto;
+import com.jjang051.petcity.admin.dto.AdminMainBannerUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +33,10 @@ public class AdminMainBannerService {
     private static final Set<String> ALLOWED_CONTENT_TYPES =
             Set.of("image/jpeg", "image/png", "image/webp", "image/gif", "image/avif");
 
+    private static final Set<String> ALLOWED_DOMAIN_SUFFIXES = Set.of(
+            ".com",".net",".org",".io",".dev",".app",".ai",".me",".info",".biz",".shop",
+            ".store",".site",".online",".xyz",".kr",".co.kr",".or.kr",".go.kr",".ac.kr",
+            ".ne.kr",".jp",".co.jp");
 
     private final AdminMainBannerDao adminMainBannerDao;
 
@@ -82,6 +89,94 @@ public class AdminMainBannerService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<AdminMainBannerDto> findAllMainBanners() {
+        return adminMainBannerDao.findAllMainBanners();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminMainBannerDto> findVisibleMainBanners() {
+        return adminMainBannerDao.findVisibleMainBanners();
+    }
+
+
+    @Transactional(readOnly = true)
+    public AdminMainBannerDto findMainBannerById(Long bannerId) {
+        if (bannerId == null || bannerId < 1) {
+            throw new IllegalArgumentException("올바르지 않은 배너 번호입니다.");
+        }
+        AdminMainBannerDto mainBanner = adminMainBannerDao.findMainBannerById(bannerId);
+
+        if (mainBanner == null) {
+            throw new IllegalArgumentException("존재하지 않는 배너입니다.");
+        }
+        return mainBanner;
+    }
+
+    @Transactional
+    public void updateMainBanner(AdminMainBannerUpdateDto updateDto) {
+        validateUpdateDto(updateDto);
+        AdminMainBannerDto existingBanner = findMainBannerById(updateDto.getBannerId());
+        int bannerCount = adminMainBannerDao.countMainBanners();
+        if (updateDto.getDisplayOrder() > bannerCount) {
+            throw new IllegalArgumentException("노출 순서는 " + bannerCount + " 이하로 입력해 주세요.");
+        }
+        String updatedImageUrl = existingBanner.getImageUrl();
+        Path newlySavedFilePath = null;
+        try {
+            if ("FILE".equals(updateDto.getImageChangeType())) {
+                SavedImage savedImage = saveImageFile(updateDto.getBannerImageFile());
+                updatedImageUrl = savedImage.imageUrl();
+                newlySavedFilePath = savedImage.filePath();
+            } else if ("URL".equals(updateDto.getImageChangeType())) {
+                updatedImageUrl = normalizeImageUrl(updateDto.getImageUrl());
+            }
+            int oldDisplayOrder = existingBanner.getDisplayOrder();
+            int newDisplayOrder = updateDto.getDisplayOrder();
+            if (oldDisplayOrder < newDisplayOrder) {
+                adminMainBannerDao.shiftDisplayOrderWhenMovingLater(updateDto.getBannerId(), oldDisplayOrder, newDisplayOrder);
+            } else if (oldDisplayOrder > newDisplayOrder) {
+                adminMainBannerDao.shiftDisplayOrderWhenMovingEarlier(updateDto.getBannerId(), oldDisplayOrder, newDisplayOrder);
+            }
+            AdminMainBannerDto updatedBanner = AdminMainBannerDto.builder()
+                    .bannerId(updateDto.getBannerId())
+                    .title(updateDto.getTitle().trim())
+                    .subTitle(normalizedNullableText(updateDto.getSubTitle()))
+                    .imageUrl(updatedImageUrl)
+                    .linkUrl(normalizedNullableText(updateDto.getLinkUrl()))
+                    .displayOrder(updateDto.getDisplayOrder())
+                    .activeYn(updateDto.getActiveYn())
+                    .startAt(updateDto.getStartAt())
+                    .endAt(updateDto.getEndAt())
+                    .build();
+
+            int updatedRows = adminMainBannerDao.updateMainBanner(updatedBanner);
+            if (updatedRows != 1) {
+                throw new IllegalArgumentException("메인 배너 수정에 실패했습니다.");
+            }
+            if (!existingBanner.getImageUrl().equals(updatedImageUrl)) {
+                deleteLocalBannerFileQuietly(existingBanner.getImageUrl());
+            }
+        } catch (RuntimeException e) {
+            deleteSavedFileQuietly(newlySavedFilePath);
+            throw e;
+        }
+    }
+
+    @Transactional
+    public void deleteMainBanner(Long bannerId) {
+        AdminMainBannerDto existingBanner = findMainBannerById(bannerId);
+
+        int deletedRows = adminMainBannerDao.deleteMainBanner(bannerId);
+
+        if (deletedRows != 1) {
+            throw new IllegalArgumentException("메인 배너 삭제에 실패했습니다.");
+        }
+        adminMainBannerDao.shiftDisplayOrderAfterDelete(existingBanner.getDisplayOrder());
+
+        deleteLocalBannerFileQuietly(existingBanner.getImageUrl());
+    }
+
     private void validateCreateDto(AdminMainBannerCreateDto createDto) {
         if (createDto == null) {
             throw new IllegalArgumentException("배너 등록 정보가 없습니다.");
@@ -92,9 +187,8 @@ public class AdminMainBannerService {
         validateLinkUrl(createDto.getLinkUrl());
         validateDisplayOrder(createDto.getDisplayOrder());
         validateActiveYn(createDto.getActiveYn());
-        validateDisplayPeriod(createDto);
+        validateDisplayPeriod(createDto.getStartAt(), createDto.getEndAt());
     }
-
 
     private void validateTitle(String title) {
         if (title == null || title.isBlank()) {
@@ -105,7 +199,6 @@ public class AdminMainBannerService {
         }
     }
 
-
     private void validateSubTitle(String subTitle) {
         if (subTitle == null || subTitle.isBlank()) {
             return;
@@ -115,7 +208,6 @@ public class AdminMainBannerService {
             throw new IllegalArgumentException("배너 부제목은 500자 이내로 입력해 주세요.");
         }
     }
-
 
     private void validateImageSource(AdminMainBannerCreateDto createDto) {
         String imageSourceType = createDto.getImageSourceType();
@@ -152,6 +244,42 @@ public class AdminMainBannerService {
         }
     }
 
+    private void validateUpdateDto(AdminMainBannerUpdateDto updateDto) {
+        if (updateDto == null) {
+            throw new IllegalArgumentException("배너 수정 정보가 없습니다.");
+        }
+        if (updateDto.getBannerId() == null || updateDto.getBannerId() < 1) {
+            throw new IllegalArgumentException("올바르지 않은 배너 번호입니다.");
+        }
+        validateTitle(updateDto.getTitle());
+        validateSubTitle(updateDto.getSubTitle());
+        validateImageChangeType(updateDto);
+        validateLinkUrl(updateDto.getLinkUrl());
+        validateDisplayOrder(updateDto.getDisplayOrder());
+        validateActiveYn(updateDto.getActiveYn());
+        validateDisplayPeriod(updateDto.getStartAt(), updateDto.getEndAt());
+    }
+
+    private void validateImageChangeType(AdminMainBannerUpdateDto updateDto) {
+        String imageChangeType =
+                updateDto.getImageChangeType();
+
+        if ("KEEP".equals(imageChangeType)) {
+            return;
+        }
+
+        if ("FILE".equals(imageChangeType)) {
+            validateImageFile(updateDto.getBannerImageFile());
+            return;
+        }
+
+        if ("URL".equals(imageChangeType)) {
+            normalizeImageUrl(updateDto.getImageUrl());
+            return;
+        }
+
+        throw new IllegalArgumentException("이미지 수정 방식을 선택해 주세요.");
+    }
 
     private void validateLinkUrl(String linkUrl) {
         if (linkUrl == null || linkUrl.isBlank()) {
@@ -182,13 +310,20 @@ public class AdminMainBannerService {
         }
     }
 
-    private void validateDisplayPeriod(AdminMainBannerCreateDto createDto) {
-        if (createDto.getStartAt() == null || createDto.getEndAt() == null) {
+    private void validateDisplayPeriod(LocalDateTime startAt, LocalDateTime endAt) {
+
+        if (endAt != null && endAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("노출 종료일은 현재 시간보다 이전으로 설정할 수 없습니다.");
+        }
+
+        if (startAt== null || endAt == null) {
             return;
         }
-        if (createDto.getStartAt().isAfter(createDto.getEndAt())) {
+        if (startAt.isAfter(endAt)) {
             throw new IllegalArgumentException("노출 종료일이 시작일보다 빠를 수 없습니다.");
         }
+
+
     }
 
     private SavedImage saveImageFile(MultipartFile imageFile) {
@@ -270,7 +405,21 @@ public class AdminMainBannerService {
         try {
             URI uri = URI.create(value);
             String scheme = uri.getScheme();
-            return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))&& uri.getHost() != null;
+            String host = uri.getHost();
+            if (host == null || host.isBlank()) {
+                return false;
+            }
+            if (!"http".equalsIgnoreCase(scheme) &&
+                    !"https".equalsIgnoreCase(scheme)) {
+                return false;
+            }
+            String normalizedHost = host.toLowerCase(Locale.ROOT);
+
+            if ("localhost".equals(normalizedHost)) {
+                return true;
+            }
+            return ALLOWED_DOMAIN_SUFFIXES.stream().anyMatch(suffix ->
+                    normalizedHost.endsWith(suffix) && normalizedHost.length() > suffix.length());
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -293,7 +442,26 @@ public class AdminMainBannerService {
         }
     }
 
-    private record SavedImage(String imageUrl, Path filePath) {
+    private void deleteLocalBannerFileQuietly(String imageUrl) {
+        String uploadUrlPrefix ="/uploads/main-banners/";
+        if (imageUrl == null || !imageUrl.startsWith(uploadUrlPrefix)) {
+            return;
+        }
+        String savedFilename = imageUrl.substring(uploadUrlPrefix.length());
+        if (savedFilename.isBlank()) {
+            return;
+        }
+        Path uploadDirectory = Paths.get(uploadRootDir, "main-banners")
+                .toAbsolutePath().normalize();
 
+        Path targetFile = uploadDirectory.resolve(savedFilename).normalize();
+
+        if (!targetFile.startsWith(uploadDirectory)) {
+            return;
+        }
+        deleteSavedFileQuietly(targetFile);
+    }
+
+    private record SavedImage(String imageUrl, Path filePath) {
     }
 }

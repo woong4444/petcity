@@ -1,12 +1,7 @@
 package com.jjang051.petcity.hospital.dto;
 
 import com.jjang051.petcity.animal.dto.AnimalTypeDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
