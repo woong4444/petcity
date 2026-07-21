@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 | PetCity</title>
+
+    <link rel="stylesheet" th:href="@{/css/error/error.css}">
+</head>
+
+
+<body class="error-page error-page--500">
+<main class="error-card">
+    <p class="error-label">INTERNAL SERVER ERROR</p>
+    <h1 class="error-code">500</h1>
+
+    <img class="error-pets"
+         th:src="@{/images/error/500-pets.png}"
+         alt="공구함을 들고 있는 강아지와 고양이">
+
+    <h2>앗, 잠시 문제가 생겼어요.</h2>
+    <p class="error-description">
+        PetCity 서버가 요청을 처리하는 중 예상하지 못한 오류가 발생했습니다.
+    </p>
+
+    <section class="error-reason">
+        <h3>왜 이런 오류가 생기나요?</h3>
+        <ul>
+            <li>서버가 요청을 처리하는 중 문제가 생겼을 수 있어요.</li>
+            <li>데이터베이스 또는 외부 서비스 연결이 잠시 불안정할 수 있어요.</li>
+            <li>잠시 후 다시 시도하면 정상적으로 이용할 수 있어요.</li>
+        </ul>
+    </section>
+
+    <div class="error-actions">
+        <a th:href="@{/}" class="error-button error-button--primary">
+            홈으로 가기
+        </a>
+        <button type="button"
+                class="error-button error-button--secondary"
+                onclick="location.reload()">
+            다시 시도하기
+        </button>
+    </div>
+</main>
+
+</body>
+</html>

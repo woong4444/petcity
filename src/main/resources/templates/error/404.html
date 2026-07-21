@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name = "viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | PetCity</title>
+
+    <link rel="stylesheet" th:href="@{/css/error/error.css}">
+</head>
+
+
+<body class="error-page error-page--404">
+<main class="error-card">
+    <p class="error-label">PAGE NOT FOUND</p>
+    <h1 class="error-code">404</h1>
+
+    <img class="error-pets"
+         th:src="@{/images/error/404-pets.png}"
+         alt="지도를 보며 길을 찾는 강아지와 고양이">
+
+    <h2>앗, 찾으시는 페이지가 없어요</h2>
+    <p class="error-description">
+        입력하신 주소에 해당하는 페이지를 찾지 못했습니다.
+    </p>
+
+    <section class="error-reason">
+        <h3>왜 이런 오류가 생기나요?</h3>
+        <ul>
+            <li>사이트 주소를 잘못 입력했을 수 있어요.</li>
+            <li>페이지가 이동했거나 삭제되었을 수 있어요.</li>
+            <li>예전에 저장한 링크가 변경되었을 수 있어요.</li>
+        </ul>
+    </section>
+
+    <div class="error-actions">
+        <a th:href="@{/}" class="error-button error-button--primary">
+            홈으로 가기
+        </a>
+        <button type="button"
+                class="error-button error-button--secondary"
+                onclick="history.back()">
+            이전 페이지
+        </button>
+    </div>
+</main>
+
+</body>
+</html>
