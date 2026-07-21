@@ -1340,8 +1340,7 @@ function initOwnerRoleBlock() {
         USER는 정상 제출하므로
         클릭 차단 이벤트를 등록하지 않는다.
     */
-    if (memberRole !== "ADMIN"
-        && memberRole !== "OWNER") {
+    if (memberRole !== "ADMIN") {
 
         return;
     }
@@ -1367,12 +1366,6 @@ function initOwnerRoleBlock() {
                 message =
                     "관리자 계정은 병원장 권한을 신청할 수 없습니다.";
 
-            } else if (
-                memberRole === "OWNER"
-            ) {
-
-                message =
-                    "이미 병원장 권한을 보유한 회원입니다.";
             }
 
             roleBlockMessage.textContent =

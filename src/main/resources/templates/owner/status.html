@@ -40,6 +40,17 @@
 
         </section>
 
+        <!-- 신청 이력이 있을 때 추가 병원 신청 버튼 표시 -->
+        <div class="owner-status-toolbar"
+             th:unless="${#lists.isEmpty(requestList)}">
+
+            <a th:href="@{/owner/apply}"
+               class="owner-status-new-button">
+                + 병원 추가 신청
+            </a>
+
+        </div>
+
 
         <!-- 신청 내역이 없을 때 -->
         <section class="owner-status-empty"

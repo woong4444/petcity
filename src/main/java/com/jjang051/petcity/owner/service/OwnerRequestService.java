@@ -138,17 +138,7 @@ public class OwnerRequestService {
             );
         }
 
-    /*
-        이미 병원장인 회원 신청 차단
-    */
-        if ("OWNER".equals(
-                memberDto.getMemberRole()
-        )) {
 
-            throw new RuntimeException(
-                    "이미 병원장 권한을 보유한 회원입니다."
-            );
-        }
 
     /*
         이메일 인증 확인
@@ -322,21 +312,7 @@ public class OwnerRequestService {
                 hospitalImage
         );
 
-        /*
-            같은 회원의 심사 중 신청 확인
-        */
-        int pendingCount =
-                ownerRequestDao
-                        .countPendingRequestByMember(
-                                requestDto.getMemberId()
-                        );
 
-        if (pendingCount > 0) {
-
-            throw new RuntimeException(
-                    "이미 심사 중인 병원장 신청이 있습니다."
-            );
-        }
 
 
         /*
