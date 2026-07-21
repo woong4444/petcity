@@ -83,19 +83,22 @@ public class AdminHospitalOwnerRequestService {
         if (hospitalId == null) {
             throw new IllegalArgumentException("병원 번호를 생성할 수 없습니다.");
         }
+
+        // 새로 추가 신청된 병원을 메인 HOSPITAL 테이블에 저장
         int insertedHospital = adminHospitalOwnerRequestDao.insertHospitalFromRequest(requestId, hospitalId);
 
         if (insertedHospital != 1) {
             throw new IllegalArgumentException("병원 기본 정보를 생성할 수 없습니다.");
         }
+
         adminHospitalOwnerRequestDao.insertHospitalAnimalsFromRequest(requestId, hospitalId);
         adminHospitalOwnerRequestDao.insertHospitalServicesFromRequest(requestId, hospitalId);
         adminHospitalOwnerRequestDao.insertHospitalMedicalSubjectsFromRequest(requestId, hospitalId);
-        int updatedMember = adminHospitalOwnerRequestDao.updateMemberRoleToOwner(request.getMemberId());
 
-        if (updatedMember != 1) {
-            throw new IllegalArgumentException("신청 회원을 병원장으로 변경할 수 없습니다.");
-        }
+        // 🌟 핵심 수정: 기존에 에러를 던지던 if (updatedMember != 1) 로직을 삭제했습니다.
+        // 이미 병원장 권한(OWNER)을 가진 사람은 업데이트 결과가 0일 수 있으므로 에러 처리 없이 넘깁니다.
+        adminHospitalOwnerRequestDao.updateMemberRoleToOwner(request.getMemberId());
+
         int updatedRequest = adminHospitalOwnerRequestDao.approveOwnerRequest(requestId, hospitalId, processedBy);
 
         if (updatedRequest != 1) {

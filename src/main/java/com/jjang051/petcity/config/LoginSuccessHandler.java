@@ -84,7 +84,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         // ==========================================
         if ("OWNER".equals(member.getRole())) {
 
-            response.sendRedirect("/owner");
+            // 🌟 기존 "/owner" 에서 홈 화면("/")으로 변경 완료!
+            response.sendRedirect("/");
             return;
 
         }

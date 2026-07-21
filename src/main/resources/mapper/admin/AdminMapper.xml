@@ -28,7 +28,6 @@
         where status = 'PENDING'
     </select>
 
-
     <select id="countAllMembers" resultType="long">
         SELECT COUNT(*) FROM APP_MEMBER
     </select>
@@ -36,10 +35,10 @@
     <sql id="memberSearchConditions">
         <where>
             <if test="keyword != null and keyword != ''">
-            AND (
+                AND (
                 UPPER(LOGIN_ID) LIKE '%' || UPPER(#{keyword}) || '%'
-            OR UPPER(NICKNAME) LIKE '%' || UPPER(#{keyword}) || '%'
-            OR UPPER(EMAIL) LIKE '%' || UPPER(#{keyword}) || '%'
+                OR UPPER(NICKNAME) LIKE '%' || UPPER(#{keyword}) || '%'
+                OR UPPER(EMAIL) LIKE '%' || UPPER(#{keyword}) || '%'
                 )
             </if>
             <if test="role != null and role != ''">
@@ -53,16 +52,14 @@
             <if test="memberStatus != null and memberStatus != ''">
                 AND MEMBER_STATUS = #{memberStatus}
             </if>
-
-
         </where>
     </sql>
 
     <select id="countMembersByCondition" resultType="long">
         SELECT COUNT(*) FROM APP_MEMBER
         <include refid="memberSearchConditions"/>
-
     </select>
+
     <select id="findMembersByPage" resultType="AdminMemberListDto">
         SELECT
         MEMBER_ID AS memberId,
@@ -140,18 +137,19 @@
         SELECT COUNT(*)
         FROM APP_MEMBER
         WHERE ROLE='ADMIN'
-         AND MEMBER_ID IN
+        AND MEMBER_ID IN
         <foreach collection="memberIds" item="memberId"
                  open="(" separator="," close=")">
-        #{memberId}
+            #{memberId}
         </foreach>
     </select>
+
     <update id="deleteMembers">
-            UPDATE APP_MEMBER
+        UPDATE APP_MEMBER
         SET
-            STATUS = 'DELETED',
-            MEMBER_STATUS = 'DELETED',
-            DELETE_REASON = #{deleteReason},
+        STATUS = 'DELETED',
+        MEMBER_STATUS = 'DELETED',
+        DELETE_REASON = #{deleteReason},
         DELETED_AT = SYSTIMESTAMP,
         UPDATED_AT = SYSTIMESTAMP
         WHERE MEMBER_ID IN
@@ -162,4 +160,5 @@
         AND ROLE != 'ADMIN'
         AND ( STATUS != 'DELETED' OR MEMBER_STATUS != 'DELETED')
     </update>
+
 </mapper>
