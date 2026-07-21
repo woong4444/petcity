@@ -95,7 +95,21 @@ public class AdminHospitalOwnerRequestController {
         return "redirect:/admin/hospital-owner-requests/" + requestId;
     }
 
-
+    @PostMapping("/hospital-owner-requests/delete")
+    public String deleteProcessedRequest(@RequestParam(name = "requestIds", required = false) List<Long> requestIds, HttpSession session, RedirectAttributes redirectAttributes) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        String redirectUrl = checkAdminAccess(loginMember);
+        if (redirectUrl != null) {
+            return redirectUrl;
+        }
+        try {
+            adminHospitalOwnerRequestService.deleteProcessedRequest(requestIds);
+            redirectAttributes.addFlashAttribute("successMessage", "처리된 병원장 신청 기록이 삭제되었습니다.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/hospital-owner-requests";
+    }
 
     private String checkAdminAccess(MemberDto loginMember) {
         if (loginMember == null) {
