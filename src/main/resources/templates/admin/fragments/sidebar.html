@@ -39,6 +39,7 @@
 
     <nav class="admin-nav">
 
+        <!-- 대시보드 -->
         <a th:href="@{/admin/dashboard}"
            class="admin-nav-link"
            th:classappend="${activeMenu == 'dashboard' ? ' active' : ''}"
@@ -47,22 +48,14 @@
             <span class="nav-icon">
                 <svg viewBox="0 0 24 24"
                      aria-hidden="true">
-                    <rect x="3"
-                          y="3"
-                          width="7"
-                          height="7"/>
-                    <rect x="14"
-                          y="3"
-                          width="7"
-                          height="7"/>
-                    <rect x="3"
-                          y="14"
-                          width="7"
-                          height="7"/>
-                    <rect x="14"
-                          y="14"
-                          width="7"
-                          height="7"/>
+                    <rect x="3" y="3"
+                          width="7" height="7"/>
+                    <rect x="14" y="3"
+                          width="7" height="7"/>
+                    <rect x="3" y="14"
+                          width="7" height="7"/>
+                    <rect x="14" y="14"
+                          width="7" height="7"/>
                 </svg>
             </span>
 
@@ -72,6 +65,7 @@
 
         </a>
 
+        <!-- 병원 관리 -->
         <a href="#"
            class="admin-nav-link"
            data-tooltip="병원 관리">
@@ -92,6 +86,7 @@
 
         </a>
 
+        <!-- 회원 관리 -->
         <a th:href="@{/admin/members}"
            class="admin-nav-link"
            th:classappend="${activeMenu == 'members' ? ' active' : ''}"
@@ -100,9 +95,7 @@
             <span class="nav-icon">
                 <svg viewBox="0 0 24 24"
                      aria-hidden="true">
-                    <circle cx="9"
-                            cy="8"
-                            r="4"/>
+                    <circle cx="9" cy="8" r="4"/>
                     <path d="M3 21V18C3 15.8 4.8 14 7 14H11C13.2 14 15 15.8 15 18V21"/>
                     <path d="M16 5.5C18.2 6.1 19.5 8.3 18.9 10.5"/>
                     <path d="M17 14C19.2 14 21 15.8 21 18V21"/>
@@ -115,6 +108,7 @@
 
         </a>
 
+        <!-- 병원장 신청 -->
         <a th:href="@{/admin/hospital-owner-requests}"
            class="admin-nav-link"
            th:classappend="${activeMenu == 'ownerRequests' ? ' active' : ''}"
@@ -123,10 +117,8 @@
             <span class="nav-icon">
                 <svg viewBox="0 0 24 24"
                      aria-hidden="true">
-                    <rect x="5"
-                          y="3"
-                          width="14"
-                          height="18"
+                    <rect x="5" y="3"
+                          width="14" height="18"
                           rx="2"/>
                     <path d="M9 3V6H15V3"/>
                     <path d="M8 11H16"/>
@@ -134,28 +126,64 @@
                 </svg>
             </span>
 
-            <span class="nav-label">
+                    <span class="nav-label">
                 병원장 신청
             </span>
 
         </a>
-
-        <a th:href="@{/admin/main-banners}"
+        <!-- 리뷰 관리 -->
+        <a href="#"
            class="admin-nav-link"
-           th:classappend="${activeMenu == 'main-banners' ? ' active' : ''}"
+           data-tooltip="리뷰 관리">
+
+            <span class="nav-icon">
+                <svg viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path d="M12 3L14.8 8.7L21 9.6L16.5 14L17.6 20.2L12 17.3L6.4 20.2L7.5 14L3 9.6L9.2 8.7Z"/>
+                </svg>
+            </span>
+
+            <span class="nav-label">
+                리뷰 관리
+            </span>
+
+        </a>
+
+        <!-- 게시판 관리 -->
+        <a href="#"
+           class="admin-nav-link"
+           data-tooltip="게시판 관리">
+
+            <span class="nav-icon">
+                <svg viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <rect x="3" y="4"
+                          width="18" height="16"
+                          rx="2"/>
+                    <path d="M7 9H17"/>
+                    <path d="M7 13H17"/>
+                    <path d="M7 17H13"/>
+                </svg>
+            </span>
+
+            <span class="nav-label">
+                게시판 관리
+            </span>
+
+        </a>
+
+        <!-- 메인 배너 관리 -->
+        <a href="#"
+           class="admin-nav-link"
            data-tooltip="메인 배너 관리">
 
             <span class="nav-icon">
                 <svg viewBox="0 0 24 24"
                      aria-hidden="true">
-                    <rect x="3"
-                          y="4"
-                          width="18"
-                          height="16"
+                    <rect x="3" y="4"
+                          width="18" height="16"
                           rx="2"/>
-                    <circle cx="9"
-                            cy="10"
-                            r="2"/>
+                    <circle cx="9" cy="10" r="2"/>
                     <path d="M3 17L8 13L12 16L16 11L21 16"/>
                 </svg>
             </span>
@@ -165,48 +193,10 @@
             </span>
 
         </a>
-
-        <a th:href="@{/admin/visitor-statistics}"
-           class="admin-nav-link"
-           th:classappend="${activeMenu == 'visitorStatistics' ? ' active' : ''}"
-           data-tooltip="방문자 통계">
-
-            <span class="nav-icon">
-                <svg viewBox="0 0 24 24"
-                     aria-hidden="true">
-                    <path d="M4 20V10"/>
-                    <path d="M10 20V4"/>
-                    <path d="M16 20V13"/>
-                    <path d="M22 20V7"/>
-                    <path d="M2 20H22"/>
-                </svg>
-            </span>
-
-            <span class="nav-label">
-                방문자 통계
-            </span>
-
-        </a>
-
-        <a th:href="@{/member/logout}"
-           id="adminLogoutLink"
+        <a th:href="@{/member/logout}" id="adminLogoutLink"
            class="admin-nav-link">
-
-            <span class="nav-icon">
-                <svg viewBox="0 0 24 24"
-                     aria-hidden="true">
-                    <path d="M10 4H5C3.9 4 3 4.9 3 6V18C3 19.1 3.9 20 5 20H10"/>
-                    <path d="M14 8L18 12L14 16"/>
-                    <path d="M18 12H8"/>
-                </svg>
-            </span>
-
-            <span class="nav-label">
-                로그아웃
-            </span>
-
+            로그아웃
         </a>
-
     </nav>
 
 </aside>

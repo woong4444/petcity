@@ -1,0 +1,22 @@
+<!-- 상각_07-19: 8080 기능 추가 및 수정 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="refresh" content="3;url=/">
+    <title>탈퇴 취소 요청 완료 | PetCity</title>
+    <style>
+        *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f4f7fb;font-family:Arial,sans-serif;color:#101828}.card{width:min(560px,calc(100% - 32px));padding:48px 38px;text-align:center;background:#fff;border-radius:22px;box-shadow:0 15px 45px #1f35521a}.icon{width:70px;height:70px;margin:0 auto 22px;display:grid;place-items:center;border-radius:50%;background:#ecfdf3;color:#067647;font-size:36px;font-weight:900}.card h1{margin:0 0 16px}.message{padding:15px;border-radius:12px;background:#ecfdf3;color:#067647;font-weight:700}.guide{margin:20px 0;color:#667085;line-height:1.7}.home{display:inline-block;padding:13px 24px;border-radius:10px;background:#2563eb;color:#fff;text-decoration:none;font-weight:800}
+    </style>
+</head>
+<body>
+<main class="card">
+    <div class="icon">✓</div>
+    <h1>탈퇴 취소 요청 완료</h1>
+    <div class="message" th:text="${message != null ? message : '탈퇴 취소 요청이 관리자에게 전달되었습니다.'}">탈퇴 취소 요청이 관리자에게 전달되었습니다.</div>
+    <p class="guide">관리자가 본인확인 결과와 사유를 검토한 후 처리합니다.<br>3초 후 메인 화면으로 이동합니다.</p>
+    <a class="home" href="/">지금 홈으로</a>
+</main>
+</body>
+</html>
