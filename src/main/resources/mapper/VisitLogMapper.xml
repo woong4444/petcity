@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.visit.dao.VisitLogDao">
+
+    <update id="mergeVisitLog" parameterType="VisitRedisDto">
+        MERGE INTO SITE_VISIT_LOG SVL
+        USING (
+                SELECT TO_DATE(#{visitDate},'YYYY-MM-DD') AS VISIT_DATE,
+                #{visitorKey} As VISITOR_KEY FROM DUAL) SOURCE
+        ON ( SVL.VISIT_DATE = SOURCE.VISIT_DATE
+            AND SVL.VISITOR_KEY = SOURCE.VISITOR_KEY)
+        WHEN MATCHED THEN
+        UPDATE SET
+            SVL.SESSION_ID = #{sessionId},
+            SVL.LAST_VISITED_AT = TO_TIMESTAMP(#{lastVisitedAt},'YYYY-MM-DD HH24:MI:SS'),
+            SVL.UPDATED_AT = SYSTIMESTAMP
+        WHEN NOT MATCHED THEN
+        INSERT(
+                VISIV_ID,
+                VISIV_DATE,
+                VISIV_TYPE,
+                VISIV_KEY,
+                MEMBER_ID,
+                SESSION_ID,
+                IP_ADDRESS,
+                USER_AGENT,
+                VISITED_URL,
+                FIRST_VISITED_AT,
+                LAST_VISITED_AT,
+                CREATE_AT,
+                UPDATE_AT,
+        )
+        VALUES(
+            SEQ_SITE_VISIT_LOG.NEXTVAL,
+            TO_DATE(#{visitDate}, 'YYYY-MM-DD'),
+            #{visitorType},
+            #{visitorKey},
+            #{memberId, jdbcType=NUMERIC},
+            #{sessionId, jdbcType=NUMERIC},
+            #{ipAddress, jdbcType=NUMERIC},
+            #{userAgent, jdbcType=NUMERIC},
+            #{visitedUrl, jdbcType=NUMERIC},
+            TO_TIMESTAMP( #{firstVisitedAt}, 'YYYY-MM-DD HH24:MI:SS' ),
+            TO_TIMESTAMP( #{lastVisitedAt}, 'YYYY-MM-DD HH24:MI:SS' ),
+            SYSTIMESTAMP,
+            SYSTIMESTAMP
+        )
+
+
+    </update>
+
+
+</mapper>
