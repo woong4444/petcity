@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>방문자 통계</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/visitor-statistics.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <th:block th:replace="~{admin/fragments/sidebar
+                           :: sidebar('visitorStatistics')}">
+    </th:block>
+
+    <main class="admin-main visitor-statistics-main">
+
+        <header class="page-header">
+
+            <div class="page-title-area">
+
+                <p class="page-category">
+                    사이트 운영
+                </p>
+
+                <h1>
+                    방문자 통계
+                </h1>
+
+                <p class="page-description">
+                    전체 방문 현황과 최근 7일간의 방문 추이를 확인합니다.
+                </p>
+
+            </div>
+
+        </header>
+
+        <section class="summary-grid">
+
+            <article class="summary-card total-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        전체 방문 수
+                    </span>
+
+                    <span class="summary-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <circle cx="9"
+                                    cy="8"
+                                    r="3">
+                            </circle>
+
+                            <circle cx="17"
+                                    cy="9"
+                                    r="2">
+                            </circle>
+
+                            <path d="M3 20V18C3 15.8 4.8 14 7 14H11C13.2 14 15 15.8 15 18V20">
+                            </path>
+
+                            <path d="M16 14H18C19.7 14 21 15.3 21 17V20">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+                <strong th:text="|${#numbers.formatInteger(statistics.totalVisitorCount, 0, 'COMMA')}명|">
+                    0명
+                </strong>
+
+                <p>
+                    일별 고유 방문자 누적
+                </p>
+
+            </article>
+
+            <article class="summary-card today-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        오늘 방문
+                    </span>
+
+                    <span class="summary-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M4 19V10">
+                            </path>
+
+                            <path d="M10 19V5">
+                            </path>
+
+                            <path d="M16 19V13">
+                            </path>
+
+                            <path d="M22 19V8">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+                <strong th:text="|${#numbers.formatInteger(statistics.todayVisitorCount, 0, 'COMMA')}명|">
+                    0명
+                </strong>
+
+                <p th:text="|로그인 ${statistics.todayLoginVisitorCount}명 · 비로그인 ${statistics.todayGuestVisitorCount}명|">
+                    로그인 0명 · 비로그인 0명
+                </p>
+
+            </article>
+
+            <article class="summary-card yesterday-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        어제 방문
+                    </span>
+
+                    <span class="summary-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <rect x="4"
+                                  y="5"
+                                  width="16"
+                                  height="15"
+                                  rx="2">
+                            </rect>
+
+                            <path d="M8 3V7">
+                            </path>
+
+                            <path d="M16 3V7">
+                            </path>
+
+                            <path d="M4 10H20">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+                <strong th:text="|${#numbers.formatInteger(statistics.yesterdayVisitorCount, 0, 'COMMA')}명|">
+                    0명
+                </strong>
+
+                <p th:text="|로그인 ${statistics.yesterdayLoginVisitorCount}명 · 비로그인 ${statistics.yesterdayGuestVisitorCount}명|">
+                    로그인 0명 · 비로그인 0명
+                </p>
+
+            </article>
+
+            <article class="summary-card change-card">
+
+                <div class="summary-card-top">
+
+                    <span class="summary-label">
+                        전일 대비
+                    </span>
+
+                    <span class="summary-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M4 18L9 13L13 16L20 8">
+                            </path>
+
+                            <path d="M15 8H20V13">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+                <strong class="change-up"
+                        th:if="${statistics.changeStatus == 'UP'}"
+                        th:text="|▲ ${statistics.visitorChangeRate}%|">
+                    ▲ 0%
+                </strong>
+
+                <strong class="change-down"
+                        th:if="${statistics.changeStatus == 'DOWN'}"
+                        th:text="|▼ ${statistics.visitorChangeRate * -1}%|">
+                    ▼ 0%
+                </strong>
+
+                <strong class="change-same"
+                        th:if="${statistics.changeStatus == 'SAME'}">
+                    － 0%
+                </strong>
+
+                <p th:if="${statistics.visitorDifference > 0}"
+                   th:text="|어제보다 ${statistics.visitorDifference}명 증가|">
+                    어제보다 0명 증가
+                </p>
+
+                <p th:if="${statistics.visitorDifference < 0}"
+                   th:text="|어제보다 ${statistics.visitorDifference * -1}명 감소|">
+                    어제보다 0명 감소
+                </p>
+
+                <p th:if="${statistics.visitorDifference == 0}">
+                    어제와 동일
+                </p>
+
+            </article>
+
+        </section>
+
+        <section class="chart-section"
+                 id="visitorChartSection"
+                 data-chart-mode="summary">
+
+            <div class="section-heading chart-section-heading">
+
+                <div class="section-title-area">
+
+                    <p class="section-category">
+                        VISITOR TREND
+                    </p>
+
+                    <h2>
+                        최근 7일 방문 추이
+                    </h2>
+
+                    <p>
+                        차트 위에서 마우스 휠을 사용해 전체 방문과
+                        로그인·비로그인 상세 현황을 전환합니다.
+                    </p>
+
+                </div>
+
+                <div class="chart-mode-controls"
+                     role="group"
+                     aria-label="방문자 차트 표시 방식">
+
+                    <button type="button"
+                            class="chart-mode-button is-active"
+                            data-chart-mode-button="summary">
+
+                        전체 방문
+
+                    </button>
+
+                    <button type="button"
+                            class="chart-mode-button"
+                            data-chart-mode-button="detail">
+
+                        유형별 방문
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="chart-mode-banner">
+
+                <div class="chart-mode-information">
+
+                    <span class="chart-mode-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <rect x="7"
+                                  y="2"
+                                  width="10"
+                                  height="20"
+                                  rx="5">
+                            </rect>
+
+                            <path d="M12 6V10">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                    <div>
+
+                        <strong class="summary-guide-text">
+                            현재 전체 방문자 보기
+                        </strong>
+
+                        <strong class="detail-guide-text">
+                            현재 로그인·비로그인 상세 보기
+                        </strong>
+
+                        <p class="summary-guide-text">
+                            차트 위에서 휠을 올리면 방문 유형이 분리됩니다.
+                        </p>
+
+                        <p class="detail-guide-text">
+                            차트 위에서 휠을 내리면 전체 방문자로 돌아갑니다.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <span class="chart-mode-badge summary-mode-badge">
+                    SUMMARY
+                </span>
+
+                <span class="chart-mode-badge detail-mode-badge">
+                    DETAIL
+                </span>
+
+            </div>
+
+            <div class="chart-interaction-area"
+                 id="visitorChartWheelZone"
+                 tabindex="0"
+                 role="application"
+                 aria-label="최근 7일 방문자 차트. 마우스 휠을 올리면 상세 보기, 내리면 전체 보기로 전환됩니다.">
+
+                <div class="chart-decoration chart-decoration-one">
+                </div>
+
+                <div class="chart-decoration chart-decoration-two">
+                </div>
+
+                <div id="visitorTrendChart"
+                     th:attr="
+                        data-labels=${#strings.listJoin(chartLabels, '|')},
+                        data-login-values=${#strings.listJoin(chartLoginData, '|')},
+                        data-guest-values=${#strings.listJoin(chartGuestData, '|')}">
+                </div>
+
+                <div class="chart-hover-guide"
+                     aria-hidden="true">
+
+                    <svg viewBox="0 0 24 24">
+
+                        <path d="M12 4V20">
+                        </path>
+
+                        <path d="M8 8L12 4L16 8">
+                        </path>
+
+                        <path d="M8 16L12 20L16 16">
+                        </path>
+
+                    </svg>
+
+                    <span>
+                        휠로 보기 전환
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="chart-footer">
+
+                <div class="chart-current-mode">
+
+                    <span class="current-mode-dot">
+                    </span>
+
+                    <span class="summary-mode-text">
+                        날짜별 전체 방문자를 표시하고 있습니다.
+                    </span>
+
+                    <span class="detail-mode-text">
+                        로그인과 비로그인 방문자를 나누어 표시하고 있습니다.
+                    </span>
+
+                </div>
+
+                <div class="chart-legends">
+
+                    <div class="chart-legend summary-legend">
+
+                        <span class="legend-item">
+
+                            <i class="legend-dot total-dot">
+                            </i>
+
+                            전체 방문자
+
+                        </span>
+
+                    </div>
+
+                    <div class="chart-legend detail-legend">
+
+                        <span class="legend-item">
+
+                            <i class="legend-dot login-dot">
+                            </i>
+
+                            로그인
+
+                        </span>
+
+                        <span class="legend-item">
+
+                            <i class="legend-dot guest-dot">
+                            </i>
+
+                            비로그인
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <p class="chart-scroll-notice">
+
+                차트 영역 밖에서는 기존처럼 페이지를 스크롤할 수 있습니다.
+
+            </p>
+
+            <div id="visitorChartStatus"
+                 class="screen-reader-only"
+                 aria-live="polite">
+
+                전체 방문자 보기
+
+            </div>
+
+        </section>
+
+        <section class="table-section">
+
+            <div class="section-heading">
+
+                <div class="section-title-area">
+
+                    <p class="section-category">
+                        DAILY DETAIL
+                    </p>
+
+                    <h2>
+                        최근 7일 상세 현황
+                    </h2>
+
+                    <p>
+                        날짜별 전체 방문 수와 전일 대비 증감률입니다.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table class="statistics-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            날짜
+                        </th>
+
+                        <th>
+                            전체 방문
+                        </th>
+
+                        <th>
+                            로그인
+                        </th>
+
+                        <th>
+                            비로그인
+                        </th>
+
+                        <th>
+                            전일 대비
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="daily : ${statistics.dailyStatistics}">
+
+                        <td class="date-cell"
+                            th:text="${daily.visitDate}">
+                            2026-07-21
+                        </td>
+
+                        <td>
+
+                            <strong th:text="|${#numbers.formatInteger(daily.totalVisitorCount, 0, 'COMMA')}명|">
+                                0명
+                            </strong>
+
+                        </td>
+
+                        <td th:text="|${#numbers.formatInteger(daily.loginVisitorCount, 0, 'COMMA')}명|">
+                            0명
+                        </td>
+
+                        <td th:text="|${#numbers.formatInteger(daily.guestVisitorCount, 0, 'COMMA')}명|">
+                            0명
+                        </td>
+
+                        <td>
+
+                            <span class="table-change change-up"
+                                  th:if="${daily.changeStatus == 'UP'}"
+                                  th:text="|▲ ${daily.visitorChangeRate}%|">
+                                ▲ 0%
+                            </span>
+
+                            <span class="table-change change-down"
+                                  th:if="${daily.changeStatus == 'DOWN'}"
+                                  th:text="|▼ ${daily.visitorChangeRate * -1}%|">
+                                ▼ 0%
+                            </span>
+
+                            <span class="table-change change-same"
+                                  th:if="${daily.changeStatus == 'SAME'}">
+                                －
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(statistics.dailyStatistics)}">
+
+                        <td colspan="5"
+                            class="empty-table-cell">
+
+                            조회된 방문자 통계가 없습니다.
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.amcharts.com/lib/5/index.js">
+</script>
+
+<script src="https://cdn.amcharts.com/lib/5/xy.js">
+</script>
+
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js">
+</script>
+
+<script th:src="@{/js/admin/visitor-statistics.js}">
+</script>
+
+</body>
+</html>

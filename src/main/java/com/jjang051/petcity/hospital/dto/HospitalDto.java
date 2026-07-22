@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -40,4 +42,7 @@ public class HospitalDto {
     private double avgRating;
     private double distance;
     private String currentStatus;
+
+    public void setSubjectIds(List<Integer> currentSubjectIds) {
+    }
 }

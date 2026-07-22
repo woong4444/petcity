@@ -1,0 +1,43 @@
+-- OPEN 병원 중 무작위 30개를 폐업으로 변경
+UPDATE HOSPITAL
+SET STATUS = 'CLOSED'
+WHERE HOSPITAL_ID IN (
+    SELECT HOSPITAL_ID
+    FROM (
+             SELECT HOSPITAL_ID
+             FROM HOSPITAL
+             WHERE STATUS = 'OPEN'
+             ORDER BY DBMS_RANDOM.VALUE
+         )
+    WHERE ROWNUM <= 30
+);
+
+
+-- 남아 있는 OPEN 병원 중 무작위 15개를 휴업으로 변경
+UPDATE HOSPITAL
+SET STATUS = 'TEMP_CLOSED'
+WHERE HOSPITAL_ID IN (
+    SELECT HOSPITAL_ID
+    FROM (
+             SELECT HOSPITAL_ID
+             FROM HOSPITAL
+             WHERE STATUS = 'OPEN'
+             ORDER BY DBMS_RANDOM.VALUE
+         )
+    WHERE ROWNUM <= 15
+);
+
+
+COMMIT;
+
+
+
+
+
+
+-- 여기는 다시 OPEN으로 돌리는거임
+UPDATE HOSPITAL
+SET STATUS = 'OPEN'
+WHERE STATUS IN ('CLOSED', 'TEMP_CLOSED');
+
+COMMIT;

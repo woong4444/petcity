@@ -1,8 +1,6 @@
 package com.jjang051.petcity.admin.controller;
 
 import com.jjang051.petcity.hospital.service.HospitalUpdateService;
-import com.jjang051.petcity.member.dto.MemberDto;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,37 +8,27 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/admin/hospital-updates")
+@RequestMapping("/admin/hospital-update-requests")
 public class AdminHospitalUpdateController {
 
     private final HospitalUpdateService hospitalUpdateService;
 
+    // 🌟 이미 있으신 관리자 승인 페이지 HTML과 연결
     @GetMapping
-    public String list(HttpSession session, Model model) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"ADMIN".equals(loginMember.getRole())) {
-            return "redirect:/member/login";
-        }
-
-        model.addAttribute("requestList", hospitalUpdateService.getPendingRequests());
+    public String list(Model model) {
+        model.addAttribute("requests", hospitalUpdateService.getPendingRequests());
         return "admin/hospital-update-list";
     }
 
-    @PostMapping("/approve")
-    public String approve(@RequestParam("requestId") int requestId, HttpSession session) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"ADMIN".equals(loginMember.getRole())) return "redirect:/member/login";
-
+    @PostMapping("/{requestId}/approve")
+    public String approve(@PathVariable("requestId") int requestId) {
         hospitalUpdateService.approveRequest(requestId);
-        return "redirect:/admin/hospital-updates";
+        return "redirect:/admin/hospital-update-requests";
     }
 
-    @PostMapping("/reject")
-    public String reject(@RequestParam("requestId") int requestId, @RequestParam("reason") String reason, HttpSession session) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"ADMIN".equals(loginMember.getRole())) return "redirect:/member/login";
-
-        hospitalUpdateService.rejectRequest(requestId, reason);
-        return "redirect:/admin/hospital-updates";
+    @PostMapping("/{requestId}/reject")
+    public String reject(@PathVariable("requestId") int requestId, @RequestParam("rejectReason") String rejectReason) {
+        hospitalUpdateService.rejectRequest(requestId, rejectReason);
+        return "redirect:/admin/hospital-update-requests";
     }
 }

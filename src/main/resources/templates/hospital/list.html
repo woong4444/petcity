@@ -70,7 +70,7 @@
             </div>
         </div>
 
-        <!-- 🌟 새롭게 추가된 진료 과목 필터 -->
+        <!-- 진료 과목 필터 -->
         <div class="filter-box">
             <div class="filter-title">진료 과목 <span>(다중 선택)</span></div>
             <div class="filter-content-wrap">
@@ -91,7 +91,7 @@
             </div>
         </div>
 
-        <!-- 🌟 기존 진료 과목 -> 진료 옵션 및 시설로 이름 변경 -->
+        <!-- 진료 옵션 및 시설 -->
         <div class="filter-box">
             <div class="filter-title">진료 옵션 및 시설 <span>(다중 선택)</span></div>
             <div class="filter-content-wrap">
@@ -205,12 +205,9 @@
                         </div>
                     </div>
                     <div class="hospital-detail-list">
-                        <!-- 🌟 진료과목에 숫자가 단독으로 들어있는 경우 '정보 없음'으로 처리하는 방어 코드 -->
-                        <!-- 🌟 진료과목에 숫자가 단독으로 들어있는 경우 '정보 없음'으로 처리하는 방어 코드 -->
+                        <!-- 🌟 진료과목 중복 제거 및 깔끔한 출력 정돈 -->
                         <p><span class="detail-label">진료과목</span><span class="txt-ellipsis" th:text="${hospital.medicalSubjects != null and !hospital.medicalSubjects.matches('^[0-9]+$') ? hospital.medicalSubjects.replaceAll('/', ', ') : '정보 없음'}"></span></p>
                         <p><span class="detail-label">진료동물</span><span class="txt-ellipsis" th:text="${hospital.animalNames != null ? hospital.animalNames : '정보 없음'}"></span></p>
-                        <!-- 🌟 진료과목과 옵션을 분리해서 표시 -->
-                        <p><span class="detail-label">진료과목</span><span class="txt-ellipsis" th:text="${hospital.medicalSubjects != null ? hospital.medicalSubjects.replaceAll('/', ', ') : '정보 없음'}"></span></p>
                         <p><span class="detail-label">부대시설</span><span class="txt-ellipsis" th:text="${hospital.serviceNames != null ? hospital.serviceNames : '정보 없음'}"></span></p>
 
                         <p><span class="detail-label">진료시간</span><span class="txt-ellipsis" th:text="${hospital.openTime != null and hospital.openTime != '' ? hospital.openTime + ' ~ ' + hospital.closeTime : '정보 없음'}"></span></p>
@@ -273,7 +270,6 @@
 </div>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
 
-<!-- 🌟 기존 js와 충돌을 방지하기 위한 안전한 인라인 스크립트 -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const subjectAllBtn = document.getElementById('subjectAll');

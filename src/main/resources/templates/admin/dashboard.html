@@ -1,90 +1,680 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <title>관리자 대시보드 TEST</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>관리자 대시보드</title>
 
     <link rel="stylesheet" th:href="@{/css/admin/sidebar.css}">
-    <link rel="stylesheet" href="/css/admin/admin.css">
+
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
+
     <script defer th:src="@{/js/admin/sidebar.js}"></script>
 
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script defer th:src="@{/js/admin/dashboard.js}"></script>
 </head>
+
 <body>
+
 <div class="admin-layout">
 
+    <th:block th:replace="~{admin/fragments/sidebar
+                           :: sidebar('dashboard')}">
+    </th:block>
 
-    <th:block th:replace="~{admin/fragments/sidebar :: sidebar('dashboard')}"></th:block>
+    <main class="admin-main dashboard-main">
 
-    <main class="admin-main">
-        <header class="admin-header">
-            <div>
-                <h1>관리자 대시보드</h1>
-                <p>사이트 운영 현황 확인</p>
+        <header class="dashboard-header">
+
+            <div class="dashboard-title-area">
+
+                <span class="dashboard-category">
+                    PETCITY ADMIN
+                </span>
+
+                <h1>
+                    관리자 대시보드
+                </h1>
+
+                <p>
+                    오늘의 사이트 운영 현황을 확인하세요.
+                </p>
+
             </div>
-            <a href="/" class="site-link">사이트로 이동</a>
+
+            <a th:href="@{/}"
+               class="site-link">
+
+                <span>
+                    사이트로 이동
+                </span>
+
+                <svg viewBox="0 0 24 24"
+                     aria-hidden="true">
+
+                    <path d="M7 17L17 7">
+                    </path>
+
+                    <path d="M8 7H17V16">
+                    </path>
+
+                </svg>
+
+            </a>
+
         </header>
 
-        <section class="dashboard-grid">
+        <section class="dashboard-summary-grid">
 
+            <article class="summary-card visitor-card">
 
-            <article class="dashboard-card">
-                <span>오늘 방문자</span>
-                <strong th:text="${dashboard.todayVisitorCount}">0</strong>
-                <p>방문자 로그 연결 예정</p>
+                <div class="summary-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <circle cx="9"
+                                cy="8"
+                                r="3">
+                        </circle>
+
+                        <circle cx="17"
+                                cy="9"
+                                r="2">
+                        </circle>
+
+                        <path d="M3 20V18C3 15.8 4.8 14 7 14H11C13.2 14 15 15.8 15 18V20">
+                        </path>
+
+                        <path d="M16 14H18C19.7 14 21 15.3 21 17V20">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+                <div class="summary-content">
+
+                    <span class="summary-label">
+                        오늘 방문자
+                    </span>
+
+                    <strong th:text="|${dashboard.todayVisitorCount}명|">
+                        0명
+                    </strong>
+
+                    <p>
+                        오늘 접속한 고유 방문자
+                    </p>
+
+                </div>
+
             </article>
 
-            <article class="dashboard-card">
-                <span>활동 회원</span>
-                <strong th:text="${dashboard.memberCount}">0</strong>
-                <p>활동중인 회원</p>
+            <article class="summary-card member-card">
+
+                <div class="summary-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <circle cx="12"
+                                cy="8"
+                                r="4">
+                        </circle>
+
+                        <path d="M4 21V18C4 15.8 5.8 14 8 14H16C18.2 14 20 15.8 20 18V21">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+                <div class="summary-content">
+
+                    <span class="summary-label">
+                        활동 회원
+                    </span>
+
+                    <strong th:text="|${dashboard.memberCount}명|">
+                        0명
+                    </strong>
+
+                    <p>
+                        현재 활동 상태인 회원
+                    </p>
+
+                </div>
+
             </article>
 
-            <article class="dashboard-card">
-                <span>등록 병원</span>
-                <strong th:text="${dashboard.hospitalCount}">0</strong>
-                <p>전제 병원 수</p>
+            <article class="summary-card hospital-card">
+
+                <div class="summary-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path d="M4 21V7L12 3L20 7V21">
+                        </path>
+
+                        <path d="M9 21V15H15V21">
+                        </path>
+
+                        <path d="M9 9H15">
+                        </path>
+
+                        <path d="M12 6V12">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+                <div class="summary-content">
+
+                    <span class="summary-label">
+                        등록 병원
+                    </span>
+
+                    <strong th:text="|${dashboard.hospitalCount}개|">
+                        0개
+                    </strong>
+
+                    <p>
+                        PetCity에 등록된 전체 병원
+                    </p>
+
+                </div>
+
             </article>
 
-            <article class="dashboard-card">
-                <span>영업중 병원</span>
-                <strong th:text="${dashboard.openHospitalCount}">0</strong>
-                <p>STATUS = OPEN</p>
+            <article class="summary-card request-card">
+
+                <div class="summary-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <rect x="5"
+                              y="3"
+                              width="14"
+                              height="18"
+                              rx="2">
+                        </rect>
+
+                        <path d="M9 3V6H15V3">
+                        </path>
+
+                        <path d="M8 11H16">
+                        </path>
+
+                        <path d="M8 15H13">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+                <div class="summary-content">
+
+                    <div class="summary-label-row">
+
+                        <span class="summary-label">
+                            병원장 승인 대기
+                        </span>
+
+                        <span class="pending-badge"
+                              th:if="${dashboard.pendingOwnerRequestCount > 0}">
+                            확인 필요
+                        </span>
+
+                    </div>
+
+                    <strong th:text="|${dashboard.pendingOwnerRequestCount}건|">
+                        0건
+                    </strong>
+
+                    <a th:href="@{/admin/hospital-owner-requests}">
+                        신청 목록 확인
+                    </a>
+
+                </div>
+
             </article>
 
-            <article class="dashboard-card">
-                <span>폐업 병원</span>
-                <strong th:text="${dashboard.closedHospitalCount}">0</strong>
-                <p>STATUS = CLOSED</p>
-            </article>
-
-            <article class="dashboard-card">
-                <span>휴업 병원</span>
-                <strong th:text="${dashboard.tempClosedHospitalCount}">0</strong>
-                <p>STATUS = TEMP_CLOSED</p>
-            </article>
-
-            <article class="dashboard-card">
-                <span>전체 리뷰</span>
-                <strong th:text="${dashboard.reviewCount}">0</strong>
-                <p>병원 리뷰 수</p>
-            </article>
-
-            <article class="dashboard-card">
-                <span>전체 게시글</span>
-                <strong th:text="${dashboard.boardCount}">0</strong>
-                <p>게시판 글 수</p>
-            </article>
-
-            <article class="dashboard-card">
-                <span>병원장 승인 대기</span>
-                <strong th:text="${dashboard.pendingOwnerRequestCount}">0</strong>
-                <p>병원장</p>
-            </article>
         </section>
+
+        <section class="dashboard-content-grid">
+
+            <article class="dashboard-panel hospital-status-panel">
+
+                <div class="panel-header">
+
+                    <div>
+            <span class="panel-category">
+                HOSPITAL
+            </span>
+
+                        <h2>
+                            병원 운영 현황
+                        </h2>
+
+                        <p>
+                            등록된 병원의 현재 영업 상태를 확인합니다.
+                        </p>
+                    </div>
+
+                    <span class="panel-total"
+                          th:text="|전체 ${dashboard.hospitalCount}개|">
+            전체 0개
+        </span>
+
+                </div>
+
+                <div class="hospital-chart-container">
+
+                    <canvas id="hospitalStatusChart"
+                            th:attr="
+                    data-open=${dashboard.openHospitalCount},
+                    data-closed=${dashboard.closedHospitalCount},
+                    data-temp-closed=${dashboard.tempClosedHospitalCount},
+                    data-total=${dashboard.hospitalCount}">
+                    </canvas>
+
+                </div>
+
+                <div class="hospital-status-summary">
+
+                    <div class="hospital-status-item open-status">
+
+                        <div class="hospital-status-name">
+                            <span class="hospital-status-dot"></span>
+                            <span>영업중</span>
+                        </div>
+
+                        <strong th:text="|${dashboard.openHospitalCount}개|">
+                            0개
+                        </strong>
+
+                    </div>
+
+                    <div class="hospital-status-item closed-status">
+
+                        <div class="hospital-status-name">
+                            <span class="hospital-status-dot"></span>
+                            <span>폐업</span>
+                        </div>
+
+                        <strong th:text="|${dashboard.closedHospitalCount}개|">
+                            0개
+                        </strong>
+
+                    </div>
+
+                    <div class="hospital-status-item temp-status">
+
+                        <div class="hospital-status-name">
+                            <span class="hospital-status-dot"></span>
+                            <span>휴업</span>
+                        </div>
+
+                        <strong th:text="|${dashboard.tempClosedHospitalCount}개|">
+                            0개
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="dashboard-panel content-status-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="panel-category">
+                            CONTENT
+                        </span>
+
+                        <h2>
+                            사이트 콘텐츠
+                        </h2>
+
+                        <p>
+                            이용자가 작성한 콘텐츠 현황입니다.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="content-status-list">
+
+                    <div class="content-status-card review-status">
+
+                        <div class="content-status-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <path d="M21 15C21 16.1 20.1 17 19 17H8L3 21V5C3 3.9 3.9 3 5 3H19C20.1 3 21 3.9 21 5V15Z">
+                                </path>
+
+                                <path d="M8 8H16">
+                                </path>
+
+                                <path d="M8 12H13">
+                                </path>
+
+                            </svg>
+
+                        </div>
+
+                        <div>
+
+                            <span>
+                                전체 리뷰
+                            </span>
+
+                            <strong th:text="|${dashboard.reviewCount}개|">
+                                0개
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="content-status-card board-status">
+
+                        <div class="content-status-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <rect x="4"
+                                      y="3"
+                                      width="16"
+                                      height="18"
+                                      rx="2">
+                                </rect>
+
+                                <path d="M8 8H16">
+                                </path>
+
+                                <path d="M8 12H16">
+                                </path>
+
+                                <path d="M8 16H13">
+                                </path>
+
+                            </svg>
+
+                        </div>
+
+                        <div>
+
+                            <span>
+                                전체 게시글
+                            </span>
+
+                            <strong th:text="|${dashboard.boardCount}개|">
+                                0개
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="content-guide">
+
+                    <div class="content-guide-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <circle cx="12"
+                                    cy="12"
+                                    r="9">
+                            </circle>
+
+                            <path d="M12 8V12">
+                            </path>
+
+                            <path d="M12 16H12.01">
+                            </path>
+
+                        </svg>
+
+                    </div>
+
+                    <p>
+                        리뷰와 게시글 현황은 사이트 이용 활성도를 확인하는
+                        참고 지표로 사용할 수 있습니다.
+                    </p>
+
+                </div>
+
+            </article>
+
+        </section>
+
+        <section class="quick-menu-section">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="panel-category">
+                        QUICK MENU
+                    </span>
+
+                    <h2>
+                        빠른 관리
+                    </h2>
+
+                    <p>
+                        자주 사용하는 관리자 메뉴로 바로 이동합니다.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="quick-menu-grid">
+
+                <a th:href="@{/admin/members}"
+                   class="quick-menu-item">
+
+                    <span class="quick-menu-icon member-quick-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <circle cx="9"
+                                    cy="8"
+                                    r="4">
+                            </circle>
+
+                            <path d="M3 21V18C3 15.8 4.8 14 7 14H11C13.2 14 15 15.8 15 18V21">
+                            </path>
+
+                            <path d="M17 14C19.2 14 21 15.8 21 18V21">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                    <span class="quick-menu-text">
+
+                        <strong>
+                            회원 관리
+                        </strong>
+
+                        <small>
+                            회원 목록과 상태 관리
+                        </small>
+
+                    </span>
+
+                    <span class="quick-menu-arrow">
+                        →
+                    </span>
+
+                </a>
+
+                <a th:href="@{/admin/hospital-owner-requests}"
+                   class="quick-menu-item">
+
+                    <span class="quick-menu-icon request-quick-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <rect x="5"
+                                  y="3"
+                                  width="14"
+                                  height="18"
+                                  rx="2">
+                            </rect>
+
+                            <path d="M8 11H16">
+                            </path>
+
+                            <path d="M8 15H13">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                    <span class="quick-menu-text">
+
+                        <strong>
+                            병원장 신청
+                        </strong>
+
+                        <small>
+                            신청 내역과 승인 처리
+                        </small>
+
+                    </span>
+
+                    <span class="quick-menu-arrow">
+                        →
+                    </span>
+
+                </a>
+
+                <a th:href="@{/admin/main-banners}"
+                   class="quick-menu-item">
+
+                    <span class="quick-menu-icon banner-quick-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <rect x="3"
+                                  y="4"
+                                  width="18"
+                                  height="16"
+                                  rx="2">
+                            </rect>
+
+                            <circle cx="9"
+                                    cy="10"
+                                    r="2">
+                            </circle>
+
+                            <path d="M3 17L8 13L12 16L16 11L21 16">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                    <span class="quick-menu-text">
+
+                        <strong>
+                            메인 배너
+                        </strong>
+
+                        <small>
+                            메인 노출 배너 관리
+                        </small>
+
+                    </span>
+
+                    <span class="quick-menu-arrow">
+                        →
+                    </span>
+
+                </a>
+
+                <a th:href="@{/admin/visitor-statistics}"
+                   class="quick-menu-item">
+
+                    <span class="quick-menu-icon statistics-quick-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M4 20V10">
+                            </path>
+
+                            <path d="M10 20V4">
+                            </path>
+
+                            <path d="M16 20V13">
+                            </path>
+
+                            <path d="M22 20V7">
+                            </path>
+
+                            <path d="M2 20H22">
+                            </path>
+
+                        </svg>
+
+                    </span>
+
+                    <span class="quick-menu-text">
+
+                        <strong>
+                            방문자 통계
+                        </strong>
+
+                        <small>
+                            일별 방문자 추이 확인
+                        </small>
+
+                    </span>
+
+                    <span class="quick-menu-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+        </section>
+
     </main>
 
-
 </div>
+
 </body>
 </html>

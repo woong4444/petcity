@@ -14,7 +14,7 @@ document.addEventListener(
         initDocumentFileName();
         initCharacterCounters();
         /*
-            ADMIN, OWNER 신청 버튼 클릭 차단
+            ADMIN 차단 (OWNER는 다중 등록을 위해 허용!)
             필수 입력값 검사보다 먼저 실행
         */
         initOwnerRoleBlock();
@@ -1296,7 +1296,7 @@ function initCharacterCounters() {
 
 
 /* ========================================
-   관리자 및 병원장 신청 차단
+   관리자 신청 차단 (병원장은 다중 등록 허용!)
 ======================================== */
 
 function initOwnerRoleBlock() {
@@ -1317,16 +1317,9 @@ function initOwnerRoleBlock() {
         return;
     }
 
-    /*
-        apply.html의
-        th:data-member-role 값 읽기
-    */
     const memberRole =
         form.dataset.memberRole;
 
-    /*
-        기존 신청 버튼
-    */
     const submitButton =
         form.querySelector(
             ".submit-button"
@@ -1337,39 +1330,20 @@ function initOwnerRoleBlock() {
     }
 
     /*
-        USER는 정상 제출하므로
-        클릭 차단 이벤트를 등록하지 않는다.
+        🌟 핵심 수정: OWNER는 막지 않고 ADMIN만 막습니다.
     */
     if (memberRole !== "ADMIN") {
-
         return;
     }
 
-    /*
-        버튼 클릭 단계에서 먼저 막는다.
-
-        form submit 이벤트보다 먼저 실행되므로
-        required 입력 검사가 나오기 전에
-        권한 안내 문구가 표시된다.
-    */
     submitButton.addEventListener(
         "click",
         function (event) {
 
             event.preventDefault();
 
-            let message =
-                "병원장 권한을 신청할 수 없습니다.";
-
-            if (memberRole === "ADMIN") {
-
-                message =
-                    "관리자 계정은 병원장 권한을 신청할 수 없습니다.";
-
-            }
-
             roleBlockMessage.textContent =
-                message;
+                "관리자 계정은 병원장 권한을 신청할 수 없습니다.";
 
             roleBlockMessage.style.display =
                 "block";
