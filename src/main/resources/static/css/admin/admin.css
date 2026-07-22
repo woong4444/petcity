@@ -1,96 +1,661 @@
-* {
-    box-sizing: border-box;
+.dashboard-main {
+    width: 100%;
+    min-width: 0;
+    padding: 36px clamp(24px, 3vw, 46px) 56px;
+    background:
+            linear-gradient(
+                    180deg,
+                    #f4f7fc 0,
+                    #f4f7fc 430px,
+                    #f7f9fd 100%
+            );
 }
 
-body {
-    margin: 0;
-    font-family: Arial, "Noto Sans KR", sans-serif;
-    background: #f5f7fb;
-    color: #222;
-}
 
+/* ========================================
+   대시보드 상단
+======================================== */
 
-.admin-menu {
+.dashboard-header {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.admin-menu a {
-    display: block;
-    padding: 13px 14px;
-    color: #cfd7e6;
-    text-decoration: none;
-    border-radius: 10px;
-    font-size: 15px;
-}
-
-.admin-menu a:hover,
-.admin-menu a.active {
-    background: #2f80ed;
-    color: #fff;
-}
-
-
-.admin-header {
-    display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
+    gap: 24px;
+    margin-bottom: 26px;
 }
 
-.admin-header h1 {
+.dashboard-title-area {
+    min-width: 0;
+}
+
+.dashboard-category,
+.panel-category {
+    display: block;
+    margin-bottom: 7px;
+    color: #347fe8;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+}
+
+.dashboard-header h1 {
     margin: 0;
-    font-size: 32px;
+    color: #172033;
+    font-size: 34px;
+    font-weight: 850;
+    line-height: 1.25;
+    letter-spacing: -1.2px;
 }
 
-.admin-header p {
-    margin: 8px 0 0;
-    color: #6b7280;
+.dashboard-header p {
+    margin: 9px 0 0;
+    color: #758097;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .site-link {
-    padding: 11px 16px;
-    border-radius: 10px;
-    background: #fff;
-    border: 1px solid #d8dee9;
-    color: #172033;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 15px;
+    color: #25344d;
+    background: #ffffff;
+    border: 1px solid #dfe5ef;
+    border-radius: 11px;
+    box-shadow: 0 6px 18px rgba(38, 55, 85, 0.05);
+    font-size: 13px;
+    font-weight: 750;
     text-decoration: none;
+    transition:
+            color 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.site-link:hover {
+    color: #347fe8;
+    border-color: #a9c9f8;
+    transform: translateY(-2px);
+    box-shadow: 0 9px 22px rgba(52, 127, 232, 0.12);
+}
+
+.site-link svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* ========================================
+   상단 요약 카드
+======================================== */
+
+.dashboard-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.summary-card {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 148px;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e5eaf2;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(30, 48, 78, 0.06);
+    transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.summary-card::after {
+    position: absolute;
+    right: -34px;
+    bottom: -40px;
+    width: 105px;
+    height: 105px;
+    content: "";
+    border-radius: 50%;
+    opacity: 0.12;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 34px rgba(30, 48, 78, 0.1);
+}
+
+.summary-icon {
+    display: flex;
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+}
+
+.summary-icon svg {
+    width: 23px;
+    height: 23px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.visitor-card .summary-icon {
+    color: #347fe8;
+    background: #eaf3ff;
+}
+
+.visitor-card::after {
+    background: #347fe8;
+}
+
+.member-card .summary-icon {
+    color: #7d65dd;
+    background: #f0edff;
+}
+
+.member-card::after {
+    background: #7d65dd;
+}
+
+.hospital-card .summary-icon {
+    color: #1ea889;
+    background: #e7f8f3;
+}
+
+.hospital-card::after {
+    background: #1ea889;
+}
+
+.request-card .summary-icon {
+    color: #ec9340;
+    background: #fff1e3;
+}
+
+.request-card::after {
+    background: #ec9340;
+}
+
+.summary-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.summary-label-row {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.summary-label {
+    display: block;
+    margin-bottom: 9px;
+    color: #798397;
+    font-size: 13px;
     font-weight: 700;
 }
 
-.dashboard-grid {
+.summary-content strong {
+    display: block;
+    margin-bottom: 9px;
+    color: #172033;
+    font-size: 30px;
+    font-weight: 850;
+    line-height: 1.15;
+    letter-spacing: -0.9px;
+}
+
+.summary-content p {
+    margin: 0;
+    color: #9aa3b3;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.summary-content a {
+    color: #e18430;
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.summary-content a:hover {
+    text-decoration: underline;
+}
+
+.pending-badge {
+    flex: 0 0 auto;
+    padding: 4px 7px;
+    color: #d97824;
+    background: #fff0df;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* ========================================
+   대시보드 중간 영역
+======================================== */
+
+.dashboard-content-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.45fr)
+        minmax(320px, 0.85fr);
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.dashboard-panel,
+.quick-menu-section {
+    min-width: 0;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e5eaf2;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(30, 48, 78, 0.055);
+}
+
+.panel-header {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.panel-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 20px;
+    font-weight: 820;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+}
+
+.panel-header p {
+    margin: 7px 0 0;
+    color: #8a94a7;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.panel-total {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    color: #347fe8;
+    background: #edf5ff;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+
+/* ========================================
+   병원 운영 현황 차트
+======================================== */
+
+.hospital-status-panel {
+    min-width: 0;
+}
+
+.hospital-chart-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 300px;
+}
+
+.hospital-chart-container canvas {
+    width: 100% !important;
+    max-width: 100%;
+    height: 100% !important;
+}
+
+.hospital-status-summary {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    gap: 10px;
+    margin-top: 18px;
 }
 
-.dashboard-card {
-    background: #fff;
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: 0 10px 24px rgba(20, 30, 50, 0.07);
+.hospital-status-item {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px 14px;
+    background: #f8fafc;
+    border: 1px solid #edf1f6;
+    border-radius: 12px;
 }
 
-.dashboard-card span {
-    display: block;
-    color: #6b7280;
+.hospital-status-name {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    color: #657087;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.hospital-status-dot {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.open-status .hospital-status-dot {
+    background: #35c8a0;
+}
+
+.temp-status .hospital-status-dot {
+    background: #f5ad4b;
+}
+
+.closed-status .hospital-status-dot {
+    background: #ef6b6b;
+}
+
+.hospital-status-item strong {
+    flex: 0 0 auto;
+    color: #25344d;
     font-size: 15px;
-    margin-bottom: 14px;
+    font-weight: 800;
 }
 
-.dashboard-card strong {
+
+/* ========================================
+   콘텐츠 현황
+======================================== */
+
+.content-status-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.content-status-card {
+    display: flex;
+    min-width: 0;
+    min-height: 110px;
+    align-items: center;
+    gap: 13px;
+    padding: 17px;
+    border-radius: 15px;
+}
+
+.review-status {
+    background: #eef6ff;
+}
+
+.board-status {
+    background: #f3efff;
+}
+
+.content-status-icon {
+    display: flex;
+    flex: 0 0 auto;
+    width: 41px;
+    height: 41px;
+    align-items: center;
+    justify-content: center;
+    color: #347fe8;
+    background: rgba(255, 255, 255, 0.78);
+    border-radius: 12px;
+}
+
+.board-status .content-status-icon {
+    color: #7d65dd;
+}
+
+.content-status-icon svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.content-status-card span {
     display: block;
-    font-size: 36px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
+    color: #778298;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.dashboard-card p {
-    margin: 0;
-    color: #8a94a6;
-    font-size: 14px;
+.content-status-card strong {
+    color: #172033;
+    font-size: 24px;
+    font-weight: 850;
+    letter-spacing: -0.6px;
 }
 
-.dashboard-card.warning {
-    border: 2px solid #ffcf70;
+.content-guide {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 15px;
+    color: #7a8599;
+    background: #fafbfe;
+    border: 1px dashed #dfe5ef;
+    border-radius: 13px;
+}
+
+.content-guide-icon {
+    display: flex;
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    color: #7496c5;
+}
+
+.content-guide-icon svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.content-guide p {
+    margin: 1px 0 0;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   빠른 관리 메뉴
+======================================== */
+
+.quick-menu-section {
+    margin-top: 20px;
+}
+
+.quick-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.quick-menu-item {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    color: inherit;
+    background: #f9fbfe;
+    border: 1px solid #e8edf4;
+    border-radius: 14px;
+    text-decoration: none;
+    transition:
+            border-color 0.2s ease,
+            background 0.2s ease,
+            transform 0.2s ease;
+}
+
+.quick-menu-item:hover {
+    background: #ffffff;
+    border-color: #a9c9f8;
+    transform: translateY(-2px);
+}
+
+.quick-menu-icon {
+    display: flex;
+    flex: 0 0 auto;
+    width: 39px;
+    height: 39px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+}
+
+.member-quick-icon {
+    color: #347fe8;
+    background: #eaf3ff;
+}
+
+.request-quick-icon {
+    color: #ec9340;
+    background: #fff1e3;
+}
+
+.banner-quick-icon {
+    color: #7d65dd;
+    background: #f0edff;
+}
+
+.statistics-quick-icon {
+    color: #1ea889;
+    background: #e7f8f3;
+}
+
+.quick-menu-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.quick-menu-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.quick-menu-text strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #25344d;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.quick-menu-text small {
+    display: block;
+    overflow: hidden;
+    color: #929bad;
+    font-size: 10px;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.quick-menu-arrow {
+    flex: 0 0 auto;
+    color: #9aa6b8;
+    font-size: 17px;
+}
+
+
+/* ========================================
+   반응형
+======================================== */
+
+@media (max-width: 1250px) {
+
+    .dashboard-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-menu-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+
+    .dashboard-main {
+        padding: 28px 18px 42px;
+    }
+
+    .dashboard-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .site-link {
+        align-self: flex-start;
+    }
+
+    .dashboard-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hospital-chart-container {
+        height: 260px;
+    }
+
+    .hospital-status-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .content-status-list {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-menu-grid {
+        grid-template-columns: 1fr;
+    }
 }
