@@ -1,12 +1,71 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="10;url=/">
-    <title>계정 상태 안내 | PetCity</title>
+
+    <!-- ======================================= -->
+    <!-- 07-22 상각 : 공통 헤더 CSS 적용 -->
+    <!-- ======================================= -->
+    <header th:replace="~{common/head :: head}"></header>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <style>
-        body{font-family:sans-serif;background:#f6f8fb;color:#172033}.card{max-width:620px;margin:90px auto;padding:40px;background:#fff;border-radius:20px;box-shadow:0 12px 35px #1f35521a}.notice{padding:18px;background:#fff1f2;color:#b42338;border-radius:12px;line-height:1.7}.reason{padding:18px;background:#f8fafc;border-radius:12px;margin-top:18px}.guide{color:#667085;line-height:1.7}.buttons{display:flex;gap:12px;margin-top:25px}.buttons a{flex:1;padding:14px;text-align:center;text-decoration:none;border-radius:10px;background:#2563eb;color:#fff}.buttons .home{background:#eef2f6;color:#344054}
+        body {
+            font-family: sans-serif;
+            background: #f6f8fb;
+            color: #172033
+        }
+
+        .card {
+            max-width: 620px;
+            margin: 90px auto;
+            padding: 40px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px #1f35521a
+        }
+
+        .notice {
+            padding: 18px;
+            background: #fff1f2;
+            color: #b42338;
+            border-radius: 12px;
+            line-height: 1.7
+        }
+
+        .reason {
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-top: 18px
+        }
+
+        .guide {
+            color: #667085;
+            line-height: 1.7
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px
+        }
+
+        .buttons a {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #fff
+        }
+
+        .buttons .home {
+            background: #eef2f6;
+            color: #344054
+        }
     </style>
 </head>
 <body>

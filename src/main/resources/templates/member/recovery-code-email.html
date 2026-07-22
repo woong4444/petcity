@@ -7,7 +7,77 @@
     <title>복구코드 이메일 재발급 | PetCity</title>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <style>
-        body{background:#f6f8fb}.box{max-width:540px;margin:65px auto;padding:34px;background:#fff;border-radius:20px;box-shadow:0 12px 35px #1f35521a}.box label{display:block;font-weight:700;margin:17px 0 7px}.box input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #d4dce8;border-radius:10px}.box button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:800}.note,.msg,.ok{padding:14px;border-radius:10px;line-height:1.6}.note{background:#eff6ff;color:#1d4ed8}.msg{background:#fff1f2;color:#b42338}.ok{background:#ecfdf3;color:#067647}.help{margin:8px 0 0;color:#667085;font-size:14px;line-height:1.6}.back{display:block;margin-top:18px;text-align:center}
+        body {
+            background: #f6f8fb
+        }
+
+        .box {
+            max-width: 540px;
+            margin: 65px auto;
+            padding: 34px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px #1f35521a
+        }
+
+        .box label {
+            display: block;
+            font-weight: 700;
+            margin: 17px 0 7px
+        }
+
+        .box input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d4dce8;
+            border-radius: 10px
+        }
+
+        .box button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 800
+        }
+
+        .note, .msg, .ok {
+            padding: 14px;
+            border-radius: 10px;
+            line-height: 1.6
+        }
+
+        .note {
+            background: #eff6ff;
+            color: #1d4ed8
+        }
+
+        .msg {
+            background: #fff1f2;
+            color: #b42338
+        }
+
+        .ok {
+            background: #ecfdf3;
+            color: #067647
+        }
+
+        .help {
+            margin: 8px 0 0;
+            color: #667085;
+            font-size: 14px;
+            line-height: 1.6
+        }
+
+        .back {
+            display: block;
+            margin-top: 18px;
+            text-align: center
+        }
     </style>
 </head>
 <body>
@@ -19,11 +89,15 @@
     <form method="post" action="/member/recovery-code-email/send">
         <input type="hidden" name="accountType" th:value="${snsRecovery ? 'sns' : 'local'}">
         <label th:text="${snsRecovery ? 'SNS 등록 이메일' : '등록 이메일'}">등록 이메일</label>
-        <input type="email" name="loginId" th:value="${prefillLoginId}" th:placeholder="${snsRecovery ? 'SNS 가입에 사용한 이메일 주소' : '가입 시 등록한 이메일 주소'}" autocomplete="username" required>
-        <p class="help" th:text="${snsRecovery ? 'Google·Kakao·Naver 가입에 사용한 이메일 주소를 입력해주세요.' : '일반회원 가입 시 등록한 이메일 주소를 입력해주세요.'}"></p>
+        <input type="email" name="loginId" th:value="${prefillLoginId}"
+               th:placeholder="${snsRecovery ? 'SNS 가입에 사용한 이메일 주소' : '가입 시 등록한 이메일 주소'}" autocomplete="username"
+               required>
+        <p class="help"
+           th:text="${snsRecovery ? 'Google·Kakao·Naver 가입에 사용한 이메일 주소를 입력해주세요.' : '일반회원 가입 시 등록한 이메일 주소를 입력해주세요.'}"></p>
         <button>등록 이메일로 새 복구코드 받기</button>
     </form>
-    <a class="back" th:href="${snsRecovery ? '/member/recovery?type=sns' : '/member/recovery?type=local'}">탈퇴 취소 요청으로 돌아가기</a>
+    <a class="back" th:href="${snsRecovery ? '/member/recovery?type=sns' : '/member/recovery?type=local'}">탈퇴 취소 요청으로
+        돌아가기</a>
 </main>
 </body>
 </html>

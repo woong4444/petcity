@@ -15,7 +15,8 @@
             <span>&#128062;</span>
             <div>
                 <h1>&#47560;&#51060;&#54168;&#51060;&#51648;</h1>
-                <p>&#45236; &#54924;&#50896; &#51221;&#48372;&#47484; &#54869;&#51064;&#54616;&#44256; &#49688;&#51221;&#54624; &#49688; &#51080;&#50612;&#50836;.</p>
+                <p>&#45236; &#54924;&#50896; &#51221;&#48372;&#47484; &#54869;&#51064;&#54616;&#44256; &#49688;&#51221;&#54624;
+                    &#49688; &#51080;&#50612;&#50836;.</p>
             </div>
         </div>
 
@@ -27,11 +28,14 @@
                 <label>&#50500;&#51060;&#46356;<input type="text" th:value="${member.loginId}" readonly></label>
                 <label>&#51060;&#47700;&#51068;<input type="email" th:value="${member.email}" readonly></label>
             </div>
-            <p class="field-help">&#50500;&#51060;&#46356;&#50752; &#51060;&#47700;&#51068;&#51008; &#48372;&#50504;&#51012; &#50948;&#54644; &#51060; &#54868;&#47732;&#50640;&#49436; &#48320;&#44221;&#54624; &#49688; &#50630;&#49845;&#45768;&#45796;.</p>
+            <p class="field-help">&#50500;&#51060;&#46356;&#50752; &#51060;&#47700;&#51068;&#51008; &#48372;&#50504;&#51012;
+                &#50948;&#54644; &#51060; &#54868;&#47732;&#50640;&#49436; &#48320;&#44221;&#54624; &#49688; &#50630;&#49845;&#45768;&#45796;.</p>
 
             <div class="field-grid">
-                <label>&#45769;&#45348;&#51076;<input type="text" name="nickname" th:value="${member.nickname}" minlength="2" maxlength="20" required></label>
-                <label>&#51204;&#54868;&#48264;&#54840;<input type="tel" name="phone" th:value="${member.phone}" placeholder="010-0000-0000" required></label>
+                <label>&#45769;&#45348;&#51076;<input type="text" name="nickname" th:value="${member.nickname}"
+                                                      minlength="2" maxlength="20" required></label>
+                <label>&#51204;&#54868;&#48264;&#54840;<input type="tel" name="phone" th:value="${member.phone}"
+                                                              placeholder="010-0000-0000" required></label>
             </div>
             <button class="btn primary" type="submit">&#54924;&#50896; &#51221;&#48372; &#51200;&#51109;</button>
         </form>
@@ -41,7 +45,9 @@
     <section class="withdraw-card">
         <div>
             <h2>&#54924;&#50896; &#53448;&#53748;</h2>
-            <p>&#53448;&#53664; &#50836;&#52397; &#54980; 3&#51068; &#46041;&#50504; <b>DELETE_PENDING</b> &#49345;&#53468;&#47196; &#48372;&#44288;&#46104;&#47728;, &#44592;&#44036;&#51060; &#51648;&#45208;&#47732; &#49325;&#51228; &#52376;&#47532;&#46121;&#45768;&#45796;.</p>
+            <p>&#53448;&#53664; &#50836;&#52397; &#54980; 3&#51068; &#46041;&#50504; <b>DELETE_PENDING</b> &#49345;&#53468;&#47196;
+                &#48372;&#44288;&#46104;&#47728;, &#44592;&#44036;&#51060; &#51648;&#45208;&#47732; &#49325;&#51228;
+                &#52376;&#47532;&#46121;&#45768;&#45796;.</p>
         </div>
         <div th:if="${withdrawMessage}" class="message error" th:text="${withdrawMessage}"></div>
         <!-- 상각_07-19: 일반/SNS 회원 모두 독립 탈퇴 사유 입력 화면을 거치도록 연결 -->
@@ -52,7 +58,162 @@
 </main>
 
 <style>
-.mypage-wrap{max-width:980px;margin:56px auto 90px;padding:0 20px;color:#172033}.mypage-card,.withdraw-card{background:#fff;border:1px solid #e6ebf2;border-radius:20px;padding:34px;box-shadow:0 12px 30px rgba(31,53,82,.08);margin-bottom:24px}.mypage-heading{display:flex;gap:13px;align-items:center;border-bottom:1px solid #edf0f5;padding-bottom:22px;margin-bottom:25px}.mypage-heading span{font-size:34px}.mypage-heading h1{font-size:28px;margin:0}.mypage-heading p,.withdraw-card p{color:#718096;margin:6px 0 0;line-height:1.6}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.profile-form label,.withdraw-form label{display:flex;flex-direction:column;gap:8px;font-weight:700;font-size:14px}.profile-form input,.withdraw-form input{border:1px solid #d8e0ec;border-radius:10px;padding:13px 14px;font-size:15px}.profile-form input[readonly]{background:#f5f7fa;color:#778398}.field-help{font-size:13px;color:#8c98a9;margin:-8px 0 18px}.btn{border:0;border-radius:10px;padding:13px 20px;font-weight:800;cursor:pointer}.primary{background:#2563eb;color:#fff}.danger{background:#fff1f2;color:#d7374b;border:1px solid #fecdd3}.pet-link{display:inline-block;margin-left:10px;color:#0f766e;font-weight:800;text-decoration:none}.withdraw-card{border-color:#ffe1e5}.withdraw-card h2{margin:0;color:#bd2739}.withdraw-form{display:flex;gap:12px;align-items:end;margin-top:22px}.withdraw-form label{flex:1}.message{padding:13px 15px;border-radius:10px;margin:14px 0;font-weight:700}.success{background:#eafaf0;color:#167a40}.error{background:#fff0f1;color:#c43646}@media(max-width:650px){.field-grid{grid-template-columns:1fr}.withdraw-form{flex-direction:column;align-items:stretch}.withdraw-form .btn{width:100%}.pet-link{display:block;margin:16px 0 0}}
+    .mypage-wrap {
+        max-width: 980px;
+        margin: 56px auto 90px;
+        padding: 0 20px;
+        color: #172033
+    }
+
+    .mypage-card, .withdraw-card {
+        background: #fff;
+        border: 1px solid #e6ebf2;
+        border-radius: 20px;
+        padding: 34px;
+        box-shadow: 0 12px 30px rgba(31, 53, 82, .08);
+        margin-bottom: 24px
+    }
+
+    .mypage-heading {
+        display: flex;
+        gap: 13px;
+        align-items: center;
+        border-bottom: 1px solid #edf0f5;
+        padding-bottom: 22px;
+        margin-bottom: 25px
+    }
+
+    .mypage-heading span {
+        font-size: 34px
+    }
+
+    .mypage-heading h1 {
+        font-size: 28px;
+        margin: 0
+    }
+
+    .mypage-heading p, .withdraw-card p {
+        color: #718096;
+        margin: 6px 0 0;
+        line-height: 1.6
+    }
+
+    .field-grid {
+        display: grid;
+        grid-template-columns:1fr 1fr;
+        gap: 18px;
+        margin: 18px 0
+    }
+
+    .profile-form label, .withdraw-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 14px
+    }
+
+    .profile-form input, .withdraw-form input {
+        border: 1px solid #d8e0ec;
+        border-radius: 10px;
+        padding: 13px 14px;
+        font-size: 15px
+    }
+
+    .profile-form input[readonly] {
+        background: #f5f7fa;
+        color: #778398
+    }
+
+    .field-help {
+        font-size: 13px;
+        color: #8c98a9;
+        margin: -8px 0 18px
+    }
+
+    .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 13px 20px;
+        font-weight: 800;
+        cursor: pointer
+    }
+
+    .primary {
+        background: #2563eb;
+        color: #fff
+    }
+
+    .danger {
+        background: #fff1f2;
+        color: #d7374b;
+        border: 1px solid #fecdd3
+    }
+
+    .pet-link {
+        display: inline-block;
+        margin-left: 10px;
+        color: #0f766e;
+        font-weight: 800;
+        text-decoration: none
+    }
+
+    .withdraw-card {
+        border-color: #ffe1e5
+    }
+
+    .withdraw-card h2 {
+        margin: 0;
+        color: #bd2739
+    }
+
+    .withdraw-form {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+        margin-top: 22px
+    }
+
+    .withdraw-form label {
+        flex: 1
+    }
+
+    .message {
+        padding: 13px 15px;
+        border-radius: 10px;
+        margin: 14px 0;
+        font-weight: 700
+    }
+
+    .success {
+        background: #eafaf0;
+        color: #167a40
+    }
+
+    .error {
+        background: #fff0f1;
+        color: #c43646
+    }
+
+    @media (max-width: 650px) {
+        .field-grid {
+            grid-template-columns:1fr
+        }
+
+        .withdraw-form {
+            flex-direction: column;
+            align-items: stretch
+        }
+
+        .withdraw-form .btn {
+            width: 100%
+        }
+
+        .pet-link {
+            display: block;
+            margin: 16px 0 0
+        }
+    }
 </style>
 </body>
 </html>

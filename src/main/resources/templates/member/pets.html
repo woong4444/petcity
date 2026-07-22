@@ -10,7 +10,8 @@
 <header th:replace="~{common/head :: head}"></header>
 <main class="pet-page">
     <div class="pet-page-title">
-        <div><h1>🐾 내 반려동물</h1><p>반려동물 정보를 등록하고 관리하세요.</p></div>
+        <div><h1>🐾 내 반려동물</h1>
+            <p>반려동물 정보를 등록하고 관리하세요.</p></div>
         <a href="/member/mypage">← 마이페이지</a>
     </div>
     <section class="pet-list" th:if="${!#lists.isEmpty(petList)}">
@@ -23,8 +24,12 @@
                 <p th:text="${pet.birthDate} + ' / ' + ${pet.weight} + 'kg'">Info</p>
             </div>
             <div class="pet-action-buttons">
-                <button type="button" class="edit-btn" th:attr="data-id=${pet.petId},data-name=${pet.petName},data-animal=${pet.animalId},data-breed=${pet.breedName},data-gender=${pet.gender},data-birth=${pet.birthDate},data-weight=${pet.weight},data-reg=${pet.registrationNo}" onclick="loadPet(this)">수정</button>
-                <form th:action="@{/pet/delete}" method="post" style="flex: 1;" onsubmit="return confirm('정말 이 반려동물을 삭제하시겠습니까?');">
+                <button type="button" class="edit-btn"
+                        th:attr="data-id=${pet.petId},data-name=${pet.petName},data-animal=${pet.animalId},data-breed=${pet.breedName},data-gender=${pet.gender},data-birth=${pet.birthDate},data-weight=${pet.weight},data-reg=${pet.registrationNo}"
+                        onclick="loadPet(this)">수정
+                </button>
+                <form th:action="@{/pet/delete}" method="post" style="flex: 1;"
+                      onsubmit="return confirm('정말 이 반려동물을 삭제하시겠습니까?');">
                     <input type="hidden" name="petId" th:value="${pet.petId}">
                     <button type="submit" class="delete-btn" style="width:100%;">삭제</button>
                 </form>
@@ -45,7 +50,9 @@
                 <label>종류
                     <select name="animalId" id="animalId" required onchange="fillBreeds()">
                         <option value="">선택</option>
-                        <option th:each="animal : ${animalTypeList}" th:value="${animal.animalId}" th:text="${animal.animalName}">Animal</option>
+                        <option th:each="animal : ${animalTypeList}" th:value="${animal.animalId}"
+                                th:text="${animal.animalName}">Animal
+                        </option>
                     </select>
                 </label>
                 <label>품종
@@ -63,7 +70,8 @@
                 </label>
                 <label>생년월일<input type="date" name="birthDate" id="birthDate" required></label>
                 <label>몸무게(kg)<input type="number" name="weight" id="weight" min="0.1" step="0.1" required></label>
-                <label>등록번호 (선택)<input name="registrationNo" id="registrationNo" maxlength="15" placeholder="최대 15자리"></label>
+                <label>등록번호 (선택)<input name="registrationNo" id="registrationNo" maxlength="15"
+                                       placeholder="최대 15자리"></label>
                 <label>사진 (선택)<input type="file" name="file" accept="image/*"></label>
             </div>
             <p id="saveMessage" class="save-message"></p>
@@ -73,79 +81,241 @@
 </main>
 <style>
     /* 너비 1024px로 통일 */
-    .pet-page{max-width:1024px;margin:52px auto 90px;padding:0 20px;color:#172033}
-    .pet-page-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-    .pet-page-title h1{margin:0;font-size:30px}
-    .pet-page-title p{color:#718096}
-    .pet-page-title a{color:#2563eb;text-decoration:none;font-weight:800}
-    .pet-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px;margin-bottom:28px}
-    .pet-card{background:#fff;border:1px solid #e6ebf2;border-radius:18px;padding:18px;display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center;box-shadow:0 8px 24px rgba(31,53,82,.06)}
-    .pet-card img,.pet-image{width:68px;height:68px;border-radius:50%;object-fit:cover;background:#eef7ff;display:flex;justify-content:center;align-items:center;font-size:30px}
-    .pet-info h2{margin:0 0 6px;font-size:19px}
-    .pet-info p{margin:3px 0;color:#62718a;font-size:14px}
-    .pet-action-buttons { grid-column: 1 / -1; display: flex; gap: 8px; }
-    .edit-btn{flex: 1; border:1px solid #bfdbfe;background:#eff6ff;color:#2563eb;border-radius:9px;padding:9px;font-weight:800;cursor:pointer}
-    .delete-btn{border:1px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:9px;padding:9px;font-weight:800;cursor:pointer}
-    .empty-pet{padding:25px;background:#f8fafc;border-radius:16px;color:#64748b;margin-bottom:25px}
-    .pet-form-card{background:#fff;border:1px solid #dce8f7;border-radius:20px;padding:30px;box-shadow:0 12px 30px rgba(31,53,82,.08)}
-    .form-title{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #edf0f5;margin-bottom:20px}
-    .form-title h2{margin:0 0 16px}
-    .reset-btn{border:0;background:none;color:#2563eb;font-weight:800;cursor:pointer}
-    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    .form-grid label{display:flex;flex-direction:column;gap:8px;font-weight:800;font-size:14px}
-    .form-grid input,.form-grid select{border:1px solid #d8e0ec;border-radius:10px;padding:12px;font-size:15px}
-    .save-btn{margin-top:22px;width:100%;background:#2563eb;color:#fff;border:0;border-radius:10px;padding:14px;font-size:16px;font-weight:800;cursor:pointer}
-    .save-message{min-height:20px;color:#dc3545;font-weight:700;margin:14px 0 0}
-    @media(max-width:650px){.pet-page-title{align-items:flex-start;flex-direction:column;gap:12px}.form-grid{grid-template-columns:1fr}}
+    .pet-page {
+        max-width: 1024px;
+        margin: 52px auto 90px;
+        padding: 0 20px;
+        color: #172033
+    }
+
+    .pet-page-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px
+    }
+
+    .pet-page-title h1 {
+        margin: 0;
+        font-size: 30px
+    }
+
+    .pet-page-title p {
+        color: #718096
+    }
+
+    .pet-page-title a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 800
+    }
+
+    .pet-list {
+        display: grid;
+        grid-template-columns:repeat(auto-fit, minmax(245px, 1fr));
+        gap: 18px;
+        margin-bottom: 28px
+    }
+
+    .pet-card {
+        background: #fff;
+        border: 1px solid #e6ebf2;
+        border-radius: 18px;
+        padding: 18px;
+        display: grid;
+        grid-template-columns:68px 1fr;
+        gap: 14px;
+        align-items: center;
+        box-shadow: 0 8px 24px rgba(31, 53, 82, .06)
+    }
+
+    .pet-card img, .pet-image {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #eef7ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30px
+    }
+
+    .pet-info h2 {
+        margin: 0 0 6px;
+        font-size: 19px
+    }
+
+    .pet-info p {
+        margin: 3px 0;
+        color: #62718a;
+        font-size: 14px
+    }
+
+    .pet-action-buttons {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 8px;
+    }
+
+    .edit-btn {
+        flex: 1;
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #2563eb;
+        border-radius: 9px;
+        padding: 9px;
+        font-weight: 800;
+        cursor: pointer
+    }
+
+    .delete-btn {
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        color: #dc2626;
+        border-radius: 9px;
+        padding: 9px;
+        font-weight: 800;
+        cursor: pointer
+    }
+
+    .empty-pet {
+        padding: 25px;
+        background: #f8fafc;
+        border-radius: 16px;
+        color: #64748b;
+        margin-bottom: 25px
+    }
+
+    .pet-form-card {
+        background: #fff;
+        border: 1px solid #dce8f7;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 12px 30px rgba(31, 53, 82, .08)
+    }
+
+    .form-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #edf0f5;
+        margin-bottom: 20px
+    }
+
+    .form-title h2 {
+        margin: 0 0 16px
+    }
+
+    .reset-btn {
+        border: 0;
+        background: none;
+        color: #2563eb;
+        font-weight: 800;
+        cursor: pointer
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns:repeat(2, 1fr);
+        gap: 16px
+    }
+
+    .form-grid label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-weight: 800;
+        font-size: 14px
+    }
+
+    .form-grid input, .form-grid select {
+        border: 1px solid #d8e0ec;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 15px
+    }
+
+    .save-btn {
+        margin-top: 22px;
+        width: 100%;
+        background: #2563eb;
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer
+    }
+
+    .save-message {
+        min-height: 20px;
+        color: #dc3545;
+        font-weight: 700;
+        margin: 14px 0 0
+    }
+
+    @media (max-width: 650px) {
+        .pet-page-title {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .form-grid {
+            grid-template-columns:1fr
+        }
+    }
 </style>
 <script th:inline="javascript">
     const subAnimals = /*[[${subAnimalTypeList}]]*/ [];
 
-    function fillBreeds(selectedBreed){
-        const animalId=document.getElementById('animalId').value;
-        const breed=document.getElementById('breedName');
-        breed.innerHTML='<option value="">Select</option>';
-        subAnimals.filter(item=>String(item.parentId)===String(animalId)).forEach(item=>{
-            const option=document.createElement('option');
-            option.value=item.animalName;
-            option.textContent=item.animalName;
-            if(item.animalName===selectedBreed)option.selected=true;
+    function fillBreeds(selectedBreed) {
+        const animalId = document.getElementById('animalId').value;
+        const breed = document.getElementById('breedName');
+        breed.innerHTML = '<option value="">Select</option>';
+        subAnimals.filter(item => String(item.parentId) === String(animalId)).forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.animalName;
+            option.textContent = item.animalName;
+            if (item.animalName === selectedBreed) option.selected = true;
             breed.appendChild(option);
         });
     }
 
-    function loadPet(button){
-        document.getElementById('petId').value=button.dataset.id;
-        document.getElementById('petName').value=button.dataset.name;
-        document.getElementById('animalId').value=button.dataset.animal;
+    function loadPet(button) {
+        document.getElementById('petId').value = button.dataset.id;
+        document.getElementById('petName').value = button.dataset.name;
+        document.getElementById('animalId').value = button.dataset.animal;
         fillBreeds(button.dataset.breed);
-        document.getElementById('gender').value=button.dataset.gender;
-        document.getElementById('birthDate').value=button.dataset.birth;
-        document.getElementById('weight').value=button.dataset.weight;
-        document.getElementById('registrationNo').value=button.dataset.reg||'';
-        document.getElementById('formTitle').textContent='Edit Pet';
-        document.getElementById('petFormCard').scrollIntoView({behavior:'smooth'});
+        document.getElementById('gender').value = button.dataset.gender;
+        document.getElementById('birthDate').value = button.dataset.birth;
+        document.getElementById('weight').value = button.dataset.weight;
+        document.getElementById('registrationNo').value = button.dataset.reg || '';
+        document.getElementById('formTitle').textContent = 'Edit Pet';
+        document.getElementById('petFormCard').scrollIntoView({behavior: 'smooth'});
     }
 
-    function resetForm(){
+    function resetForm() {
         document.getElementById('petForm').reset();
-        document.getElementById('petId').value=0;
-        document.getElementById('breedName').innerHTML='<option value="">Select animal first</option>';
-        document.getElementById('formTitle').textContent='Register Pet';
-        document.getElementById('saveMessage').textContent='';
+        document.getElementById('petId').value = 0;
+        document.getElementById('breedName').innerHTML = '<option value="">Select animal first</option>';
+        document.getElementById('formTitle').textContent = 'Register Pet';
+        document.getElementById('saveMessage').textContent = '';
     }
 
-    document.getElementById('petForm').addEventListener('submit',async event=>{
+    document.getElementById('petForm').addEventListener('submit', async event => {
         event.preventDefault();
-        const message=document.getElementById('saveMessage');
-        message.textContent='';
-        const response=await fetch('/pet/api/save',{method:'POST',body:new FormData(event.target)});
-        const result=await response.json();
-        if(result.isSuccess){
+        const message = document.getElementById('saveMessage');
+        message.textContent = '';
+        const response = await fetch('/pet/api/save', {method: 'POST', body: new FormData(event.target)});
+        const result = await response.json();
+        if (result.isSuccess) {
             location.reload();
             return;
         }
-        message.textContent='Unable to save. Please check the input.';
+        message.textContent = 'Unable to save. Please check the input.';
     });
 </script>
 </body>

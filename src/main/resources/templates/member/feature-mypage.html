@@ -31,7 +31,8 @@
             <p class="field-help">SNS 아이디와 이메일은 이 화면에서 변경할 수 없습니다.</p>
 
             <div class="field-grid">
-                <label>닉네임<input type="text" name="nickname" th:value="${member.nickname}" minlength="2" maxlength="20" required></label>
+                <label>닉네임<input type="text" name="nickname" th:value="${member.nickname}" minlength="2" maxlength="20"
+                                 required></label>
                 <label>가입 방식<input type="text" th:value="${member.loginType}" readonly></label>
             </div>
             <button class="btn primary" type="submit">회원 정보 저장</button>
@@ -50,7 +51,148 @@
 </main>
 
 <style>
-.mypage-wrap{max-width:980px;margin:56px auto 90px;padding:0 20px;color:#172033}.mypage-card,.withdraw-card{background:#fff;border:1px solid #e6ebf2;border-radius:20px;padding:34px;box-shadow:0 12px 30px rgba(31,53,82,.08);margin-bottom:24px}.mypage-heading{display:flex;gap:13px;align-items:center;border-bottom:1px solid #edf0f5;padding-bottom:22px;margin-bottom:25px}.mypage-heading span{font-size:34px}.mypage-heading h1{font-size:28px;margin:0}.mypage-heading p,.withdraw-card p{color:#718096;margin:6px 0 0;line-height:1.6}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.profile-form label{display:flex;flex-direction:column;gap:8px;font-weight:700;font-size:14px}.profile-form input{border:1px solid #d8e0ec;border-radius:10px;padding:13px 14px;font-size:15px}.profile-form input[readonly]{background:#f5f7fa;color:#778398}.field-help{font-size:13px;color:#8c98a9;margin:-8px 0 18px}.btn{display:inline-block;border:0;border-radius:10px;padding:13px 20px;font-weight:800;cursor:pointer;text-decoration:none}.primary{background:#2563eb;color:#fff}.pet-link{display:inline-block;margin-left:10px;color:#0f766e;font-weight:800;text-decoration:none}.withdraw-card{border-color:#ffe1e5}.withdraw-card h2{margin:0;color:#bd2739}.danger{background:#fff1f2;color:#d7374b;border:1px solid #fecdd3}.withdraw-link{margin-top:22px}.message{padding:13px 15px;border-radius:10px;margin:14px 0;font-weight:700}.success{background:#eafaf0;color:#167a40}.error{background:#fff0f1;color:#c43646}@media(max-width:650px){.field-grid{grid-template-columns:1fr}.pet-link{display:block;margin:16px 0 0}}
+    .mypage-wrap {
+        max-width: 980px;
+        margin: 56px auto 90px;
+        padding: 0 20px;
+        color: #172033
+    }
+
+    .mypage-card, .withdraw-card {
+        background: #fff;
+        border: 1px solid #e6ebf2;
+        border-radius: 20px;
+        padding: 34px;
+        box-shadow: 0 12px 30px rgba(31, 53, 82, .08);
+        margin-bottom: 24px
+    }
+
+    .mypage-heading {
+        display: flex;
+        gap: 13px;
+        align-items: center;
+        border-bottom: 1px solid #edf0f5;
+        padding-bottom: 22px;
+        margin-bottom: 25px
+    }
+
+    .mypage-heading span {
+        font-size: 34px
+    }
+
+    .mypage-heading h1 {
+        font-size: 28px;
+        margin: 0
+    }
+
+    .mypage-heading p, .withdraw-card p {
+        color: #718096;
+        margin: 6px 0 0;
+        line-height: 1.6
+    }
+
+    .field-grid {
+        display: grid;
+        grid-template-columns:1fr 1fr;
+        gap: 18px;
+        margin: 18px 0
+    }
+
+    .profile-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 14px
+    }
+
+    .profile-form input {
+        border: 1px solid #d8e0ec;
+        border-radius: 10px;
+        padding: 13px 14px;
+        font-size: 15px
+    }
+
+    .profile-form input[readonly] {
+        background: #f5f7fa;
+        color: #778398
+    }
+
+    .field-help {
+        font-size: 13px;
+        color: #8c98a9;
+        margin: -8px 0 18px
+    }
+
+    .btn {
+        display: inline-block;
+        border: 0;
+        border-radius: 10px;
+        padding: 13px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none
+    }
+
+    .primary {
+        background: #2563eb;
+        color: #fff
+    }
+
+    .pet-link {
+        display: inline-block;
+        margin-left: 10px;
+        color: #0f766e;
+        font-weight: 800;
+        text-decoration: none
+    }
+
+    .withdraw-card {
+        border-color: #ffe1e5
+    }
+
+    .withdraw-card h2 {
+        margin: 0;
+        color: #bd2739
+    }
+
+    .danger {
+        background: #fff1f2;
+        color: #d7374b;
+        border: 1px solid #fecdd3
+    }
+
+    .withdraw-link {
+        margin-top: 22px
+    }
+
+    .message {
+        padding: 13px 15px;
+        border-radius: 10px;
+        margin: 14px 0;
+        font-weight: 700
+    }
+
+    .success {
+        background: #eafaf0;
+        color: #167a40
+    }
+
+    .error {
+        background: #fff0f1;
+        color: #c43646
+    }
+
+    @media (max-width: 650px) {
+        .field-grid {
+            grid-template-columns:1fr
+        }
+
+        .pet-link {
+            display: block;
+            margin: 16px 0 0
+        }
+    }
 </style>
 </body>
 </html>

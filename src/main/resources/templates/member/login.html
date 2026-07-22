@@ -2,18 +2,21 @@
 <html lang="ko"
       xmlns:th="http://www.thymeleaf.org">
 
-
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>로그인 | PetCity</title>
 
-    <!-- 공통 Header -->
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <!-- 공통 헤더 -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
 
     <!-- 로그인 -->
-    <link rel="stylesheet" th:href="@{/css/member/login.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/member/login.css}">
 
 </head>
 
@@ -50,8 +53,7 @@
 
         </p>
 
-
-
+        <!-- SNS 로그인 -->
 
         <a th:href="@{/oauth2/authorization/google}"
            id="googleLoginBtn"
@@ -89,23 +91,49 @@
         <h3>일반 로그인</h3>
 
         <form action="/member/login"
-              method="post">
+              method="post"
+              id="loginForm">
 
-            <label>아이디</label>
+            <label for="loginId">
+                아이디
+            </label>
 
             <input
+                    id="loginId"
                     type="text"
                     name="loginId"
-                    placeholder="아이디">
+                    placeholder="아이디"
+                    autocomplete="username"
+                    required>
 
-            <label>비밀번호</label>
+            <label for="password">
+                비밀번호
+            </label>
 
-            <input
-                    type="password"
-                    name="password"
-                    placeholder="비밀번호">
+            <div class="password-input-wrap">
 
-            <button type="submit">
+                <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        placeholder="비밀번호"
+                        autocomplete="current-password"
+                        required>
+
+                <button
+                        type="button"
+                        id="togglePasswordBtn"
+                        class="password-toggle-btn">
+
+                    보기
+
+                </button>
+
+            </div>
+
+            <button
+                    type="submit"
+                    id="loginBtn">
 
                 로그인
 
@@ -147,7 +175,47 @@
 
 </div>
 
+<script>
 
+    const loginForm = document.querySelector("#loginForm");
+    const loginBtn = document.querySelector("#loginBtn");
+
+    const passwordInput =
+        document.querySelector("#password");
+
+    const togglePasswordBtn =
+        document.querySelector("#togglePasswordBtn");
+
+    // ============================
+    // 비밀번호 보기/숨기기
+    // ============================
+
+    togglePasswordBtn.addEventListener("click", () => {
+
+        const hidden =
+            passwordInput.type === "password";
+
+        passwordInput.type =
+            hidden ? "text" : "password";
+
+        togglePasswordBtn.textContent =
+            hidden ? "숨기기" : "보기";
+
+    });
+
+    // ============================
+    // 로그인 중 중복 클릭 방지
+    // ============================
+
+    loginForm.addEventListener("submit", () => {
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = "로그인 중...";
+
+    });
+
+</script>
 
 </body>
+
 </html>
