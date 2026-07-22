@@ -90,8 +90,8 @@
             resultType="com.jjang051.petcity.owner.dto.OwnerMedicalSubjectDto">
 
         SELECT
-            SUBJECT_ID AS subjectId,
-            SUBJECT_NAME AS subjectName
+        SUBJECT_ID AS subjectId,
+        SUBJECT_NAME AS subjectName
         FROM MEDICAL_SUBJECT
         ORDER BY SUBJECT_ID
     </select>
@@ -307,24 +307,24 @@
             resultType="com.jjang051.petcity.owner.dto.OwnerRequestDto">
 
         SELECT
-            REQUEST_ID AS requestId,
-            MEMBER_ID AS memberId,
-            HOSPITAL_ID AS hospitalId,
+        REQUEST_ID AS requestId,
+        MEMBER_ID AS memberId,
+        HOSPITAL_ID AS hospitalId,
 
-            APPLICANT_NAME AS applicantName,
-            BUSINESS_NUMBER AS businessNumber,
+        APPLICANT_NAME AS applicantName,
+        BUSINESS_NUMBER AS businessNumber,
 
-            HOSPITAL_NAME AS hospitalName,
-            HOSPITAL_PHONE AS hospitalPhone,
-            HOSPITAL_ADDRESS AS hospitalAddress,
+        HOSPITAL_NAME AS hospitalName,
+        HOSPITAL_PHONE AS hospitalPhone,
+        HOSPITAL_ADDRESS AS hospitalAddress,
 
-            STATUS AS status,
-            REJECT_REASON AS rejectReason,
-            RESULT_READ_YN AS resultReadYn,
+        STATUS AS status,
+        REJECT_REASON AS rejectReason,
+        RESULT_READ_YN AS resultReadYn,
 
-            CREATED_AT AS createdAt,
-            PROCESSED_AT AS processedAt,
-            PROCESSED_BY AS processedBy
+        CREATED_AT AS createdAt,
+        PROCESSED_AT AS processedAt,
+        PROCESSED_BY AS processedBy
 
         FROM HOSPITAL_OWNER_REQUEST
 
@@ -349,13 +349,13 @@
         WHERE MEMBER_ID = #{memberId}
 
         AND STATUS IN (
-            'APPROVED',
-            'REJECTED'
+        'APPROVED',
+        'REJECTED'
         )
 
         AND NVL(
-            RESULT_READ_YN,
-            'N'
+        RESULT_READ_YN,
+        'N'
         ) = 'N'
 
     </select>
@@ -399,8 +399,8 @@
 
         FROM HOSPITAL_OWNER_REQUEST
         WHERE REQUEST_ID = #{requestId}
-          AND MEMBER_ID = #{memberId}
-          AND STATUS = 'PENDING'
+        AND MEMBER_ID = #{memberId}
+        AND STATUS = 'PENDING'
 
     </select>
 
@@ -433,9 +433,9 @@
         SELECT COUNT(*)
         FROM HOSPITAL_OWNER_REQUEST
         WHERE REPLACE(BUSINESS_NUMBER,'_','')
-              =REPLACE(#{businessNumber},'_','')
-          AND REQUEST_ID != #{requestId}
-          AND STATUS IN ('PENDING' , 'APPROVED')
+        =REPLACE(#{businessNumber},'_','')
+        AND REQUEST_ID != #{requestId}
+        AND STATUS IN ('PENDING' , 'APPROVED')
     </select>
 
 
@@ -445,35 +445,35 @@
 
         UPDATE HOSPITAL_OWNER_REQUEST
         SET
-            APPLICANT_NAME = #{applicantName},
-            BUSINESS_NUMBER = #{businessNumber},
-            DOCUMENT_URL = #{documentUrl},
+        APPLICANT_NAME = #{applicantName},
+        BUSINESS_NUMBER = #{businessNumber},
+        DOCUMENT_URL = #{documentUrl},
 
-            HOSPITAL_NAME = #{hospitalName},
-            HOSPITAL_PHONE = #{hospitalPhone},
-            HOSPITAL_ADDRESS = #{hospitalAddress},
-            HOSPITAL_DETAIL_ADDRESS = #{hospitalDetailAddress},
-            HOSPITAL_DISTRICT = #{hospitalDistrict},
-            HOSPITAL_WEBSITE_URL = #{hospitalWebsiteUrl},
+        HOSPITAL_NAME = #{hospitalName},
+        HOSPITAL_PHONE = #{hospitalPhone},
+        HOSPITAL_ADDRESS = #{hospitalAddress},
+        HOSPITAL_DETAIL_ADDRESS = #{hospitalDetailAddress},
+        HOSPITAL_DISTRICT = #{hospitalDistrict},
+        HOSPITAL_WEBSITE_URL = #{hospitalWebsiteUrl},
 
 
-            HOSPITAL_LATITUDE = #{hospitalLatitude},
-            HOSPITAL_LONGITUDE = #{hospitalLongitude},
+        HOSPITAL_LATITUDE = #{hospitalLatitude},
+        HOSPITAL_LONGITUDE = #{hospitalLongitude},
 
-            HOSPITAL_OPEN_TIME = #{hospitalOpenTime},
-            HOSPITAL_CLOSE_TIME = #{hospitalCloseTime},
-            HOSPITAL_BREAK_TIME = #{hospitalBreakTime},
-            HOSPITAL_CLOSED_DAYS = #{hospitalClosedDays},
+        HOSPITAL_OPEN_TIME = #{hospitalOpenTime},
+        HOSPITAL_CLOSE_TIME = #{hospitalCloseTime},
+        HOSPITAL_BREAK_TIME = #{hospitalBreakTime},
+        HOSPITAL_CLOSED_DAYS = #{hospitalClosedDays},
 
-            HOSPITAL_MEDICAL_SUBJECTS = #{hospitalMedicalSubjects},
-            HOSPITAL_DOCTOR_INFO = #{hospitalDoctorInfo},
-            HOSPITAL_DESCRIPTION = #{hospitalDescription},
-            HOSPITAL_IMAGE_URL = #{hospitalImageUrl},
-            HOSPITAL_NOTE = #{hospitalNote}
+        HOSPITAL_MEDICAL_SUBJECTS = #{hospitalMedicalSubjects},
+        HOSPITAL_DOCTOR_INFO = #{hospitalDoctorInfo},
+        HOSPITAL_DESCRIPTION = #{hospitalDescription},
+        HOSPITAL_IMAGE_URL = #{hospitalImageUrl},
+        HOSPITAL_NOTE = #{hospitalNote}
 
         WHERE REQUEST_ID = #{requestId}
-            AND MEMBER_ID =#{memberId}
-            AND STATUS = 'PENDING'
+        AND MEMBER_ID =#{memberId}
+        AND STATUS = 'PENDING'
 
     </update>
 
@@ -508,13 +508,13 @@
         WHERE MEMBER_ID = #{memberId}
 
         AND STATUS IN (
-            'APPROVED',
-            'REJECTED'
+        'APPROVED',
+        'REJECTED'
         )
 
         AND NVL(
-            RESULT_READ_YN,
-            'N'
+        RESULT_READ_YN,
+        'N'
         ) = 'N'
 
     </update>
