@@ -1,5 +1,6 @@
 package com.jjang051.petcity.hospital.dao;
 
+import com.jjang051.petcity.hospital.dto.HospitalDirectUpdateDto;
 import com.jjang051.petcity.hospital.dto.HospitalDto;
 import com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,27 +10,188 @@ import java.util.List;
 
 @Mapper
 public interface HospitalUpdateDao {
-    void insertRequest(HospitalUpdateRequestDto requestDto);
+
+    /*
+        =================================================
+        병원 기본 조회
+        =================================================
+    */
+
+    List<HospitalDto> findHospitalsByOwnerId(
+            @Param("ownerId") int ownerId
+    );
+
+    HospitalDto findHospitalById(
+            @Param("hospitalId") int hospitalId
+    );
+
+    HospitalDto findHospitalByIdAndOwner(
+            @Param("hospitalId") int hospitalId,
+            @Param("ownerId") int ownerId
+    );
+
+    List<Integer> findAnimalIdsByHospitalId(
+            @Param("hospitalId") int hospitalId
+    );
+
+    List<Integer> findServiceIdsByHospitalId(
+            @Param("hospitalId") int hospitalId
+    );
+
+    List<Integer> findSubjectIdsByHospitalId(
+            @Param("hospitalId") int hospitalId
+    );
+
+    int updateDirectHospitalInfo(
+            HospitalDirectUpdateDto directUpdateDto
+    );
+
+
+    /*
+        =================================================
+        병원 관리 요청
+        UPDATE / TEMP_CLOSE / CLOSE
+        =================================================
+    */
+
+    void insertRequest(
+            HospitalUpdateRequestDto requestDto
+    );
+
+    HospitalUpdateRequestDto findRequestById(
+            @Param("requestId") int requestId
+    );
+
     List<HospitalUpdateRequestDto> findPendingRequests();
-    HospitalUpdateRequestDto findRequestById(int requestId);
-    void updateRequestStatus(HospitalUpdateRequestDto requestDto);
-    void applyHospitalUpdate(HospitalUpdateRequestDto requestDto);
 
-    // 🌟 원장이 가진 모든 병원 조회 (멀티 병원 지원)
-    List<HospitalDto> findHospitalsByOwnerId(int ownerId);
+    List<HospitalUpdateRequestDto> findRequestListByHospitalId(
+            @Param("hospitalId") int hospitalId,
+            @Param("memberId") int memberId
+    );
 
-    // 특정 병원 단건 조회
-    HospitalDto findHospitalById(int hospitalId);
+    HospitalUpdateRequestDto findLatestRequestByHospitalId(
+            @Param("hospitalId") int hospitalId
+    );
 
-    // 🌟 진료과목 매핑 테이블 조회/수정
-    List<Integer> findSubjectIdsByHospitalId(int hospitalId);
-    void deleteHospitalMedicalSubjects(int hospitalId);
-    void insertHospitalMedicalSubject(@Param("hospitalId") int hospitalId, @Param("subjectId") int subjectId);
+    int countPendingRequestByHospitalAndType(
+            @Param("hospitalId") int hospitalId,
+            @Param("requestType") String requestType
+    );
 
-    // 실시간 현황 및 폐업/폐업취소
-    HospitalUpdateRequestDto findLatestRequestByHospitalId(int hospitalId);
-    void markHospitalAsClosedForDeletion(int hospitalId);
-    void cancelHospitalClosure(int hospitalId); // 폐업 취소
+    /*
+        병원장이 관리자 처리 전 PENDING 요청을 취소할 때 사용.
+        요청 행을 실제 삭제한다.
+    */
+    int deletePendingRequest(
+            @Param("requestId") int requestId,
+            @Param("hospitalId") int hospitalId,
+            @Param("memberId") int memberId
+    );
+
+    /*
+        관리자 승인 또는 반려 처리
+    */
+    int updateRequestStatus(
+            HospitalUpdateRequestDto requestDto
+    );
+
+
+    /*
+        =================================================
+        수정 요청에 포함된 다중 선택값
+        =================================================
+    */
+
+    List<Integer> findRequestAnimalIds(
+            @Param("requestId") int requestId
+    );
+
+    List<Integer> findRequestServiceIds(
+            @Param("requestId") int requestId
+    );
+
+    List<Integer> findRequestSubjectIds(
+            @Param("requestId") int requestId
+    );
+
+    void insertRequestAnimal(
+            @Param("requestId") int requestId,
+            @Param("animalId") int animalId
+    );
+
+    void insertRequestService(
+            @Param("requestId") int requestId,
+            @Param("serviceId") int serviceId
+    );
+
+    void insertRequestMedicalSubject(
+            @Param("requestId") int requestId,
+            @Param("subjectId") int subjectId
+    );
+
+
+    /*
+        =================================================
+        관리자가 UPDATE 요청을 승인했을 때 실제 HOSPITAL 반영
+        =================================================
+    */
+
+    int applyHospitalUpdate(
+            HospitalUpdateRequestDto requestDto
+    );
+
+    void deleteHospitalAnimals(
+            @Param("hospitalId") int hospitalId
+    );
+
+    void insertHospitalAnimal(
+            @Param("hospitalId") int hospitalId,
+            @Param("animalId") int animalId
+    );
+
+    void deleteHospitalServices(
+            @Param("hospitalId") int hospitalId
+    );
+
+    void insertHospitalService(
+            @Param("hospitalId") int hospitalId,
+            @Param("serviceId") int serviceId
+    );
+
+    void deleteHospitalMedicalSubjects(
+            @Param("hospitalId") int hospitalId
+    );
+
+    void insertHospitalMedicalSubject(
+            @Param("hospitalId") int hospitalId,
+            @Param("subjectId") int subjectId
+    );
+
+    int updateMedicalSubjectText(
+            @Param("hospitalId") int hospitalId
+    );
+
+
+    /*
+        =================================================
+        폐업 승인 처리
+        관리자 승인 전에는 절대 호출하지 않는다.
+        =================================================
+    */
+
+    int closeHospitalByAdmin(
+            @Param("hospitalId") int hospitalId
+    );
+
+
+    /*
+        =================================================
+        기존 탈퇴 회원 병원 정리 기능
+        현재 프로젝트에 이미 사용 중이므로 유지
+        =================================================
+    */
+
     void markClosedForWithdrawnMembers();
+
     void deleteOldClosedHospitals();
 }

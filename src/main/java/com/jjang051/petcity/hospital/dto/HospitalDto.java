@@ -25,6 +25,9 @@ public class HospitalDto {
     private String holiday;
     private String status;
     private String description;
+    /* doctorInfo note 정웅 추가*/
+    private String doctorInfo;
+    private String note;
     private String imageUrl;
     private String websiteUrl;
     private String createdAt;
