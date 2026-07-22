@@ -6,364 +6,379 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <link rel="stylesheet" th:href="@{/css/hospital/view.css}">
+
+    <!-- 전체 배경은 bg2.png로 채우고, 중앙 영역은 통째로 하얀색 판으로 감싼 스타일 -->
+    <style>
+        body {
+            position: relative;
+            background-image: url('/images/hospital/bg2.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #f8fafc;
+        }
+        .pagination-wrap { display: flex; justify-content: center; margin-top: 30px; }
+        .pagination { display: flex; list-style: none; padding: 0; gap: 6px; align-items: center; }
+        .pagination .page-item .page-link { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; color: #64748b; font-weight: 700; font-size: 14px; text-decoration: none; transition: all 0.2s; }
+        .pagination .page-item.active .page-link { background: #0ea5e9; border-color: #0ea5e9; color: #fff; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); }
+        .pagination .page-item .page-link:hover:not(:disabled) { background: #f1f5f9; color: #0f172a; }
+        .pagination .page-item.disabled .page-link { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    </style>
 </head>
-<body class="bg-slate-50 pb-20 lg:pb-0">
+<body class="pb-20 lg:pb-0 font-sans">
+
+<!-- 상단 공통 헤더 -->
 <div th:replace="~{common/head :: head}"></div>
 
-<section class="hospital-banner">
-    <div class="banner-bg">
-        <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" alt="병원 이미지">
-        <div th:unless="${hospital.imageUrl != null and hospital.imageUrl != ''}" class="banner-placeholder">🏥 PetCity</div>
-    </div>
+<!-- 병원 대표 배너 이미지 -->
+<section class="w-full h-[320px] sm:h-[380px] relative overflow-hidden bg-slate-900 shadow-inner">
+    <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" class="w-full h-full object-cover object-center brightness-95 scale-105 transition-transform duration-700 hover:scale-100" alt="병원 대표이미지">
+    <div th:unless="${hospital.imageUrl != null and hospital.imageUrl != ''}" class="w-full h-full bg-gradient-to-r from-sky-600 to-indigo-900 flex items-center justify-center text-white font-bold text-lg">이미지 준비중 PetCity</div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-slate-900/60"></div>
 </section>
 
-<main class="view-wrap max-w-4xl mx-auto mt-[-60px] relative z-10">
-    <section class="info-card relative bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
-        <div class="info-badges mb-3 flex gap-2">
-            <span th:if="${hospital.currentStatus == '영업중'}" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">영업중</span>
-            <span th:if="${hospital.currentStatus == '휴게시간'}" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">휴게시간</span>
-            <span th:if="${hospital.currentStatus == '진료종료'}" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">진료종료</span>
-            <span th:if="${hospital.currentStatus == '휴무일'}" class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">휴무일</span>
-            <span class="badge-district bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-xs font-bold" th:text="${hospital.district}">구</span>
-        </div>
-        <div class="flex justify-between items-start mb-4">
-            <h1 class="h-name text-3xl font-extrabold text-slate-800" th:text="${hospital.name}">병원명</h1>
-            <button id="btnShare" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-bold px-4 py-2 rounded-lg transition flex items-center gap-1">
-                공유하기
-            </button>
-        </div>
-        <div class="h-stats flex items-center gap-3 text-sm font-bold text-slate-600 mb-4">
-            <span>⭐ <strong class="text-amber-500 text-base" th:text="${hospital.avgRating != null ? hospital.avgRating : '0.0'}">0</strong></span>
-            <span class="text-slate-300">|</span>
-            <span>리뷰 <strong class="text-sky-500 text-base" th:text="${#lists.size(reviewList)}">0</strong></span>
-            <span class="text-slate-300">|</span>
-            <span>단골 <strong class="text-rose-500 text-base" th:text="${hospital.zzimCount}">0</strong></span>
-        </div>
-        <div class="h-tags flex flex-wrap gap-2 mb-6">
-            <span class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-xs font-bold" th:if="${hospital.animalNames != null}" th:each="animal : ${hospital.animalNames.split(',')}" th:text="'#'+${animal.trim()}">#태그</span>
-            <span class="bg-indigo-50 text-indigo-500 px-2 py-1 rounded text-xs font-bold" th:if="${hospital.serviceNames != null}" th:each="svc : ${hospital.serviceNames.split(',')}" th:text="'#'+${svc.trim()}">#태그</span>
-        </div>
-        <div class="h-buttons grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <button class="btn-primary bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition" onclick="alert('전화연결 : ' + this.dataset.phone)" th:data-phone="${hospital.phone}">전화하기</button>
-            <button class="btn-secondary bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition" onclick="alert('준비중입니다.');">온라인 1:1 예약</button>
-            <a class="btn-outline border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-3 rounded-xl flex items-center justify-center transition" th:if="${hospital.websiteUrl != null and hospital.websiteUrl != ''}" th:href="${hospital.websiteUrl}" target="_blank">웹사이트</a>
-        </div>
-    </section>
+<!-- 메인 컨텐츠 영역 -->
+<main class="view-wrap max-w-4xl mx-auto -mt-28 sm:-mt-32 relative z-10 px-4 mb-20">
 
-    <!-- 진료비 탭 -> 진료 과목 탭으로 변경됨 -->
-    <nav class="sticky-tabs flex gap-2 p-2 bg-white/95 backdrop-blur sticky top-0 z-40 mt-8 rounded-2xl shadow-sm border border-slate-200" id="stickyTabs">
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl bg-sky-500 text-white shadow-md active" data-target="#section-intro">소개</button>
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-subject">진료 과목</button>
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-info">기본정보</button>
-        <button class="tab-btn flex-1 py-3 text-sm sm:text-base font-bold transition rounded-xl text-slate-500 hover:bg-slate-50" data-target="#section-review">리뷰</button>
-    </nav>
+    <!-- 중앙 전체를 감싸는 커다란 하얀색 판 -->
+    <div class="bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] space-y-10">
 
-    <div class="content-sections bg-white p-8 mt-4 rounded-2xl shadow-sm border border-slate-100 mb-20">
-        <section id="section-intro" class="view-section mb-16 pt-6">
-            <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">안녕하세요!</h3>
-            <div class="intro-box text-slate-600 leading-relaxed bg-slate-50 p-6 rounded-xl">
-                <p th:utext="${hospital.description != null ? hospital.description.replace('\n', '<br/>') : '병원 소개가 없습니다.'}"></p>
+        <!-- 병원 헤더 카드 -->
+        <section class="info-card relative bg-white border border-slate-100 p-6 sm:p-8 rounded-[2rem] shadow-sm">
+            <div class="info-badges mb-4 flex gap-2">
+                <span th:if="${hospital.currentStatus == '진료중'}" class="bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide shadow-sm">진료중</span>
+                <span th:if="${hospital.currentStatus == '휴게시간'}" class="bg-amber-100 text-amber-700 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide shadow-sm">휴게시간</span>
+                <span th:if="${hospital.currentStatus == '진료종료'}" class="bg-red-100 text-red-700 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide shadow-sm">진료종료</span>
+                <span th:if="${hospital.currentStatus == '휴무일'}" class="bg-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide shadow-sm">휴무일</span>
+                <span class="badge-district bg-sky-100 text-sky-700 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide shadow-sm" th:text="${hospital.district}">지역구</span>
+            </div>
+
+            <div class="flex justify-between items-start mb-6">
+                <h1 class="h-name text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight" th:text="${hospital.name}">병원 이름</h1>
+
+                <div class="flex items-center gap-1 mt-1">
+                    <button th:if="${session.loginMember == null}" type="button" class="is-anonymous text-slate-300 hover:text-rose-400 font-bold transition flex items-center gap-1.5" onclick="alert('로그인 후 이용 가능합니다.'); location.href='/member/login';">
+                        <svg class="w-8 h-8 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                        </svg>
+                        <span class="text-base text-slate-500">찜</span> <span class="count text-slate-700" th:text="${hospital.zzimCount}">0</span>
+                    </button>
+                    <button th:unless="${session.loginMember == null}" type="button" class="btn-zzim-toggle font-bold transition flex items-center gap-1.5" th:classappend="${isZzim} ? 'text-rose-500 active' : 'text-slate-300 hover:text-rose-400'" th:data-id="${hospital.hospitalId}">
+                        <svg th:classappend="${isZzim} ? 'hidden' : 'block'" class="w-8 h-8 icon-heart-empty transition-transform active:scale-125 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                        </svg>
+                        <svg th:classappend="${isZzim} ? 'block' : 'hidden'" class="w-8 h-8 icon-heart-filled transition-transform active:scale-125 drop-shadow-md" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                        </svg>
+                        <span class="text-base text-slate-500">찜</span> <span class="count text-slate-700" th:text="${hospital.zzimCount}">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="h-stats flex items-center gap-4 text-base font-bold text-slate-600 mb-6 bg-slate-50 inline-flex p-3.5 rounded-2xl border border-slate-100">
+                <span class="flex items-center gap-1.5"><span class="text-amber-500 text-xl">★</span> <strong class="text-slate-900 text-lg" th:text="${hospital.avgRating != null ? hospital.avgRating : '0.0'}">0</strong></span>
+                <span class="text-slate-300">|</span>
+                <span>리뷰 <strong class="text-sky-500 text-lg" th:text="${#lists.size(reviewList)}">0</strong></span>
+            </div>
+
+            <div class="h-tags flex flex-wrap gap-2 mb-8">
+                <span class="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm" th:if="${hospital.animalNames != null}" th:each="animal : ${hospital.animalNames.split(',')}" th:text="'#'+${animal.trim()}">#태그</span>
+                <span class="bg-indigo-50 text-indigo-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm" th:if="${hospital.serviceNames != null}" th:each="svc : ${hospital.serviceNames.split(',')}" th:text="'#'+${svc.trim()}">#태그</span>
+            </div>
+
+            <div class="h-buttons flex flex-wrap gap-3">
+                <button class="flex-1 bg-gradient-to-r from-sky-500 to-sky-400 hover:from-sky-600 hover:to-sky-500 text-white font-extrabold py-4 px-2 rounded-2xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-lg" onclick="alert('전화연결 : ' + this.dataset.phone)" th:data-phone="${hospital.phone}">
+                    📞 전화하기
+                </button>
+                <a th:if="${hospital.websiteUrl != null and hospital.websiteUrl != ''}" class="flex-1 bg-white border-2 border-slate-200 text-slate-700 hover:border-sky-300 hover:text-sky-600 font-extrabold py-4 px-2 rounded-2xl shadow-sm transition-all duration-300 flex items-center justify-center gap-2 text-lg" th:href="${hospital.websiteUrl}" target="_blank">
+                    🌐 웹사이트
+                </a>
+                <button id="btnShare" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold py-4 px-2 rounded-2xl shadow-sm transition-all duration-300 flex items-center justify-center gap-2 text-lg">
+                    📤 공유하기
+                </button>
             </div>
         </section>
 
-        <!-- 진료 과목 안내 섹션 (DB의 슬래시 데이터 분리 표시) -->
-        <section id="section-subject" class="view-section mb-16 pt-6">
-            <div class="flex justify-between items-end mb-6">
-                <h3 class="sec-title text-xl font-extrabold text-slate-800">진료 과목 안내</h3>
-            </div>
-            <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
-                <div th:if="${hospital.medicalSubjects != null and hospital.medicalSubjects != ''}" class="flex flex-wrap gap-3">
-                    <span class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg font-bold text-sm shadow-sm"
-                          th:each="subject : ${hospital.medicalSubjects.split('/')}"
-                          th:text="${subject.trim()}">내과</span>
-                </div>
-                <div th:unless="${hospital.medicalSubjects != null and hospital.medicalSubjects != ''}" class="text-slate-500 font-bold text-center py-4">
-                    등록된 진료 과목 정보가 없습니다.
-                </div>
-            </div>
-        </section>
+        <!-- 스크롤 탭 메뉴 -->
+        <nav class="sticky-tabs flex gap-2 p-2 bg-white/95 backdrop-blur-xl sticky top-4 z-40 rounded-2xl shadow-md border border-slate-200/60" id="stickyTabs">
+            <button class="tab-btn flex-1 py-3.5 text-sm sm:text-base font-extrabold transition-all duration-300 rounded-xl bg-slate-900 text-white shadow-md active" data-target="#section-intro">병원 소개</button>
+            <button class="tab-btn flex-1 py-3.5 text-sm sm:text-base font-extrabold transition-all duration-300 rounded-xl text-slate-500 hover:bg-slate-100" data-target="#section-subject">진료 과목</button>
+            <button class="tab-btn flex-1 py-3.5 text-sm sm:text-base font-extrabold transition-all duration-300 rounded-xl text-slate-500 hover:bg-slate-100" data-target="#section-info">오시는 길</button>
+            <button class="tab-btn flex-1 py-3.5 text-sm sm:text-base font-extrabold transition-all duration-300 rounded-xl text-slate-500 hover:bg-slate-100" data-target="#section-review">리뷰</button>
+        </nav>
 
-        <section id="section-info" class="view-section mb-16 pt-6">
-            <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">오시는 길 및 정보</h3>
-            <div class="grid md:grid-cols-2 gap-8">
-                <div>
-                    <div class="bg-slate-50 p-5 rounded-xl mb-4">
-                        <div class="flex gap-3 mb-2">
-                            <span class="text-xl">📍</span>
-                            <div>
-                                <strong class="block text-slate-700" th:text="${hospital.address}">주소</strong>
-                                <span class="text-sm text-slate-500 block mt-1" th:text="${hospital.detailAddress}">상세주소</span>
+        <div class="content-sections space-y-10">
+
+            <!-- 1. 병원 소개 섹션 -->
+            <section id="section-intro" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50">
+                <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">🏥 병원 소개</h3>
+                <div class="intro-box text-slate-700 text-lg leading-loose bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                    <p th:utext="${hospital.description != null ? hospital.description.replace('\n', '<br/>') : '등록된 소개글이 없습니다.'}"></p>
+                </div>
+            </section>
+
+            <!-- 2. 진료 과목 안내 섹션 -->
+            <section id="section-subject" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50">
+                <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">🩺 진료 과목 안내</h3>
+                <div class="border border-slate-100 rounded-3xl p-8 bg-white shadow-sm">
+                    <div th:if="${hospital.medicalSubjects != null and hospital.medicalSubjects != ''}" class="flex flex-wrap gap-3">
+                        <span class="bg-indigo-50 border border-indigo-100 text-indigo-600 px-5 py-2.5 rounded-full font-extrabold text-sm shadow-sm"
+                              th:each="subject : ${hospital.medicalSubjects.split(',')}"
+                              th:text="${#strings.trim(subject)}">과목</span>
+                    </div>
+                    <div th:unless="${hospital.medicalSubjects != null and hospital.medicalSubjects != ''}" class="text-slate-400 font-bold text-center py-6">
+                        등록된 진료과목이 없습니다.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 오시는 길 및 정보 섹션 -->
+            <section id="section-info" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50">
+                <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">📍 오시는 길 및 정보</h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <div class="flex gap-4">
+                                <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center shadow-sm text-2xl">🗺️</div>
+                                <div class="pt-1">
+                                    <strong class="block text-slate-900 text-lg mb-1" th:text="${hospital.address}">도로명 주소</strong>
+                                    <span class="text-sm text-slate-500 block" th:text="${hospital.detailAddress}">상세 주소</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <div class="flex gap-4">
+                                <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center shadow-sm text-2xl">⏰</div>
+                                <div class="text-base font-bold text-slate-600 space-y-4 w-full pt-1">
+                                    <p class="flex items-center"><span class="inline-block w-20 text-slate-400">전화번호</span> <span class="text-slate-900" th:text="${hospital.phone}"></span></p>
+                                    <p class="flex items-center" th:if="${hospital.ownerName != null}"><span class="inline-block w-20 text-slate-400">대표원장</span> <span class="text-slate-900" th:text="${hospital.ownerName}"></span></p>
+                                    <div class="w-full h-px bg-slate-200/50 my-2"></div>
+                                    <p class="flex items-center"><span class="inline-block w-20 text-slate-400">진료시간</span> <span class="text-slate-900" th:text="${hospital.openTime != null ? hospital.openTime + ' ~ ' + hospital.closeTime : '정보 없음'}"></span></p>
+                                    <p class="flex items-center" th:if="${hospital.breakTime != null and hospital.breakTime != ''}"><span class="inline-block w-20 text-slate-400">휴게시간</span> <span class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md" th:text="${hospital.breakTime}"></span></p>
+                                    <p class="flex items-center" th:if="${hospital.holiday != null and hospital.holiday != ''}"><span class="inline-block w-20 text-slate-400">정기휴무</span> <span class="text-red-500 bg-red-50 px-2.5 py-1 rounded-md" th:text="${hospital.holiday}"></span></p>
+
+                                    <!-- 공지사항 및 정보 칸 (notice 원래대로 원복) -->
+                                    <div class="w-full h-px bg-slate-200/50 my-3"></div>
+                                    <div class="bg-sky-50/70 border border-sky-100 p-4 rounded-2xl">
+                                        <strong class="block text-sky-900 text-sm mb-1.5 flex items-center gap-1 font-extrabold">📢 공지사항 및 정보</strong>
+
+                                        <th:block th:if="${hospital.notice != null and hospital.notice != ''}">
+                                            <div id="noticeBox">
+                                                <p id="noticeText" class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap"
+                                                   th:data-full="${hospital.notice}"
+                                                   th:data-short="${#strings.length(hospital.notice) > 150 ? #strings.substring(hospital.notice, 0, 150) + '...' : hospital.notice}"
+                                                   th:text="${#strings.length(hospital.notice) > 150 ? #strings.substring(hospital.notice, 0, 150) + '...' : hospital.notice}">
+                                                </p>
+                                                <button type="button" id="btnMoreNotice" class="text-sky-600 font-extrabold text-xs mt-2 hover:underline inline-block"
+                                                        th:if="${#strings.length(hospital.notice) > 150}" onclick="toggleNoticeText()">+ 더보기</button>
+                                            </div>
+                                        </th:block>
+                                        <th:block th:unless="${hospital.notice != null and hospital.notice != ''}">
+                                            <p class="text-slate-400 text-sm italic">추가 정보가 없습니다.</p>
+                                        </th:block>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-5 rounded-xl">
-                        <div class="flex gap-3">
-                            <span class="text-xl">🕒</span>
-                            <div class="text-sm font-bold text-slate-600 space-y-2">
-                                <p><span class="inline-block w-16 text-slate-400">진료시간</span> <span th:text="${hospital.openTime != null ? hospital.openTime + ' ~ ' + hospital.closeTime : '정보 없음'}"></span></p>
-                                <p th:if="${hospital.lunchTime != null and hospital.lunchTime != ''}"><span class="inline-block w-16 text-slate-400">휴게시간</span> <span class="text-amber-600" th:text="${hospital.lunchTime}"></span></p>
-                                <p th:if="${hospital.holiday != null and hospital.holiday != ''}"><span class="inline-block w-16 text-slate-400">휴무일</span> <span class="text-red-500" th:text="${hospital.holiday}"></span></p>
+
+                    <div class="relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner" style="height: 330px;">
+                        <div id="kakaoMap" style="width: 100%; height: 100%;"></div>
+                        <a href="#" id="kakaoMapLink" target="_blank" class="absolute bottom-4 right-4 z-10 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-xl text-sm font-extrabold text-slate-900 shadow-lg hover:bg-sky-50 transition flex items-center gap-2">
+                            카카오맵 이동 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 방문자 리뷰 섹션 -->
+            <section id="section-review" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50 pt-6">
+                <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">💬 방문자 리뷰 (<span th:text="${#lists.size(reviewList)}">0</span>)</h3>
+
+                <div class="bg-white border border-slate-200 rounded-3xl p-10 text-center shadow-sm" th:if="${session.loginMember == null}">
+                    <div class="text-5xl mb-4">🔒</div>
+                    <p class="text-slate-600 text-lg font-bold mb-6">리뷰 작성은 <strong class="text-slate-900">로그인한 회원</strong>만 가능합니다.</p>
+                    <a href="/member/login" class="inline-block bg-slate-900 hover:bg-slate-800 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-lg transition-all">로그인하러 가기</a>
+                </div>
+
+                <div class="review-content" th:unless="${session.loginMember == null}">
+                    <div class="bg-white border-2 border-sky-100 rounded-3xl p-6 mb-10 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-2 h-full bg-sky-400"></div>
+                        <input type="hidden" id="reviewHospitalId" th:value="${hospital.hospitalId}">
+                        <input type="hidden" id="loginMemberId" th:value="${session.loginMember.memberId}">
+
+                        <textarea id="reviewContent" class="w-full h-28 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-50 transition-all resize-none text-base" placeholder="이 병원을 방문하셨던 솔직한 경험을 나누어주세요! (최대 1000자)" maxlength="1000"></textarea>
+
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="star-rating-select flex gap-1.5 text-3xl drop-shadow-sm" id="starRatingSelect">
+                                <span data-value="1" class="active text-amber-400 cursor-pointer">★</span>
+                                <span data-value="2" class="active text-amber-400 cursor-pointer">★</span>
+                                <span data-value="3" class="active text-amber-400 cursor-pointer">★</span>
+                                <span data-value="4" class="active text-amber-400 cursor-pointer">★</span>
+                                <span data-value="5" class="active text-amber-400 cursor-pointer">★</span>
+                            </div>
+                            <div class="flex items-center gap-5">
+                                <span id="charCount" class="text-sm font-bold text-slate-400">0 / 1000 자</span>
+                                <input type="hidden" id="reviewRating" value="5">
+                                <button type="button" class="bg-slate-900 hover:bg-slate-800 text-white font-extrabold px-8 py-3 rounded-xl shadow-md transition-all text-base" id="btnSubmitReview">리뷰 등록</button>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="relative h-64 rounded-xl overflow-hidden border border-slate-200">
-                    <div id="kakaoMap" class="w-full h-full"></div>
-                    <a href="#" id="kakaoMapLink" target="_blank" class="absolute bottom-3 right-3 bg-white/90 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 shadow-md hover:bg-sky-50 transition">길찾기</a>
-                </div>
-            </div>
-        </section>
 
-        <!-- 리뷰 영역 -->
-        <section id="section-review" class="view-section pt-6">
-            <h3 class="sec-title text-xl font-extrabold text-slate-800 mb-6">솔직 리뷰 (<span th:text="${#lists.size(reviewList)}">0</span>)</h3>
+                    <ul id="reviewListContainer" class="space-y-6">
+                        <li class="bg-white border border-slate-200 p-8 rounded-3xl shadow-sm review-item" th:each="review, iterStat : ${reviewList}" th:data-index="${iterStat.index}">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 font-bold text-sm">👤</div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <strong class="text-slate-900 font-extrabold text-base" th:text="${review.nickname}">작성자</strong>
+                                            <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md text-[11px] font-extrabold" th:if="${review.petName != null}" th:text="${review.petName} + ' (' + ${review.petBreed} + ')'">반려동물</span>
+                                        </div>
+                                        <span class="text-[12px] text-slate-400 font-bold mt-1 block" th:text="${#calendars.format(review.createdAt, 'yyyy.MM.dd HH:mm')}">날짜</span>
+                                    </div>
+                                </div>
 
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center" th:if="${session.loginMember == null}">
-                <div class="text-4xl mb-3">🔒</div>
-                <p class="text-slate-600 font-bold mb-4">리뷰는 <strong>로그인 후</strong> 작성할 수 있습니다.</p>
-                <a href="/member/login" class="inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-2 rounded-lg transition">로그인하러 가기</a>
-            </div>
-
-            <div class="review-content" th:unless="${session.loginMember == null}">
-                <div class="bg-white border-2 border-sky-100 rounded-xl p-5 mb-8 shadow-sm">
-                    <input type="hidden" id="reviewHospitalId" th:value="${hospital.hospitalId}">
-                    <input type="hidden" id="loginMemberId" th:value="${session.loginMember.memberId}">
-                    <div class="mb-3 flex gap-2">
-                        <button type="button" class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-600 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1" onclick="alert('영수증 인증은 DB연동 후 제공됩니다!')">
-                            📷 영수증 인증
-                        </button>
-                    </div>
-                    <textarea id="reviewContent" class="w-full h-24 p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-sky-400 focus:bg-white transition resize-none text-sm" placeholder="병원의 솔직한 방문 경험을 남겨주세요 (최대 1000자)" maxlength="1000"></textarea>
-
-                    <div class="flex justify-between items-center mt-3">
-                        <div class="star-rating-select flex gap-1 text-2xl" id="starRatingSelect">
-                            <span data-value="1" class="active text-amber-400 cursor-pointer">★</span>
-                            <span data-value="2" class="active text-amber-400 cursor-pointer">★</span>
-                            <span data-value="3" class="active text-amber-400 cursor-pointer">★</span>
-                            <span data-value="4" class="active text-amber-400 cursor-pointer">★</span>
-                            <span data-value="5" class="active text-amber-400 cursor-pointer">★</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span id="charCount" class="text-xs font-bold text-slate-400">0 / 1000 자</span>
-                            <input type="hidden" id="reviewRating" value="5">
-                            <button type="button" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2 rounded-lg transition text-sm" id="btnSubmitReview">등록</button>
-                        </div>
-                    </div>
-                </div>
-
-                <ul class="space-y-4">
-                    <li class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm" th:each="review : ${reviewList}">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="flex items-center gap-2">
-                                <strong class="text-slate-700 font-bold text-sm" th:text="${review.nickname}">닉네임</strong>
-                                <th:block th:if="${review != null}">
-                                    <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold ml-1">회원</span>
-                                </th:block>
-                                <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold ml-1" th:if="${review.petName != null}" th:text="${review.petName} + ' (' + ${review.petBreed} + ')'">반려동물(품종)</span>
-                            </div>
-
-                            <!-- 리뷰 삭제/수정 버튼 및 날짜 영역 -->
-                            <div class="flex items-center gap-3">
-                                <span class="text-[11px] text-slate-400 font-bold" th:text="${#calendars.format(review.createdAt, 'yyyy.MM.dd HH:mm')}">날짜</span>
                                 <th:block th:if="${session.loginMember != null and session.loginMember.memberId == review.memberId}">
-                                    <div class="flex gap-2">
-                                        <button type="button" class="text-[11px] text-slate-500 hover:underline" th:onclick="'toggleReviewEdit(' + ${review.reviewId} + ')'">수정</button>
-                                        <form th:action="@{/hospital/review/delete}" method="post" style="display:inline;" onsubmit="return confirm('이 리뷰를 완전히 삭제하시겠습니까?');">
+                                    <div class="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                        <button type="button" class="text-[13px] text-slate-500 hover:text-sky-500 font-extrabold transition" th:onclick="'toggleReviewEdit(' + ${review.reviewId} + ')'">수정</button>
+                                        <span class="text-slate-300 text-[10px]">|</span>
+                                        <form th:action="@{/hospital/review/delete}" method="post" style="margin: 0; padding: 0; display: flex; align-items: center;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
                                             <input type="hidden" name="reviewId" th:value="${review.reviewId}">
                                             <input type="hidden" name="hospitalId" th:value="${hospital.hospitalId}">
-                                            <button type="submit" class="text-[11px] text-red-400 hover:underline">삭제</button>
+                                            <button type="submit" class="text-[13px] text-red-400 hover:text-red-600 font-extrabold transition bg-transparent border-0 p-0 cursor-pointer">삭제</button>
                                         </form>
                                     </div>
                                 </th:block>
                             </div>
-                        </div>
 
-                        <div class="text-amber-400 text-sm mb-3" th:text="${'★'.repeat(review.rating)} + ${'☆'.repeat(5 - review.rating)}">별점</div>
+                            <div class="text-amber-400 text-lg mb-4 tracking-widest" th:text="${'★'.repeat(review.rating)} + ${'☆'.repeat(5 - review.rating)}">별점</div>
 
-                        <div>
-                            <!-- 원본 리뷰 텍스트 -->
-                            <div th:id="'reviewContentBox-' + ${review.reviewId}">
-                                <div class="r-text-content text-slate-600 text-sm leading-relaxed whitespace-pre-wrap"
-                                     th:data-full="${review.content}"
-                                     th:data-short="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}"
-                                     th:text="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}">
-                                </div>
-                                <button type="button" class="btn-more-text text-sky-500 font-bold text-xs mt-2 hover:underline" th:if="${#strings.length(review.content) > 150}">더보기</button>
-                            </div>
-
-                            <!-- 수정 폼 -->
-                            <div th:id="'reviewEditBox-' + ${review.reviewId}" class="hidden mt-3 bg-slate-50 p-4 rounded-xl border border-slate-200" th:if="${session.loginMember != null and session.loginMember.memberId == review.memberId}">
-                                <form th:action="@{/hospital/review/update}" method="post">
-                                    <input type="hidden" name="reviewId" th:value="${review.reviewId}">
-                                    <input type="hidden" name="hospitalId" th:value="${hospital.hospitalId}">
-                                    <textarea name="content" class="w-full h-24 p-3 bg-white border border-sky-200 rounded-lg text-sm resize-none focus:border-sky-400 outline-none" required maxlength="1000" th:text="${review.content}"></textarea>
-                                    <div class="flex justify-end items-center mt-2 space-x-2">
-                                        <button type="button" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition" th:onclick="'toggleReviewEdit(' + ${review.reviewId} + ')'">취소</button>
-                                        <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white px-5 py-2 rounded-lg text-xs font-bold transition">저장</button>
+                            <div>
+                                <div th:id="'reviewContentBox-' + ${review.reviewId}">
+                                    <div class="r-text-content text-slate-700 text-base leading-relaxed whitespace-pre-wrap"
+                                         th:data-full="${review.content}"
+                                         th:data-short="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}"
+                                         th:text="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}">
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- 병원장 답글 영역 -->
-                        <div class="mt-4 bg-slate-50 p-4 rounded-xl border border-slate-200" th:if="${review.replyContent != null}">
-                            <div class="flex items-center gap-2 mb-2 justify-between">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-extrabold text-slate-700" th:text="${review.replyRole == 'ADMIN' ? 'PetCity 관리자' : hospital.name}">답글작성자</span>
-                                    <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.replyRole == 'OWNER'}">원장님</span>
-                                    <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold" th:if="${review.replyRole == 'ADMIN'}">공식답변</span>
+                                    <button type="button" class="btn-more-text text-sky-500 font-extrabold text-sm mt-3 hover:underline" th:if="${#strings.length(review.content) > 150}">+ 더보기</button>
                                 </div>
-                                <button type="button" class="btn-edit-reply text-xs font-bold text-sky-500 hover:underline" th:if="${session.loginMember != null and (session.loginMember.role == 'ADMIN' or (session.loginMember.role == 'OWNER' and hospital.ownerId == session.loginMember.memberId))}">수정</button>
-                            </div>
-                            <div class="reply-display-area">
-                                <div class="r-text-content text-sm text-slate-600 whitespace-pre-wrap leading-relaxed"
-                                     th:data-full="${review.replyContent}"
-                                     th:data-short="${#strings.length(review.replyContent) > 150 ? #strings.substring(review.replyContent, 0, 150) + '...' : review.replyContent}"
-                                     th:text="${#strings.length(review.replyContent) > 150 ? #strings.substring(review.replyContent, 0, 150) + '...' : review.replyContent}">
-                                </div>
-                                <button type="button" class="btn-more-text text-sky-500 font-bold text-xs mt-2 hover:underline" th:if="${#strings.length(review.replyContent) > 150}">더보기</button>
-                            </div>
 
-                            <div class="reply-form-box hidden mt-3">
-                                <textarea class="reply-textarea w-full h-24 p-3 bg-white border border-sky-200 rounded-lg text-sm resize-none focus:border-sky-400 outline-none" placeholder="답글을 남겨주세요 (최대 1000자)" maxlength="1000" th:text="${review.replyContent}"></textarea>
-                                <div class="flex justify-between items-center mt-2">
-                                    <span class="reply-char-count text-xs font-bold text-slate-400" th:text="${#strings.length(review.replyContent)} + ' / 1000 자'">0 / 1000 자</span>
-                                    <div class="space-x-2">
-                                        <button type="button" class="btn-cancel-reply bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition">취소</button>
-                                        <button type="button" class="btn-submit-reply bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-lg text-xs font-bold transition" th:data-review-id="${review.reviewId}">저장</button>
-                                    </div>
+                                <div th:id="'reviewEditBox-' + ${review.reviewId}" class="hidden mt-4 bg-slate-50 p-5 rounded-2xl border border-slate-200" th:if="${session.loginMember != null and session.loginMember.memberId == review.memberId}">
+                                    <form th:action="@{/hospital/review/update}" method="post">
+                                        <input type="hidden" name="reviewId" th:value="${review.reviewId}">
+                                        <input type="hidden" name="hospitalId" th:value="${hospital.hospitalId}">
+                                        <textarea name="content" class="w-full h-24 p-4 bg-white border border-sky-200 rounded-xl text-base resize-none focus:border-sky-400 outline-none" required maxlength="1000" th:text="${review.content}"></textarea>
+                                        <div class="flex justify-end items-center mt-3 space-x-3">
+                                            <button type="button" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-extrabold transition" th:onclick="'toggleReviewEdit(' + ${review.reviewId} + ')'">취소</button>
+                                            <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl text-sm font-extrabold shadow-md transition">저장완료</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </div>
+                        </li>
+                        <li th:if="${#lists.isEmpty(reviewList)}" class="text-center py-16 text-slate-400 font-bold bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-lg">
+                            아직 작성된 리뷰가 없습니다.<br><span class="text-slate-500 mt-2 inline-block">가장 먼저 리뷰를 남겨주세요! 😊</span>
+                        </li>
+                    </ul>
 
-                        <!-- 병원장/관리자 전용 답글 달기 버튼 -->
-                        <div class="mt-3" th:if="${session.loginMember != null and (session.loginMember.role == 'ADMIN' or (session.loginMember.role == 'OWNER' and hospital.ownerId == session.loginMember.memberId)) and review.replyContent == null}">
-                            <button type="button" class="btn-toggle-reply text-xs font-bold text-sky-500 hover:underline">↳ 답글달기</button>
-                            <div class="reply-form-box hidden mt-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                <textarea class="reply-textarea w-full h-24 p-3 bg-white border border-sky-200 rounded-lg text-sm resize-none focus:border-sky-400 outline-none" placeholder="답글을 남겨주세요 (최대 1000자)" maxlength="1000"></textarea>
-                                <div class="flex justify-between items-center mt-2">
-                                    <span class="reply-char-count text-xs font-bold text-slate-400">0 / 1000 자</span>
-                                    <button type="button" class="btn-submit-reply bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-lg text-xs font-bold transition" th:data-review-id="${review.reviewId}">등록</button>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
+                    <div id="reviewPaginationWrap" class="pagination-wrap"></div>
+                </div>
+            </section>
 
-                    <li th:if="${#lists.isEmpty(reviewList)}" class="text-center py-10 text-slate-400 font-bold bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        아직 등록된 리뷰가 없습니다.<br>첫 리뷰의 주인공이 되어주세요!
-                    </li>
-                </ul>
-            </div>
-        </section>
+        </div>
+
     </div>
 </main>
 
-<div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-3 flex gap-2 z-50 lg:hidden shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
-    <button th:if="${session.loginMember == null}" class="btn-list-zzim is-anonymous flex-1 bg-rose-50 text-rose-400 font-bold py-3 rounded-xl flex justify-center items-center gap-2" onclick="alert('로그인이 필요한 서비스입니다.'); location.href='/member/login';">
-        <i class="icon-heart text-xl">♥</i> <span class="count text-base" th:text="${hospital.zzimCount}">0</span>
-    </button>
-    <button th:unless="${session.loginMember == null}" class="btn-list-zzim btn-zzim-toggle flex-1 bg-rose-50 text-rose-400 font-bold py-3 rounded-xl flex justify-center items-center gap-2" th:classappend="${isZzim} ? 'text-rose-600' : ''" th:data-id="${hospital.hospitalId}">
-        <i class="icon-heart text-xl">♥</i> <span class="count text-base" th:text="${hospital.zzimCount}">0</span>
-    </button>
-    <button class="flex-[2] bg-sky-500 hover:bg-sky-600 text-white font-extrabold py-3 rounded-xl transition" onclick="alert('전화연결 : ' + this.dataset.phone)" th:data-phone="${hospital.phone}">전화하기</button>
-</div>
-
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
-
 <script th:inline="javascript">
-    const lat = [[${hospital.latitude != null ? hospital.latitude : 0}]];
-    const lng = [[${hospital.longitude != null ? hospital.longitude : 0}]];
-    const hName = [[${hospital.name}]];
-    const currentHospital = { id: [[${hospital.hospitalId}]], name: [[${hospital.name}]], img: [[${hospital.imageUrl}]] };
+    /*<![CDATA[*/
+    const lat = /*[[${hospital.latitude != null ? hospital.latitude : 0}]]*/ 0;
+    const lng = /*[[${hospital.longitude != null ? hospital.longitude : 0}]]*/ 0;
+    const hName = /*[[${hospital.name}]]*/ '병원명';
+    const hAddress = /*[[${hospital.address}]]*/ '병원주소';
+    const csrfHeader = /*[[${_csrf != null ? _csrf.headerName : ''}]]*/ 'X-CSRF-TOKEN';
+    const csrfToken = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
+    /*]]>*/
 
-    const csrfHeader = /*[[${_csrf?.headerName}]]*/ 'X-CSRF-TOKEN';
-    const csrfToken = /*[[${_csrf?.token}]]*/ '';
+    // 추가 안내사항(공지사항) 150자 이상 더보기/접기 토글 함수
+    function toggleNoticeText() {
+        const txtEle = document.getElementById('noticeText');
+        const btnEle = document.getElementById('btnMoreNotice');
+        const fullText = txtEle.getAttribute('data-full');
+        const shortText = txtEle.getAttribute('data-short');
 
-    const originalFetch = window.fetch;
-    window.fetch = async function(resource, init) {
-        let config = init || {};
-        config.credentials = 'include';
-        const isPostMethod = config.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(config.method.toUpperCase());
-
-        if (config.headers instanceof Headers) {
-            config.headers.set('X-Requested-With', 'XMLHttpRequest');
-            if (isPostMethod && csrfHeader && csrfToken) config.headers.set(csrfHeader, csrfToken);
+        if (btnEle.innerText.includes('더보기')) {
+            txtEle.innerText = fullText;
+            btnEle.innerText = '접기';
         } else {
-            config.headers = config.headers || {};
-            config.headers['X-Requested-With'] = 'XMLHttpRequest';
-            if (isPostMethod && csrfHeader && csrfToken) config.headers[csrfHeader] = csrfToken;
-        }
-        return originalFetch(resource, config);
-    };
-
-    if (typeof jQuery !== 'undefined') {
-        jQuery.ajaxSetup({ xhrFields: { withCredentials: true }, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-        jQuery(document).ajaxSend(function(event, xhr, options) {
-            if (options.type && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.type.toUpperCase()) && csrfHeader && csrfToken) {
-                xhr.setRequestHeader(csrfHeader, csrfToken);
-            }
-        });
-    }
-
-    let recents = JSON.parse(localStorage.getItem('petcity_recent') || '[]');
-    recents = recents.filter(h => h.id !== currentHospital.id);
-    recents.unshift(currentHospital);
-    if (recents.length > 3) recents.pop();
-    localStorage.setItem('petcity_recent', JSON.stringify(recents));
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const tabs = document.querySelectorAll(".tab-btn");
-        const activeTabId = sessionStorage.getItem("hospitalCurrentTab");
-
-        if (activeTabId) {
-            const activeTab = document.querySelector(`.tab-btn[data-target="${activeTabId}"]`);
-            if (activeTab) {
-                tabs.forEach(btn => {
-                    btn.classList.remove('bg-sky-500', 'text-white', 'shadow-md', 'active');
-                    btn.classList.add('text-slate-500', 'hover:bg-slate-50');
-                });
-                activeTab.classList.remove('text-slate-500', 'hover:bg-slate-50');
-                activeTab.classList.add('bg-sky-500', 'text-white', 'shadow-md', 'active');
-            }
-        }
-
-        tabs.forEach(tab => {
-            tab.addEventListener("click", function() {
-                sessionStorage.setItem("hospitalCurrentTab", this.getAttribute("data-target"));
-                tabs.forEach(btn => {
-                    btn.classList.remove('bg-sky-500', 'text-white', 'shadow-md', 'active');
-                    btn.classList.add('text-slate-500', 'hover:bg-slate-50');
-                });
-                this.classList.remove('text-slate-500', 'hover:bg-slate-50');
-                this.classList.add('bg-sky-500', 'text-white', 'shadow-md', 'active');
-            });
-        });
-
-        const btnSubmitReview = document.getElementById('btnSubmitReview');
-        if(btnSubmitReview) {
-            btnSubmitReview.addEventListener('click', () => {
-                sessionStorage.setItem("hospitalCurrentTab", "#section-review");
-            });
-        }
-    });
-
-    // 리뷰 수정 폼 토글 기능
-    function toggleReviewEdit(reviewId) {
-        const contentBox = document.getElementById('reviewContentBox-' + reviewId);
-        const editBox = document.getElementById('reviewEditBox-' + reviewId);
-        if (editBox.classList.contains('hidden')) {
-            contentBox.classList.add('hidden');
-            editBox.classList.remove('hidden');
-        } else {
-            contentBox.classList.remove('hidden');
-            editBox.classList.add('hidden');
+            txtEle.innerText = shortText;
+            btnEle.innerText = '+ 더보기';
         }
     }
 </script>
-<script th:src="@{/js/hospital/view.js?v=17}"></script>
+<script th:src="@{/js/hospital/view.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const reviewItems = document.querySelectorAll('.review-item');
+        const itemsPerPage = 10;
+        const totalReviews = reviewItems.length;
+        const totalPages = Math.ceil(totalReviews / itemsPerPage);
+        const paginationWrap = document.getElementById('reviewPaginationWrap');
+
+        if (totalPages > 1) {
+            function showReviewPage(pageNum) {
+                const start = (pageNum - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                reviewItems.forEach((item, index) => {
+                    if (index >= start && index < end) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                renderPagination(pageNum);
+            }
+
+            function renderPagination(currentPage) {
+                let html = '<ul class="pagination">';
+                html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="1">&lt;&lt;</a></li>`;
+                html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">&lt;</a></li>`;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+                }
+
+                html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a></li>`;
+                html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${totalPages}">&gt;&gt;</a></li>`;
+                html += '</ul>';
+
+                paginationWrap.innerHTML = html;
+
+                paginationWrap.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetPage = parseInt(this.getAttribute('data-page'));
+                        showReviewPage(targetPage);
+                        document.getElementById('section-review').scrollIntoView({ behavior: 'smooth' });
+                    });
+                });
+            }
+
+            showReviewPage(1);
+        }
+    });
+</script>
 </body>
 </html>
