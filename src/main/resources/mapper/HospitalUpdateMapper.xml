@@ -1,654 +1,114 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jjang051.petcity.hospital.dao.HospitalUpdateDao">
 
-    <!-- =================================================
-         병원 기본 조회
-    ================================================== -->
+    <insert id="insertRequest" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        INSERT INTO HOSPITAL_UPDATE_REQUEST
+        (HOSPITAL_ID, MEMBER_ID, MEDICAL_SUBJECTS, OPEN_TIME, CLOSE_TIME, LUNCH_TIME, HOLIDAY)
+        VALUES
+        (#{hospitalId}, #{memberId}, #{medicalSubjects}, #{openTime}, #{closeTime}, #{lunchTime}, #{holiday})
+    </insert>
 
-    <select id="findHospitalsByOwnerId"
-            resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
-
-        SELECT
-        HOSPITAL_ID AS hospitalId,
-        OWNER_ID AS ownerId,
-        NAME AS name,
-        PHONE AS phone,
-        STATUS AS status,
-        OPEN_TIME AS openTime,
-        CLOSE_TIME AS closeTime,
-        BREAK_TIME AS lunchTime,
-        CLOSED_DAYS AS holiday
-        FROM HOSPITAL
-        WHERE OWNER_ID = #{ownerId}
-        ORDER BY HOSPITAL_ID DESC
-
+    <select id="findPendingRequests" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        SELECT R.*, H.NAME as hospitalName
+        FROM HOSPITAL_UPDATE_REQUEST R
+        JOIN HOSPITAL H ON R.HOSPITAL_ID = H.HOSPITAL_ID
+        WHERE R.STATUS = 'PENDING'
+        ORDER BY R.CREATED_AT DESC
     </select>
 
-    <select id="findHospitalById"
-            resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
+    <select id="findRequestById" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        SELECT * FROM HOSPITAL_UPDATE_REQUEST WHERE REQUEST_ID = #{requestId}
+    </select>
 
-        SELECT
-        HOSPITAL_ID AS hospitalId,
-        OWNER_ID AS ownerId,
+    <update id="updateRequestStatus" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        UPDATE HOSPITAL_UPDATE_REQUEST
+        SET STATUS = #{status},
+        PROCESSED_AT = SYSDATE,
+        REJECT_REASON = #{rejectReason}
+        WHERE REQUEST_ID = #{requestId}
+    </update>
 
-        NAME AS name,
-        ADDRESS AS address,
-        DETAIL_ADDRESS AS detailAddress,
-        PHONE AS phone,
-        DISTRICT AS district,
-
-        LATITUDE AS latitude,
-        LONGITUDE AS longitude,
-
-        OPEN_TIME AS openTime,
-        CLOSE_TIME AS closeTime,
-        BREAK_TIME AS lunchTime,
-        CLOSED_DAYS AS holiday,
-
-        STATUS AS status,
-
-        DESCRIPTION AS description,
-        IMAGE_URL AS imageUrl,
-        WEBSITE_URL AS websiteUrl,
-
-        MEDICAL_SUBJECTS AS medicalSubjects,
-        DOCTOR_INFO AS doctorInfo,
-        NOTE AS note,
-
-        CREATED_AT AS createdAt,
-        UPDATED_AT AS updatedAt
-
-        FROM HOSPITAL
+    <update id="applyHospitalUpdate" parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        UPDATE HOSPITAL
+        SET OPEN_TIME = #{openTime},
+        CLOSE_TIME = #{closeTime},
+        BREAK_TIME = #{lunchTime},
+        CLOSED_DAYS = #{holiday}
         WHERE HOSPITAL_ID = #{hospitalId}
+    </update>
 
-
-
+    <!-- 원장님이 가진 모든 병원 목록 조회 -->
+    <select id="findHospitalsByOwnerId" resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
+        SELECT
+        HOSPITAL_ID AS hospitalId, OWNER_ID AS ownerId, NAME AS name,
+        OPEN_TIME AS openTime, CLOSE_TIME AS closeTime, BREAK_TIME AS lunchTime,
+        CLOSED_DAYS AS holiday, STATUS AS status, NOTE AS note,
+        MEDICAL_SUBJECTS AS medicalSubjects
+        FROM HOSPITAL WHERE OWNER_ID = #{ownerId} ORDER BY HOSPITAL_ID DESC
     </select>
 
-    <select id="findHospitalByIdAndOwner"
-            resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
-
+    <!-- 🌟 [핵심 수정] 특정 병원 단건 조회 시 MEDICAL_SUBJECTS 컬럼 추가! -->
+    <select id="findHospitalById" resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
         SELECT
         HOSPITAL_ID AS hospitalId,
         OWNER_ID AS ownerId,
-
         NAME AS name,
-        ADDRESS AS address,
-        DETAIL_ADDRESS AS detailAddress,
-        PHONE AS phone,
-        DISTRICT AS district,
-
-        LATITUDE AS latitude,
-        LONGITUDE AS longitude,
-
         OPEN_TIME AS openTime,
         CLOSE_TIME AS closeTime,
         BREAK_TIME AS lunchTime,
         CLOSED_DAYS AS holiday,
-
         STATUS AS status,
-
-        DESCRIPTION AS description,
-        IMAGE_URL AS imageUrl,
-        WEBSITE_URL AS websiteUrl,
-
-        MEDICAL_SUBJECTS AS medicalSubjects,
-        DOCTOR_INFO AS doctorInfo,
         NOTE AS note,
-
-        CREATED_AT AS createdAt,
-        UPDATED_AT AS updatedAt
-
+        MEDICAL_SUBJECTS AS medicalSubjects
         FROM HOSPITAL
         WHERE HOSPITAL_ID = #{hospitalId}
-        AND OWNER_ID = #{ownerId}
-
-    </select>
-
-    <select id="findAnimalIdsByHospitalId" resultType="int">
-
-        SELECT ANIMAL_ID
-        FROM HOSPITAL_ANIMAL
-        WHERE HOSPITAL_ID = #{hospitalId}
-        ORDER BY ANIMAL_ID
-
-    </select>
-
-    <select id="findServiceIdsByHospitalId" resultType="int">
-
-        SELECT SERVICE_ID
-        FROM HOSPITAL_SERVICE
-        WHERE HOSPITAL_ID = #{hospitalId}
-        ORDER BY SERVICE_ID
-
     </select>
 
     <select id="findSubjectIdsByHospitalId" resultType="int">
-
-        SELECT SUBJECT_ID
-        FROM HOSPITAL_MEDICAL_SUBJECT
-        WHERE HOSPITAL_ID = #{hospitalId}
-        ORDER BY SUBJECT_ID
-
+        SELECT SUBJECT_ID FROM HOSPITAL_MEDICAL_SUBJECT WHERE HOSPITAL_ID = #{hospitalId}
     </select>
-
-    <!-- =================================================
-     병원장이 즉시 수정 가능한 정보
-     요청 테이블을 거치지 않고 HOSPITAL에 바로 반영
-================================================== -->
-
-    <update id="updateDirectHospitalInfo"
-            parameterType="com.jjang051.petcity.hospital.dto.HospitalDirectUpdateDto">
-
-        UPDATE HOSPITAL
-        SET
-        PHONE = #{hospitalPhone},
-
-        OPEN_TIME = #{openTime},
-        CLOSE_TIME = #{closeTime},
-        BREAK_TIME = #{breakTime},
-        CLOSED_DAYS = #{closedDays},
-
-        DOCTOR_INFO = #{hospitalDoctorInfo},
-        DESCRIPTION = #{hospitalDescription},
-        NOTE = #{hospitalNote},
-
-        UPDATED_AT = SYSTIMESTAMP
-
-        WHERE HOSPITAL_ID = #{hospitalId}
-        AND OWNER_ID = #{memberId}
-        AND STATUS = 'OPEN'
-
-    </update>
-
-
-    <!-- =================================================
-         통합 병원 관리 요청 등록
-    ================================================== -->
-
-    <insert id="insertRequest"
-            parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto"
-            useGeneratedKeys="true"
-            keyProperty="requestId"
-            keyColumn="REQUEST_ID">
-
-        INSERT INTO HOSPITAL_UPDATE_REQUEST (
-
-        HOSPITAL_ID,
-        MEMBER_ID,
-        REQUEST_TYPE,
-
-        APPLICANT_NAME,
-        BUSINESS_NUMBER,
-        DOCUMENT_URL,
-
-        HOSPITAL_NAME,
-        HOSPITAL_PHONE,
-
-        HOSPITAL_ADDRESS,
-        HOSPITAL_DETAIL_ADDRESS,
-        HOSPITAL_DISTRICT,
-        HOSPITAL_WEBSITE_URL,
-
-        HOSPITAL_LATITUDE,
-        HOSPITAL_LONGITUDE,
-
-        MEDICAL_SUBJECTS,
-        OPEN_TIME,
-        CLOSE_TIME,
-        BREAK_TIME,
-        CLOSED_DAYS,
-
-        HOSPITAL_DOCTOR_INFO,
-        HOSPITAL_DESCRIPTION,
-        HOSPITAL_IMAGE_URL,
-        HOSPITAL_NOTE,
-
-        TEMP_CLOSE_START_AT,
-        TEMP_CLOSE_END_AT,
-        REQUEST_REASON,
-
-        STATUS,
-        CREATED_AT
-
-        ) VALUES (
-
-        #{hospitalId},
-        #{memberId},
-        #{requestType,jdbcType=VARCHAR},
-
-        #{applicantName,jdbcType=VARCHAR},
-        #{businessNumber,jdbcType=VARCHAR},
-        #{documentUrl,jdbcType=VARCHAR},
-
-        #{hospitalName,jdbcType=VARCHAR},
-        #{hospitalPhone,jdbcType=VARCHAR},
-
-        #{hospitalAddress,jdbcType=VARCHAR},
-        #{hospitalDetailAddress,jdbcType=VARCHAR},
-        #{hospitalDistrict,jdbcType=VARCHAR},
-        #{hospitalWebsiteUrl,jdbcType=VARCHAR},
-
-        #{hospitalLatitude,jdbcType=DECIMAL},
-        #{hospitalLongitude,jdbcType=DECIMAL},
-
-        #{medicalSubjects,jdbcType=VARCHAR},
-        #{openTime,jdbcType=VARCHAR},
-        #{closeTime,jdbcType=VARCHAR},
-        #{breakTime,jdbcType=VARCHAR},
-        #{closedDays,jdbcType=VARCHAR},
-
-        #{hospitalDoctorInfo,jdbcType=VARCHAR},
-        #{hospitalDescription,jdbcType=VARCHAR},
-        #{hospitalImageUrl,jdbcType=VARCHAR},
-        #{hospitalNote,jdbcType=VARCHAR},
-
-        #{tempCloseStartAt,jdbcType=TIMESTAMP},
-        #{tempCloseEndAt,jdbcType=TIMESTAMP},
-        #{requestReason,jdbcType=VARCHAR},
-
-        'PENDING',
-        SYSTIMESTAMP
-
-        )
-
-    </insert>
-
-
-    <!-- =================================================
-         요청 조회
-    ================================================== -->
-
-    <select id="findRequestById"
-            resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
-
-        SELECT
-        R.REQUEST_ID AS requestId,
-        R.HOSPITAL_ID AS hospitalId,
-        R.MEMBER_ID AS memberId,
-        R.REQUEST_TYPE AS requestType,
-
-        R.APPLICANT_NAME AS applicantName,
-        R.BUSINESS_NUMBER AS businessNumber,
-        R.DOCUMENT_URL AS documentUrl,
-
-        R.HOSPITAL_NAME AS hospitalName,
-        R.HOSPITAL_PHONE AS hospitalPhone,
-
-        R.HOSPITAL_ADDRESS AS hospitalAddress,
-        R.HOSPITAL_DETAIL_ADDRESS AS hospitalDetailAddress,
-        R.HOSPITAL_DISTRICT AS hospitalDistrict,
-        R.HOSPITAL_WEBSITE_URL AS hospitalWebsiteUrl,
-
-        R.HOSPITAL_LATITUDE AS hospitalLatitude,
-        R.HOSPITAL_LONGITUDE AS hospitalLongitude,
-
-        R.MEDICAL_SUBJECTS AS medicalSubjects,
-        R.OPEN_TIME AS openTime,
-        R.CLOSE_TIME AS closeTime,
-        R.BREAK_TIME AS breakTime,
-        R.CLOSED_DAYS AS closedDays,
-
-        R.HOSPITAL_DOCTOR_INFO AS hospitalDoctorInfo,
-        R.HOSPITAL_DESCRIPTION AS hospitalDescription,
-        R.HOSPITAL_IMAGE_URL AS hospitalImageUrl,
-        R.HOSPITAL_NOTE AS hospitalNote,
-
-        R.TEMP_CLOSE_START_AT AS tempCloseStartAt,
-        R.TEMP_CLOSE_END_AT AS tempCloseEndAt,
-        R.REQUEST_REASON AS requestReason,
-
-        R.STATUS AS status,
-        R.CREATED_AT AS createdAt,
-        R.PROCESSED_AT AS processedAt,
-        R.PROCESSED_BY AS processedBy,
-        R.REJECT_REASON AS rejectReason,
-
-        M.NICKNAME AS memberNickname
-
-        FROM HOSPITAL_UPDATE_REQUEST R
-        JOIN APP_MEMBER M
-        ON R.MEMBER_ID = M.MEMBER_ID
-        WHERE R.REQUEST_ID = #{requestId}
-
-    </select>
-
-    <select id="findPendingRequests"
-            resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
-
-        SELECT
-        R.REQUEST_ID AS requestId,
-        R.HOSPITAL_ID AS hospitalId,
-        R.MEMBER_ID AS memberId,
-        R.REQUEST_TYPE AS requestType,
-
-        R.HOSPITAL_NAME AS hospitalName,
-        R.REQUEST_REASON AS requestReason,
-
-        R.STATUS AS status,
-        R.CREATED_AT AS createdAt,
-
-        M.NICKNAME AS memberNickname
-
-        FROM HOSPITAL_UPDATE_REQUEST R
-        JOIN APP_MEMBER M
-        ON R.MEMBER_ID = M.MEMBER_ID
-        WHERE R.STATUS = 'PENDING'
-        ORDER BY R.CREATED_AT DESC
-
-    </select>
-
-    <select id="findRequestListByHospitalId"
-            resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
-
-        SELECT
-        REQUEST_ID AS requestId,
-        HOSPITAL_ID AS hospitalId,
-        MEMBER_ID AS memberId,
-        REQUEST_TYPE AS requestType,
-
-        HOSPITAL_NAME AS hospitalName,
-        REQUEST_REASON AS requestReason,
-
-        TEMP_CLOSE_START_AT AS tempCloseStartAt,
-        TEMP_CLOSE_END_AT AS tempCloseEndAt,
-
-        STATUS AS status,
-        CREATED_AT AS createdAt,
-        PROCESSED_AT AS processedAt,
-        REJECT_REASON AS rejectReason
-
-        FROM HOSPITAL_UPDATE_REQUEST
-        WHERE HOSPITAL_ID = #{hospitalId}
-        AND MEMBER_ID = #{memberId}
-        ORDER BY CREATED_AT DESC
-
-    </select>
-
-    <select id="findLatestRequestByHospitalId"
-            resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
-
-        SELECT
-        REQUEST_ID AS requestId,
-        HOSPITAL_ID AS hospitalId,
-        MEMBER_ID AS memberId,
-        REQUEST_TYPE AS requestType,
-        STATUS AS status,
-        CREATED_AT AS createdAt,
-        REJECT_REASON AS rejectReason
-
-        FROM HOSPITAL_UPDATE_REQUEST
-        WHERE HOSPITAL_ID = #{hospitalId}
-        ORDER BY CREATED_AT DESC
-        FETCH FIRST 1 ROWS ONLY
-
-    </select>
-
-    <select id="countPendingRequestByHospitalAndType"
-            resultType="int">
-
-        SELECT COUNT(*)
-        FROM HOSPITAL_UPDATE_REQUEST
-        WHERE HOSPITAL_ID = #{hospitalId}
-        AND REQUEST_TYPE = #{requestType}
-        AND STATUS = 'PENDING'
-
-    </select>
-
-    <!-- 병원장이 승인 전 요청을 취소하면 행을 삭제 -->
-    <delete id="deletePendingRequest">
-
-        DELETE FROM HOSPITAL_UPDATE_REQUEST
-        WHERE REQUEST_ID = #{requestId}
-        AND HOSPITAL_ID = #{hospitalId}
-        AND MEMBER_ID = #{memberId}
-        AND STATUS = 'PENDING'
-
-    </delete>
-
-    <!-- 관리자 승인 / 반려 처리 -->
-    <update id="updateRequestStatus"
-            parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
-
-        UPDATE HOSPITAL_UPDATE_REQUEST
-        SET
-        STATUS = #{status},
-        PROCESSED_AT = SYSTIMESTAMP,
-        PROCESSED_BY = #{processedBy},
-        REJECT_REASON = #{rejectReason}
-        WHERE REQUEST_ID = #{requestId}
-        AND STATUS = 'PENDING'
-
-    </update>
-
-
-    <!-- =================================================
-         수정 요청의 다중 선택값
-    ================================================== -->
-
-    <select id="findRequestAnimalIds" resultType="int">
-
-        SELECT ANIMAL_ID
-        FROM HOSPITAL_UPDATE_REQUEST_ANIMAL
-        WHERE REQUEST_ID = #{requestId}
-        ORDER BY ANIMAL_ID
-
-    </select>
-
-    <select id="findRequestServiceIds" resultType="int">
-
-        SELECT SERVICE_ID
-        FROM HOSPITAL_UPDATE_REQUEST_SERVICE
-        WHERE REQUEST_ID = #{requestId}
-        ORDER BY SERVICE_ID
-
-    </select>
-
-    <select id="findRequestSubjectIds" resultType="int">
-
-        SELECT SUBJECT_ID
-        FROM HOSPITAL_UPDATE_REQUEST_MEDICAL_SUBJECT
-        WHERE REQUEST_ID = #{requestId}
-        ORDER BY SUBJECT_ID
-
-    </select>
-
-    <insert id="insertRequestAnimal">
-
-        INSERT INTO HOSPITAL_UPDATE_REQUEST_ANIMAL (
-        REQUEST_ID,
-        ANIMAL_ID
-        ) VALUES (
-        #{requestId},
-        #{animalId}
-        )
-
-    </insert>
-
-    <insert id="insertRequestService">
-
-        INSERT INTO HOSPITAL_UPDATE_REQUEST_SERVICE (
-        REQUEST_ID,
-        SERVICE_ID
-        ) VALUES (
-        #{requestId},
-        #{serviceId}
-        )
-
-    </insert>
-
-    <insert id="insertRequestMedicalSubject">
-
-        INSERT INTO HOSPITAL_UPDATE_REQUEST_MEDICAL_SUBJECT (
-        REQUEST_ID,
-        SUBJECT_ID
-        ) VALUES (
-        #{requestId},
-        #{subjectId}
-        )
-
-    </insert>
-
-
-    <!-- =================================================
-         UPDATE 승인 후 실제 HOSPITAL 반영
-    ================================================== -->
-
-    <update id="applyHospitalUpdate"
-            parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
-
-        UPDATE HOSPITAL
-        SET
-        NAME = #{hospitalName},
-        PHONE = #{hospitalPhone},
-
-        ADDRESS = #{hospitalAddress},
-        DETAIL_ADDRESS = #{hospitalDetailAddress},
-        DISTRICT = #{hospitalDistrict},
-        WEBSITE_URL = #{hospitalWebsiteUrl},
-
-        LATITUDE = #{hospitalLatitude},
-        LONGITUDE = #{hospitalLongitude},
-
-        OPEN_TIME = #{openTime},
-        CLOSE_TIME = #{closeTime},
-        BREAK_TIME = #{breakTime},
-        CLOSED_DAYS = #{closedDays},
-
-        DOCTOR_INFO = #{hospitalDoctorInfo},
-        DESCRIPTION = #{hospitalDescription},
-        IMAGE_URL = #{hospitalImageUrl},
-        NOTE = #{hospitalNote},
-
-        UPDATED_AT = SYSTIMESTAMP
-
-        WHERE HOSPITAL_ID = #{hospitalId}
-
-    </update>
-
-    <delete id="deleteHospitalAnimals">
-
-        DELETE FROM HOSPITAL_ANIMAL
-        WHERE HOSPITAL_ID = #{hospitalId}
-
-    </delete>
-
-    <insert id="insertHospitalAnimal">
-
-        INSERT INTO HOSPITAL_ANIMAL (
-        HOSPITAL_ID,
-        ANIMAL_ID
-        ) VALUES (
-        #{hospitalId},
-        #{animalId}
-        )
-
-    </insert>
-
-    <delete id="deleteHospitalServices">
-
-        DELETE FROM HOSPITAL_SERVICE
-        WHERE HOSPITAL_ID = #{hospitalId}
-
-    </delete>
-
-    <insert id="insertHospitalService">
-
-        INSERT INTO HOSPITAL_SERVICE (
-        HOSPITAL_ID,
-        SERVICE_ID
-        ) VALUES (
-        #{hospitalId},
-        #{serviceId}
-        )
-
-    </insert>
 
     <delete id="deleteHospitalMedicalSubjects">
-
-        DELETE FROM HOSPITAL_MEDICAL_SUBJECT
-        WHERE HOSPITAL_ID = #{hospitalId}
-
+        DELETE FROM HOSPITAL_MEDICAL_SUBJECT WHERE HOSPITAL_ID = #{hospitalId}
     </delete>
 
     <insert id="insertHospitalMedicalSubject">
-
-        INSERT INTO HOSPITAL_MEDICAL_SUBJECT (
-        HOSPITAL_ID,
-        SUBJECT_ID
-        ) VALUES (
-        #{hospitalId},
-        #{subjectId}
-        )
-
+        INSERT INTO HOSPITAL_MEDICAL_SUBJECT (HOSPITAL_ID, SUBJECT_ID)
+        VALUES (#{hospitalId}, #{subjectId})
     </insert>
 
-    <update id="updateMedicalSubjectText">
-
-        UPDATE HOSPITAL
-        SET
-        MEDICAL_SUBJECTS = (
-        SELECT LISTAGG(MS.SUBJECT_NAME, ', ')
-        WITHIN GROUP (ORDER BY MS.SUBJECT_ID)
-        FROM HOSPITAL_MEDICAL_SUBJECT HMS
-        JOIN MEDICAL_SUBJECT MS
-        ON HMS.SUBJECT_ID = MS.SUBJECT_ID
-        WHERE HMS.HOSPITAL_ID = #{hospitalId}
-        ),
-        UPDATED_AT = SYSTIMESTAMP
+    <select id="findLatestRequestByHospitalId" resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+        SELECT * FROM HOSPITAL_UPDATE_REQUEST
         WHERE HOSPITAL_ID = #{hospitalId}
+        ORDER BY CREATED_AT DESC
+        FETCH FIRST 1 ROWS ONLY
+    </select>
 
+    <update id="markHospitalAsClosedForDeletion">
+        UPDATE HOSPITAL
+        SET STATUS = 'CLOSED', NOTE = 'DELETE_PENDING', UPDATED_AT = SYSTIMESTAMP
+        WHERE HOSPITAL_ID = #{hospitalId}
     </update>
 
-
-    <!-- =================================================
-         폐업 요청 승인 후 병원 폐업 처리
-    ================================================== -->
-
-    <update id="closeHospitalByAdmin">
-
+    <update id="cancelHospitalClosure">
         UPDATE HOSPITAL
-        SET
-        STATUS = 'CLOSED',
-        NOTE = 'CLOSED_BY_ADMIN',
-        UPDATED_AT = SYSTIMESTAMP
+        SET STATUS = 'OPEN', NOTE = NULL, UPDATED_AT = SYSTIMESTAMP
         WHERE HOSPITAL_ID = #{hospitalId}
-        AND STATUS != 'CLOSED'
-
     </update>
-
-
-    <!-- =================================================
-         기존 탈퇴 회원 정리 기능
-    ================================================== -->
 
     <update id="markClosedForWithdrawnMembers">
-
         UPDATE HOSPITAL
-        SET
-        STATUS = 'CLOSED',
-        NOTE = 'DELETE_PENDING',
-        UPDATED_AT = SYSTIMESTAMP
-        WHERE OWNER_ID IN (
-        SELECT MEMBER_ID
-        FROM APP_MEMBER
-        WHERE MEMBER_STATUS = 'DELETED'
-        )
+        SET STATUS = 'CLOSED', NOTE = 'DELETE_PENDING', UPDATED_AT = SYSTIMESTAMP
+        WHERE OWNER_ID IN (SELECT MEMBER_ID FROM APP_MEMBER WHERE MEMBER_STATUS = 'DELETED')
         AND (NOTE IS NULL OR NOTE != 'DELETE_PENDING')
-
     </update>
 
     <delete id="deleteOldClosedHospitals">
-
         DELETE FROM HOSPITAL
         WHERE STATUS = 'CLOSED'
         AND NOTE = 'DELETE_PENDING'
         AND UPDATED_AT &lt;= SYSTIMESTAMP - INTERVAL '1' HOUR
-
     </delete>
 
 </mapper>
