@@ -1,14 +1,8 @@
 package com.jjang051.petcity.hospital.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-import java.util.List;
-
-@Getter
-@Setter
-@ToString
+@Data
 public class HospitalDto {
     private int hospitalId;
     private int ownerId;
@@ -21,8 +15,10 @@ public class HospitalDto {
     private double longitude;
     private String openTime;
     private String closeTime;
-    private String lunchTime;
-    private String holiday;
+    private String breakTime;
+    private String holiday;      // 정기휴무 (CLOSED_DAYS)
+    private String notice;       // 공지사항 및 추가 안내사항 (NOTICE)
+    private String currentStatus;// 🌟 서비스에서 사용하는 현재 진료 상태 필드 (진료중, 휴게시간 등)
     private String status;
     private String description;
     /* doctorInfo note 정웅 추가*/
@@ -30,11 +26,12 @@ public class HospitalDto {
     private String note;
     private String imageUrl;
     private String websiteUrl;
-    private String createdAt;
-    private String updatedAt;
+    private Object createdAt;
+    private Object updatedAt;
 
-    private String medicalSubjects; // 🌟 진료과목 컬럼 변수 추가 완료!
-
+    // 조인 및 계산용 추가 필드
+    private String ownerName;
+    private String medicalSubjects;
     private String animalNames;
     private String serviceNames;
     private String matchedServiceNames;
@@ -44,8 +41,4 @@ public class HospitalDto {
     private int zzimCount;
     private double avgRating;
     private double distance;
-    private String currentStatus;
-
-    public void setSubjectIds(List<Integer> currentSubjectIds) {
-    }
 }

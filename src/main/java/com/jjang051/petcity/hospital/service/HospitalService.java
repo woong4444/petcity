@@ -20,7 +20,6 @@ public class HospitalService {
     private final HospitalDao hospitalDao;
 
     // 🌟 DB에서 이미 '내과/외과' 문자열로 쪼개져 오기 때문에, 만약 숫자가 섞여 있을 때만 동작하도록 유지
-    // 🌟 이 부분만 찾아가서 교체해 주시면 됩니다.
     private void refineMedicalSubjects(HospitalDto h) {
         if (h.getMedicalSubjects() == null) return;
         String sub = h.getMedicalSubjects().trim();
@@ -90,12 +89,13 @@ public class HospitalService {
             return;
         }
 
-        if (h.getLunchTime() != null && h.getLunchTime().contains("~")) {
+        // 🌟 에러 원인 해결: getLunchTime() -> getBreakTime() 으로 완벽하게 동기화!
+        if (h.getBreakTime() != null && h.getBreakTime().contains("~")) {
             try {
-                String lunch = h.getLunchTime();
-                int idx = lunch.indexOf("~");
-                String start = lunch.substring(Math.max(0, idx - 5), idx).trim();
-                String end = lunch.substring(idx + 1, Math.min(lunch.length(), idx + 6)).trim();
+                String breakT = h.getBreakTime();
+                int idx = breakT.indexOf("~");
+                String start = breakT.substring(Math.max(0, idx - 5), idx).trim();
+                String end = breakT.substring(idx + 1, Math.min(breakT.length(), idx + 6)).trim();
                 if (currentTime.compareTo(start) >= 0 && currentTime.compareTo(end) <= 0) {
                     h.setCurrentStatus("휴게시간");
                     return;
@@ -108,7 +108,6 @@ public class HospitalService {
     public HospitalListPageDto getHospitalListPage(int page, Integer animalId, Integer subAnimalId, List<String> subjects, List<Integer> serviceIds, List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
         int limit = 12;
 
-        // 🌟 에러 수정: 파라미터 순서를 HospitalDao.java와 정확히 일치시킴
         int totalCount = hospitalDao.countHospitalList(openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword);
 
         int totalPages = (int) Math.ceil((double) totalCount / limit);
@@ -122,7 +121,6 @@ public class HospitalService {
 
         int offset = (page - 1) * limit;
 
-        // 🌟 에러 수정: 파라미터 순서 및 개수를 HospitalDao.java와 정확히 일치시킴
         List<HospitalDto> hospitalList = hospitalDao.findHospitalList(offset, limit, openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword, sort, userLat, userLng);
 
         for(HospitalDto h : hospitalList) {
@@ -158,7 +156,6 @@ public class HospitalService {
     }
 
     public HospitalDto getHospitalById(int hospitalId, Double userLat, Double userLng) {
-        // 🌟 에러 수정: int를 Long으로 변환
         HospitalDto h = hospitalDao.findHospitalById((long) hospitalId, userLat, userLng);
         if(h != null) applyCurrentStatus(h);
         return h;
@@ -197,7 +194,6 @@ public class HospitalService {
     }
 
     public void insertReview(HospitalReviewDto reviewDto) {
-        // 🌟 에러 수정: DTO 분해해서 파라미터로 넘김
         hospitalDao.insertReview(
                 (long) reviewDto.getHospitalId(),
                 (long) reviewDto.getMemberId(),

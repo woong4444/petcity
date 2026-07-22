@@ -530,49 +530,19 @@
 
 </main>
 
-<style>
-    .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 700;
-        color: #334155;
-    }
-
-    .form-input {
-        width: 100%;
-        border: 1px solid #cbd5e1;
-        border-radius: 0.75rem;
-        padding: 0.75rem 0.875rem;
-        outline: none;
-    }
-
-    .form-input:focus {
-        border-color: #0ea5e9;
-        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
-    }
-
-    .check-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.75rem;
-        padding: 0.75rem;
-        cursor: pointer;
-        font-size: 0.875rem;
-    }
-
-    .check-label:hover {
-        background: #f8fafc;
-        border-color: #7dd3fc;
-    }
-
-    .check-label input {
-        accent-color: #0ea5e9;
-    }
-</style>
-
+<!-- 추가 안내사항(공지사항) 입력 폼 -->
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 mb-8">
+    <div class="flex items-center gap-3 mb-6">
+        <span class="bg-[#1ea1f2] text-white font-bold rounded-lg w-9 h-9 flex items-center justify-center text-sm">08</span>
+        <h2 class="text-xl font-bold">공지사항 및 추가 안내사항</h2>
+    </div>
+    <div class="ml-12">
+        <textarea name="notice" rows="4"
+                  class="w-full border border-slate-200 p-4 rounded-xl outline-none focus:border-[#1ea1f2] resize-none"
+                  placeholder="주차, 예약, 야간진료, 방문 시 주의사항 등을 입력하세요."
+                  th:text="${hospital.notice}"></textarea>
+    </div>
+</div>
 <script>
     function showRequestPanel(panelId, selectedButton) {
         document.querySelectorAll('.request-panel').forEach(function (panel) {
