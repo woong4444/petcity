@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>병원 관리</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/hospital-management.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <th:block th:replace="~{admin/fragments/sidebar
+                           :: sidebar('hospitalManagement')}">
+    </th:block>
+
+    <main class="admin-main hospital-management-main">
+
+        <header class="page-header">
+
+            <div class="page-title-area">
+
+                <p class="page-category">
+                    HOSPITAL MANAGEMENT
+                </p>
+
+                <h1>
+                    병원 관리
+                </h1>
+
+                <p class="page-description">
+                    등록된 병원과 병원장 정보, 현재 운영 상태를 확인합니다.
+                </p>
+
+            </div>
+
+            <div class="hospital-count-box">
+
+                <span>
+                    조회 병원
+                </span>
+
+                <strong th:text="|${#lists.size(hospitalList)}개|">
+                    0개
+                </strong>
+
+            </div>
+
+        </header>
+
+
+        <!-- 추후 검색창을 이 위치에 추가 -->
+
+
+        <details class="hospital-filter-section"
+                 open>
+
+            <summary class="filter-summary">
+
+                <div class="filter-title-area">
+
+                    <span class="filter-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M4 5H20"></path>
+                            <path d="M7 12H17"></path>
+                            <path d="M10 19H14"></path>
+
+                        </svg>
+
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            치료 동물 필터
+                        </h2>
+
+                        <p>
+                            병원에서 치료 가능한 동물을 기준으로 조회합니다.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <span class="filter-toggle-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path d="M6 9L12 15L18 9"></path>
+
+                    </svg>
+
+                </span>
+
+            </summary>
+
+            <div class="filter-content">
+
+                <div class="filter-action-row">
+
+                    <span class="filter-guide">
+                        치료 동물을 선택해 주세요.
+                    </span>
+
+                    <a th:href="@{/admin/hospitals}"
+                       class="filter-reset-button">
+
+                        필터 초기화
+
+                    </a>
+
+                </div>
+
+                <nav class="animal-filter-list"
+                     aria-label="치료 동물 필터">
+
+                    <a th:href="@{/admin/hospitals(
+                                    sortBy=${sortBy},
+                                    direction=${direction}
+                                )}"
+                       class="animal-filter-button"
+                       th:classappend="${selectedAnimalType == null
+                                       ? 'is-active'
+                                       : ''}">
+
+                        <span class="animal-filter-emoji">
+                            ALL
+                        </span>
+
+                        <span>
+                            전체
+                        </span>
+
+                    </a>
+
+                    <a th:href="@{/admin/hospitals(
+                                    animalType=1,
+                                    sortBy=${sortBy},
+                                    direction=${direction}
+                                )}"
+                       class="animal-filter-button"
+                       th:classappend="${selectedAnimalType == 1
+                                       ? 'is-active'
+                                       : ''}">
+
+                        <span class="animal-filter-emoji">
+                            🐶
+                        </span>
+
+                        <span>
+                            강아지
+                        </span>
+
+                    </a>
+
+                    <a th:href="@{/admin/hospitals(
+                                    animalType=2,
+                                    sortBy=${sortBy},
+                                    direction=${direction}
+                                )}"
+                       class="animal-filter-button"
+                       th:classappend="${selectedAnimalType == 2
+                                       ? 'is-active'
+                                       : ''}">
+
+                        <span class="animal-filter-emoji">
+                            🐱
+                        </span>
+
+                        <span>
+                            고양이
+                        </span>
+
+                    </a>
+
+                    <a th:href="@{/admin/hospitals(
+                                    animalType=3,
+                                    sortBy=${sortBy},
+                                    direction=${direction}
+                                )}"
+                       class="animal-filter-button"
+                       th:classappend="${selectedAnimalType == 3
+                                       ? 'is-active'
+                                       : ''}">
+
+                        <span class="animal-filter-emoji">
+                            🦎
+                        </span>
+
+                        <span>
+                            파충류
+                        </span>
+
+                    </a>
+
+                    <a th:href="@{/admin/hospitals(
+                                    animalType=4,
+                                    sortBy=${sortBy},
+                                    direction=${direction}
+                                )}"
+                       class="animal-filter-button"
+                       th:classappend="${selectedAnimalType == 4
+                                       ? 'is-active'
+                                       : ''}">
+
+                        <span class="animal-filter-emoji">
+                            🐹
+                        </span>
+
+                        <span>
+                            설치류
+                        </span>
+
+                    </a>
+
+                    <a th:href="@{/admin/hospitals(
+                                    animalType=5,
+                                    sortBy=${sortBy},
+                                    direction=${direction}
+                                )}"
+                       class="animal-filter-button"
+                       th:classappend="${selectedAnimalType == 5
+                                       ? 'is-active'
+                                       : ''}">
+
+                        <span class="animal-filter-emoji">
+                            🐟
+                        </span>
+
+                        <span>
+                            어류
+                        </span>
+
+                    </a>
+
+                </nav>
+
+            </div>
+
+        </details>
+
+        <section class="hospital-list-section">
+
+            <div class="list-heading">
+
+                <div>
+
+                    <p class="section-category">
+                        HOSPITAL LIST
+                    </p>
+
+                    <h2>
+                        등록 병원 목록
+                    </h2>
+
+                    <p>
+                        병원 번호와 상태는 각 열의 정렬 버튼으로 변경할 수 있습니다.
+                    </p>
+
+                </div>
+
+                <div class="current-filter-info">
+
+                    <span>
+                        현재 필터
+                    </span>
+
+                    <strong th:if="${selectedAnimalType == null}">
+                        전체
+                    </strong>
+
+                    <strong th:if="${selectedAnimalType == 1}">
+                        강아지
+                    </strong>
+
+                    <strong th:if="${selectedAnimalType == 2}">
+                        고양이
+                    </strong>
+
+                    <strong th:if="${selectedAnimalType == 3}">
+                        파충류
+                    </strong>
+
+                    <strong th:if="${selectedAnimalType == 4}">
+                        설치류
+                    </strong>
+
+                    <strong th:if="${selectedAnimalType == 5}">
+                        어류
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="hospital-table-wrapper">
+
+                <table class="hospital-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th class="hospital-no-column">
+
+                            <div class="sortable-heading">
+
+                                <span>
+                                    병원 NO
+                                </span>
+
+                                <div class="sort-button-group">
+
+                                    <a th:href="@{/admin/hospitals(
+                                                    animalType=${selectedAnimalType},
+                                                    sortBy='hospitalId',
+                                                    direction='asc'
+                                                )}"
+                                       class="sort-button"
+                                       th:classappend="${sortBy == 'hospitalId'
+                                                       and direction == 'asc'
+                                                       ? 'is-active'
+                                                       : ''}"
+                                       aria-label="병원 번호 오름차순">
+
+                                        ▲
+
+                                    </a>
+
+                                    <a th:href="@{/admin/hospitals(
+                                                    animalType=${selectedAnimalType},
+                                                    sortBy='hospitalId',
+                                                    direction='desc'
+                                                )}"
+                                       class="sort-button"
+                                       th:classappend="${sortBy == 'hospitalId'
+                                                       and direction == 'desc'
+                                                       ? 'is-active'
+                                                       : ''}"
+                                       aria-label="병원 번호 내림차순">
+
+                                        ▼
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </th>
+
+                        <th>
+                            병원장 이름
+                        </th>
+
+                        <th>
+                            이메일
+                        </th>
+
+                        <th class="hospital-status-column">
+
+                            <div class="sortable-heading">
+
+                                <span>
+                                    병원 상태
+                                </span>
+
+                                <div class="sort-button-group">
+
+                                    <a th:href="@{/admin/hospitals(
+                                                    animalType=${selectedAnimalType},
+                                                    sortBy='status',
+                                                    direction='asc'
+                                                )}"
+                                       class="sort-button"
+                                       th:classappend="${sortBy == 'status'
+                                                       and direction == 'asc'
+                                                       ? 'is-active'
+                                                       : ''}"
+                                       aria-label="병원 상태 오름차순">
+
+                                        ▲
+
+                                    </a>
+
+                                    <a th:href="@{/admin/hospitals(
+                                                    animalType=${selectedAnimalType},
+                                                    sortBy='status',
+                                                    direction='desc'
+                                                )}"
+                                       class="sort-button"
+                                       th:classappend="${sortBy == 'status'
+                                                       and direction == 'desc'
+                                                       ? 'is-active'
+                                                       : ''}"
+                                       aria-label="병원 상태 내림차순">
+
+                                        ▼
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="hospital : ${hospitalList}">
+
+                        <td class="hospital-no-cell"
+                            th:text="${hospital.hospitalId}">
+                            1
+                        </td>
+
+                        <td class="owner-name-cell">
+
+                            <div class="owner-profile">
+
+                                <span class="owner-avatar"
+                                      th:text="${hospital.ownerName != null
+                                               and !#strings.isEmpty(hospital.ownerName)
+                                               ? #strings.substring(
+                                                    hospital.ownerName,
+                                                    0,
+                                                    1
+                                                 )
+                                               : '?'}">
+                                    김
+                                </span>
+
+                                <strong th:text="${hospital.ownerName}">
+                                    김병원
+                                </strong>
+
+                            </div>
+
+                        </td>
+
+                        <td class="owner-email-cell">
+
+                            <a th:if="${hospital.ownerEmail != null}"
+                               th:href="|mailto:${hospital.ownerEmail}|"
+                               th:text="${hospital.ownerEmail}">
+                                owner@petcity.com
+                            </a>
+
+                            <span th:if="${hospital.ownerEmail == null}">
+                                이메일 없음
+                            </span>
+
+                        </td>
+
+                        <td class="hospital-status-cell">
+
+                            <th:block th:switch="${hospital.hospitalStatus}">
+
+    <span th:case="'OPEN'"
+          class="status-badge status-open">
+
+        <i class="status-dot"></i>
+        영업중
+
+    </span>
+
+                                <span th:case="'TEMP_CLOSED'"
+                                      class="status-badge status-temp-closed">
+
+        <i class="status-dot"></i>
+        휴업
+
+    </span>
+
+                                <span th:case="'CLOSED'"
+                                      class="status-badge status-closed">
+
+        <i class="status-dot"></i>
+        폐업
+
+    </span>
+
+                                <span th:case="*"
+                                      class="status-badge status-unknown"
+                                      th:text="${hospital.hospitalStatus != null
+                   ? hospital.hospitalStatus
+                   : '상태 미정'}">
+
+        상태 미정
+
+    </span>
+
+                            </th:block>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(hospitalList)}">
+
+                        <td colspan="4"
+                            class="empty-hospital-cell">
+
+                            <div class="empty-hospital-content">
+
+                                <span class="empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         aria-hidden="true">
+
+                                        <path d="M4 21V7L12 3L20 7V21">
+                                        </path>
+
+                                        <path d="M9 21V15H15V21">
+                                        </path>
+
+                                        <path d="M9 9H15">
+                                        </path>
+
+                                        <path d="M12 6V12">
+                                        </path>
+
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    조회된 병원이 없습니다.
+                                </strong>
+
+                                <p>
+                                    다른 치료 동물 필터를 선택해 주세요.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

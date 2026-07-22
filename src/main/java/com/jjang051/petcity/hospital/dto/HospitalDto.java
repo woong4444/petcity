@@ -21,6 +21,9 @@ public class HospitalDto {
     private String currentStatus;// 🌟 서비스에서 사용하는 현재 진료 상태 필드 (진료중, 휴게시간 등)
     private String status;
     private String description;
+    /* doctorInfo note 정웅 추가*/
+    private String doctorInfo;
+    private String note;
     private String imageUrl;
     private String websiteUrl;
     private Object createdAt;
