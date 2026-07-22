@@ -1,24 +1,68 @@
+:root {
+    --visitor-primary: #347fe8;
+    --visitor-primary-dark: #2367c5;
+    --visitor-primary-light: #eaf3ff;
+
+    --visitor-sky: #93c5fd;
+    --visitor-purple: #8b6fe8;
+    --visitor-mint: #35c8a0;
+    --visitor-orange: #f4a64b;
+    --visitor-red: #ef6464;
+
+    --visitor-page-bg: #f4f7fc;
+    --visitor-card-bg: #ffffff;
+    --visitor-border: #e4e9f2;
+
+    --visitor-text: #172033;
+    --visitor-sub-text: #7b8497;
+    --visitor-light-text: #929bad;
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    color: #172033;
-    background: #f3f6fb;
-    font-family: Pretendard, Arial, sans-serif;
+    color: var(--visitor-text);
+    background: var(--visitor-page-bg);
+    font-family:
+            Pretendard,
+            "Noto Sans KR",
+            Arial,
+            sans-serif;
 }
+
+button {
+    font-family: inherit;
+}
+
+
+/* ========================================
+   본문
+======================================== */
 
 .visitor-statistics-main {
     width: 100%;
     min-width: 0;
-    padding: 26px 32px 44px;
+    padding: 30px clamp(24px, 3vw, 42px) 50px;
     overflow-x: hidden;
-    background: #f3f6fb;
+    background:
+            linear-gradient(
+                    180deg,
+                    #f2f7ff 0,
+                    #f4f7fc 340px,
+                    #f7f9fd 100%
+            );
 }
 
+
+/* ========================================
+   페이지 제목
+======================================== */
+
 .page-header {
-    margin-bottom: 18px;
+    margin-bottom: 22px;
 }
 
 .page-title-area {
@@ -26,26 +70,33 @@ body {
 }
 
 .page-category {
-    margin: 0 0 5px;
-    color: #2563eb;
+    margin: 0 0 6px;
+    color: var(--visitor-primary);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.5px;
 }
 
 .page-header h1 {
     margin: 0;
-    color: #172033;
-    font-size: 27px;
+    color: var(--visitor-text);
+    font-size: 30px;
+    font-weight: 850;
     line-height: 1.25;
-    letter-spacing: -0.7px;
+    letter-spacing: -0.9px;
 }
 
 .page-description {
-    margin: 7px 0 0;
-    color: #7b8497;
-    font-size: 12px;
+    margin: 8px 0 0;
+    color: var(--visitor-sub-text);
+    font-size: 13px;
     line-height: 1.5;
 }
+
+
+/* ========================================
+   요약 카드
+======================================== */
 
 .summary-grid {
     display: grid;
@@ -56,13 +107,16 @@ body {
 .summary-card {
     position: relative;
     min-width: 0;
-    min-height: 124px;
-    padding: 17px 19px;
+    min-height: 132px;
+    padding: 18px 20px;
     overflow: hidden;
-    border: 1px solid #e4e9f2;
-    border-radius: 14px;
-    background: #ffffff;
-    box-shadow: 0 6px 20px rgba(36, 50, 78, 0.04);
+    background: var(--visitor-card-bg);
+    border: 1px solid var(--visitor-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(36, 50, 78, 0.055);
+    transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
 }
 
 .summary-card::before {
@@ -70,27 +124,61 @@ body {
     top: 0;
     right: 0;
     left: 0;
-    height: 3px;
+    height: 4px;
     content: "";
+}
+
+.summary-card::after {
+    position: absolute;
+    right: -28px;
+    bottom: -42px;
+    width: 100px;
+    height: 100px;
+    content: "";
+    border-radius: 50%;
+    opacity: 0.09;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 13px 30px rgba(36, 50, 78, 0.09);
 }
 
 .total-card::before {
     background: #172033;
 }
 
+.total-card::after {
+    background: #172033;
+}
+
 .today-card::before {
-    background: #2563eb;
+    background: var(--visitor-primary);
+}
+
+.today-card::after {
+    background: var(--visitor-primary);
 }
 
 .yesterday-card::before {
-    background: #60a5fa;
+    background: var(--visitor-sky);
+}
+
+.yesterday-card::after {
+    background: var(--visitor-sky);
 }
 
 .change-card::before {
-    background: #8b5cf6;
+    background: var(--visitor-purple);
+}
+
+.change-card::after {
+    background: var(--visitor-purple);
 }
 
 .summary-card-top {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -102,24 +190,39 @@ body {
     min-width: 0;
     color: #667085;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 750;
 }
 
 .summary-icon {
     display: flex;
     flex: 0 0 auto;
-    width: 29px;
-    height: 29px;
+    width: 32px;
+    height: 32px;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    color: #2563eb;
-    background: #eff6ff;
+    color: var(--visitor-primary);
+    background: var(--visitor-primary-light);
+    border-radius: 10px;
+}
+
+.total-card .summary-icon {
+    color: #34415a;
+    background: #edf0f5;
+}
+
+.yesterday-card .summary-icon {
+    color: #3283d4;
+    background: #eaf5ff;
+}
+
+.change-card .summary-icon {
+    color: var(--visitor-purple);
+    background: #f1eeff;
 }
 
 .summary-icon svg {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.8;
@@ -128,22 +231,27 @@ body {
 }
 
 .summary-card strong {
+    position: relative;
+    z-index: 1;
     display: block;
     overflow: hidden;
-    color: #172033;
-    font-size: 26px;
+    color: var(--visitor-text);
+    font-size: 27px;
+    font-weight: 850;
     line-height: 1.2;
-    letter-spacing: -0.7px;
+    letter-spacing: -0.8px;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .summary-card p {
+    position: relative;
+    z-index: 1;
     margin: 8px 0 0;
     overflow: hidden;
-    color: #929bad;
+    color: var(--visitor-light-text);
     font-size: 11px;
-    line-height: 1.4;
+    line-height: 1.5;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -160,15 +268,20 @@ body {
     color: #7b8497 !important;
 }
 
+
+/* ========================================
+   공통 섹션
+======================================== */
+
 .chart-section,
 .table-section {
     min-width: 0;
-    margin-top: 17px;
-    padding: 20px 22px;
-    border: 1px solid #e4e9f2;
-    border-radius: 16px;
-    background: #ffffff;
-    box-shadow: 0 6px 22px rgba(36, 50, 78, 0.04);
+    margin-top: 18px;
+    padding: 22px 24px;
+    background: var(--visitor-card-bg);
+    border: 1px solid var(--visitor-border);
+    border-radius: 18px;
+    box-shadow: 0 9px 28px rgba(36, 50, 78, 0.055);
 }
 
 .section-heading {
@@ -176,35 +289,342 @@ body {
     min-width: 0;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 15px;
+    gap: 20px;
+    margin-bottom: 17px;
 }
 
 .section-title-area {
     min-width: 0;
 }
 
+.section-category {
+    margin: 0 0 6px !important;
+    color: var(--visitor-primary) !important;
+    font-size: 10px !important;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+}
+
 .section-heading h2 {
     margin: 0;
-    color: #172033;
-    font-size: 17px;
+    color: var(--visitor-text);
+    font-size: 19px;
+    font-weight: 820;
     line-height: 1.3;
-    letter-spacing: -0.4px;
+    letter-spacing: -0.5px;
 }
 
 .section-heading p {
-    margin: 5px 0 0;
+    margin: 6px 0 0;
     color: #8a94a7;
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 1.55;
+}
+
+
+/* ========================================
+   차트 보기 버튼
+======================================== */
+
+.chart-mode-controls {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: #f1f5fb;
+    border: 1px solid #e3e9f2;
+    border-radius: 11px;
+}
+
+.chart-mode-button {
+    min-width: 86px;
+    padding: 8px 12px;
+    color: #7b8497;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 750;
+    cursor: pointer;
+    transition:
+            color 0.2s ease,
+            background 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.chart-mode-button:hover {
+    color: var(--visitor-primary);
+}
+
+.chart-mode-button.is-active {
+    color: #ffffff;
+    background: var(--visitor-primary);
+    box-shadow: 0 5px 12px rgba(52, 127, 232, 0.22);
+}
+
+
+/* ========================================
+   차트 모드 안내
+======================================== */
+
+.chart-mode-banner {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    background:
+            linear-gradient(
+                    90deg,
+                    #eef6ff 0%,
+                    #f8fbff 100%
+            );
+    border: 1px solid #dfeeff;
+    border-radius: 13px;
+}
+
+.chart-mode-information {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 11px;
+}
+
+.chart-mode-icon {
+    display: flex;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    color: var(--visitor-primary);
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(52, 127, 232, 0.09);
+}
+
+.chart-mode-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.chart-mode-information strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #30415d;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.chart-mode-information p {
+    margin: 0;
+    color: #8290a6;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.chart-mode-badge {
+    flex: 0 0 auto;
+    padding: 6px 9px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 850;
+    letter-spacing: 0.7px;
+}
+
+.summary-mode-badge {
+    color: var(--visitor-primary);
+    background: #ffffff;
+    border: 1px solid #cfe2fb;
+}
+
+.detail-mode-badge {
+    display: none;
+    color: #6f56cf;
+    background: #ffffff;
+    border: 1px solid #dcd3ff;
+}
+
+.detail-guide-text {
+    display: none !important;
+}
+
+
+/* ========================================
+   amCharts 차트 영역
+======================================== */
+
+.chart-interaction-area {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 340px;
+    overflow: hidden;
+    background:
+            linear-gradient(
+                    180deg,
+                    rgba(245, 249, 255, 0.88) 0%,
+                    rgba(255, 255, 255, 1) 100%
+            );
+    border: 1px solid #e5ebf4;
+    border-radius: 16px;
+    outline: none;
+    cursor: ns-resize;
+    overscroll-behavior: contain;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.chart-interaction-area:hover,
+.chart-interaction-area:focus-visible {
+    border-color: #a9c9f8;
+    box-shadow:
+            inset 0 0 0 1px rgba(52, 127, 232, 0.05),
+            0 9px 24px rgba(52, 127, 232, 0.08);
+}
+
+#visitorTrendChart {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+}
+
+.chart-decoration {
+    position: absolute;
+    z-index: 0;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.chart-decoration-one {
+    top: -90px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    background: rgba(52, 127, 232, 0.055);
+}
+
+.chart-decoration-two {
+    bottom: -120px;
+    left: -80px;
+    width: 260px;
+    height: 260px;
+    background: rgba(139, 111, 232, 0.04);
+}
+
+.chart-hover-guide {
+    position: absolute;
+    z-index: 4;
+    top: 13px;
+    right: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 9px;
+    color: #6d7d95;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #e1e8f2;
+    border-radius: 9px;
+    box-shadow: 0 5px 14px rgba(36, 50, 78, 0.07);
+    font-size: 9px;
+    font-weight: 750;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+            opacity 0.2s ease,
+            transform 0.2s ease;
+    pointer-events: none;
+}
+
+.chart-hover-guide svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: var(--visitor-primary);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.chart-interaction-area:hover .chart-hover-guide,
+.chart-interaction-area:focus-visible .chart-hover-guide {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* ========================================
+   차트 하단 정보
+======================================== */
+
+.chart-footer {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 13px;
+}
+
+.chart-current-mode {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    color: #7d889d;
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.current-mode-dot {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    background: var(--visitor-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(52, 127, 232, 0.1);
+}
+
+.detail-mode-text {
+    display: none;
+}
+
+.chart-legends {
+    position: relative;
+    flex: 0 0 auto;
+    min-width: 170px;
+    min-height: 22px;
 }
 
 .chart-legend {
     display: flex;
-    flex: 0 0 auto;
     align-items: center;
+    justify-content: flex-end;
     gap: 14px;
-    padding-top: 2px;
+    transition:
+            opacity 0.25s ease,
+            transform 0.25s ease,
+            visibility 0.25s ease;
+}
+
+.detail-legend {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(5px);
 }
 
 .legend-item {
@@ -212,8 +632,8 @@ body {
     align-items: center;
     gap: 6px;
     color: #667085;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     white-space: nowrap;
 }
 
@@ -224,31 +644,84 @@ body {
     border-radius: 3px;
 }
 
+.total-dot {
+    background: var(--visitor-primary);
+}
+
 .login-dot {
-    background: #2563eb;
+    background: #2367c5;
 }
 
 .guest-dot {
     background: #93c5fd;
 }
 
-.chart-container {
-    position: relative;
-    width: 100%;
-    min-width: 0;
-    height: 260px;
+.chart-scroll-notice {
+    margin: 10px 0 0;
+    color: #a0a8b7;
+    font-size: 9px;
+    text-align: right;
 }
 
-.chart-container canvas {
-    width: 100% !important;
-    max-width: 100%;
-    height: 100% !important;
+
+/* ========================================
+   상세 모드 상태
+======================================== */
+
+.chart-section[data-chart-mode="detail"] .summary-guide-text,
+.chart-section[data-chart-mode="detail"] .summary-mode-badge,
+.chart-section[data-chart-mode="detail"] .summary-mode-text {
+    display: none !important;
 }
+
+.chart-section[data-chart-mode="detail"] .detail-guide-text,
+.chart-section[data-chart-mode="detail"] .detail-mode-badge,
+.chart-section[data-chart-mode="detail"] .detail-mode-text {
+    display: block !important;
+}
+
+.chart-section[data-chart-mode="detail"] .chart-mode-banner {
+    background:
+            linear-gradient(
+                    90deg,
+                    #f2efff 0%,
+                    #fbfaff 100%
+            );
+    border-color: #e5ddff;
+}
+
+.chart-section[data-chart-mode="detail"] .chart-mode-icon {
+    color: var(--visitor-purple);
+}
+
+.chart-section[data-chart-mode="detail"] .current-mode-dot {
+    background: var(--visitor-purple);
+    box-shadow: 0 0 0 4px rgba(139, 111, 232, 0.1);
+}
+
+.chart-section[data-chart-mode="detail"] .summary-legend {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+}
+
+.chart-section[data-chart-mode="detail"] .detail-legend {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+
+/* ========================================
+   상세 표
+======================================== */
 
 .table-wrapper {
     width: 100%;
     min-width: 0;
     overflow-x: auto;
+    border: 1px solid #e8edf4;
+    border-radius: 13px;
 }
 
 .statistics-table {
@@ -260,7 +733,7 @@ body {
 
 .statistics-table th,
 .statistics-table td {
-    padding: 11px 10px;
+    padding: 12px 10px;
     border-bottom: 1px solid #edf0f5;
     text-align: center;
     vertical-align: middle;
@@ -268,29 +741,31 @@ body {
 }
 
 .statistics-table th {
-    color: #7b8497;
-    background: #f8fafc;
+    color: #748097;
+    background: #f7f9fc;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 750;
 }
 
 .statistics-table td {
     overflow: hidden;
     color: #4c566a;
+    background: #ffffff;
     font-size: 11px;
     text-overflow: ellipsis;
 }
 
 .statistics-table td strong {
-    color: #172033;
+    color: var(--visitor-text);
     font-size: 11px;
+    font-weight: 800;
 }
 
 .statistics-table tbody tr {
     transition: background 0.2s ease;
 }
 
-.statistics-table tbody tr:hover {
+.statistics-table tbody tr:hover td {
     background: #f8fbff;
 }
 
@@ -299,8 +774,8 @@ body {
 }
 
 .date-cell {
-    color: #172033 !important;
-    font-weight: 700;
+    color: var(--visitor-text) !important;
+    font-weight: 750;
 }
 
 .table-change {
@@ -309,7 +784,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 750;
 }
 
 .empty-table-cell {
@@ -318,27 +793,51 @@ body {
     text-align: center;
 }
 
+
+/* ========================================
+   접근성
+======================================== */
+
+.screen-reader-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+
+/* ========================================
+   반응형
+======================================== */
+
 @media (max-width: 1200px) {
+
     .visitor-statistics-main {
-        padding: 24px 24px 40px;
+        padding: 26px 24px 44px;
     }
 
     .summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .chart-container {
-        height: 250px;
+    .chart-interaction-area {
+        height: 320px;
     }
 }
 
 @media (max-width: 800px) {
+
     .visitor-statistics-main {
-        padding: 22px 18px 36px;
+        padding: 22px 18px 38px;
     }
 
     .page-header h1 {
-        font-size: 24px;
+        font-size: 26px;
     }
 
     .summary-grid {
@@ -347,20 +846,50 @@ body {
     }
 
     .summary-card {
-        min-height: 114px;
+        min-height: 118px;
     }
 
     .section-heading {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
+    }
+
+    .chart-mode-controls {
+        align-self: stretch;
+    }
+
+    .chart-mode-button {
+        flex: 1;
+    }
+
+    .chart-mode-banner {
+        align-items: flex-start;
+    }
+
+    .chart-interaction-area {
+        height: 290px;
+    }
+
+    .chart-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .chart-legends {
+        width: 100%;
     }
 
     .chart-legend {
-        padding-top: 0;
+        justify-content: flex-start;
     }
 
-    .chart-container {
-        height: 230px;
+    .detail-legend {
+        right: auto;
+        left: 0;
+    }
+
+    .chart-scroll-notice {
+        text-align: left;
     }
 
     .chart-section,
@@ -370,16 +899,17 @@ body {
 }
 
 @media (max-width: 520px) {
+
     .visitor-statistics-main {
-        padding: 18px 12px 30px;
+        padding: 18px 12px 32px;
     }
 
     .page-header {
-        margin-bottom: 15px;
+        margin-bottom: 17px;
     }
 
     .page-header h1 {
-        font-size: 22px;
+        font-size: 23px;
     }
 
     .summary-card {
@@ -387,17 +917,29 @@ body {
     }
 
     .summary-card strong {
-        font-size: 24px;
-    }
-
-    .chart-container {
-        height: 210px;
+        font-size: 25px;
     }
 
     .chart-section,
     .table-section {
         margin-top: 14px;
         padding: 16px 14px;
-        border-radius: 14px;
+        border-radius: 15px;
+    }
+
+    .chart-mode-banner {
+        padding: 11px;
+    }
+
+    .chart-mode-badge {
+        display: none !important;
+    }
+
+    .chart-interaction-area {
+        height: 260px;
+    }
+
+    .chart-hover-guide {
+        display: none;
     }
 }
