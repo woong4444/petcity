@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.chatbot.dao.ChatbotDao">
+    <select id="findChatbotCategoryList" resultType="ChatbotCategoryDto">
+        SELECT
+        CC.CATEGORY_ID AS categoryId,
+        CC.CATEGORY_CODE AS categoryCode,
+        CC.CATEGORY_NAME AS categoryName,
+        CC.DESCRIPTION AS description,
+        CC.DISPLAY_ORDER AS displayOrder
+        FROM CHATBOT_CATEGORY CC
+        WHERE CC.ENABLED = 'Y'
+        AND EXISTS (
+        SELECT 1
+        FROM CHATBOT_FAQ_SETTING CFS
+        INNER JOIN BOARD B
+        ON CFS.BOARD_ID = B.BOARD_ID
+        AND CFS.ENABLED = 'Y'
+        AND B.BOARD_TYPE = 'FAQ'
+        )
+        ORDER BY
+        CC.DISPLAY_ORDER ASC,
+        CC.CATEGORY_ID ASC
+
+    </select>
+    <select id="findChatbotFaqList" resultType="ChatbotFaqDto">
+        SELECT
+        B.BOARD_ID AS boardId,
+        CFS.CATEGORY_ID AS categoryId,
+        B.TITLE AS title,
+        B.CONTENT AS content,
+        CFS.DISPLAY_ORDER AS displayOrder
+        FROM CHATBOT_FAQ_SETTING CFS
+        INNER JOIN CHATBOT_CATEGORY CC
+            ON CFS.CATEGORY_ID = CC.CATEGORY_ID
+        INNER JOIN BOARD B
+            ON CFS.BOARD_ID = B.BOARD_ID
+        WHERE CFS.CATEGORY_ID = #{categoryId}
+        AND CC.ENABLED = 'Y'
+        AND CFS.ENABLED = 'Y'
+        AND B.BOARD_TYPE = 'FAQ'
+        ORDER BY
+        CFS.DISPLAY_ORDER ASC,
+        B.BOARD_ID ASC
+    </select>
+</mapper>

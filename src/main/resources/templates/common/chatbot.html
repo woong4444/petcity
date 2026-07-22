@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<th:block th:fragment="chatbot">
+
+    <!-- 챗봇 CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/chatbot.css}">
+
+    <div id="petcityChatbot"
+         class="petcity-chatbot">
+
+        <!-- 오른쪽 아래 챗봇 열기 버튼 -->
+        <button type="button"
+                id="chatbotToggleButton"
+                class="chatbot-toggle-button"
+                aria-controls="chatbotPanel"
+                aria-expanded="false">
+
+            <img th:src="@{/images/chatbot/chatbot1.png}"
+                 src="/images/chatbot/chatbot3.png"
+                 alt="고객센터"
+                 class="chatbot-toggle-image">
+
+        </button>
+
+
+        <!-- 챗봇 창 -->
+        <section id="chatbotPanel"
+                 class="chatbot-panel"
+                 aria-hidden="true">
+
+            <!-- 챗봇 상단 -->
+            <div class="chatbot-header">
+
+                <div class="chatbot-header-info">
+
+                    <div class="chatbot-profile-icon">
+                        🐶
+                    </div>
+
+                    <div>
+                        <strong>PetCity 고객센터</strong>
+                        <p>궁금한 질문을 선택해 주세요.</p>
+                    </div>
+
+                </div>
+
+                <button type="button"
+                        id="chatbotCloseButton"
+                        class="chatbot-close-button"
+                        aria-label="챗봇 닫기">
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- 대화 내용 출력 영역 -->
+            <div id="chatbotMessageList"
+                 class="chatbot-message-list">
+            </div>
+
+
+            <!-- 챗봇 하단 -->
+            <div class="chatbot-footer">
+
+                <button type="button"
+                        id="chatbotHomeButton"
+                        class="chatbot-footer-button">
+                    처음으로
+                </button>
+
+                <a th:href="@{/board/list(type='FAQ', page=1)}"
+                   class="chatbot-footer-link">
+                    FAQ 전체 보기
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- 챗봇 JavaScript -->
+    <script defer
+            th:src="@{/js/common/chatbot.js}">
+    </script>
+
+</th:block>
+
+</body>
+</html>
