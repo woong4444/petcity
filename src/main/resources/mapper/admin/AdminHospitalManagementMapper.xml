@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.admin.dao.AdminHospitalManagementDao">
+
+    <select id="findHospitals" resultType="AdminHospitalManagementDto">
+        SELECT H.HOSPITAL_ID AS hospitalId,
+        NVL(M.NICKNAME,NVL(H.OWNER_NAME, '병원장 미등록'))AS ownerName,
+        M.EMAIL AS ownerEmail,
+        H.STATUS AS hospitalStatus,
+        HUR.REQUEST_ID AS requestId,
+        HUR.REQUEST_TYPE AS requestType,
+        HUR.STATUS AS requestStatus
+        FROM HOSPITAL H
+        LEFT JOIN APP_MEMBER M
+        ON M.MEMBER_ID = H.OWNER_ID
+        LEFT JOIN HOSPITAL_UPDATE_REQUEST HUR
+        ON HUR.HOSPITAL_ID = H.HOSPITAL_ID
+        AND HUR.STATUS = 'PENDING'
+        <where>
+            <if test="animalType != null">
+                AND EXISTS ( SELECT 1 FROM HOSPITAL_ANIMAL HA
+                WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID
+                AND HA.ANIMAL_ID = #{animalType}
+                )
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'status'">
+                CASE H.STATUS
+                WHEN 'OPEN' THEN 1
+                WHEN 'TEMP_CLOSED' THEN 2
+                WHEN 'CLOSED' THEN 3
+                ELSE 4
+                END
+            </when>
+            <otherwise>
+                H.HOSPITAL_ID
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="direction == 'desc'">
+                DESC
+            </when>
+
+            <otherwise>
+                ASC
+            </otherwise>
+
+        </choose>
+
+        <if test="sortBy != 'hospitalId'">
+            , H.HOSPITAL_ID ASC
+        </if>
+
+
+    </select>
+
+</mapper>
