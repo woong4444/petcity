@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.chatbot.dao.CustomerChatDao">
+
+    <resultMap id="chatGuestResultMap" type="ChatGuestDto">
+        <id property="guestId" column="GUEST_ID"/>
+        <result property="guestTokenHash" column="GUEST_TOKEN_HASH"/>
+        <result property="guestNickname" column="GUEST_NICKNAME"/>
+        <result property="blockedYn" column="BLOCKED_YN"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="lastSeenAt" column="LAST_SEEN_AT"/>
+        <result property="expiresAt" column="EXPIRES_AT"/>
+    </resultMap>
+
+    <resultMap id="chatRoomResultMap" type="ChatRoomDto">
+        <id property="roomId" column="ROOM_ID"/>
+        <result property="roomUuid" column="ROOM_UUID"/>
+        <result property="visitorType" column="VISITOR_TYPE"/>
+        <result property="memberId" column="MEMBER_ID"/>
+        <result property="guestId" column="GUEST_ID"/>
+        <result property="customerNameSnapshot" column="CUSTOMER_NAME_SNAPSHOT"/>
+        <result property="assignedAdminId" column="ASSIGNED_ADMIN_ID"/>
+        <result property="status" column="STATUS"/>
+        <result property="customerUnansweredCount" column="CUSTOMER_UNANSWERED_COUNT"/>
+        <result property="adminUnreadCount" column="ADMIN_UNREAD_COUNT"/>
+        <result property="customerUnreadCount" column="CUSTOMER_UNREAD_COUNT"/>
+        <result property="lastMessagePreview" column="LAST_MESSAGE_PREVIEW"/>
+        <result property="lastMessageSenderType" column="LAST_MESSAGE_SENDER_TYPE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="acceptedAt" column="ACCEPTED_AT"/>
+        <result property="lastMessageAt" column="LAST_MESSAGE_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+        <result property="closedAt" column="CLOSED_AT"/>
+    </resultMap>
+
+
+    <resultMap id="chatMessageResultMap" type="ChatMessageDto">
+        <id property="messageId" column="MESSAGE_ID"/>
+        <result property="roomId" column="ROOM_ID"/>
+        <result property="roomUuid" column="ROOM_UUID"/>
+        <result property="clientMessageUuid" column="CLIENT_MESSAGE_UUID"/>
+        <result property="senderType" column="SENDER_TYPE"/>
+        <result property="senderMemberId" column="SENDER_MEMBER_ID"/>
+        <result property="senderNameSnapshot" column="SENDER_NAME_SNAPSHOT"/>
+        <result property="messageType" column="MESSAGE_TYPE"/>
+        <result property="content" column="CONTENT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="readAt" column="READ_AT"/>
+    </resultMap>
+
+    <resultMap id="adminChatRoomResultMap" type="AdminChatRoomDto">
+        <result property="roomUuid" column="ROOM_UUID"/>
+        <result property="visitorType" column="VISITOR_TYPE"/>
+        <result property="memberId" column="MEMBER_ID"/>
+        <result property="guestId" column="GUEST_ID"/>
+        <result property="customerName" column="CUSTOMER_NAME"/>
+        <result property="assignedAdminId" column="ASSIGNED_ADMIN_ID"/>
+        <result property="assignedAdminNickname" column="ASSIGNED_ADMIN_NICKNAME"/>
+        <result property="status" column="STATUS"/>
+        <result property="customerUnansweredCount" column="CUSTOMER_UNANSWERED_COUNT"/>
+        <result property="adminUnreadCount" column="ADMIN_UNREAD_COUNT"/>
+        <result property="customerUnreadCount" column="CUSTOMER_UNREAD_COUNT"/>
+        <result property="lastMessagePreview" column="LAST_MESSAGE_PREVIEW"/>
+        <result property="lastMessageSenderType" column="LAST_MESSAGE_SENDER_TYPE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="acceptedAt" column="ACCEPTED_AT"/>
+        <result property="lastMessageAt" column="LAST_MESSAGE_AT"/>
+        <result property="closedAt" column="CLOSED_AT"/>
+    </resultMap>
+
+    <sql id="chatRoomColumns">
+        ROOM_ID,
+        ROOM_UUID,
+        VISITOR_TYPE,
+        MEMBER_ID,
+        GUEST_ID,
+        CUSTOMER_NAME_SNAPSHOT,
+        ASSIGNED_ADMIN_ID,
+        STATUS,
+        CUSTOMER_UNANSWERED_COUNT,
+        ADMIN_UNREAD_COUNT,
+        CUSTOMER_UNREAD_COUNT,
+        LAST_MESSAGE_PREVIEW,
+        LAST_MESSAGE_SENDER_TYPE,
+        CREATED_AT,
+        ACCEPTED_AT,
+        LAST_MESSAGE_AT,
+        UPDATED_AT,
+        CLOSED_AT
+    </sql>
+    <select id="getNextGuestId" resultType="long">
+            SELECT SEQ_CUSTOMER_CHAT_GUEST.NEXTVAL
+        FROM DUAL
+    </select>
+    
+    <insert id="insertGuest">
+        INSERT INTO CUSTOMER_CHAT_GUEST(
+            GUEST_ID,
+            GUEST_TOKEN_HASH,
+            GUEST_NICKNAME,
+            BLOCKED_YN,
+            CREATED_AT,
+            LAST_SEEN_AT,
+            EXPIRES_AT
+        )VALUES(
+            #{guestId},
+            #{guestTokenHash},
+            #{guestNickname},
+            'N',
+        SYSTIMESTAMP,
+        SYSTIMESTAMP,
+        SYSTIMESTAMP + NUMTODSINTERVAL(30, 'DAY')
+        )
+    </insert>
+    
+    <select id="findGuestByTokenHash" resultMap="chatGuestResultMap">
+        SELECT
+            GUEST_ID,
+        GUEST_TOKEN_HASH,
+        GUEST_NICKNAME,
+        BLOCKED_YN,
+        CREATED_AT,
+        LAST_SEEN_AT,
+        EXPIRES_AT
+        FROM CUSTOMER_CHAT_GUEST
+        WHERE GUEST_TOKEN_HASH = #{guestTokenHash}
+    </select>
+            
+
+    <update id="updateGuestLastSeen">
+        UPDATE CUSTOMER_CHAT_GUEST
+        SET LAST_SEEN_AT = SYSTIMESTAMP,
+            EXPIRES_AT = SYSTIMESTAMP + NUMTODSINTERVAL(30,'DAY')
+        WHERE GUEST_ID = #{guestId}
+    </update>
+
+    <select id="getNextRoomId" resultType="long">
+        SELECT SEQ_CUSTOMER_CHAT_ROOM.NEXTVAL
+        FROM DUAL
+    </select>
+
+    <insert id="insertMemberRoom">
+        INSERT INTO CUSTOMER_CHAT_ROOM(
+            ROOM_ID,
+            ROOM_UUID,
+            VISITOR_TYPE,
+            MEMBER_ID,
+            GUEST_ID,
+            CUSTOMER_NAME_SNAPSHOT,
+            STATUS,
+            CREATED_AT,
+            LAST_MESSAGE_AT,
+            UPDATED_AT
+        )VALUES(
+            #{roomId},
+            #{roomUuid},
+            'MEMBER',
+            #{memberId},
+            null,
+            #{customerName},
+            'WAITING',
+        SYSTIMESTAMP,
+        SYSTIMESTAMP,
+        SYSTIMESTAMP
+        )
+    </insert>
+    <insert id="insertGuestRoom">
+        INSERT INTO CUSTOMER_CHAT_ROOM(
+        ROOM_ID,
+        ROOM_UUID,
+        VISITOR_TYPE,
+        MEMBER_ID,
+        GUEST_ID,
+        CUSTOMER_NAME_SNAPSHOT,
+        STATUS,
+        CREATED_AT,
+        LAST_MESSAGE_AT,
+        UPDATED_AT
+        )VALUES(
+        #{roomId},
+        #{roomUuid},
+        'GUEST',
+        null,
+        #{guestId},
+        #{customerName},
+        'WAITING',
+        SYSTIMESTAMP,
+        SYSTIMESTAMP,
+        SYSTIMESTAMP
+        )
+    </insert>
+
+
+    <select id="findActiveRoomByMemberId" resultMap="chatRoomResultMap">
+        SELECT
+            <include refid="chatRoomColumns"/>
+        FROM CUSTOMER_CHAT_ROOM
+        WHERE MEMBER_ID = #{memberId}
+        AND STATUS IN ('WAITING', 'CHATTING')
+        AND ROWNUM  = 1
+    </select>
+
+
+
+
+    <select id="findActiveRoomByGuestId" resultMap="chatRoomResultMap">
+        SELECT
+        <include refid="chatRoomColumns"/>
+        FROM CUSTOMER_CHAT_ROOM
+        WHERE GUEST_ID = #{guestId}
+        AND STATUS IN ('WAITING', 'CHATTING')
+        AND ROWNUM  = 1
+    </select>
+
+
+
+    <select id="findRoomByUuid" resultMap="chatRoomResultMap">
+        SELECT
+        <include refid="chatRoomColumns"/>
+        FROM CUSTOMER_CHAT_ROOM
+        WHERE ROOM_UUID = #{roomUuid}
+    </select>
+
+
+    <select id="findRoomByUuidForUpdate" resultMap="chatRoomResultMap">
+        SELECT
+        <include refid="chatRoomColumns"/>
+        FROM CUSTOMER_CHAT_ROOM
+        WHERE ROOM_UUID = #{roomUuid}
+        FOR UPDATE
+    </select>
+
+
+    <select id="getNextMessageId" resultType="long">
+        SELECT SEQ_CUSTOMER_CHAT_MESSAGE.NEXTVAL
+        FROM DUAL
+    </select>
+
+    <insert id="insertMessage">
+        INSERT INTO CUSTOMER_CHAT_MESSAGE(
+        MESSAGE_ID,
+        ROOM_ID,
+        CLIENT_MESSAGE_UUID,
+        SENDER_TYPE,
+        SENDER_MEMBER_ID,
+        SENDER_NAME_SNAPSHOT,
+        MESSAGE_TYPE,
+        CONTENT,
+        CREATED_AT
+        )VALUES(
+        #{messageId},
+        #{roomId},
+        #{clientMessageUuid},
+        #{senderType},
+        #{senderMemberId},
+        #{senderName},
+        #{messageType},
+        #{content},
+        SYSTIMESTAMP
+        )
+    </insert>
+
+
+    <select id="findMessageById" resultMap="chatMessageResultMap">
+        SELECT
+            M.MESSAGE_ID,
+            M.ROOM_ID,
+            R.ROOM_UUID,
+            M.CLIENT_MESSAGE_UUID,
+            M.SENDER_TYPE,
+            M.SENDER_MEMBER_ID,
+            M.SENDER_NAME_SNAPSHOT,
+            M.MESSAGE_TYPE,
+            M.CONTENT,
+            M.CREATED_AT,
+            M.READ_AT
+        FROM CUSTOMER_CHAT_MESSAGE  M
+        INNER JOIN CUSTOMER_CHAT_ROOM R
+            ON R.ROOM_ID = M.ROOM_ID
+        WHERE M.MESSAGE_ID = #{messageId}
+
+    </select>
+
+    <select id="findMessageByClientUuid" resultMap="chatMessageResultMap">
+        SELECT
+        M.MESSAGE_ID,
+        M.ROOM_ID,
+        R.ROOM_UUID,
+        M.CLIENT_MESSAGE_UUID,
+        M.SENDER_TYPE,
+        M.SENDER_MEMBER_ID,
+        M.SENDER_NAME_SNAPSHOT,
+        M.MESSAGE_TYPE,
+        M.CONTENT,
+        M.CREATED_AT,
+        M.READ_AT
+        FROM CUSTOMER_CHAT_MESSAGE  M
+        INNER JOIN CUSTOMER_CHAT_ROOM R
+        ON R.ROOM_ID = M.ROOM_ID
+        WHERE M.CLIENT_MESSAGE_UUID = #{clientMessageUuid}
+    </select>
+
+    <update id="updateRoomAfterCustomerMessage">
+        UPDATE CUSTOMER_CHAT_ROOM
+        SET
+        CUSTOMER_UNANSWERED_COUNT  = CUSTOMER_UNANSWERED_COUNT  +1,
+            ADMIN_UNREAD_COUNT = ADMIN_UNREAD_COUNT +1,
+            LAST_MESSAGE_PREVIEW = #{preview},
+            LAST_MESSAGE_SENDER_TYPE = #{senderType},
+            LAST_MESSAGE_AT = SYSTIMESTAMP,
+            UPDATED_AT = SYSTIMESTAMP
+        WHERE ROOM_ID = #{roomId}
+    </update>
+
+    <update id="updateRoomAfterAdminMessage">
+        UPDATE CUSTOMER_CHAT_ROOM
+        SET
+        ASSIGNED_ADMIN_ID = NVL(ASSIGNED_ADMIN_ID, #{adminId}),
+        STATUS = 'CHATTING',
+        CUSTOMER_UNANSWERED_COUNT = 0,
+        ADMIN_UNREAD_COUNT =  0,
+        CUSTOMER_UNREAD_COUNT = CUSTOMER_UNREAD_COUNT + 1,
+        LAST_MESSAGE_PREVIEW = #{preview},
+        LAST_MESSAGE_SENDER_TYPE = 'ADMIN',
+        ACCEPTED_AT = NVL(ACCEPTED_AT, SYSTIMESTAMP),
+        LAST_MESSAGE_AT = SYSTIMESTAMP,
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE ROOM_ID = #{roomId}
+    </update>
+
+
+
+<update id="ensureGuestDailyUsage">
+    MERGE INTO CHAT_GUEST_DAILY_USAGE TARGET
+    USING (
+        SELECT #{guestId} AS GUEST_ID,
+        TRUNC(SYSDATE) AS USAGE_DATE
+        FROM DUAL
+    )SOURCE
+    ON(
+        TARGET.GUEST_ID = SOURCE.GUEST_ID
+        AND TARGET.USAGE_DATE = SOURCE.USAGE_DATE
+    )
+    WHEN NOT MATCHED THEN
+        INSERT (
+            GUEST_ID,
+            USAGE_DATE,
+            MESSAGE_COUNT,
+            UPDATED_AT
+        )
+
+    VALUES(
+        SOURCE.GUEST_ID,
+        SOURCE.USAGE_DATE,
+    0,
+    SYSTIMESTAMP
+    )
+</update>
+
+
+
+    <select id="findGuestDailyCountForUpdate" resultType="int">
+        SELECT MESSAGE_COUNT
+            FROM CHAT_GUEST_DAILY_USAGE
+            WHERE GUEST_ID = #{guestId}
+            AND USAGE_DATE = TRUNC(SYSDATE)
+        FOR UPDATE
+    </select>
+
+
+<select id="findGuestDailyCount" resultType="int">
+    SELECT MESSAGE_COUNT
+    FROM CHAT_GUEST_DAILY_USAGE
+    WHERE GUEST_ID = #{guestId}
+    AND USAGE_DATE = TRUNC(SYSDATE)
+</select>
+
+
+<update id="incrementGuestDailyCount">
+    UPDATE CHAT_GUEST_DAILY_USAGE
+    SET MESSAGE_COUNT = MESSAGE_COUNT + 1,
+    UPDATED_AT = SYSTIMESTAMP
+    WHERE GUEST_ID = #{guestId}
+    AND USAGE_DATE = TRUNC(SYSDATE)
+    AND MESSAGE_COUNT &lt; 10
+</update>
+
+    <select id="findMessagesByRoomUuid"
+            resultMap="chatMessageResultMap">
+
+        SELECT
+        MESSAGE_ID,
+        ROOM_ID,
+        ROOM_UUID,
+        CLIENT_MESSAGE_UUID,
+        SENDER_TYPE,
+        SENDER_MEMBER_ID,
+        SENDER_NAME_SNAPSHOT,
+        MESSAGE_TYPE,
+        CONTENT,
+        CREATED_AT,
+        READ_AT
+
+        FROM (
+        SELECT
+        M.MESSAGE_ID,
+        M.ROOM_ID,
+        R.ROOM_UUID,
+        M.CLIENT_MESSAGE_UUID,
+        M.SENDER_TYPE,
+        M.SENDER_MEMBER_ID,
+        M.SENDER_NAME_SNAPSHOT,
+        M.MESSAGE_TYPE,
+        M.CONTENT,
+        M.CREATED_AT,
+        M.READ_AT
+
+        FROM CUSTOMER_CHAT_MESSAGE M
+
+        INNER JOIN CUSTOMER_CHAT_ROOM R
+        ON R.ROOM_ID = M.ROOM_ID
+
+        WHERE R.ROOM_UUID = #{roomUuid}
+
+        <if test="beforeMessageId != null">
+            AND M.MESSAGE_ID &lt; #{beforeMessageId}
+        </if>
+
+        ORDER BY M.MESSAGE_ID DESC
+        )
+
+        WHERE ROWNUM &lt;= #{size}
+
+        ORDER BY MESSAGE_ID ASC
+
+    </select>
+
+<update id="markAdminMessagesReadByCustomer">
+    UPDATE CUSTOMER_CHAT_MESSAGE
+    SET READ_AT = SYSTIMESTAMP
+    WHERE ROOM_ID = #{roomId}
+    AND SENDER_TYPE = 'ADMIN'
+    AND READ_AT IS NULL
+</update>
+
+<update id="resetCustomerUnreadCount">
+    UPDATE CUSTOMER_CHAT_ROOM
+    SET
+    CUSTOMER_UNREAD_COUNT = 0,
+    UPDATED_AT = SYSTIMESTAMP
+    WHERE ROOM_ID = #{roomId}
+</update>
+
+
+    <update id="markCustomerMessagesReadByAdmin">
+    UPDATE CUSTOMER_CHAT_MESSAGE
+        SET READ_AT = SYSTIMESTAMP
+        WHERE ROOM_ID = #{roomId}
+        AND SENDER_TYPE IN( 'MEMBER', 'GUEST')
+        AND READ_AT IS NULL
+</update>
+
+    <update id="resetAdminUnreadCount">
+        UPDATE CUSTOMER_CHAT_ROOM
+        SET
+        ADMIN_UNREAD_COUNT = 0,
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE ROOM_ID = #{roomId}
+    </update>
+
+
+
+<update id="closeRoom">
+    UPDATE CUSTOMER_CHAT_ROOM
+    SET STATUS = 'CLOSED',
+    CUSTOMER_UNANSWERED_COUNT = 0,
+    CLOSED_AT = SYSTIMESTAMP,
+    UPDATED_AT = SYSTIMESTAMP
+    WHERE ROOM_ID = #{roomId}
+</update>
+
+<select id="findAdminRoomList" resultMap="adminChatRoomResultMap">
+   SELECT
+    R.ROOM_UUID,
+    R.VISITOR_TYPE,
+    R.MEMBER_ID,
+    R.GUEST_ID,
+    R.CUSTOMER_NAME_SNAPSHOT
+        AS CUSTOMER_NAME,
+    R.ASSIGNED_ADMIN_ID,
+    A.NICKNAME AS ASSIGNED_ADMIN_NICKNAME,
+    R.STATUS,
+    R.CUSTOMER_UNANSWERED_COUNT,
+    R.ADMIN_UNREAD_COUNT,
+    R.CUSTOMER_UNREAD_COUNT,
+    R.LAST_MESSAGE_PREVIEW,
+    R.LAST_MESSAGE_SENDER_TYPE,
+    R.CREATED_AT,
+    R.ACCEPTED_AT,
+    R.LAST_MESSAGE_AT,
+    R.CLOSED_AT
+    FROM CUSTOMER_CHAT_ROOM R
+    LEFT JOIN APP_MEMBER A
+    ON A.MEMBER_ID = R.ASSIGNED_ADMIN_ID
+    <where>
+        <if test="status != null">
+            R.STATUS = #{status}
+        </if>
+    </where>
+
+    ORDER BY
+        CASE
+        WHEN R.STATUS = 'WAITING'
+            THEN 1
+        WHEN R.STATUS = 'CHATTING'
+            THEN 2
+        ELSE 3
+    END,
+    R.LAST_MESSAGE_AT DESC
+</select>
+
+
+
+<select id="countAdminUnreadRooms" resultType="int">
+    SELECT COUNT(*)
+    FROM CUSTOMER_CHAT_ROOM
+    WHERE STATUS IN ( 'WAITING', 'CHATTING')
+    AND ADMIN_UNREAD_COUNT > 0
+</select>
+
+
+<select id="countAdminUnreadMessages" resultType="int">
+    SELECT NVL(
+        SUM(ADMIN_UNREAD_COUNT),
+        0
+    )
+    FROM CUSTOMER_CHAT_ROOM
+    WHERE STATUS IN ( 'WAITING', 'CHATTING')
+</select>
+
+</mapper>
