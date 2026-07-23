@@ -603,6 +603,7 @@
                                   name="hospitalDoctorInfo"
                                   rows="5"
                                   maxlength="1000"
+                                  data-character-count="true"
                                   placeholder="전문 진료, 의료진, 장비 등의 정보를 입력해 주세요."
                                   th:text="${hospital.doctorInfo}"></textarea>
                     </div>
@@ -616,7 +617,8 @@
                         <textarea id="hospitalDescription"
                                   name="hospitalDescription"
                                   rows="7"
-                                  maxlength="2000"
+                                  maxlength="1000"
+                                  data-character-count="true"
                                   placeholder="병원을 소개하는 내용을 입력해 주세요."
                                   required
                                   th:text="${hospital.description}"></textarea>
@@ -630,7 +632,8 @@
                         <textarea id="hospitalNote"
                                   name="hospitalNote"
                                   rows="4"
-                                  maxlength="2000"
+                                  maxlength="1000"
+                                  data-character-count="true"
                                   placeholder="주차, 예약, 방문 전 유의사항 등을 입력해 주세요."
                                   th:text="${hospital.note}"></textarea>
                     </div>

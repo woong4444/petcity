@@ -85,6 +85,7 @@ public class HospitalUpdateService {
                 directUpdateDto.getMemberId()
         );
 
+        validateDirectTextFields(directUpdateDto);
         validateOperatingTime(directUpdateDto);
 
         int updated = hospitalUpdateDao.updateDirectHospitalInfo(
@@ -1053,6 +1054,29 @@ public class HospitalUpdateService {
         return LocalTime.parse(
                 time.trim(),
                 DateTimeFormatter.ofPattern("H:mm")
+        );
+    }
+
+    private  void validateDirectTextFields(
+            HospitalDirectUpdateDto directUpdateDto
+    ) {
+        validateOptionalText(
+                directUpdateDto.getHospitalDoctorInfo(),
+                "진료 상세 정보",
+                1000
+        );
+
+        validateRequiredText(
+                directUpdateDto.getHospitalDescription(),
+                "병원 소개",
+                10,
+                1000
+        );
+
+        validateOptionalText(
+                directUpdateDto.getHospitalNote(),
+                "추가 안내사항",
+                1000
         );
     }
 }

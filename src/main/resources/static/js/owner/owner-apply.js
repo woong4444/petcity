@@ -5,6 +5,7 @@ document.addEventListener(
         initBusinessNumber();
         initHospitalPhone();
         initBreakTime();
+        initOperatingTimeValidation();
         initClosedDays();
         initAnimalSelection();
         initServiceSelection();
@@ -341,6 +342,71 @@ function initBreakTime() {
     updateBreakTime();
 }
 
+function initOperatingTimeValidation() {
+    const openInput = document.getElementById("hospitalOpenTime");
+    const closeInput = document.getElementById("hospitalCloseTime");
+    const breakStartInput = document.getElementById("hospitalBreakStart");
+    const breakEndInput = document.getElementById("hospitalBreakEnd");
+
+    if (!openInput || !closeInput || !breakStartInput || !breakEndInput) {
+        return;
+    }
+
+    function validateTimes() {
+        const openTime = openInput.value;
+        const closeTime = closeInput.value;
+        const breakStart = breakStartInput.value;
+        const breakEnd = breakEndInput.value;
+
+        closeInput.setCustomValidity("");
+        breakStartInput.setCustomValidity("");
+        breakEndInput.setCustomValidity("");
+
+        // 진료 시작 시간보다 종료 시간이 빨라서는 안 됨
+        if (openTime && closeTime && openTime >= closeTime) {
+            closeInput.setCustomValidity(
+                "진료 종료 시간은 진료 시작 시간보다 늦어야 합니다."
+            );
+            return;
+        }
+
+        // 휴게시간은 시작/종료를 모두 입력해야 함
+        if ((breakStart && !breakEnd) || (!breakStart && breakEnd)) {
+            breakStartInput.setCustomValidity(
+                "휴게시간 시작과 종료 시간을 모두 입력해 주세요."
+            );
+            breakEndInput.setCustomValidity(
+                "휴게시간 시작과 종료 시간을 모두 입력해 주세요."
+            );
+            return;
+        }
+
+        if (!breakStart || !breakEnd) {
+            return;
+        }
+
+        // 휴게 종료가 시작보다 빨라서는 안 됨
+        if (breakStart >= breakEnd) {
+            breakEndInput.setCustomValidity(
+                "휴게 종료 시간은 휴게 시작 시간보다 늦어야 합니다."
+            );
+            return;
+        }
+
+        // 휴게시간은 진료시간 범위 안이어야 함
+        if (breakStart < openTime || breakEnd > closeTime) {
+            breakEndInput.setCustomValidity(
+                "휴게시간은 진료 시작 시간과 종료 시간 사이로 설정해 주세요."
+            );
+        }
+    }
+
+    [openInput, closeInput, breakStartInput, breakEndInput].forEach(input => {
+        input.addEventListener("change", validateTimes);
+    });
+
+    validateTimes();
+}
 
 /* ========================================
    정기 휴무일 다중 선택
@@ -1278,9 +1344,7 @@ function initCharacterCounters() {
                 counter.classList.toggle(
                     "limit-warning",
                     currentLength
-                    >= Math.floor(
-                        maxLength * 0.9
-                    )
+                   > maxLength
                 );
             }
 
