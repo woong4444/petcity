@@ -5,13 +5,23 @@ import com.jjang051.petcity.hospital.dto.HospitalDirectUpdateDto;
 import com.jjang051.petcity.hospital.dto.HospitalDto;
 import com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +30,8 @@ public class HospitalUpdateService {
 
     private final HospitalUpdateDao hospitalUpdateDao;
 
+    @Value("${file.upload}")
+    private String uploadPath;
 
     /*
         =================================================
@@ -51,70 +63,70 @@ public class HospitalUpdateService {
         return hospitalUpdateDao.findSubjectIdsByHospitalId(hospitalId);
     }
 
-    /* 병원장 즉시 수정*/
+    /*
+        =================================================
+        병원장이 바로 수정 가능한 정보 저장
+        =================================================
+    */
+
     @Transactional
     public void updateDirectHospitalInfo(
             HospitalDirectUpdateDto directUpdateDto
     ) {
-        if(directUpdateDto == null) {
-            throw new IllegalArgumentException(
-                    "수정할 병원 정보가 없습니다."
-            );
+
+        if (directUpdateDto == null) {
+            throw new IllegalArgumentException("수정할 병원 정보가 없습니다.");
         }
 
-        /*
-        URL 파라미터나 hidden 값 조작 방지:
-        로그인한 병원장이 실제 소유한 병원인지 확인
-    */
         validateHospitalOwner(
                 directUpdateDto.getHospitalId(),
                 directUpdateDto.getMemberId()
         );
 
-        int updated =
-                hospitalUpdateDao.updateDirectHospitalInfo(
-                        directUpdateDto
-                );
+        int updated = hospitalUpdateDao.updateDirectHospitalInfo(
+                directUpdateDto
+        );
 
-        if(updated != 1)  {
-            throw new IllegalArgumentException(
-                    "병원 정보를 수정할 수 없습니다."
-            );
+        if (updated != 1) {
+            throw new IllegalStateException("병원 정보를 수정할 수 없습니다.");
         }
+
+        // 진료 가능 동물 전체 교체
         hospitalUpdateDao.deleteHospitalAnimals(
                 directUpdateDto.getHospitalId()
         );
 
-        for(Integer animalId
-                 : normalizeIds(directUpdateDto.getAnimalIds())) {
+        for (Integer animalId : normalizeIds(
+                directUpdateDto.getAnimalIds()
+        )) {
             hospitalUpdateDao.insertHospitalAnimal(
                     directUpdateDto.getHospitalId(),
                     animalId
             );
-
-
         }
 
+        // 제공 진료 서비스 전체 교체
         hospitalUpdateDao.deleteHospitalServices(
                 directUpdateDto.getHospitalId()
         );
 
-        for (Integer serviceId
-                : normalizeIds(directUpdateDto.getServiceIds())) {
-
+        for (Integer serviceId : normalizeIds(
+                directUpdateDto.getServiceIds()
+        )) {
             hospitalUpdateDao.insertHospitalService(
                     directUpdateDto.getHospitalId(),
                     serviceId
             );
         }
 
+        // 진료 과목 전체 교체
         hospitalUpdateDao.deleteHospitalMedicalSubjects(
                 directUpdateDto.getHospitalId()
         );
 
-        for (Integer subjectId
-                : normalizeIds(directUpdateDto.getSubjectIds())) {
-
+        for (Integer subjectId : normalizeIds(
+                directUpdateDto.getSubjectIds()
+        )) {
             hospitalUpdateDao.insertHospitalMedicalSubject(
                     directUpdateDto.getHospitalId(),
                     subjectId
@@ -124,20 +136,45 @@ public class HospitalUpdateService {
         hospitalUpdateDao.updateMedicalSubjectText(
                 directUpdateDto.getHospitalId()
         );
-
-
-
     }
-
 
     /*
         =================================================
-        병원장 요청 등록
+        파일 없이 요청 등록할 때 사용
+        휴업 / 폐업 요청에서 사용 가능
         =================================================
     */
 
     @Transactional
-    public int requestUpdate(HospitalUpdateRequestDto requestDto) {
+    public int requestUpdate(
+            HospitalUpdateRequestDto requestDto
+    ) {
+
+        try {
+            return requestUpdate(requestDto, null, null);
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "파일 저장 중 오류가 발생했습니다."
+            );
+        }
+    }
+
+    /*
+        =================================================
+        관리자 승인 필요 요청 등록
+
+        UPDATE     : 증빙서류 / 대표이미지 파일 저장
+        TEMP_CLOSE : 휴업 요청
+        CLOSE      : 폐업 요청
+        =================================================
+    */
+
+    @Transactional(rollbackFor = Exception.class)
+    public int requestUpdate(
+            HospitalUpdateRequestDto requestDto,
+            MultipartFile documentFile,
+            MultipartFile hospitalImage
+    ) throws IOException {
 
         if (requestDto == null) {
             throw new IllegalArgumentException("요청 정보가 없습니다.");
@@ -152,14 +189,12 @@ public class HospitalUpdateService {
 
         String requestType = requestDto.getRequestType();
 
-        /*
-            기존 수정 요청 화면은 REQUEST_TYPE을 보내지 않으므로
-            값이 없으면 병원정보 수정 요청으로 처리한다.
-        */
         if (isBlank(requestType)) {
             requestType = "UPDATE";
-            requestDto.setRequestType(requestType);
         }
+
+        requestType = requestType.trim().toUpperCase();
+        requestDto.setRequestType(requestType);
 
         validateRequestByType(requestDto);
 
@@ -171,46 +206,59 @@ public class HospitalUpdateService {
 
         if (pendingCount > 0) {
             throw new IllegalStateException(
-                    "같은 종류의 승인 대기 요청이 이미 있습니다."
+                    "같은 종류의 처리 대기 요청이 이미 있습니다."
             );
         }
 
-        hospitalUpdateDao.insertRequest(requestDto);
+        String savedDocumentUrl = null;
+        String savedImageUrl = null;
 
-        /*
-            병원정보 수정 요청만 동물 / 서비스 / 진료과목을 저장한다.
-        */
-        if ("UPDATE".equals(requestType)) {
+        try {
+            /*
+                병원 정보 수정 요청일 때만 파일을 저장한다.
+                휴업 / 폐업 요청에는 파일이 필요 없다.
+            */
+            if ("UPDATE".equals(requestType)) {
 
-            for (Integer animalId : normalizeIds(requestDto.getAnimalIds())) {
-                hospitalUpdateDao.insertRequestAnimal(
-                        requestDto.getRequestId(),
-                        animalId
+                validateUpdateRequest(
+                        requestDto,
+                        documentFile,
+                        hospitalImage
                 );
+
+                // 새 증빙서류를 선택했다면 새 파일 저장
+                if (documentFile != null && !documentFile.isEmpty()) {
+                    savedDocumentUrl = saveDocumentFile(documentFile);
+                    requestDto.setDocumentUrl(savedDocumentUrl);
+                }
+
+                // 새 대표이미지를 선택했다면 새 파일 저장
+                if (hospitalImage != null && !hospitalImage.isEmpty()) {
+                    savedImageUrl = saveHospitalImage(hospitalImage);
+                    requestDto.setHospitalImageUrl(savedImageUrl);
+                }
             }
 
-            for (Integer serviceId : normalizeIds(requestDto.getServiceIds())) {
-                hospitalUpdateDao.insertRequestService(
-                        requestDto.getRequestId(),
-                        serviceId
-                );
-            }
+            hospitalUpdateDao.insertRequest(requestDto);
 
-            for (Integer subjectId : normalizeIds(requestDto.getSubjectIds())) {
-                hospitalUpdateDao.insertRequestMedicalSubject(
-                        requestDto.getRequestId(),
-                        subjectId
-                );
-            }
+            return requestDto.getRequestId();
+
+        } catch (Exception exception) {
+
+            /*
+                DB 저장 도중 실패하면 방금 저장한 파일만 정리한다.
+                기존에 사용하던 대표이미지 파일은 삭제하지 않는다.
+            */
+            deleteSavedFile(savedDocumentUrl);
+            deleteSavedFile(savedImageUrl);
+
+            throw exception;
         }
-
-        return requestDto.getRequestId();
     }
-
 
     /*
         =================================================
-        병원장 요청 목록 / 취소
+        병원장 요청 목록 / 요청 취소
         =================================================
     */
 
@@ -231,6 +279,9 @@ public class HospitalUpdateService {
         return hospitalUpdateDao.findLatestRequestByHospitalId(hospitalId);
     }
 
+    /*
+        관리자가 처리하기 전 PENDING 요청만 삭제한다.
+    */
     @Transactional
     public void deletePendingRequest(
             int requestId,
@@ -238,12 +289,11 @@ public class HospitalUpdateService {
             int memberId
     ) {
 
-        int deleted =
-                hospitalUpdateDao.deletePendingRequest(
-                        requestId,
-                        hospitalId,
-                        memberId
-                );
+        int deleted = hospitalUpdateDao.deletePendingRequest(
+                requestId,
+                hospitalId,
+                memberId
+        );
 
         if (deleted != 1) {
             throw new IllegalStateException(
@@ -251,7 +301,6 @@ public class HospitalUpdateService {
             );
         }
     }
-
 
     /*
         =================================================
@@ -263,9 +312,6 @@ public class HospitalUpdateService {
         return hospitalUpdateDao.findPendingRequests();
     }
 
-    /*
-        기존 관리자 Controller 호환용
-    */
     @Transactional
     public void approveRequest(int requestId) {
         approveRequest(requestId, null);
@@ -280,25 +326,21 @@ public class HospitalUpdateService {
         HospitalUpdateRequestDto requestDto =
                 getPendingRequestOrThrow(requestId);
 
-        /*
-            요청 종류에 따라 승인 후 실제 병원 데이터 처리
-        */
         switch (requestDto.getRequestType()) {
 
             case "UPDATE" -> applyUpdateRequest(requestDto);
 
             case "TEMP_CLOSE" -> {
                 /*
-                    휴업은 승인된 요청 기간을 조회해서 화면에 표시한다.
-                    HOSPITAL.STATUS를 바로 TEMP_CLOSED로 바꾸지 않는다.
+                    휴업 승인 정보는 요청 테이블에 저장한다.
+                    병원을 CLOSED 상태로 변경하지 않는다.
                 */
             }
 
             case "CLOSE" -> {
-                int updated =
-                        hospitalUpdateDao.closeHospitalByAdmin(
-                                requestDto.getHospitalId()
-                        );
+                int updated = hospitalUpdateDao.closeHospitalByAdmin(
+                        requestDto.getHospitalId()
+                );
 
                 if (updated != 1) {
                     throw new IllegalStateException(
@@ -316,19 +358,13 @@ public class HospitalUpdateService {
         requestDto.setProcessedBy(processedBy);
         requestDto.setRejectReason(null);
 
-        int updated =
-                hospitalUpdateDao.updateRequestStatus(requestDto);
+        int updated = hospitalUpdateDao.updateRequestStatus(requestDto);
 
         if (updated != 1) {
-            throw new IllegalStateException(
-                    "이미 처리된 요청입니다."
-            );
+            throw new IllegalStateException("이미 처리된 요청입니다.");
         }
     }
 
-    /*
-        기존 관리자 Controller 호환용
-    */
     @Transactional
     public void rejectRequest(
             int requestId,
@@ -357,20 +393,19 @@ public class HospitalUpdateService {
         requestDto.setRejectReason(rejectReason.trim());
         requestDto.setProcessedBy(processedBy);
 
-        int updated =
-                hospitalUpdateDao.updateRequestStatus(requestDto);
+        int updated = hospitalUpdateDao.updateRequestStatus(requestDto);
 
         if (updated != 1) {
-            throw new IllegalStateException(
-                    "이미 처리된 요청입니다."
-            );
+            throw new IllegalStateException("이미 처리된 요청입니다.");
         }
     }
 
-
     /*
         =================================================
-        UPDATE 요청 승인 시 실제 병원 정보 반영
+        수정 요청 승인 시 HOSPITAL 반영
+
+        진료 가능 동물 / 서비스 / 진료 과목은 병원장이 직접 수정하는
+        항목이므로, 관리자 승인 과정에서 변경하지 않는다.
         =================================================
     */
 
@@ -378,68 +413,14 @@ public class HospitalUpdateService {
             HospitalUpdateRequestDto requestDto
     ) {
 
-        int updated =
-                hospitalUpdateDao.applyHospitalUpdate(requestDto);
+        int updated = hospitalUpdateDao.applyHospitalUpdate(requestDto);
 
         if (updated != 1) {
             throw new IllegalStateException(
                     "수정할 병원을 찾을 수 없습니다."
             );
         }
-
-        /*
-            기존 연결 데이터 삭제 후 요청 시 선택한 값으로 교체
-        */
-        hospitalUpdateDao.deleteHospitalAnimals(
-                requestDto.getHospitalId()
-        );
-
-        for (Integer animalId
-                : hospitalUpdateDao.findRequestAnimalIds(
-                requestDto.getRequestId()
-        )) {
-
-            hospitalUpdateDao.insertHospitalAnimal(
-                    requestDto.getHospitalId(),
-                    animalId
-            );
-        }
-
-        hospitalUpdateDao.deleteHospitalServices(
-                requestDto.getHospitalId()
-        );
-
-        for (Integer serviceId
-                : hospitalUpdateDao.findRequestServiceIds(
-                requestDto.getRequestId()
-        )) {
-
-            hospitalUpdateDao.insertHospitalService(
-                    requestDto.getHospitalId(),
-                    serviceId
-            );
-        }
-
-        hospitalUpdateDao.deleteHospitalMedicalSubjects(
-                requestDto.getHospitalId()
-        );
-
-        for (Integer subjectId
-                : hospitalUpdateDao.findRequestSubjectIds(
-                requestDto.getRequestId()
-        )) {
-
-            hospitalUpdateDao.insertHospitalMedicalSubject(
-                    requestDto.getHospitalId(),
-                    subjectId
-            );
-        }
-
-        hospitalUpdateDao.updateMedicalSubjectText(
-                requestDto.getHospitalId()
-        );
     }
-
 
     /*
         =================================================
@@ -453,10 +434,270 @@ public class HospitalUpdateService {
         hospitalUpdateDao.deleteOldClosedHospitals();
     }
 
+    /*
+        =================================================
+        수정 요청 입력값 검증
+        =================================================
+    */
+
+    private void validateUpdateRequest(
+            HospitalUpdateRequestDto requestDto,
+            MultipartFile documentFile,
+            MultipartFile hospitalImage
+    ) {
+
+        validateRequiredText(
+                requestDto.getApplicantName(),
+                "병원장 실명",
+                2,
+                50
+        );
+
+        String businessNumber = requestDto.getBusinessNumber();
+
+        if (isBlank(businessNumber)) {
+            throw new IllegalArgumentException(
+                    "사업자등록번호를 입력해 주세요."
+            );
+        }
+
+        requestDto.setBusinessNumber(
+                formatBusinessNumber(businessNumber)
+        );
+
+        /*
+            새 수정 요청은 증빙서류를 필수로 받는다.
+            수정 화면에서 기존 URL을 hidden 값으로 넘기도록 만들면
+            기존 파일을 유지하는 방식으로도 바꿀 수 있다.
+        */
+        if (documentFile == null || documentFile.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "증빙서류를 첨부해 주세요."
+            );
+        }
+
+        validateDocumentFile(documentFile);
+
+        validateRequiredText(
+                requestDto.getHospitalName(),
+                "병원명",
+                2,
+                100
+        );
+
+        validateRequiredText(
+                requestDto.getHospitalAddress(),
+                "병원 주소",
+                1,
+                300
+        );
+
+        validateRequiredText(
+                requestDto.getHospitalDistrict(),
+                "지역",
+                1,
+                50
+        );
+
+        validateOptionalText(
+                requestDto.getHospitalDetailAddress(),
+                "상세 주소",
+                200
+        );
+
+        validateOptionalText(
+                requestDto.getHospitalWebsiteUrl(),
+                "병원 홈페이지 주소",
+                500
+        );
+
+        if (!isBlank(requestDto.getHospitalWebsiteUrl())
+                && !requestDto.getHospitalWebsiteUrl()
+                .matches("^https?://.+")) {
+
+            throw new IllegalArgumentException(
+                    "홈페이지 주소는 http:// 또는 https://로 시작해야 합니다."
+            );
+        }
+
+        if (requestDto.getHospitalLatitude() == null
+                || requestDto.getHospitalLongitude() == null) {
+
+            throw new IllegalArgumentException(
+                    "주소 검색을 통해 병원 위치를 설정해 주세요."
+            );
+        }
+
+        /*
+            대표이미지는 기존 이미지 URL이 있으면 새 파일 선택 없이 유지한다.
+            기존 이미지도 없고 새 파일도 없을 때만 오류 처리한다.
+        */
+        if (hospitalImage == null || hospitalImage.isEmpty()) {
+
+            if (isBlank(requestDto.getHospitalImageUrl())) {
+                throw new IllegalArgumentException(
+                        "병원 대표이미지를 첨부해 주세요."
+                );
+            }
+
+        } else {
+            validateImageFile(hospitalImage);
+        }
+    }
 
     /*
         =================================================
-        검증 / 공통 처리
+        파일 저장 / 파일 검증
+        =================================================
+    */
+
+    private String saveDocumentFile(
+            MultipartFile documentFile
+    ) throws IOException {
+
+        return saveFile(
+                documentFile,
+                "hospital/update/document",
+                false
+        );
+    }
+
+    private String saveHospitalImage(
+            MultipartFile hospitalImage
+    ) throws IOException {
+
+        return saveFile(
+                hospitalImage,
+                "hospital/update/image",
+                true
+        );
+    }
+
+    private String saveFile(
+            MultipartFile file,
+            String folder,
+            boolean imageFile
+    ) throws IOException {
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "저장할 파일이 없습니다."
+            );
+        }
+
+        if (imageFile) {
+            validateImageFile(file);
+        } else {
+            validateDocumentFile(file);
+        }
+
+        String extension = getFileExtension(
+                file.getOriginalFilename()
+        );
+
+        String savedName = UUID.randomUUID() + extension;
+
+        Path directory = Paths.get(uploadPath, folder);
+        Files.createDirectories(directory);
+
+        Path savedPath = directory.resolve(savedName);
+
+        Files.copy(
+                file.getInputStream(),
+                savedPath,
+                StandardCopyOption.REPLACE_EXISTING
+        );
+
+        return "/upload/" + folder + "/" + savedName;
+    }
+
+    private void deleteSavedFile(String fileUrl) {
+
+        if (isBlank(fileUrl)) {
+            return;
+        }
+
+        try {
+            String relativePath = fileUrl.replaceFirst(
+                    "^/upload/",
+                    ""
+            );
+
+            Path uploadRoot = Paths.get(uploadPath)
+                    .toAbsolutePath()
+                    .normalize();
+
+            Path filePath = uploadRoot
+                    .resolve(relativePath)
+                    .normalize();
+
+            /*
+                /upload 밖의 파일을 지우는 요청은 막는다.
+            */
+            if (filePath.startsWith(uploadRoot)) {
+                Files.deleteIfExists(filePath);
+            }
+
+        } catch (IOException exception) {
+            System.out.println(
+                    "업로드 파일 삭제 실패: " + fileUrl
+            );
+        }
+    }
+
+    private void validateDocumentFile(MultipartFile file) {
+
+        String extension = getFileExtension(
+                file.getOriginalFilename()
+        ).toLowerCase(Locale.ROOT);
+
+        Set<String> allowedExtensions = Set.of(
+                ".pdf",
+                ".jpg",
+                ".jpeg",
+                ".png"
+        );
+
+        if (!allowedExtensions.contains(extension)) {
+            throw new IllegalArgumentException(
+                    "증빙서류는 PDF, JPG, JPEG, PNG 파일만 업로드할 수 있습니다."
+            );
+        }
+    }
+
+    private void validateImageFile(MultipartFile file) {
+
+        String extension = getFileExtension(
+                file.getOriginalFilename()
+        ).toLowerCase(Locale.ROOT);
+
+        Set<String> allowedExtensions = Set.of(
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+        );
+
+        if (!allowedExtensions.contains(extension)) {
+            throw new IllegalArgumentException(
+                    "대표이미지는 JPG, JPEG, PNG, WEBP 파일만 업로드할 수 있습니다."
+            );
+        }
+
+        String contentType = file.getContentType();
+
+        if (contentType == null
+                || !contentType.startsWith("image/")) {
+
+            throw new IllegalArgumentException(
+                    "올바른 이미지 파일을 업로드해 주세요."
+            );
+        }
+    }
+
+    /*
+        =================================================
+        요청 검증 / 공통 처리
         =================================================
     */
 
@@ -501,7 +742,7 @@ public class HospitalUpdateService {
 
         if (hospital == null) {
             throw new IllegalStateException(
-                    "본인 소유 병원만 요청할 수 있습니다."
+                    "본인 소유 병원만 요청하거나 수정할 수 있습니다."
             );
         }
     }
@@ -536,7 +777,7 @@ public class HospitalUpdateService {
 
             if (!endAt.isAfter(startAt)) {
                 throw new IllegalArgumentException(
-                        "휴업 종료일은 시작일보다 늦어야 합니다."
+                        "휴업 종료일은 시작일보다 뒤여야 합니다."
                 );
             }
 
@@ -556,9 +797,71 @@ public class HospitalUpdateService {
         }
     }
 
+    private void validateRequiredText(
+            String value,
+            String fieldName,
+            int minLength,
+            int maxLength
+    ) {
+
+        if (isBlank(value)) {
+            throw new IllegalArgumentException(
+                    fieldName + "을(를) 입력해 주세요."
+            );
+        }
+
+        int length = value.trim().length();
+
+        if (length < minLength || length > maxLength) {
+            throw new IllegalArgumentException(
+                    fieldName + "은(는) "
+                            + minLength + "~" + maxLength
+                            + "자로 입력해 주세요."
+            );
+        }
+    }
+
+    private void validateOptionalText(
+            String value,
+            String fieldName,
+            int maxLength
+    ) {
+
+        if (isBlank(value)) {
+            return;
+        }
+
+        if (value.trim().length() > maxLength) {
+            throw new IllegalArgumentException(
+                    fieldName + "은(는) "
+                            + maxLength + "자 이하로 입력해 주세요."
+            );
+        }
+    }
+
+    private String formatBusinessNumber(String businessNumber) {
+
+        String numberOnly = businessNumber.replaceAll(
+                "[^0-9]",
+                ""
+        );
+
+        if (numberOnly.length() != 10) {
+            throw new IllegalArgumentException(
+                    "사업자등록번호는 숫자 10자리로 입력해 주세요."
+            );
+        }
+
+        return numberOnly.substring(0, 3)
+                + "-"
+                + numberOnly.substring(3, 5)
+                + "-"
+                + numberOnly.substring(5);
+    }
+
     /*
         기존 Controller의 lunchTime / holiday 값을
-        새 DTO의 breakTime / closedDays로 옮긴다.
+        새 DTO의 breakTime / closedDays 값으로 옮긴다.
     */
     private void normalizeLegacyTimeFields(
             HospitalUpdateRequestDto requestDto
@@ -581,16 +884,13 @@ public class HospitalUpdateService {
         }
     }
 
-    private List<Integer> normalizeIds(
-            List<Integer> ids
-    ) {
+    private List<Integer> normalizeIds(List<Integer> ids) {
 
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
 
-        LinkedHashSet<Integer> uniqueIds =
-                new LinkedHashSet<>();
+        LinkedHashSet<Integer> uniqueIds = new LinkedHashSet<>();
 
         for (Integer id : ids) {
             if (id != null && id > 0) {
@@ -599,6 +899,21 @@ public class HospitalUpdateService {
         }
 
         return new ArrayList<>(uniqueIds);
+    }
+
+    private String getFileExtension(String filename) {
+
+        if (isBlank(filename)) {
+            return "";
+        }
+
+        int dotIndex = filename.lastIndexOf(".");
+
+        if (dotIndex < 0) {
+            return "";
+        }
+
+        return filename.substring(dotIndex);
     }
 
     private boolean isBlank(String value) {

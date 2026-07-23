@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>병원정보 수정 요청 | PetCity</title>
+
+    <!-- 병원장 신청 화면과 같은 스타일 사용 -->
+    <link rel="stylesheet"
+          th:href="@{/css/owner/apply.css}">
+
+    <!-- 카카오 주소 검색 -->
+    <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <!-- 카카오 지도 / 좌표 변환 -->
+    <script th:src="|https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJavascriptKey}&libraries=services|"></script>
+
+    <!-- 이 화면 전용 JavaScript -->
+    <script defer
+            th:src="@{/js/owner/hospital-update-request.js}">
+    </script>
+</head>
+
+<body>
+
+<div th:replace="~{common/head :: head}"></div>
+
+<main class="owner-apply-page">
+
+    <div class="owner-apply-container">
+
+        <section class="page-header">
+            <span class="page-badge">HOSPITAL UPDATE REQUEST</span>
+
+            <h1>병원정보 수정 요청</h1>
+
+            <p>
+                병원 기본 정보와 증빙서류 변경은 관리자 승인 후 반영됩니다.
+            </p>
+        </section>
+
+        <div class="alert error"
+             th:if="${errorMessage != null}"
+             th:text="${errorMessage}">
+        </div>
+
+        <form id="hospitalUpdateRequestForm"
+              th:action="@{/owner/hospital/request/update}"
+              th:object="${hospitalUpdateRequestDto}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <input type="hidden"
+                   th:field="*{hospitalId}">
+
+            <!-- 기존 대표이미지를 유지하기 위한 URL -->
+            <input type="hidden"
+                   th:field="*{hospitalImageUrl}">
+
+            <!-- 01. 회원 정보 -->
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">01</span>
+
+                    <div>
+                        <h2>회원 정보</h2>
+                        <p>현재 로그인한 회원 정보입니다.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>닉네임</label>
+
+                        <input type="text"
+                               th:value="${member.memberNickname}"
+                               readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>이메일</label>
+
+                        <input type="email"
+                               th:value="${member.memberEmail}"
+                               readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>회원 전화번호</label>
+
+                        <input type="text"
+                               th:value="${member.memberPhone}"
+                               readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>현재 권한</label>
+
+                        <input type="text"
+                               th:value="${member.memberRole}"
+                               readonly>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 02. 병원장 / 증빙 정보 -->
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">02</span>
+
+                    <div>
+                        <h2>병원장 및 증빙 정보</h2>
+
+                        <p>
+                            병원장 실명, 사업자등록번호, 증빙서류는
+                            관리자 확인이 필요한 항목입니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="applicantName">
+                            병원장 실명
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="applicantName"
+                               th:field="*{applicantName}"
+                               minlength="2"
+                               maxlength="50"
+                               placeholder="증빙서류에 기재된 실명을 입력해 주세요."
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="businessNumber">
+                            사업자등록번호
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="businessNumber"
+                               th:field="*{businessNumber}"
+                               maxlength="12"
+                               inputmode="numeric"
+                               placeholder="123-45-67890"
+                               required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="documentFile">
+                            증빙서류
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="file"
+                               id="documentFile"
+                               name="documentFile"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               required>
+
+                        <p id="documentFileName"
+                           class="form-help">
+                            사업자등록증 또는 동물병원 개설신고증을 첨부해 주세요.
+                        </p>
+
+                        <p class="form-help">
+                            PDF, JPG, JPEG, PNG 형식만 업로드할 수 있습니다.
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 03. 승인 필요 병원 기본 정보 -->
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">03</span>
+
+                    <div>
+                        <h2>병원 기본 정보</h2>
+
+                        <p>
+                            병원명, 주소, 홈페이지 주소 변경은 관리자 승인 후 공개됩니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="hospitalName">
+                            병원명
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="hospitalName"
+                               th:field="*{hospitalName}"
+                               minlength="2"
+                               maxlength="100"
+                               placeholder="병원명을 입력해 주세요."
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalWebsiteUrl">
+                            병원 홈페이지 주소
+                        </label>
+
+                        <input type="url"
+                               id="hospitalWebsiteUrl"
+                               th:field="*{hospitalWebsiteUrl}"
+                               maxlength="500"
+                               placeholder="https://example.com">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="hospitalAddress">
+                            병원 주소
+                            <span class="required">*</span>
+                        </label>
+
+                        <div class="address-input-row">
+                            <input type="text"
+                                   id="hospitalAddress"
+                                   th:field="*{hospitalAddress}"
+                                   maxlength="300"
+                                   placeholder="주소 검색 버튼을 눌러 주세요."
+                                   readonly
+                                   required>
+
+                            <button type="button"
+                                    id="addressSearchButton"
+                                    class="secondary-button">
+                                주소 검색
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalDetailAddress">
+                            상세 주소
+                        </label>
+
+                        <input type="text"
+                               id="hospitalDetailAddress"
+                               th:field="*{hospitalDetailAddress}"
+                               maxlength="200"
+                               placeholder="건물명, 층수 등을 입력해 주세요.">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospitalDistrict">
+                            지역
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="hospitalDistrict"
+                               th:field="*{hospitalDistrict}"
+                               maxlength="50"
+                               placeholder="주소 검색 시 자동 입력됩니다."
+                               readonly
+                               required>
+                    </div>
+
+                    <input type="hidden"
+                           id="hospitalLatitude"
+                           th:field="*{hospitalLatitude}">
+
+                    <input type="hidden"
+                           id="hospitalLongitude"
+                           th:field="*{hospitalLongitude}">
+
+                    <div id="hospitalMap"
+                         class="hospital-map"
+                         hidden>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 04. 대표 이미지 -->
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">04</span>
+
+                    <div>
+                        <h2>병원 대표 이미지</h2>
+
+                        <p>
+                            새 이미지를 선택하지 않으면 현재 대표이미지가 유지됩니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+                        <label for="hospitalImage">
+                            새 대표 이미지
+                        </label>
+
+                        <input type="file"
+                               id="hospitalImage"
+                               name="hospitalImage"
+                               accept=".jpg,.jpeg,.png,.webp">
+
+                        <p class="form-help">
+                            JPG, JPEG, PNG, WEBP 형식만 업로드할 수 있습니다.
+                        </p>
+
+                        <!-- 현재 대표이미지 -->
+                        <div class="hospital-image-preview show"
+                             th:if="${hospitalUpdateRequestDto.hospitalImageUrl != null
+                             and !#strings.isEmpty(hospitalUpdateRequestDto.hospitalImageUrl)}">
+
+                            <img th:src="${hospitalUpdateRequestDto.hospitalImageUrl}"
+                                 alt="현재 병원 대표이미지">
+                        </div>
+
+                        <!-- 새 파일을 선택했을 때 미리보기 영역 -->
+                        <div id="hospitalImagePreview"
+                             class="hospital-image-preview">
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">!</span>
+
+                    <div>
+                        <h2>직접 수정 가능한 정보</h2>
+
+                        <p>
+                            병원 대표전화, 운영시간, 진료 가능 동물, 제공 서비스,
+                            진료 상세 정보, 병원 소개, 추가 안내사항은
+                            병원 관리 화면에서 바로 수정할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+
+            <div class="submit-buttons">
+
+                <a th:href="@{/owner/hospital/update(hospitalId=${hospital.hospitalId})}"
+                   class="cancel-button">
+                    취소
+                </a>
+
+                <button type="submit"
+                        class="submit-button">
+                    수정 요청 제출하기
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</main>
+
+</body>
+</html>

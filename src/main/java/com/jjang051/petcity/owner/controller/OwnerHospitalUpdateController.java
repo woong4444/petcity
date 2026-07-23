@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -303,6 +305,19 @@ public class OwnerHospitalUpdateController {
     @PostMapping("/request/update")
     public String submitUpdateRequest(
             @ModelAttribute HospitalUpdateRequestDto requestDto,
+
+            @RequestParam(
+                    value = "documentFile",
+                    required = false
+            )
+            MultipartFile documentFile,
+
+            @RequestParam(
+                    value = "hospitalImage",
+                    required = false
+            )
+            MultipartFile hospitalImage,
+
             HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
@@ -320,15 +335,21 @@ public class OwnerHospitalUpdateController {
 
             requestDto.setRequestType("UPDATE");
 
-            int requestId =
-                    hospitalUpdateService.requestUpdate(
-                            requestDto
-                    );
+            int requestId = hospitalUpdateService.requestUpdate(
+                    requestDto,
+                    documentFile,
+                    hospitalImage
+            );
 
             redirectAttributes.addFlashAttribute(
                     "message",
-                    "병원정보 수정 요청이 등록되었습니다. 요청 번호: "
-                            + requestId
+                    "병원정보 수정 요청이 등록되었습니다. 요청 번호: " + requestId
+            );
+
+        } catch (IOException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "파일 저장 중 오류가 발생했습니다."
             );
 
         } catch (RuntimeException exception) {
@@ -341,8 +362,6 @@ public class OwnerHospitalUpdateController {
         return "redirect:/owner/hospital/update?hospitalId="
                 + requestDto.getHospitalId();
     }
-
-
     /*
         =================================================
         휴업 요청
