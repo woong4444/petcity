@@ -1,10 +1,16 @@
 @charset "UTF-8";
 
 /* ========================================
-   관리자 채팅 페이지
+   관리자 채팅 공통
 ======================================== */
 
+.admin-chat-main,
+.admin-chat-main * {
+    box-sizing: border-box;
+}
+
 .admin-chat-main {
+    min-width: 0;
     min-height: 100vh;
 
     padding:
@@ -66,6 +72,64 @@
     line-height: 1.5;
 }
 
+.admin-chat-header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* ========================================
+   알림 버튼
+======================================== */
+
+.admin-chat-notification-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 0 16px;
+
+    color: #1f64c6;
+    background: #edf5ff;
+
+    border: 1px solid #bcd7fb;
+    border-radius: 11px;
+
+    font-size: 13px;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+            color 0.2s ease,
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease;
+}
+
+.admin-chat-notification-button:hover:not(:disabled) {
+    color: #ffffff;
+    background-color: #347fe8;
+    border-color: #347fe8;
+
+    transform: translateY(-2px);
+}
+
+.admin-chat-notification-button:disabled {
+    color: #56769e;
+    background-color: #edf3fa;
+    border-color: #d5e1ef;
+
+    cursor: default;
+}
+
+
+/* ========================================
+   대시보드 이동 버튼
+======================================== */
+
 .admin-chat-dashboard-link {
     display: inline-flex;
     align-items: center;
@@ -105,7 +169,7 @@
 
 
 /* ========================================
-   필터
+   채팅방 필터
 ======================================== */
 
 .admin-chat-filter {
@@ -137,6 +201,11 @@
     font-weight: 750;
 
     text-decoration: none;
+
+    transition:
+            color 0.16s ease,
+            background-color 0.16s ease,
+            box-shadow 0.16s ease;
 }
 
 .admin-chat-filter-link:hover {
@@ -154,7 +223,7 @@
 
 
 /* ========================================
-   채팅 레이아웃
+   채팅 관리 전체 레이아웃
 ======================================== */
 
 .admin-chat-layout {
@@ -164,7 +233,9 @@
             minmax(300px, 370px)
             minmax(0, 1fr);
 
-    min-height: 670px;
+    width: 100%;
+    height: 670px;
+    min-height: 0;
 
     overflow: hidden;
 
@@ -180,11 +251,20 @@
 
 
 /* ========================================
-   채팅방 목록 영역
+   왼쪽 채팅방 목록 영역
 ======================================== */
 
 .admin-chat-room-panel {
+    display: grid;
+
+    grid-template-rows:
+            90px
+            minmax(0, 1fr);
+
     min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
 
     border-right: 1px solid #e5eaf2;
 
@@ -197,7 +277,7 @@
     justify-content: space-between;
     gap: 12px;
 
-    min-height: 90px;
+    height: 90px;
     padding: 20px;
 
     border-bottom: 1px solid #e5eaf2;
@@ -240,6 +320,11 @@
     font-weight: 750;
 
     cursor: pointer;
+
+    transition:
+            color 0.16s ease,
+            border-color 0.16s ease,
+            background-color 0.16s ease;
 }
 
 .admin-chat-refresh-button:hover {
@@ -250,15 +335,187 @@
     background: #edf5ff;
 }
 
+
+/* ========================================
+   채팅방 목록
+
+   목록 높이 약 580px
+   항목 높이 82px
+   한 화면에 약 7개 표시
+======================================== */
+
 .admin-chat-room-list {
-    height: 580px;
+    min-height: 0;
 
     overflow-y: auto;
+    overscroll-behavior: contain;
+
+    scrollbar-gutter: stable;
+}
+
+.admin-chat-room-list::-webkit-scrollbar,
+.admin-chat-message-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.admin-chat-room-list::-webkit-scrollbar-thumb,
+.admin-chat-message-list::-webkit-scrollbar-thumb {
+    background-color: #c8d2e1;
+
+    border: 2px solid transparent;
+    border-radius: 999px;
+
+    background-clip: padding-box;
+}
+
+.admin-chat-room-list::-webkit-scrollbar-track,
+.admin-chat-message-list::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 
 /* ========================================
-   준비 문구
+   채팅방 아이템
+======================================== */
+
+.admin-chat-room-item {
+    display: block;
+
+    width: 100%;
+    height: 82px;
+    padding: 12px 16px;
+
+    overflow: hidden;
+
+    color: inherit;
+    background: #ffffff;
+
+    border: none;
+    border-bottom: 1px solid #e8edf4;
+
+    font-family: inherit;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.16s ease,
+            box-shadow 0.16s ease;
+}
+
+.admin-chat-room-item:hover {
+    background-color: #f2f7ff;
+}
+
+.admin-chat-room-item.active {
+    background-color: #eaf3ff;
+
+    box-shadow:
+            inset 4px 0 0
+            #347fe8;
+}
+
+.admin-chat-room-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    margin-bottom: 5px;
+}
+
+.admin-chat-room-name {
+    min-width: 0;
+
+    overflow: hidden;
+
+    color: #172033;
+
+    font-size: 14px;
+    font-weight: 820;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-chat-room-badges {
+    display: inline-flex;
+    flex: 0 0 auto;
+
+    align-items: center;
+    gap: 5px;
+}
+
+.admin-chat-room-type,
+.admin-chat-room-unread {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 20px;
+    padding: 0 7px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.admin-chat-room-type {
+    color: #347fe8;
+    background: #eaf3ff;
+}
+
+.admin-chat-room-unread {
+    color: #ffffff;
+    background: #ef6b6b;
+}
+
+.admin-chat-room-preview {
+    margin: 0 0 5px;
+
+    overflow: hidden;
+
+    color: #6f7b90;
+
+    font-size: 11px;
+    line-height: 1.35;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-chat-room-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    color: #9aa4b4;
+
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.admin-chat-room-status-label {
+    color: #657087;
+}
+
+.admin-chat-room-status-label.waiting {
+    color: #ed8b36;
+}
+
+.admin-chat-room-status-label.chatting {
+    color: #347fe8;
+}
+
+.admin-chat-room-status-label.closed {
+    color: #8994a7;
+}
+
+
+/* ========================================
+   목록 로딩 및 빈 상태
 ======================================== */
 
 .admin-chat-placeholder {
@@ -293,13 +550,16 @@
 
 
 /* ========================================
-   메시지 영역
+   오른쪽 메시지 패널
 ======================================== */
 
 .admin-chat-message-panel {
     position: relative;
 
     min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
 
     background:
             linear-gradient(
@@ -309,9 +569,15 @@
             );
 }
 
+
+/* ========================================
+   채팅방 미선택 화면
+======================================== */
+
 .admin-chat-empty-state {
     position: absolute;
     inset: 0;
+    z-index: 1;
 
     display: flex;
     align-items: center;
@@ -321,6 +587,10 @@
     padding: 30px;
 
     text-align: center;
+}
+
+.admin-chat-empty-state[hidden] {
+    display: none;
 }
 
 .admin-chat-empty-icon {
@@ -370,15 +640,334 @@
 
 
 /* ========================================
-   반응형
+   실제 대화 영역
 ======================================== */
 
-@media (max-width: 1050px) {
+.admin-chat-conversation {
+    display: grid;
+
+    grid-template-rows:
+            106px
+            minmax(0, 1fr)
+            auto;
+
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.admin-chat-conversation[hidden] {
+    display: none;
+}
+
+
+/* ========================================
+   대화방 상단
+======================================== */
+
+.admin-chat-conversation-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+
+    height: 106px;
+    padding: 18px 20px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e5eaf2;
+}
+
+.admin-chat-room-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 23px;
+    padding: 0 8px;
+
+    margin-bottom: 7px;
+
+    color: #1f64c6;
+    background: #edf5ff;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.admin-chat-conversation-header h2 {
+    margin: 0;
+
+    color: #172033;
+
+    font-size: 20px;
+    font-weight: 850;
+}
+
+.admin-chat-conversation-header p {
+    margin: 6px 0 0;
+
+    color: #8792a6;
+
+    font-size: 12px;
+}
+
+.admin-chat-close-room-button {
+    min-height: 36px;
+    padding: 0 12px;
+
+    color: #d85f5f;
+    background: #fff2f2;
+
+    border: 1px solid #ffd2d2;
+    border-radius: 9px;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+            color 0.16s ease,
+            border-color 0.16s ease,
+            background-color 0.16s ease;
+}
+
+.admin-chat-close-room-button:hover:not(:disabled) {
+    color: #ffffff;
+    background: #ef6b6b;
+    border-color: #ef6b6b;
+}
+
+.admin-chat-close-room-button:disabled {
+    color: #a5adba;
+    background: #f1f4f8;
+    border-color: #dfe5ee;
+
+    cursor: not-allowed;
+}
+
+
+/* ========================================
+   메시지 목록
+======================================== */
+
+.admin-chat-message-list {
+    min-height: 0;
+    padding: 20px;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.admin-chat-message-row {
+    display: flex;
+
+    width: 100%;
+    margin-bottom: 13px;
+}
+
+.admin-chat-message-row.customer {
+    justify-content: flex-start;
+}
+
+.admin-chat-message-row.admin {
+    justify-content: flex-end;
+}
+
+.admin-chat-message-bubble-area {
+    max-width: 72%;
+}
+
+.admin-chat-message-sender {
+    margin-bottom: 5px;
+
+    color: #8a94a7;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.admin-chat-message-bubble {
+    padding: 13px 15px;
+
+    border-radius: 16px;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+
+.admin-chat-message-row.customer
+.admin-chat-message-bubble {
+    color: #334155;
+    background: #ffffff;
+
+    border: 1px solid #e5eaf2;
+    border-top-left-radius: 5px;
+
+    box-shadow:
+            0 5px 14px
+            rgba(15, 23, 42, 0.045);
+}
+
+.admin-chat-message-row.admin
+.admin-chat-message-bubble {
+    color: #ffffff;
+    background: #347fe8;
+
+    border-top-right-radius: 5px;
+}
+
+.admin-chat-message-time {
+    margin-top: 5px;
+
+    color: #a0a8b7;
+
+    font-size: 10px;
+}
+
+.admin-chat-message-row.admin
+.admin-chat-message-time {
+    text-align: right;
+}
+
+
+/* ========================================
+   관리자 답장 입력
+======================================== */
+
+.admin-chat-reply-form {
+    padding: 10px 14px 14px;
+
+    background: #ffffff;
+
+    border-top: 1px solid #e5eaf2;
+}
+
+.admin-chat-reply-count {
+    margin-bottom: 5px;
+
+    color: #8a94a7;
+
+    font-size: 10px;
+    text-align: right;
+}
+
+.admin-chat-reply-row {
+    display: grid;
+
+    grid-template-columns:
+            minmax(0, 1fr)
+            78px;
+
+    align-items: end;
+    gap: 9px;
+}
+
+.admin-chat-reply-input {
+    width: 100%;
+    min-height: 46px;
+    max-height: 100px;
+
+    padding: 11px 13px;
+
+    color: #1e293b;
+    background: #f8fafc;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+
+    resize: none;
+    outline: none;
+
+    overflow-y: auto;
+}
+
+.admin-chat-reply-input:focus {
+    background: #ffffff;
+
+    border-color: #347fe8;
+
+    box-shadow:
+            0 0 0 3px
+            rgba(52, 127, 232, 0.13);
+}
+
+.admin-chat-reply-input:disabled {
+    color: #94a3b8;
+    background: #f1f5f9;
+
+    cursor: not-allowed;
+}
+
+.admin-chat-reply-send-button {
+    height: 46px;
+
+    color: #ffffff;
+    background: #347fe8;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 13px;
+    font-weight: 850;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.16s ease,
+            transform 0.16s ease;
+}
+
+.admin-chat-reply-send-button:hover:not(:disabled) {
+    background: #1f64c6;
+
+    transform: translateY(-1px);
+}
+
+.admin-chat-reply-send-button:disabled {
+    background: #94a3b8;
+
+    cursor: not-allowed;
+}
+
+.admin-chat-reply-notice {
+    margin: 7px 2px 0;
+
+    color: #758097;
+
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+
+/* ========================================
+   중간 화면
+======================================== */
+
+@media (max-width: 1100px) {
 
     .admin-chat-layout {
-        grid-template-columns: 320px minmax(0, 1fr);
+        grid-template-columns:
+                320px
+                minmax(0, 1fr);
     }
 }
+
+
+/* ========================================
+   작은 화면
+======================================== */
 
 @media (max-width: 800px) {
 
@@ -391,24 +980,37 @@
         align-items: stretch;
     }
 
-    .admin-chat-dashboard-link {
-        align-self: flex-start;
+    .admin-chat-header-actions {
+        justify-content: flex-start;
     }
 
     .admin-chat-layout {
         grid-template-columns: 1fr;
+
+        height: auto;
+        min-height: 780px;
     }
 
     .admin-chat-room-panel {
+        height: 380px;
+
         border-right: none;
         border-bottom: 1px solid #e5eaf2;
     }
 
-    .admin-chat-room-list {
-        height: 320px;
+    .admin-chat-room-item {
+        height: 76px;
     }
 
     .admin-chat-message-panel {
-        min-height: 460px;
+        min-height: 520px;
+    }
+
+    .admin-chat-conversation {
+        min-height: 520px;
+    }
+
+    .admin-chat-message-bubble-area {
+        max-width: 84%;
     }
 }
