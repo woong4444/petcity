@@ -18,10 +18,18 @@
           th:href="@{/css/admin/admin.css}">
 
     <link rel="stylesheet"
-          th:href="@{/css/admin/chat/chat-management.css}">
+          th:href="@{/css/admin/chat-management.css}">
 
     <script defer
             th:src="@{/js/admin/sidebar.js}">
+    </script>
+
+    <script defer
+            src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.2.0/bundles/stomp.umd.min.js">
+    </script>
+
+    <script defer
+            th:src="@{/js/admin/chat-management.js}">
     </script>
 
 </head>
@@ -33,7 +41,6 @@
     <th:block th:replace="~{admin/fragments/sidebar
                            :: sidebar('chat')}">
     </th:block>
-
 
     <main id="adminChatPage"
           class="admin-main admin-chat-main"
@@ -59,45 +66,42 @@
 
             </div>
 
-            <a th:href="@{/admin/dashboard}"
-               class="admin-chat-dashboard-link">
-                대시보드로 이동
-            </a>
+            <div class="admin-chat-header-actions">
+
+                <button type="button"
+                        id="adminChatNotificationButton"
+                        class="admin-chat-notification-button">
+                    알림·소리 켜기
+                </button>
+
+                <a th:href="@{/admin/dashboard}"
+                   class="admin-chat-dashboard-link">
+                    대시보드로 이동
+                </a>
+
+            </div>
 
         </header>
 
-
-        <!-- 채팅방 필터 -->
         <nav class="admin-chat-filter"
              aria-label="채팅방 필터">
 
             <a th:href="@{/admin/chat}"
                class="admin-chat-filter-link"
                th:classappend="${chatView == 'all' ? ' active' : ''}">
-
-                <span>
-                    전체 채팅방
-                </span>
-
+                전체 채팅방
             </a>
 
             <a th:href="@{/admin/chat(view='unread')}"
                class="admin-chat-filter-link"
                th:classappend="${chatView == 'unread' ? ' active' : ''}">
-
-                <span>
-                    안 읽은 채팅방
-                </span>
-
+                안 읽은 채팅방
             </a>
 
         </nav>
 
-
-        <!-- 채팅 관리 본문 -->
         <section class="admin-chat-layout">
 
-            <!-- 왼쪽 채팅방 목록 -->
             <aside class="admin-chat-room-panel">
 
                 <div class="admin-chat-panel-header">
@@ -124,18 +128,17 @@
 
                 </div>
 
-
                 <div id="adminChatRoomList"
                      class="admin-chat-room-list">
 
                     <div class="admin-chat-placeholder">
 
                         <strong>
-                            채팅방 목록 준비 완료
+                            채팅방 목록을 불러오는 중입니다.
                         </strong>
 
                         <p>
-                            다음 단계에서 관리자 채팅방 API를 연결합니다.
+                            잠시만 기다려 주세요.
                         </p>
 
                     </div>
@@ -144,8 +147,6 @@
 
             </aside>
 
-
-            <!-- 오른쪽 메시지 영역 -->
             <section class="admin-chat-message-panel">
 
                 <div id="adminChatEmptyState"
@@ -180,6 +181,74 @@
 
                 </div>
 
+                <div id="adminChatConversation"
+                     class="admin-chat-conversation"
+                     hidden>
+
+                    <header class="admin-chat-conversation-header">
+
+                        <div>
+
+                            <span id="adminChatRoomStatus"
+                                  class="admin-chat-room-status">
+                                WAITING
+                            </span>
+
+                            <h2 id="adminChatRoomTitle">
+                                고객명
+                            </h2>
+
+                            <p id="adminChatRoomMeta">
+                                채팅방 정보를 불러오는 중입니다.
+                            </p>
+
+                        </div>
+
+                        <button type="button"
+                                id="adminChatCloseRoomButton"
+                                class="admin-chat-close-room-button">
+                            상담 종료
+                        </button>
+
+                    </header>
+
+                    <div id="adminChatMessageList"
+                         class="admin-chat-message-list">
+                    </div>
+
+                    <form id="adminChatReplyForm"
+                          class="admin-chat-reply-form">
+
+                        <div class="admin-chat-reply-count">
+                            <span id="adminChatReplyLength">0</span>
+                            / 500
+                        </div>
+
+                        <div class="admin-chat-reply-row">
+
+                            <textarea id="adminChatReplyInput"
+                                      class="admin-chat-reply-input"
+                                      rows="1"
+                                      maxlength="500"
+                                      placeholder="관리자 답변을 입력해 주세요."></textarea>
+
+                            <button type="submit"
+                                    id="adminChatReplySendButton"
+                                    class="admin-chat-reply-send-button">
+                                전송
+                            </button>
+
+                        </div>
+
+                        <p id="adminChatReplyNotice"
+                           class="admin-chat-reply-notice">
+                            고객에게 실시간으로 답변이 전송됩니다.
+                        </p>
+
+                    </form>
+
+                </div>
+
             </section>
 
         </section>
@@ -187,6 +256,11 @@
     </main>
 
 </div>
+
+<audio id="adminChatAlertSound"
+       preload="auto"
+       th:src="@{/audio/admin-chat-alert.mp3}">
+</audio>
 
 </body>
 </html>
