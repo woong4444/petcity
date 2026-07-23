@@ -8,7 +8,6 @@ import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberSecurityAuditService;
 import com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto;
 import com.jjang051.petcity.memberfeature.service.MemberFeatureService;
-import com.jjang051.petcity.memberfeature.service.MemberRecoveryRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ public class MemberFeatureController {
     private final EmailVerificationService emailVerificationService;
     private final RecoveryCodeEmailService recoveryCodeEmailService;
     private final MemberSecurityAuditService auditService;
-    private final MemberRecoveryRedisService memberRecoveryRedisService;
 
 
     // =========================================================
@@ -392,18 +390,10 @@ public class MemberFeatureController {
              */
             if (verifiedRecovery(session)) {
 
-                Long recoveryMemberId =
+                member = service.verifyRecoveryCode(
                         (Long) session.getAttribute(
                                 "verifiedRecoveryMemberId"
-                        );
-
-                verifyRedisRecoveryCode(
-                        recoveryMemberId,
-                        recoveryCode
-                );
-
-                member = service.verifyRecoveryCode(
-                        recoveryMemberId,
+                        ),
                         recoveryCode
                 );
 
@@ -416,11 +406,6 @@ public class MemberFeatureController {
                         (Long) session.getAttribute(
                                 "recoveryEmailMemberId"
                         )
-                );
-
-                verifyRedisRecoveryCode(
-                        member.getMemberId(),
-                        recoveryCode
                 );
 
                 member = service.verifyRecoveryCode(
@@ -449,11 +434,6 @@ public class MemberFeatureController {
                         member
                 );
 
-                verifyRedisRecoveryCode(
-                        member.getMemberId(),
-                        recoveryCode
-                );
-
                 member = service.verifyRecoveryCode(
                         member.getMemberId(),
                         recoveryCode
@@ -464,11 +444,6 @@ public class MemberFeatureController {
              * 계정 복구 처리
              */
             service.restore(
-                    member.getMemberId()
-            );
-
-            // 복구에 성공한 일회용 코드는 즉시 폐기합니다.
-            memberRecoveryRedisService.deleteRecoveryCode(
                     member.getMemberId()
             );
 
@@ -680,12 +655,6 @@ public class MemberFeatureController {
 
             recoveryCodeEmailService.sendNewRecoveryCode(
                     member.getEmail(),
-                    recoveryCode
-            );
-
-            // 이메일로 발송한 동일한 복구코드를 Redis에 3분간 저장합니다.
-            memberRecoveryRedisService.saveRecoveryCode(
-                    member.getMemberId(),
                     recoveryCode
             );
 
@@ -1109,26 +1078,6 @@ public class MemberFeatureController {
     // =========================================================
     // 세션 및 공통 내부 메서드
     // =========================================================
-
-    /**
-     * Redis 복구코드가 없거나 입력값과 다르면 인증을 중단합니다.
-     * Redis TTL 3분이 지나 키가 자동 삭제된 경우도 동일하게 만료 처리됩니다.
-     */
-    private void verifyRedisRecoveryCode(
-            Long memberId,
-            String recoveryCode) {
-
-        if (!memberRecoveryRedisService.matchesRecoveryCode(
-                memberId,
-                recoveryCode
-        )) {
-
-            throw new IllegalArgumentException(
-                    "복구코드가 일치하지 않거나 3분이 지나 만료되었습니다."
-            );
-        }
-    }
-
 
     private MemberDto login(HttpSession session) {
 
