@@ -7,8 +7,19 @@
         (AUDIT_ID, MEMBER_ID, LOGIN_ID, NICKNAME, LOGIN_TYPE, EVENT_TYPE,
          EVENT_RESULT, EVENT_REASON, IP_ADDRESS, OCCURRED_AT, EXPIRES_AT)
         VALUES
-        (SEQ_MEMBER_SECURITY_AUDIT.NEXTVAL, #{memberId}, #{loginId}, #{nickname}, #{loginType}, #{eventType},
-         #{eventResult}, #{eventReason}, #{ipAddress}, SYSTIMESTAMP, ADD_MONTHS(SYSTIMESTAMP, 12))
+        (
+        SEQ_MEMBER_SECURITY_AUDIT.NEXTVAL,
+        #{memberId,jdbcType=NUMERIC},
+        #{loginId,jdbcType=VARCHAR},
+        #{nickname,jdbcType=VARCHAR},
+        #{loginType,jdbcType=VARCHAR},
+        #{eventType,jdbcType=VARCHAR},
+        #{eventResult,jdbcType=VARCHAR},
+        #{eventReason,jdbcType=VARCHAR},
+        #{ipAddress,jdbcType=VARCHAR},
+        SYSTIMESTAMP,
+        ADD_MONTHS(SYSTIMESTAMP, 12)
+        )
     </insert>
 
     <select id="findAll" resultType="com.jjang051.petcity.member.dto.MemberSecurityAuditDto">
