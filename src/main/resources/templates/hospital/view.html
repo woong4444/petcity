@@ -12,7 +12,6 @@
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <link rel="stylesheet" th:href="@{/css/hospital/view.css}">
 
-    <!-- 전체 배경은 bg2.png로 채우고, 중앙 영역은 통째로 하얀색 판으로 감싼 스타일 -->
     <style>
         body {
             position: relative;
@@ -33,23 +32,16 @@
 </head>
 <body class="pb-20 lg:pb-0 font-sans">
 
-<!-- 상단 공통 헤더 -->
 <div th:replace="~{common/head :: head}"></div>
 
-<!-- 병원 대표 배너 이미지 -->
 <section class="w-full h-[320px] sm:h-[380px] relative overflow-hidden bg-slate-900 shadow-inner">
     <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" class="w-full h-full object-cover object-center brightness-95 scale-105 transition-transform duration-700 hover:scale-100" alt="병원 대표이미지">
     <div th:unless="${hospital.imageUrl != null and hospital.imageUrl != ''}" class="w-full h-full bg-gradient-to-r from-sky-600 to-indigo-900 flex items-center justify-center text-white font-bold text-lg">이미지 준비중 PetCity</div>
     <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-slate-900/60"></div>
 </section>
 
-<!-- 메인 컨텐츠 영역 -->
 <main class="view-wrap max-w-4xl mx-auto -mt-28 sm:-mt-32 relative z-10 px-4 mb-20">
-
-    <!-- 중앙 전체를 감싸는 커다란 하얀색 판 -->
     <div class="bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] space-y-10">
-
-        <!-- 병원 헤더 카드 -->
         <section class="info-card relative bg-white border border-slate-100 p-6 sm:p-8 rounded-[2rem] shadow-sm">
             <div class="info-badges mb-4 flex gap-2">
                 <span th:if="${hospital.currentStatus == '진료중'}" class="bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide shadow-sm">진료중</span>
@@ -105,7 +97,6 @@
             </div>
         </section>
 
-        <!-- 스크롤 탭 메뉴 -->
         <nav class="sticky-tabs flex gap-2 p-2 bg-white/95 backdrop-blur-xl sticky top-4 z-40 rounded-2xl shadow-md border border-slate-200/60" id="stickyTabs">
             <button class="tab-btn flex-1 py-3.5 text-sm sm:text-base font-extrabold transition-all duration-300 rounded-xl bg-slate-900 text-white shadow-md active" data-target="#section-intro">병원 소개</button>
             <button class="tab-btn flex-1 py-3.5 text-sm sm:text-base font-extrabold transition-all duration-300 rounded-xl text-slate-500 hover:bg-slate-100" data-target="#section-subject">진료 과목</button>
@@ -114,8 +105,6 @@
         </nav>
 
         <div class="content-sections space-y-10">
-
-            <!-- 1. 병원 소개 섹션 -->
             <section id="section-intro" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50">
                 <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">🏥 병원 소개</h3>
                 <div class="intro-box text-slate-700 text-lg leading-loose bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
@@ -123,7 +112,6 @@
                 </div>
             </section>
 
-            <!-- 2. 진료 과목 안내 섹션 -->
             <section id="section-subject" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50">
                 <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">🩺 진료 과목 안내</h3>
                 <div class="border border-slate-100 rounded-3xl p-8 bg-white shadow-sm">
@@ -138,7 +126,6 @@
                 </div>
             </section>
 
-            <!-- 3. 오시는 길 및 정보 섹션 -->
             <section id="section-info" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50">
                 <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">📍 오시는 길 및 정보</h3>
                 <div class="grid md:grid-cols-2 gap-8">
@@ -164,23 +151,23 @@
                                     <p class="flex items-center" th:if="${hospital.breakTime != null and hospital.breakTime != ''}"><span class="inline-block w-20 text-slate-400">휴게시간</span> <span class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md" th:text="${hospital.breakTime}"></span></p>
                                     <p class="flex items-center" th:if="${hospital.holiday != null and hospital.holiday != ''}"><span class="inline-block w-20 text-slate-400">정기휴무</span> <span class="text-red-500 bg-red-50 px-2.5 py-1 rounded-md" th:text="${hospital.holiday}"></span></p>
 
-                                    <!-- 공지사항 및 정보 칸 (notice 원래대로 원복) -->
+                                    <!-- 🌟 공지사항 및 정보 칸 (note 연동 및 150자 이상 더보기/접기 적용) -->
                                     <div class="w-full h-px bg-slate-200/50 my-3"></div>
                                     <div class="bg-sky-50/70 border border-sky-100 p-4 rounded-2xl">
                                         <strong class="block text-sky-900 text-sm mb-1.5 flex items-center gap-1 font-extrabold">📢 공지사항 및 정보</strong>
 
-                                        <th:block th:if="${hospital.notice != null and hospital.notice != ''}">
+                                        <th:block th:if="${hospital.note != null and hospital.note != ''}">
                                             <div id="noticeBox">
                                                 <p id="noticeText" class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap"
-                                                   th:data-full="${hospital.notice}"
-                                                   th:data-short="${#strings.length(hospital.notice) > 150 ? #strings.substring(hospital.notice, 0, 150) + '...' : hospital.notice}"
-                                                   th:text="${#strings.length(hospital.notice) > 150 ? #strings.substring(hospital.notice, 0, 150) + '...' : hospital.notice}">
+                                                   th:data-full="${hospital.note}"
+                                                   th:data-short="${#strings.length(hospital.note) > 150 ? #strings.substring(hospital.note, 0, 150) + '...' : hospital.note}"
+                                                   th:text="${#strings.length(hospital.note) > 150 ? #strings.substring(hospital.note, 0, 150) + '...' : hospital.note}">
                                                 </p>
                                                 <button type="button" id="btnMoreNotice" class="text-sky-600 font-extrabold text-xs mt-2 hover:underline inline-block"
-                                                        th:if="${#strings.length(hospital.notice) > 150}" onclick="toggleNoticeText()">+ 더보기</button>
+                                                        th:if="${#strings.length(hospital.note) > 150}" onclick="toggleNoticeText()">+ 더보기</button>
                                             </div>
                                         </th:block>
-                                        <th:block th:unless="${hospital.notice != null and hospital.notice != ''}">
+                                        <th:block th:unless="${hospital.note != null and hospital.note != ''}">
                                             <p class="text-slate-400 text-sm italic">추가 정보가 없습니다.</p>
                                         </th:block>
                                     </div>
@@ -198,7 +185,6 @@
                 </div>
             </section>
 
-            <!-- 4. 방문자 리뷰 섹션 -->
             <section id="section-review" class="view-section p-6 sm:p-8 rounded-[2rem] border border-slate-100 bg-slate-50/50 pt-6">
                 <h3 class="sec-title text-2xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">💬 방문자 리뷰 (<span th:text="${#lists.size(reviewList)}">0</span>)</h3>
 
@@ -309,7 +295,6 @@
     const csrfToken = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
     /*]]>*/
 
-    // 추가 안내사항(공지사항) 150자 이상 더보기/접기 토글 함수
     function toggleNoticeText() {
         const txtEle = document.getElementById('noticeText');
         const btnEle = document.getElementById('btnMoreNotice');

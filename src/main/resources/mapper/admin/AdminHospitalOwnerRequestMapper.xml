@@ -327,5 +327,4 @@
         AND STATUS IN('APPROVED', 'REJECTED')
     </delete>
 
-
 </mapper>

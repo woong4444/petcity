@@ -614,6 +614,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // 🌟 [추가됨] 그 외 지역 한 번에 체크하는 로직
+    const otherAllBtn = document.getElementById('otherAll');
+    const hiddenOtherDistricts = document.querySelectorAll('.hidden-other-district');
+
+    if (otherAllBtn) {
+        // 새로고침 시 이전에 체크된 게 있으면 버튼도 활성화
+        const isChecked = Array.from(hiddenOtherDistricts).some(chk => chk.checked);
+        otherAllBtn.checked = isChecked;
+
+        // 클릭 시 모든 숨겨진 '그 외 지역' 체크박스 토글
+        otherAllBtn.addEventListener('change', function() {
+            hiddenOtherDistricts.forEach(chk => {
+                chk.checked = this.checked;
+            });
+            // Ajax로 자연스럽게 검색 결과 갱신
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList();
+        });
+    }
+
     window.addEventListener("popstate", function () {
         window.location.reload();
     });
