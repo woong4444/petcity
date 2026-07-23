@@ -6,31 +6,33 @@
 
 <th:block th:fragment="chatbot">
 
-    <!-- 챗봇 CSS -->
     <link rel="stylesheet"
           th:href="@{/css/common/chatbot.css}">
 
     <div id="petcityChatbot"
          class="petcity-chatbot">
 
-        <!-- 오른쪽 아래 챗봇 열기 버튼 -->
+        <!-- 챗봇 열기 버튼 -->
         <button type="button"
                 id="chatbotToggleButton"
                 class="chatbot-toggle-button"
                 aria-controls="chatbotPanel"
-                aria-expanded="false">
+                aria-expanded="false"
+                aria-label="PetCity 고객센터 열기">
 
             <img th:src="@{/images/chatbot/chatbot1.png}"
-                 src="/images/chatbot/chatbot3.png"
+                 src="/images/chatbot/chatbot1.png"
                  alt="고객센터"
                  class="chatbot-toggle-image">
 
         </button>
 
 
-        <!-- 챗봇 창 -->
+        <!-- 챗봇 패널 -->
         <section id="chatbotPanel"
                  class="chatbot-panel"
+                 role="dialog"
+                 aria-label="PetCity 고객센터"
                  aria-hidden="true">
 
             <!-- 챗봇 상단 -->
@@ -59,10 +61,44 @@
             </div>
 
 
-            <!-- 대화 내용 출력 영역 -->
+            <!-- 메시지 출력 영역 -->
             <div id="chatbotMessageList"
                  class="chatbot-message-list">
             </div>
+
+
+            <!-- 1:1 상담 입력 영역 -->
+            <form id="chatbotChatForm"
+                  class="chatbot-chat-form"
+                  hidden>
+
+                <div class="chatbot-chat-count">
+                    <span id="chatbotChatLength">0</span>
+                    / 500
+                </div>
+
+                <div class="chatbot-chat-input-row">
+
+                    <textarea id="chatbotChatInput"
+                              class="chatbot-chat-input"
+                              rows="1"
+                              maxlength="500"
+                              placeholder="문의 내용을 입력해 주세요."></textarea>
+
+                    <button type="submit"
+                            id="chatbotChatSendButton"
+                            class="chatbot-chat-send-button">
+                        전송
+                    </button>
+
+                </div>
+
+                <p id="chatbotChatNotice"
+                   class="chatbot-chat-notice">
+                    관리자 답변 전 최대 3개까지 전송할 수 있습니다.
+                </p>
+
+            </form>
 
 
             <!-- 챗봇 하단 -->
@@ -84,6 +120,12 @@
         </section>
 
     </div>
+
+
+    <!-- STOMP 클라이언트 -->
+    <script defer
+            src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.2.0/bundles/stomp.umd.min.js">
+    </script>
 
     <!-- 챗봇 JavaScript -->
     <script defer
