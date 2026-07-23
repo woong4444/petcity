@@ -1,0 +1,714 @@
+@charset "UTF-8";
+
+/* =====================================================
+   전체 챗봇
+===================================================== */
+
+.petcity-chatbot,
+.petcity-chatbot * {
+    box-sizing: border-box;
+}
+
+.petcity-chatbot {
+    --chatbot-button-width: 220px;
+    --chatbot-button-height: 88px;
+
+    --chatbot-panel-width: 440px;
+    --chatbot-panel-height: 700px;
+
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 5000;
+
+    font-family:
+            Arial,
+            "Noto Sans KR",
+            sans-serif;
+}
+
+
+/* =====================================================
+   챗봇 열기 버튼
+===================================================== */
+
+.chatbot-toggle-button {
+    width: var(--chatbot-button-width);
+    height: var(--chatbot-button-height);
+    padding: 0;
+
+    border: none;
+    border-radius: 999px;
+
+    background: transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    box-shadow:
+            0 16px 34px
+            rgba(37, 99, 235, 0.26);
+
+    cursor: pointer;
+
+    transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.chatbot-toggle-image {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 999px;
+
+    pointer-events: none;
+}
+
+.chatbot-toggle-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+            0 18px 36px
+            rgba(37, 99, 235, 0.36);
+}
+
+.petcity-chatbot.open
+.chatbot-toggle-button {
+    display: none;
+}
+
+
+/* =====================================================
+   챗봇 패널
+===================================================== */
+
+.chatbot-panel {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    width: var(--chatbot-panel-width);
+    height: var(--chatbot-panel-height);
+
+    max-width: calc(100vw - 56px);
+    max-height: calc(100vh - 56px);
+
+    border: 1px solid #dbeafe;
+    border-radius: 24px;
+
+    background-color: white;
+
+    display: none;
+
+    grid-template-rows:
+            auto
+            minmax(0, 1fr)
+            auto
+            auto;
+
+    overflow: hidden;
+
+    box-shadow:
+            0 26px 65px
+            rgba(15, 23, 42, 0.24);
+}
+
+.petcity-chatbot.open
+.chatbot-panel {
+    display: grid;
+
+    animation:
+            chatbotOpen
+            0.2s
+            ease-out;
+}
+
+@keyframes chatbotOpen {
+
+    from {
+        opacity: 0;
+
+        transform:
+                translateY(12px)
+                scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+                translateY(0)
+                scale(1);
+    }
+}
+
+
+/* =====================================================
+   챗봇 상단
+===================================================== */
+
+.chatbot-header {
+    min-height: 92px;
+    padding: 17px 18px;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #0ea5e9,
+                    #2563eb
+            );
+
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.chatbot-header-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.chatbot-profile-icon {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 50%;
+
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 29px;
+
+    box-shadow:
+            0 5px 15px
+            rgba(15, 23, 42, 0.14);
+}
+
+.chatbot-header-info strong {
+    display: block;
+
+    font-size: 18px;
+}
+
+.chatbot-header-info p {
+    margin: 5px 0 0;
+
+    color:
+            rgba(
+                    255,
+                    255,
+                    255,
+                    0.88
+            );
+
+    font-size: 13px;
+}
+
+.chatbot-close-button {
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color:
+            rgba(
+                    255,
+                    255,
+                    255,
+                    0.18
+            );
+
+    color: white;
+
+    font-size: 27px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.chatbot-close-button:hover {
+    background-color:
+            rgba(
+                    255,
+                    255,
+                    255,
+                    0.3
+            );
+}
+
+
+/* =====================================================
+   메시지 영역
+===================================================== */
+
+.chatbot-message-list {
+    min-height: 0;
+
+    padding: 22px 18px 28px;
+
+    background-color: #f6f9fd;
+
+    overflow-y: auto;
+
+    scroll-behavior: smooth;
+}
+
+.chatbot-message-row {
+    width: 100%;
+
+    display: flex;
+
+    margin-bottom: 12px;
+}
+
+.chatbot-message-row.bot {
+    justify-content: flex-start;
+}
+
+.chatbot-message-row.user {
+    justify-content: flex-end;
+}
+
+
+/* =====================================================
+   말풍선
+===================================================== */
+
+.chatbot-message-bubble {
+    max-width: 86%;
+
+    padding: 14px 16px;
+
+    border-radius: 17px;
+
+    font-size: 15px;
+    line-height: 1.7;
+
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+
+.chatbot-message-row.bot
+.chatbot-message-bubble {
+    border:
+            1px solid
+            #e5e7eb;
+
+    border-top-left-radius: 5px;
+
+    background-color: white;
+    color: #334155;
+
+    box-shadow:
+            0 5px 14px
+            rgba(15, 23, 42, 0.05);
+}
+
+.chatbot-message-row.user
+.chatbot-message-bubble {
+    border-top-right-radius: 5px;
+
+    background-color: #2563eb;
+    color: white;
+}
+
+.chatbot-message-row.live-admin
+.chatbot-message-bubble {
+    border-color: #bfdbfe;
+
+    background-color: #eff6ff;
+    color: #1e3a8a;
+}
+
+.chatbot-message-bubble p {
+    margin: 0 0 8px;
+}
+
+.chatbot-message-bubble p:last-child {
+    margin-bottom: 0;
+}
+
+.chatbot-message-bubble ul,
+.chatbot-message-bubble ol {
+    margin: 8px 0 0;
+    padding-left: 20px;
+}
+
+
+/* =====================================================
+   선택 버튼
+===================================================== */
+
+.chatbot-option-group {
+    display: grid;
+    gap: 8px;
+
+    margin: 2px 0 16px;
+}
+
+.chatbot-option-button {
+    width: 100%;
+    min-height: 50px;
+
+    padding: 12px 15px;
+
+    border:
+            1px solid
+            #bfdbfe;
+
+    border-radius: 13px;
+
+    background-color: white;
+    color: #1e3a8a;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    text-align: left;
+
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+
+    cursor: pointer;
+
+    transition:
+            border-color 0.15s ease,
+            background-color 0.15s ease,
+            transform 0.15s ease;
+}
+
+.chatbot-option-button::after {
+    content: "›";
+
+    color: #60a5fa;
+
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.chatbot-option-button:hover {
+    border-color: #60a5fa;
+
+    background-color: #eff6ff;
+
+    transform:
+            translateY(-1px);
+}
+
+.chatbot-option-button.secondary {
+    border-color: #d1d5db;
+
+    color: #475569;
+}
+
+.chatbot-option-button.secondary::after {
+    color: #94a3b8;
+}
+
+.chatbot-option-button.secondary:hover {
+    border-color: #94a3b8;
+
+    background-color: #f8fafc;
+}
+
+.chatbot-option-button:disabled {
+    opacity: 0.55;
+
+    cursor: default;
+
+    transform: none;
+}
+
+
+/* =====================================================
+   로딩
+===================================================== */
+
+.chatbot-loading {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.chatbot-loading span {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background-color: #94a3b8;
+
+    animation:
+            chatbotLoading
+            0.9s
+            infinite
+            ease-in-out;
+}
+
+.chatbot-loading span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.chatbot-loading span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes chatbotLoading {
+
+    0%,
+    100% {
+        opacity: 0.35;
+
+        transform:
+                translateY(0);
+    }
+
+    50% {
+        opacity: 1;
+
+        transform:
+                translateY(-3px);
+    }
+}
+
+
+/* =====================================================
+   1:1 상담 입력 영역
+===================================================== */
+
+.chatbot-chat-form[hidden] {
+    display: none;
+}
+
+.chatbot-chat-form {
+    padding: 10px 12px 12px;
+
+    border-top:
+            1px solid
+            #dbeafe;
+
+    background-color: white;
+}
+
+.chatbot-chat-count {
+    margin-bottom: 5px;
+
+    color: #64748b;
+
+    font-size: 11px;
+    text-align: right;
+}
+
+.chatbot-chat-input-row {
+    display: grid;
+
+    grid-template-columns:
+            minmax(0, 1fr)
+            62px;
+
+    align-items: end;
+    gap: 8px;
+}
+
+.chatbot-chat-input {
+    width: 100%;
+    min-height: 44px;
+    max-height: 100px;
+
+    padding: 10px 12px;
+
+    border:
+            1px solid
+            #cbd5e1;
+
+    border-radius: 12px;
+
+    background-color: #f8fafc;
+    color: #1e293b;
+
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+
+    resize: none;
+    outline: none;
+
+    overflow-y: auto;
+}
+
+.chatbot-chat-input:focus {
+    border-color: #3b82f6;
+
+    background-color: white;
+
+    box-shadow:
+            0 0 0 3px
+            rgba(59, 130, 246, 0.12);
+}
+
+.chatbot-chat-input:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+
+    cursor: not-allowed;
+}
+
+.chatbot-chat-send-button {
+    height: 44px;
+
+    border: none;
+    border-radius: 12px;
+
+    background-color: #2563eb;
+    color: white;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+.chatbot-chat-send-button:hover {
+    background-color: #1d4ed8;
+}
+
+.chatbot-chat-send-button:disabled {
+    background-color: #94a3b8;
+
+    cursor: not-allowed;
+}
+
+.chatbot-chat-notice {
+    margin: 7px 2px 0;
+
+    color: #64748b;
+
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+
+/* =====================================================
+   챗봇 하단
+===================================================== */
+
+.chatbot-footer {
+    min-height: 62px;
+    padding: 10px 14px;
+
+    border-top:
+            1px solid
+            #e5e7eb;
+
+    background-color: white;
+
+    display: grid;
+
+    grid-template-columns:
+            1fr
+            1fr;
+
+    gap: 8px;
+}
+
+.chatbot-footer-button,
+.chatbot-footer-link {
+    min-height: 40px;
+
+    border:
+            1px solid
+            #dbeafe;
+
+    border-radius: 10px;
+
+    background-color: #f8fafc;
+    color: #334155;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.chatbot-footer-button:hover,
+.chatbot-footer-link:hover {
+    border-color: #60a5fa;
+
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+
+/* =====================================================
+   작은 화면
+===================================================== */
+
+@media screen and (max-width: 600px) {
+
+    .petcity-chatbot {
+        --chatbot-button-width: 180px;
+        --chatbot-button-height: 72px;
+
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .chatbot-toggle-button {
+        width: var(--chatbot-button-width);
+        height: var(--chatbot-button-height);
+    }
+
+    .chatbot-panel {
+        position: fixed;
+
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+
+        width: auto;
+        height: calc(100vh - 24px);
+
+        max-width: none;
+        max-height: none;
+
+        border-radius: 18px;
+    }
+
+    .chatbot-message-list {
+        padding:
+                18px
+                14px
+                22px;
+    }
+
+    .chatbot-message-bubble {
+        max-width: 90%;
+
+        font-size: 14px;
+    }
+}

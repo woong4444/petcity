@@ -1,14 +1,95 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    const hospitalStatusChart =
-        document.querySelector("#hospitalStatusChart");
+        loadDashboardChatSummary();
 
-    if (hospitalStatusChart === null) {
+        const hospitalStatusChart =
+            document.querySelector(
+                "#hospitalStatusChart"
+            );
+
+        if (hospitalStatusChart !== null) {
+
+            createHospitalStatusChart(
+                hospitalStatusChart
+            );
+        }
+    }
+);
+
+async function loadDashboardChatSummary() {
+
+    const totalRoomCountElement =
+        document.getElementById(
+            "dashboardTotalChatRoomCount"
+        );
+
+    const unreadRoomCountElement =
+        document.getElementById(
+            "dashboardUnreadChatRoomCount"
+        );
+
+
+    if (
+        totalRoomCountElement === null
+        || unreadRoomCountElement === null
+    ) {
         return;
     }
 
-    createHospitalStatusChart(hospitalStatusChart);
-});
+
+    try {
+
+        const response =
+            await fetch(
+                "/admin/api/chat/summary",
+                {
+                    method: "GET",
+                    credentials: "same-origin"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "채팅 현황을 불러오지 못했습니다."
+            );
+        }
+
+
+        const summary =
+            await response.json();
+
+
+        totalRoomCountElement.textContent =
+            Number(
+                summary.totalRoomCount || 0
+            )
+            + "개";
+
+
+        unreadRoomCountElement.textContent =
+            Number(
+                summary.unreadRoomCount || 0
+            )
+            + "개";
+
+    } catch (error) {
+
+        console.error(
+            "대시보드 채팅 현황 조회 실패:",
+            error
+        );
+
+        totalRoomCountElement.textContent =
+            "-";
+
+        unreadRoomCountElement.textContent =
+            "-";
+    }
+}
 
 
 function createHospitalStatusChart(chartCanvas) {

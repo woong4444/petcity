@@ -1,16 +1,29 @@
 package com.jjang051.petcity.owner.controller;
 
+import com.jjang051.petcity.hospital.dto.HospitalDirectUpdateDto;
 import com.jjang051.petcity.hospital.dto.HospitalDto;
 import com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto;
 import com.jjang051.petcity.hospital.service.HospitalUpdateService;
 import com.jjang051.petcity.member.dto.MemberDto;
+import com.jjang051.petcity.owner.dto.OwnerRequestDto;
+import com.jjang051.petcity.owner.service.OwnerRequestService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -19,167 +32,533 @@ import java.util.List;
 public class OwnerHospitalUpdateController {
 
     private final HospitalUpdateService hospitalUpdateService;
+    private final OwnerRequestService ownerRequestService;
+
+    @Value("${kakao.map.javascript-key:}")
+    private String kakaoJavascriptKey;
+
+
+    /*
+        =================================================
+        내가 운영하는 병원 목록
+        =================================================
+    */
 
     @GetMapping("/list")
-    public String hospitalList(HttpSession session, Model model) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"OWNER".equals(loginMember.getRole())) {
+    public String hospitalList(
+            HttpSession session,
+            Model model
+    ) {
+
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if (loginMember == null) {
             return "redirect:/member/login";
         }
 
-        List<HospitalDto> hospitalList = hospitalUpdateService.getHospitalsByOwnerId(loginMember.getMemberId().intValue());
+        List<HospitalDto> hospitalList =
+                hospitalUpdateService.getHospitalsByOwnerId(
+                        loginMember.getMemberId().intValue()
+                );
+
         model.addAttribute("hospitalList", hospitalList);
+
         return "owner/hospital-list";
     }
 
-    @GetMapping("/update")
-    public String updateForm(
-            @RequestParam(value = "hospitalId", required = false) Integer hospitalId,
-            HttpSession session,
-            Model model) {
 
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"OWNER".equals(loginMember.getRole())) {
+    /*
+        =================================================
+        병원 관리 화면
+        기존 hospital-list.html의 수정 버튼 URL도
+        /owner/hospital/update?hospitalId=번호 그대로 사용 가능
+        =================================================
+    */
+
+    @GetMapping("/update")
+    public String hospitalManagePage(
+            @RequestParam("hospitalId") int hospitalId,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if (loginMember == null) {
             return "redirect:/member/login";
         }
 
-        if (hospitalId == null) {
-            List<HospitalDto> myHospitals = hospitalUpdateService.getHospitalsByOwnerId(loginMember.getMemberId().intValue());
-            if (myHospitals != null && !myHospitals.isEmpty()) {
-                return "redirect:/owner/hospital/update?hospitalId=" + myHospitals.get(0).getHospitalId();
-            } else {
-                model.addAttribute("message", "등록된 소유 병원이 없습니다.");
-                return "redirect:/";
-            }
-        }
+        int memberId = loginMember.getMemberId().intValue();
 
-        HospitalDto hospital = hospitalUpdateService.getHospitalById(hospitalId);
-        if (hospital == null || hospital.getOwnerId() != loginMember.getMemberId().intValue()) {
+        HospitalDto hospital =
+                hospitalUpdateService.getHospitalByIdAndOwner(
+                        hospitalId,
+                        memberId
+                );
+
+        if (hospital == null) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "본인 소유 병원만 관리할 수 있습니다."
+            );
+
             return "redirect:/owner/hospital/list";
         }
 
-        // 1. 매핑 테이블(HOSPITAL_MEDICAL_SUBJECT)에서 ID 목록 조회
-        List<Integer> currentSubjectIds = hospitalUpdateService.getSubjectIdsByHospitalId(hospitalId);
-
-        // 2. 매핑 테이블에 데이터가 없다면 텍스트(hospital.getMedicalSubjects())를 분석해서 ID로 변환
-        if ((currentSubjectIds == null || currentSubjectIds.isEmpty()) && hospital.getMedicalSubjects() != null) {
-            currentSubjectIds = new ArrayList<>();
-            String subStr = hospital.getMedicalSubjects();
-            if (subStr.contains("내과") && !subStr.contains("심장내과")) currentSubjectIds.add(1);
-            if (subStr.contains("외과") && !subStr.contains("정형외과") && !subStr.contains("신경외과") && !subStr.contains("영상의학과")) currentSubjectIds.add(2);
-            if (subStr.contains("정형외과")) currentSubjectIds.add(3);
-            if (subStr.contains("피부과")) currentSubjectIds.add(4);
-            if (subStr.contains("안과")) currentSubjectIds.add(5);
-            if (subStr.contains("치과")) currentSubjectIds.add(6);
-            if (subStr.contains("영상의학과")) currentSubjectIds.add(7);
-            if (subStr.contains("이비인후과")) currentSubjectIds.add(8);
-            if (subStr.contains("비뇨기과")) currentSubjectIds.add(9);
-            if (subStr.contains("신경외과")) currentSubjectIds.add(10);
-            if (subStr.contains("산과")) currentSubjectIds.add(11);
-            if (subStr.contains("심장내과")) currentSubjectIds.add(12);
-            if (subStr.contains("마취통증")) currentSubjectIds.add(13);
-            if (subStr.contains("예방의학")) currentSubjectIds.add(14);
-            if (subStr.contains("재활의학")) currentSubjectIds.add(15);
-            if (subStr.contains("중성화")) currentSubjectIds.add(16);
-            if (subStr.contains("영양상담")) currentSubjectIds.add(17);
-            if (subStr.contains("헌혈")) currentSubjectIds.add(18);
-            if (subStr.contains("미용")) currentSubjectIds.add(19);
-        }
-
-        // 3. 휴무일 텍스트("일요일" 등)를 체크박스 값("일")과 일치하도록 정제
-        if (hospital.getHoliday() != null) {
-            String h = hospital.getHoliday();
-            if (h.contains("일")) hospital.setHoliday("일");
-            else if (h.contains("월")) hospital.setHoliday("월");
-            else if (h.contains("화")) hospital.setHoliday("화");
-            else if (h.contains("수")) hospital.setHoliday("수");
-            else if (h.contains("목")) hospital.setHoliday("목");
-            else if (h.contains("금")) hospital.setHoliday("금");
-            else if (h.contains("토")) hospital.setHoliday("토");
-        }
-
-        // 4. 시간 포맷 정제 (오전/오후 형태 대응)
-        if (hospital.getOpenTime() != null && hospital.getOpenTime().length() > 5) {
-            hospital.setOpenTime(extractTime(hospital.getOpenTime()));
-        }
-        if (hospital.getCloseTime() != null && hospital.getCloseTime().length() > 5) {
-            hospital.setCloseTime(extractTime(hospital.getCloseTime()));
-        }
-
-        HospitalUpdateRequestDto latestRequest = hospitalUpdateService.getLatestRequest(hospitalId);
-
+        /*
+            기존 hospital-update.html과
+            앞으로 새로 만들 병원 관리 화면에서 사용할 데이터
+        */
         model.addAttribute("hospital", hospital);
-        model.addAttribute("currentSubjectIds", currentSubjectIds);
-        model.addAttribute("latestRequest", latestRequest);
+
+        model.addAttribute(
+                "currentAnimalIds",
+                hospitalUpdateService.getAnimalIdsByHospitalId(
+                        hospitalId
+                )
+        );
+
+        model.addAttribute(
+                "currentServiceIds",
+                hospitalUpdateService.getServiceIdsByHospitalId(
+                        hospitalId
+                )
+        );
+
+        model.addAttribute(
+                "currentSubjectIds",
+                hospitalUpdateService.getSubjectIdsByHospitalId(
+                        hospitalId
+                )
+        );
+
+        model.addAttribute(
+                "requestList",
+                hospitalUpdateService.getRequestListByHospitalId(
+                        hospitalId,
+                        memberId
+                )
+        );
+
+        /*
+            수정 요청 양식의 체크박스 목록
+        */
+        model.addAttribute(
+                "animalList",
+                ownerRequestService.getAnimalList()
+        );
+
+        model.addAttribute(
+                "medicalServiceList",
+                ownerRequestService.getMedicalServiceList()
+        );
+
+        model.addAttribute(
+                "medicalSubjectList",
+                ownerRequestService.getMedicalSubjectList()
+        );
 
         return "owner/hospital-update";
     }
 
-    private String extractTime(String timeStr) {
-        try {
-            if (timeStr.contains("오전") || timeStr.contains("오후")) {
-                boolean isPm = timeStr.contains("오후");
-                String numbers = timeStr.replaceAll("[^0-9:]", "").trim();
-                String[] hm = numbers.split(":");
-                int hour = Integer.parseInt(hm[0]);
-                if (isPm && hour < 12) hour += 12;
-                if (!isPm && hour == 12) hour = 0;
-                return String.format("%02d:%s", hour, hm.length > 1 ? hm[1] : "00");
-            }
-            return timeStr.substring(0, Math.min(timeStr.length(), 5));
-        } catch (Exception e) {
-            return timeStr;
-        }
-    }
+    /*
+    =================================================
+    관리자 승인형 병원정보 수정 요청 화면
+    병원장 실명, 증빙서류, 사업자등록번호, 병원명,
+    주소, 홈페이지, 대표 이미지를 수정 요청한다.
+    =================================================
+*/
 
-    @PostMapping("/update")
-    public String submitUpdate(
+    @GetMapping("/request/update")
+    public String updateRequestPage(
             @RequestParam("hospitalId") int hospitalId,
-            @RequestParam(value = "medicalSubjects", required = false) List<String> subjects,
-            @RequestParam("openTime") String openTime,
-            @RequestParam("closeTime") String closeTime,
-            @RequestParam("lunchTime") String lunchTime,
-            @RequestParam("holiday") String holiday,
-            HttpSession session) {
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
 
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"OWNER".equals(loginMember.getRole())) {
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if (loginMember == null) {
             return "redirect:/member/login";
         }
 
-        String subjectsStr = (subjects != null) ? String.join(",", subjects) : "";
+        int memberId = loginMember.getMemberId().intValue();
 
-        HospitalUpdateRequestDto requestDto = HospitalUpdateRequestDto.builder()
-                .hospitalId(hospitalId)
-                .memberId(loginMember.getMemberId().intValue())
-                .medicalSubjects(subjectsStr)
-                .openTime(openTime)
-                .closeTime(closeTime)
-                .lunchTime(lunchTime)
-                .holiday(holiday)
-                .build();
+        HospitalDto hospital =
+                hospitalUpdateService.getHospitalByIdAndOwner(
+                        hospitalId,
+                        memberId
+                );
 
-        hospitalUpdateService.requestUpdate(requestDto);
-        return "redirect:/owner/hospital/update?hospitalId=" + hospitalId + "&success=true";
+        if (hospital == null) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "본인 소유 병원만 수정 요청할 수 있습니다."
+            );
+
+            return "redirect:/owner/hospital/list";
+        }
+
+    /*
+        기존 회원 정보는 병원장 신청 화면처럼 읽기 전용 표시
+    */
+        OwnerRequestDto member =
+                ownerRequestService.getMemberForRequest(
+                        loginMember.getMemberId()
+                );
+
+    /*
+        기존 병원 정보를 요청 양식에 미리 채운다.
+        위도·경도는 화면에서 숨기고 카카오 지도로 변경한다.
+    */
+        HospitalUpdateRequestDto requestDto =
+                HospitalUpdateRequestDto.builder()
+                        .hospitalId(hospital.getHospitalId())
+                        .memberId(memberId)
+
+                        .hospitalName(hospital.getName())
+                        .hospitalPhone(hospital.getPhone())
+
+                        .hospitalAddress(hospital.getAddress())
+                        .hospitalDetailAddress(
+                                hospital.getDetailAddress()
+                        )
+                        .hospitalDistrict(hospital.getDistrict())
+                        .hospitalWebsiteUrl(
+                                hospital.getWebsiteUrl()
+                        )
+
+                        .hospitalLatitude(
+                                java.math.BigDecimal.valueOf(
+                                        hospital.getLatitude()
+                                )
+                        )
+                        .hospitalLongitude(
+                                java.math.BigDecimal.valueOf(
+                                        hospital.getLongitude()
+                                )
+                        )
+
+                        .hospitalImageUrl(hospital.getImageUrl())
+                        .build();
+
+        model.addAttribute("member", member);
+        model.addAttribute("hospital", hospital);
+        model.addAttribute("hospitalUpdateRequestDto", requestDto);
+
+        model.addAttribute(
+                "kakaoJavascriptKey",
+                kakaoJavascriptKey
+        );
+
+        return "owner/hospital-update-request";
     }
 
-    @PostMapping("/delete")
-    public String deleteHospital(@RequestParam("hospitalId") int hospitalId, HttpSession session) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"OWNER".equals(loginMember.getRole())) {
+    /*  병원장 직접 수정*/
+
+    @PostMapping("/direct-update")
+    public String directUpdate(
+            @ModelAttribute HospitalDirectUpdateDto directUpdateDto,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+            ) {
+
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if(loginMember == null) {
             return "redirect:/member/login";
         }
-        hospitalUpdateService.markHospitalAsClosed(hospitalId);
-        return "redirect:/owner/hospital/update?hospitalId=" + hospitalId + "&delete=success";
+        try {
+            directUpdateDto.setMemberId(
+                    loginMember.getMemberId().intValue()
+            );
+
+            hospitalUpdateService.updateDirectHospitalInfo(
+                    directUpdateDto
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "병원 정보가 정상적으로 저장되었습니다."
+            );
+
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/owner/hospital/update?hospitalId="
+                +directUpdateDto.getHospitalId();
     }
 
-    @PostMapping("/cancel-delete")
-    public String cancelDeleteHospital(@RequestParam("hospitalId") int hospitalId, HttpSession session) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null || !"OWNER".equals(loginMember.getRole())) {
+
+    /*
+        =================================================
+        병원정보 수정 요청
+        =================================================
+    */
+
+    @PostMapping("/request/update")
+    public String submitUpdateRequest(
+            @ModelAttribute HospitalUpdateRequestDto requestDto,
+
+            @RequestParam(
+                    value = "documentFile",
+                    required = false
+            )
+            MultipartFile documentFile,
+
+            @RequestParam(
+                    value = "hospitalImage",
+                    required = false
+            )
+            MultipartFile hospitalImage,
+
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if (loginMember == null) {
             return "redirect:/member/login";
         }
-        hospitalUpdateService.cancelHospitalClosure(hospitalId);
-        return "redirect:/owner/hospital/update?hospitalId=" + hospitalId + "&cancel=success";
+
+        try {
+            requestDto.setMemberId(
+                    loginMember.getMemberId().intValue()
+            );
+
+            requestDto.setRequestType("UPDATE");
+
+            int requestId = hospitalUpdateService.requestUpdate(
+                    requestDto,
+                    documentFile,
+                    hospitalImage
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "병원정보 수정 요청이 등록되었습니다. 요청 번호: " + requestId
+            );
+
+        } catch (IOException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "파일 저장 중 오류가 발생했습니다."
+            );
+
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/owner/hospital/update?hospitalId="
+                + requestDto.getHospitalId();
+    }
+    /*
+        =================================================
+        휴업 요청
+        =================================================
+    */
+
+    @PostMapping("/request/temp-close")
+    public String submitTempCloseRequest(
+            @RequestParam("hospitalId") int hospitalId,
+
+            @RequestParam("tempCloseStartAt")
+            @DateTimeFormat(
+                    iso = DateTimeFormat.ISO.DATE_TIME
+            )
+            LocalDateTime tempCloseStartAt,
+
+            @RequestParam("tempCloseEndAt")
+            @DateTimeFormat(
+                    iso = DateTimeFormat.ISO.DATE_TIME
+            )
+            LocalDateTime tempCloseEndAt,
+
+            @RequestParam("requestReason")
+            String requestReason,
+
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if (loginMember == null) {
+            return "redirect:/member/login";
+        }
+
+        try {
+            HospitalUpdateRequestDto requestDto =
+                    HospitalUpdateRequestDto.builder()
+                            .hospitalId(hospitalId)
+                            .memberId(
+                                    loginMember.getMemberId().intValue()
+                            )
+                            .requestType("TEMP_CLOSE")
+                            .tempCloseStartAt(tempCloseStartAt)
+                            .tempCloseEndAt(tempCloseEndAt)
+                            .requestReason(requestReason)
+                            .build();
+
+            int requestId =
+                    hospitalUpdateService.requestUpdate(
+                            requestDto
+                    );
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "휴업 요청이 등록되었습니다. 요청 번호: "
+                            + requestId
+            );
+
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/owner/hospital/update?hospitalId="
+                + hospitalId;
+    }
+
+
+    /*
+        =================================================
+        폐업 요청
+        =================================================
+    */
+
+    @PostMapping("/request/close")
+    public String submitCloseRequest(
+            @RequestParam("hospitalId") int hospitalId,
+
+            @RequestParam("requestReason")
+            String requestReason,
+
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if (loginMember == null) {
+            return "redirect:/member/login";
+        }
+
+        try {
+            HospitalUpdateRequestDto requestDto =
+                    HospitalUpdateRequestDto.builder()
+                            .hospitalId(hospitalId)
+                            .memberId(
+                                    loginMember.getMemberId().intValue()
+                            )
+                            .requestType("CLOSE")
+                            .requestReason(requestReason)
+                            .build();
+
+            int requestId =
+                    hospitalUpdateService.requestUpdate(
+                            requestDto
+                    );
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "폐업 요청이 등록되었습니다. 요청 번호: "
+                            + requestId
+            );
+
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/owner/hospital/update?hospitalId="
+                + hospitalId;
+    }
+
+
+    /*
+        =================================================
+        PENDING 요청 취소
+        취소하면 요청 행을 실제로 삭제한다.
+        =================================================
+    */
+
+    @PostMapping("/request/{requestId}/cancel")
+    public String cancelPendingRequest(
+            @PathVariable int requestId,
+
+            @RequestParam("hospitalId") int hospitalId,
+
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        MemberDto loginMember = getOwnerLoginMember(session);
+
+        if (loginMember == null) {
+            return "redirect:/member/login";
+        }
+
+        try {
+            hospitalUpdateService.deletePendingRequest(
+                    requestId,
+                    hospitalId,
+                    loginMember.getMemberId().intValue()
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "승인 대기 요청을 취소했습니다."
+            );
+
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/owner/hospital/update?hospitalId="
+                + hospitalId;
+    }
+
+
+    /*
+        =================================================
+        공통: 병원장 로그인 여부 확인
+        =================================================
+    */
+
+    private MemberDto getOwnerLoginMember(
+            HttpSession session
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null
+                || !"OWNER".equals(loginMember.getRole())) {
+
+            return null;
+        }
+
+        return loginMember;
     }
 }
