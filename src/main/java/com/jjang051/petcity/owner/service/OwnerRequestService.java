@@ -525,6 +525,12 @@ public class OwnerRequestService {
                 dto.getHospitalBreakTime()
         );
 
+        validateOperatingTimeRange(
+                dto.getHospitalOpenTime(),
+                dto.getHospitalCloseTime(),
+                dto.getHospitalBreakTime()
+        );
+
         validateClosedDays(
                 dto.getHospitalClosedDays()
         );
@@ -569,7 +575,7 @@ public class OwnerRequestService {
                 dto.getHospitalDescription(),
                 "병원 소개",
                 10,
-                2000
+                1000
         );
 
         validateOptionalText(
@@ -707,6 +713,37 @@ public class OwnerRequestService {
             );
         }
     }
+
+    private void validateOperatingTimeRange(
+            String openTime,
+            String closeTime,
+            String breakTime
+    ) {
+        LocalTime open = LocalTime.parse(openTime);
+        LocalTime close = LocalTime.parse(closeTime);
+
+        if(!close.isAfter(open)) {
+            throw new RuntimeException(
+                    "진료 종료 시간은 진료 시작 시간보다 늦어야 합니다."
+            );
+        }
+
+        if(isBlank(breakTime)) {
+            return;
+        }
+
+        String [] breakTimes = breakTime.split("~");
+
+        LocalTime breakStart = LocalTime.parse(breakTimes[0]);
+        LocalTime breakEnd = LocalTime.parse(breakTimes[1]);
+
+        if(breakStart.isBefore(open) || breakEnd.isAfter(close)) {
+            throw new RuntimeException(
+                    "휴게시간은 진료 시작 시간과 종료 시간 사이로 설정해 주세요."
+            );
+        }
+    }
+
 
     private void validateClosedDays(
             String closedDays

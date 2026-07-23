@@ -503,4 +503,16 @@
     }
 }
 
+.direct-character-count {
+    margin: 7px 2px 0;
+    text-align: right;
+    color: #8aa0bd;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.direct-character-count.limit-reached {
+    color: #ef4444;
+}
+
 

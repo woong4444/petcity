@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initRequestPanels();
     initAnimalSelection();
     initOperatingInfoForm();
+    initDirectCharacterCounters();
 });
 
 
@@ -167,12 +168,31 @@ function initOperatingInfoForm() {
     const holidayButtons = directForm.querySelectorAll(".holiday-day-button");
 
     // 기존 전화번호를 앞자리/가운데/뒷자리 입력칸에 표시
-    const phoneParts = (hospitalPhone.value || "").split("-");
+    // 기존 전화번호를 병원관리 화면의 세 칸에 자동 표시한다.
+// 010-1234-5678, 01012345678 등 저장 형식이 달라도 처리한다.
+    const phoneNumbers = (hospitalPhone.value || "").replace(/\D/g, "");
 
-    if (phoneParts.length === 3) {
-        phonePrefix.value = phoneParts[0];
-        phoneMiddle.value = phoneParts[1];
-        phoneLast.value = phoneParts[2];
+    const availablePrefixes = Array.from(phonePrefix.options)
+        .map(option => option.value)
+        .sort((first, second) => second.length - first.length);
+
+    const matchedPrefix = availablePrefixes.find(prefix =>
+        phoneNumbers.startsWith(prefix)
+    );
+
+    if (matchedPrefix) {
+        const remainingNumber = phoneNumbers.substring(matchedPrefix.length);
+
+        phonePrefix.value = matchedPrefix;
+
+        // 123-4567 또는 1234-5678 형식 모두 처리
+        if (remainingNumber.length === 7) {
+            phoneMiddle.value = remainingNumber.substring(0, 3);
+            phoneLast.value = remainingNumber.substring(3);
+        } else if (remainingNumber.length === 8) {
+            phoneMiddle.value = remainingNumber.substring(0, 4);
+            phoneLast.value = remainingNumber.substring(4);
+        }
     }
 
     // 기존 휴게시간(예: 13:00~14:00)을 시작/종료 칸에 표시
@@ -268,5 +288,41 @@ function initOperatingInfoForm() {
         }
 
         breakTime.value = start && end ? `${start}~${end}` : "";
+    });
+}
+
+function initDirectCharacterCounters() {
+    const directForm = document.querySelector("form[action*='direct-update']");
+
+    if (!directForm) {
+        return;
+    }
+
+    const textareas = directForm.querySelectorAll(
+        "textarea[data-character-count='true'][maxlength]"
+    );
+
+    textareas.forEach(function (textarea) {
+        const maxLength = Number(textarea.maxLength);
+
+        const counter = document.createElement("p");
+        counter.className = "direct-character-count";
+
+        textarea.insertAdjacentElement("afterend", counter);
+
+        function updateCounter() {
+            const currentLength = textarea.value.length;
+
+            counter.textContent = `${currentLength} / ${maxLength}자`;
+
+            // 실제 최대 글자 수에 도달했을 때만 강조
+            counter.classList.toggle(
+                "limit-reached",
+                currentLength >= maxLength
+            );
+        }
+
+        textarea.addEventListener("input", updateCounter);
+        updateCounter();
     });
 }
