@@ -304,71 +304,127 @@
                     <strong>병원정보 수정 요청</strong>을 통해 변경해 주세요.
                 </p>
 
-                <div class="form-grid">
+                <div class="field-grid operating-info-grid">
 
-                    <div class="form-group">
-                        <label for="hospitalPhone">
-                            병원 대표 전화번호
-                            <span class="required">*</span>
-                        </label>
-
-                        <input type="text"
-                               id="hospitalPhone"
-                               name="hospitalPhone"
-                               th:value="${hospital.phone}"
-                               maxlength="50"
-                               placeholder="예) 02-1234-5678"
-                               required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="openTime">
-                            진료 시작 시간
-                        </label>
-
+                    <!-- 1줄: 진료 시작 시간 -->
+                    <div class="field-group">
+                        <label for="openTime">진료 시작 시간 <em>*</em></label>
                         <input type="time"
                                id="openTime"
                                name="openTime"
-                               th:value="${hospital.openTime}">
+                               th:value="${hospital.openTime}"
+                               required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="closeTime">
-                            진료 종료 시간
-                        </label>
-
+                    <!-- 1줄: 진료 종료 시간 -->
+                    <div class="field-group">
+                        <label for="closeTime">진료 종료 시간 <em>*</em></label>
                         <input type="time"
                                id="closeTime"
                                name="closeTime"
-                               th:value="${hospital.closeTime}">
+                               th:value="${hospital.closeTime}"
+                               required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="breakTime">
-                            휴게 시간
-                        </label>
+                    <!-- 2줄: 병원 대표 전화번호 -->
+                    <div class="field-group">
+                        <label>병원 대표 전화번호 <em>*</em></label>
 
-                        <input type="text"
+                        <!-- 서버에는 010-1234-5678 형식으로 전송 -->
+                        <input type="hidden"
+                               id="hospitalPhone"
+                               name="hospitalPhone"
+                               th:value="${hospital.phone}">
+
+                        <div class="phone-input-group">
+                            <select id="phonePrefix" aria-label="전화번호 앞자리">
+                                <option value="02">02</option>
+                                <option value="031">031</option>
+                                <option value="032">032</option>
+                                <option value="033">033</option>
+                                <option value="041">041</option>
+                                <option value="042">042</option>
+                                <option value="043">043</option>
+                                <option value="051">051</option>
+                                <option value="052">052</option>
+                                <option value="053">053</option>
+                                <option value="054">054</option>
+                                <option value="055">055</option>
+                                <option value="061">061</option>
+                                <option value="062">062</option>
+                                <option value="063">063</option>
+                                <option value="064">064</option>
+                                <option value="010">010</option>
+                            </select>
+
+                            <span>-</span>
+
+                            <input type="text"
+                                   id="phoneMiddle"
+                                   maxlength="4"
+                                   inputmode="numeric"
+                                   placeholder="1234"
+                                   aria-label="전화번호 가운데 자리">
+
+                            <span>-</span>
+
+                            <input type="text"
+                                   id="phoneLast"
+                                   maxlength="4"
+                                   inputmode="numeric"
+                                   placeholder="5678"
+                                   aria-label="전화번호 마지막 자리">
+                        </div>
+                    </div>
+
+                    <!-- 2줄: 휴게시간 -->
+                    <div class="field-group">
+                        <label>휴게시간</label>
+
+                        <!-- 서버에는 13:00~14:00 형식으로 전송 -->
+                        <input type="hidden"
                                id="breakTime"
                                name="breakTime"
-                               th:value="${hospital.breakTime}"
-                               maxlength="100"
-                               placeholder="예) 13:00~14:00">
+                               th:value="${hospital.breakTime}">
+
+                        <div class="break-time-group">
+                            <div>
+                                <span>시작</span>
+                                <input type="time" id="breakStart">
+                            </div>
+
+                            <span class="time-wave">~</span>
+
+                            <div>
+                                <span>종료</span>
+                                <input type="time" id="breakEnd">
+                            </div>
+                        </div>
+
+                        <p class="field-help">휴게시간이 없으면 두 칸 모두 비워두세요.</p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="closedDays">
-                            정기 휴무일
-                        </label>
+                    <!-- 3줄 전체: 정기 휴무일 -->
+                    <div class="field-group full-width">
+                        <label>정기 휴무일</label>
 
-                        <input type="text"
+                        <input type="hidden"
                                id="closedDays"
                                name="closedDays"
-                               th:value="${hospital.holiday}"
-                               maxlength="500"
-                               placeholder="예) 일요일, 공휴일">
-                    </div>
+                               th:value="${hospital.holiday}">
 
+                        <div class="holiday-button-list">
+                            <button type="button" class="holiday-day-button" data-day="월요일">월</button>
+                            <button type="button" class="holiday-day-button" data-day="화요일">화</button>
+                            <button type="button" class="holiday-day-button" data-day="수요일">수</button>
+                            <button type="button" class="holiday-day-button" data-day="목요일">목</button>
+                            <button type="button" class="holiday-day-button" data-day="금요일">금</button>
+                            <button type="button" class="holiday-day-button" data-day="토요일">토</button>
+                            <button type="button" class="holiday-day-button" data-day="일요일">일</button>
+                        </div>
+
+                        <p class="field-help">정기적으로 쉬는 요일을 모두 선택해 주세요.</p>
+                    </div>
                 </div>
             </section>
 
