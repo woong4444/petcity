@@ -1,95 +1,491 @@
 @charset "UTF-8";
 
-body { margin: 0; background-color: #f3f4f6; color: #1f2937; font-family: "Noto Sans KR", sans-serif; }
+body {
+    margin: 0;
+    background-color: #f3f4f6;
+    color: #1f2937;
+    font-family: "Noto Sans KR", sans-serif;
+}
 
-.hospital-banner { width: 100%; height: 280px; position: relative; background: #e0f2fe; }
-.banner-bg { width: 100%; height: 100%; overflow: hidden; }
-.banner-bg img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9); }
-.banner-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: #0284c7; opacity: 0.3; }
+.hospital-banner {
+    width: 100%;
+    height: 280px;
+    position: relative;
+    background: #e0f2fe;
+}
 
-.view-wrap { max-width: 800px; margin: -60px auto 100px; position: relative; z-index: 10; padding: 0 20px; }
+.banner-bg {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.banner-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9);
+}
+
+.banner-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 900;
+    color: #0284c7;
+    opacity: 0.3;
+}
+
+.view-wrap {
+    max-width: 800px;
+    margin: -60px auto 100px;
+    position: relative;
+    z-index: 10;
+    padding: 0 20px;
+}
 
 /* 🌟 상대 위치 속성 추가 (하트버튼 고정용) */
-.info-card.relative { position: relative; }
-.info-card { background: #fff; padding: 32px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 24px; text-align: center; }
+.info-card.relative {
+    position: relative;
+}
+
+.info-card {
+    background: #fff;
+    padding: 32px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+    text-align: center;
+}
 
 /* 🌟 찜하기(하트) 버튼 */
-.btn-zzim.top-right { position: absolute; top: 24px; right: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 14px; font-size: 14px; font-weight: 800; color: #64748b; cursor: pointer; transition: 0.2s; }
-.btn-zzim.top-right:hover { background: #f1f5f9; }
-.btn-zzim.top-right.active { color: #ef4444; border-color: #fecdd3; background: #fff1f2; }
-.btn-zzim .icon-heart { font-size: 16px; margin-right: 4px; }
+.btn-zzim.top-right {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #64748b;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-.info-badges { margin-bottom: 12px; }
-.badge-status { display: inline-block; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; }
-.badge-status.open { background: #ecfdf5; color: #10b981; }
-.badge-status.closed { background: #f1f5f9; color: #64748b; }
-.badge-district { display: inline-block; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; background: #f0f9ff; color: #0ea5e9; margin-left: 6px; }
+.btn-zzim.top-right:hover {
+    background: #f1f5f9;
+}
 
-.h-name { margin: 0 0 16px; font-size: 28px; font-weight: 900; color: #111827; letter-spacing: -0.5px; }
-.h-stats { font-size: 14px; font-weight: 700; color: #4b5563; margin-bottom: 20px; }
-.h-stats strong { color: #111827; }
-.h-stats .divider { color: #cbd5e1; margin: 0 10px; }
+.btn-zzim.top-right.active {
+    color: #ef4444;
+    border-color: #fecdd3;
+    background: #fff1f2;
+}
 
-.h-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 24px; }
-.h-tags span { background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+.btn-zzim .icon-heart {
+    font-size: 16px;
+    margin-right: 4px;
+}
 
-.h-buttons { display: flex; gap: 12px; }
-.h-buttons button, .h-buttons a { flex: 1; height: 52px; display: flex; align-items: center; justify-content: center; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; text-decoration: none; border: none; transition: 0.2s;}
-.btn-primary { background: #0ea5e9; color: #fff; }
-.btn-primary:hover { background: #0284c7; }
-.btn-secondary { background: #f1f5f9; color: #334155; }
-.btn-secondary:hover { background: #e2e8f0; }
+.info-badges {
+    margin-bottom: 12px;
+}
 
-.sticky-tabs { display: flex; background: #fff; border-radius: 18px; padding: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 24px; position: sticky; top: 20px; z-index: 50; }
-.tab-btn { flex: 1; background: transparent; border: none; height: 46px; font-size: 15px; font-weight: 700; color: #64748b; border-radius: 12px; cursor: pointer; transition: 0.2s; }
-.tab-btn.active { background: #0ea5e9; color: #fff; box-shadow: 0 4px 10px rgba(14,165,233,0.2); }
+.badge-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+}
 
-.view-section { background: #fff; padding: 36px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 24px; scroll-margin-top: 100px; }
-.sec-title { margin: 0 0 24px; font-size: 20px; font-weight: 900; color: #111827; }
+.badge-status.open {
+    background: #ecfdf5;
+    color: #10b981;
+}
 
-.intro-box p { font-size: 15px; line-height: 1.8; color: #4b5563; margin: 0; }
+.badge-status.closed {
+    background: #f1f5f9;
+    color: #64748b;
+}
 
-.detail-row { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
-.detail-row.mt-20 { margin-top: 30px; }
-.detail-row .icon { font-size: 24px; background: #f0f9ff; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
-.detail-row .text { flex: 1; display: flex; flex-direction: column; padding-top: 2px; }
-.detail-row .text strong { font-size: 16px; color: #111827; margin-bottom: 6px; }
-.detail-row .text .sub { font-size: 14px; color: #64748b; }
+.badge-district {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    background: #f0f9ff;
+    color: #0ea5e9;
+    margin-left: 6px;
+}
 
-.map-wrap { border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-top: 16px; }
-#kakaoMap { width: 100%; height: 300px; background: #f1f5f9; }
-.map-buttons { display: flex; padding: 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
-.btn-map { flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; border-radius: 8px; text-decoration: none; transition: 0.2s;}
-.btn-map.kakao { background: #fee500; color: #3a2929; }
-.btn-map.kakao:hover { background: #f4dc00; }
+.h-name {
+    margin: 0 0 16px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -0.5px;
+}
+
+.h-stats {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+.h-stats strong {
+    color: #111827;
+}
+
+.h-stats .divider {
+    color: #cbd5e1;
+    margin: 0 10px;
+}
+
+.h-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.h-tags span {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.h-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.h-buttons button, .h-buttons a {
+    flex: 1;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background: #0ea5e9;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #0284c7;
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.sticky-tabs {
+    display: flex;
+    background: #fff;
+    border-radius: 18px;
+    padding: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    margin-bottom: 24px;
+    position: sticky;
+    top: 20px;
+    z-index: 50;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    height: 46px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #64748b;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.tab-btn.active {
+    background: #0ea5e9;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2);
+}
+
+.view-section {
+    background: #fff;
+    padding: 36px;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 24px;
+    scroll-margin-top: 100px;
+}
+
+.sec-title {
+    margin: 0 0 24px;
+    font-size: 20px;
+    font-weight: 900;
+    color: #111827;
+}
+
+.intro-box p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #4b5563;
+    margin: 0;
+}
+
+.detail-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.detail-row.mt-20 {
+    margin-top: 30px;
+}
+
+.detail-row .icon {
+    font-size: 24px;
+    background: #f0f9ff;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.detail-row .text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 2px;
+}
+
+.detail-row .text strong {
+    font-size: 16px;
+    color: #111827;
+    margin-bottom: 6px;
+}
+
+.detail-row .text .sub {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.map-wrap {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 16px;
+}
+
+#kakaoMap {
+    width: 100%;
+    height: 300px;
+    background: #f1f5f9;
+}
+
+.map-buttons {
+    display: flex;
+    padding: 12px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-map {
+    flex: 1;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-map.kakao {
+    background: #fee500;
+    color: #3a2929;
+}
+
+.btn-map.kakao:hover {
+    background: #f4dc00;
+}
 
 /* 🌟 리뷰 락(Lock) UI 및 콘텐츠 CSS */
-.review-lock { text-align: center; padding: 50px 20px; background: #f8fafc; border-radius: 16px; border: 1px dashed #cbd5e1; }
-.review-lock .lock-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
-.review-lock p { margin: 0 0 20px; font-size: 15px; color: #475569; line-height: 1.6; }
-.btn-primary-sm { display: inline-block; padding: 10px 24px; background: #0ea5e9; color: #fff; font-weight: 800; font-size: 14px; border-radius: 10px; text-decoration: none; border: none; cursor: pointer; transition: 0.2s; }
-.btn-primary-sm:hover { background: #0284c7; }
+.review-lock {
+    text-align: center;
+    padding: 50px 20px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px dashed #cbd5e1;
+}
 
-.review-write-box { background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #e2e8f0; }
-.review-write-box textarea { width: 100%; height: 80px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 14px; resize: none; outline: none; margin-bottom: 12px; box-sizing: border-box; }
-.review-write-box textarea:focus { border-color: #0ea5e9; }
-.write-actions { display: flex; justify-content: space-between; align-items: center; }
-.star-rating { font-size: 20px; cursor: pointer; }
+.review-lock .lock-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
 
-.review-list { list-style: none; padding: 0; margin: 0; }
-.review-list li { padding: 20px 0; border-bottom: 1px solid #e2e8f0; }
-.review-list li:last-child { border-bottom: none; }
-.r-head { display: flex; justify-content: space-between; margin-bottom: 8px; }
-.r-head strong { font-size: 15px; color: #111827; }
-.r-head span { font-size: 13px; color: #94a3b8; }
-.r-star { font-size: 14px; margin-bottom: 12px; }
-.r-body { font-size: 14.5px; color: #475569; line-height: 1.6; margin: 0; }
+.review-lock p {
+    margin: 0 0 20px;
+    font-size: 15px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.btn-primary-sm {
+    display: inline-block;
+    padding: 10px 24px;
+    background: #0ea5e9;
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-primary-sm:hover {
+    background: #0284c7;
+}
+
+.review-write-box {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    border: 1px solid #e2e8f0;
+}
+
+.review-write-box textarea {
+    width: 100%;
+    height: 80px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.review-write-box textarea:focus {
+    border-color: #0ea5e9;
+}
+
+.write-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.star-rating {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.review-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.review-list li {
+    padding: 20px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.review-list li:last-child {
+    border-bottom: none;
+}
+
+.r-head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.r-head strong {
+    font-size: 15px;
+    color: #111827;
+}
+
+.r-head span {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.r-star {
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.r-body {
+    font-size: 14.5px;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0;
+}
 
 @media (max-width: 768px) {
-    .hospital-banner { height: 220px; }
-    .view-wrap { padding: 0 16px; margin-top: -40px; }
-    .info-card { padding: 24px 20px; }
-    .btn-zzim.top-right { top: 16px; right: 16px; padding: 6px 10px; font-size: 13px; }
-    .h-name { font-size: 24px; }
-    .view-section { padding: 24px 20px; }
+    .hospital-banner {
+        height: 220px;
+    }
+
+    .view-wrap {
+        padding: 0 16px;
+        margin-top: -40px;
+    }
+
+    .info-card {
+        padding: 24px 20px;
+    }
+
+    .btn-zzim.top-right {
+        top: 16px;
+        right: 16px;
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+
+    .h-name {
+        font-size: 24px;
+    }
+
+    .view-section {
+        padding: 24px 20px;
+    }
 }
