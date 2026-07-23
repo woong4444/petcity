@@ -256,7 +256,7 @@
         #{roomId},
         #{clientMessageUuid},
         #{senderType},
-        #{senderMemberId},
+        #{senderMemberId, jdbcType=NUMERIC},
         #{senderName},
         #{messageType},
         #{content},
