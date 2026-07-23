@@ -79,9 +79,18 @@
                 <span>리뷰 <strong class="text-sky-500 text-lg" th:text="${#lists.size(reviewList)}">0</strong></span>
             </div>
 
+            <!-- 🌟 수정된 태그 영역 (th:block으로 null 에러 완벽 방지) -->
             <div class="h-tags flex flex-wrap gap-2 mb-8">
-                <span class="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm" th:if="${hospital.animalNames != null}" th:each="animal : ${hospital.animalNames.split(',')}" th:text="'#'+${animal.trim()}">#태그</span>
-                <span class="bg-indigo-50 text-indigo-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm" th:if="${hospital.serviceNames != null}" th:each="svc : ${hospital.serviceNames.split(',')}" th:text="'#'+${svc.trim()}">#태그</span>
+                <th:block th:if="${hospital.animalNames != null and hospital.animalNames != ''}">
+                    <span class="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm"
+                          th:each="animal : ${hospital.animalNames.split(',')}"
+                          th:text="'#'+${animal.trim()}">#태그</span>
+                </th:block>
+                <th:block th:if="${hospital.serviceNames != null and hospital.serviceNames != ''}">
+                    <span class="bg-indigo-50 text-indigo-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm"
+                          th:each="svc : ${hospital.serviceNames.split(',')}"
+                          th:text="'#'+${svc.trim()}">#태그</span>
+                </th:block>
             </div>
 
             <div class="h-buttons flex flex-wrap gap-3">
@@ -151,7 +160,6 @@
                                     <p class="flex items-center" th:if="${hospital.breakTime != null and hospital.breakTime != ''}"><span class="inline-block w-20 text-slate-400">휴게시간</span> <span class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md" th:text="${hospital.breakTime}"></span></p>
                                     <p class="flex items-center" th:if="${hospital.holiday != null and hospital.holiday != ''}"><span class="inline-block w-20 text-slate-400">정기휴무</span> <span class="text-red-500 bg-red-50 px-2.5 py-1 rounded-md" th:text="${hospital.holiday}"></span></p>
 
-                                    <!-- 🌟 공지사항 및 정보 칸 (note 연동 및 150자 이상 더보기/접기 적용) -->
                                     <div class="w-full h-px bg-slate-200/50 my-3"></div>
                                     <div class="bg-sky-50/70 border border-sky-100 p-4 rounded-2xl">
                                         <strong class="block text-sky-900 text-sm mb-1.5 flex items-center gap-1 font-extrabold">📢 공지사항 및 정보</strong>
