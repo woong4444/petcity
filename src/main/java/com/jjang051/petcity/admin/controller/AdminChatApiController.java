@@ -37,7 +37,7 @@ public class AdminChatApiController {
         return adminChatService.getRoomList(status, admin);
     }
 
-    @GetMapping("/rooms/{roomUuid}/message")
+    @GetMapping("/rooms/{roomUuid}/messages")
     public List<ChatMessageDto> getMessages(@PathVariable("roomUuid") String roomUuid,
                                             @RequestParam(name = "beforeMessageId", required = false) Long beforeMessageId,
                                             @RequestParam(name = "size", defaultValue = "50") Integer size,
