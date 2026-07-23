@@ -606,6 +606,53 @@
 
 
 /* ========================================
+   대시보드 채팅 현황
+======================================== */
+
+.content-status-card {
+    color: inherit;
+    text-decoration: none;
+
+    transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.content-status-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+            0 10px 24px
+            rgba(30, 48, 78, 0.09);
+}
+
+.chat-total-status {
+    background: #eef6ff;
+}
+
+.chat-total-status
+.content-status-icon {
+    color: #347fe8;
+}
+
+.chat-unread-status {
+    background: #fff1e8;
+}
+
+.chat-unread-status
+.content-status-icon {
+    color: #ed8b36;
+}
+
+.chat-unread-status strong {
+    color: #dc7422;
+}
+
+
+
+
+
+/* ========================================
    반응형
 ======================================== */
 
@@ -623,6 +670,8 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+
 
 @media (max-width: 800px) {
 
