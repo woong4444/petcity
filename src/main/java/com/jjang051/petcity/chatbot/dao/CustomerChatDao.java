@@ -86,6 +86,7 @@ public interface CustomerChatDao {
     int countAdminUnreadRooms();
     int countAdminUnreadMessages();
 
+    int countAllChatRooms();
 
 
 

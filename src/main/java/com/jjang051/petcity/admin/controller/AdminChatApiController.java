@@ -1,11 +1,12 @@
-package com.jjang051.petcity.chatbot.controller;
+package com.jjang051.petcity.admin.controller;
 
+import com.jjang051.petcity.admin.dto.AdminChatSummaryDto;
+import com.jjang051.petcity.admin.service.AdminChatService;
 import com.jjang051.petcity.chatbot.dto.AdminChatRoomDto;
 import com.jjang051.petcity.chatbot.dto.ChatActorDto;
 import com.jjang051.petcity.chatbot.dto.ChatMessageDto;
 import com.jjang051.petcity.chatbot.dto.ChatUnreadCountDto;
 import com.jjang051.petcity.chatbot.service.ChatActorResolver;
-import com.jjang051.petcity.chatbot.service.CustomerChatService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -18,35 +19,44 @@ import java.util.List;
 @RequestMapping("/admin/api/chat")
 @RequiredArgsConstructor
 public class AdminChatApiController {
+
     private final ChatActorResolver chatActorResolver;
-    private final CustomerChatService customerChatService;
+
+    private final AdminChatService adminChatService;
+
+    @GetMapping("/summary")
+    public AdminChatSummaryDto getSummary(HttpSession session, HttpServletRequest request) {
+        ChatActorDto admin = chatActorResolver.resolveExisting(session, request);
+
+        return adminChatService.getChatSummary(admin);
+    }
 
     @GetMapping("/rooms")
     public List<AdminChatRoomDto> getRoomList(@RequestParam(name = "status", required = false) String status, HttpSession session, HttpServletRequest request) {
         ChatActorDto admin = chatActorResolver.resolveExisting(session, request);
-        return customerChatService.getAdminRoomList(status, admin);
+        return adminChatService.getRoomList(status, admin);
     }
 
-    @GetMapping("/rooms/{roomUuid}/messages")
+    @GetMapping("/rooms/{roomUuid}/message")
     public List<ChatMessageDto> getMessages(@PathVariable("roomUuid") String roomUuid,
                                             @RequestParam(name = "beforeMessageId", required = false) Long beforeMessageId,
-                                            @RequestParam(name = "size", defaultValue = "50") Integer size, HttpSession session,
-                                            HttpServletRequest request) {
+                                            @RequestParam(name = "size", defaultValue = "50") Integer size,
+                                            HttpSession session, HttpServletRequest request) {
         ChatActorDto admin = chatActorResolver.resolveExisting(session, request);
-        return customerChatService.getAdminMessage(roomUuid, beforeMessageId, size, admin);
-
+        return adminChatService.getMessage(roomUuid, beforeMessageId, size, admin);
     }
 
     @GetMapping("/unread-count")
     public ChatUnreadCountDto getUnreadCount(HttpSession session, HttpServletRequest request) {
         ChatActorDto admin = chatActorResolver.resolveExisting(session, request);
-        return customerChatService.getAdminUnreadCount(admin);
+        return adminChatService.getUnreadCount(admin);
+
     }
 
     @PostMapping("/rooms/{roomUuid}/read")
     public ResponseEntity<Void> markRead(@PathVariable("roomUuid") String roomUuid, HttpSession session, HttpServletRequest request) {
         ChatActorDto admin = chatActorResolver.resolveExisting(session, request);
-        customerChatService.markAdminRead(roomUuid, admin);
+        adminChatService.markRead(roomUuid, admin);
         return ResponseEntity.noContent().build();
     }
 
@@ -54,11 +64,8 @@ public class AdminChatApiController {
     @PostMapping("/rooms/{roomUuid}/close")
     public ResponseEntity<Void> closeRoom(@PathVariable("roomUuid") String roomUuid, HttpSession session, HttpServletRequest request) {
         ChatActorDto admin = chatActorResolver.resolveExisting(session, request);
-        customerChatService.closeRoomByAdmin(roomUuid, admin);
+        adminChatService.closeRoom(roomUuid, admin);
         return ResponseEntity.noContent().build();
     }
-
-
-
 
 }
