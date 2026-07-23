@@ -16,12 +16,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -82,6 +84,8 @@ public class HospitalUpdateService {
                 directUpdateDto.getHospitalId(),
                 directUpdateDto.getMemberId()
         );
+
+        validateOperatingTime(directUpdateDto);
 
         int updated = hospitalUpdateDao.updateDirectHospitalInfo(
                 directUpdateDto
@@ -997,5 +1001,58 @@ public class HospitalUpdateService {
         if (requestDto.getHospitalNote() == null) {
             requestDto.setHospitalNote(current.getHospitalNote());
         }
+    }
+
+    /**
+     * 진료시간 범위 안에서만 휴게시간을 등록하도록 검사한다.
+     */
+    private void validateOperatingTime(HospitalDirectUpdateDto directUpdateDto) {
+        String openTime = directUpdateDto.getOpenTime();
+        String closeTime = directUpdateDto.getCloseTime();
+        String breakTime = directUpdateDto.getBreakTime();
+
+        if (openTime == null || closeTime == null
+                || openTime.isBlank() || closeTime.isBlank()) {
+            throw new IllegalArgumentException("진료 시작 시간과 종료 시간을 입력해 주세요.");
+        }
+
+        LocalTime open = parseHospitalTime(openTime);
+        LocalTime close = parseHospitalTime(closeTime);
+
+        if (!open.isBefore(close)) {
+            throw new IllegalArgumentException("진료 종료 시간은 시작 시간보다 늦어야 합니다.");
+        }
+
+        // 휴게시간을 입력하지 않은 경우는 허용
+        if (breakTime == null || breakTime.isBlank()) {
+            return;
+        }
+
+        String[] breakTimes = breakTime.split("~");
+
+        if (breakTimes.length != 2) {
+            throw new IllegalArgumentException("휴게시간 형식이 올바르지 않습니다.");
+        }
+
+        LocalTime breakStart = parseHospitalTime(breakTimes[0]);
+        LocalTime breakEnd = parseHospitalTime(breakTimes[1]);
+
+        if (!breakStart.isBefore(breakEnd)) {
+            throw new IllegalArgumentException("휴게 종료 시간은 휴게 시작 시간보다 늦어야 합니다.");
+        }
+
+        if (breakStart.isBefore(open) || breakEnd.isAfter(close)) {
+            throw new IllegalArgumentException(
+                    "휴게시간은 진료 시작 시간과 종료 시간 사이로 설정해 주세요."
+            );
+        }
+    }
+
+
+    private LocalTime parseHospitalTime(String time) {
+        return LocalTime.parse(
+                time.trim(),
+                DateTimeFormatter.ofPattern("H:mm")
+        );
     }
 }

@@ -244,6 +244,29 @@ function initOperatingInfoForm() {
             return;
         }
 
+        const openTime = directForm.querySelector("#openTime").value;
+        const closeTime = directForm.querySelector("#closeTime").value;
+
+        if(openTime >= closeTime) {
+            event.preventDefault();
+            alert("진료 종료 시간은 진료 시작 시간보다 늦어야 합니다.");
+            return;
+        }
+
+        if(start&&end) {
+            if(start >= end) {
+                event.preventDefault();
+                alert("휴게 종료 시간은 휴게 시작 시간보다 늦어야 합니다.");
+                return;
+            }
+
+            if(start < openTime || end > closeTime) {
+                event.preventDefault();
+                alert("휴게시간은 진료 시작 시간과 종료 시간 사이로 설정해 주세요.");
+                return;
+            }
+        }
+
         breakTime.value = start && end ? `${start}~${end}` : "";
     });
 }
