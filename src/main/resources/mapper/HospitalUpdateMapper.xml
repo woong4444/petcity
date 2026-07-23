@@ -182,6 +182,60 @@
 
     </update>
 
+    <!-- 요청 당시의 병원 기본정보 + 최초 병원장 신청 정보 조회 -->
+    <select id="findRequestSnapshotByHospitalId"
+            resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
+
+        SELECT
+        H.HOSPITAL_ID AS hospitalId,
+        H.OWNER_ID AS memberId,
+
+        /* HOSPITAL 테이블에 있는 병원장 이름 */
+        H.OWNER_NAME AS applicantName,
+
+        /* 최초 병원장 신청에서 입력한 사업자/증빙 정보 */
+        (
+        SELECT R.BUSINESS_NUMBER
+        FROM HOSPITAL_OWNER_REQUEST R
+        WHERE R.MEMBER_ID = H.OWNER_ID
+        AND R.STATUS = 'APPROVED'
+        ORDER BY R.PROCESSED_AT DESC NULLS LAST, R.REQUEST_ID DESC
+        FETCH FIRST 1 ROW ONLY
+        ) AS businessNumber,
+
+        (
+        SELECT R.DOCUMENT_URL
+        FROM HOSPITAL_OWNER_REQUEST R
+        WHERE R.MEMBER_ID = H.OWNER_ID
+        AND R.STATUS = 'APPROVED'
+        ORDER BY R.PROCESSED_AT DESC NULLS LAST, R.REQUEST_ID DESC
+        FETCH FIRST 1 ROW ONLY
+        ) AS documentUrl,
+
+        H.NAME AS hospitalName,
+        H.PHONE AS hospitalPhone,
+        H.ADDRESS AS hospitalAddress,
+        H.DETAIL_ADDRESS AS hospitalDetailAddress,
+        H.DISTRICT AS hospitalDistrict,
+        H.WEBSITE_URL AS hospitalWebsiteUrl,
+        H.LATITUDE AS hospitalLatitude,
+        H.LONGITUDE AS hospitalLongitude,
+
+        H.MEDICAL_SUBJECTS AS medicalSubjects,
+        H.OPEN_TIME AS openTime,
+        H.CLOSE_TIME AS closeTime,
+        H.BREAK_TIME AS breakTime,
+        H.CLOSED_DAYS AS closedDays,
+
+        H.DOCTOR_INFO AS hospitalDoctorInfo,
+        H.DESCRIPTION AS hospitalDescription,
+        H.IMAGE_URL AS hospitalImageUrl,
+        H.NOTE AS hospitalNote
+
+        FROM HOSPITAL H
+        WHERE H.HOSPITAL_ID = #{hospitalId}
+    </select>
+
     <!-- =================================================
          3. 수정 / 휴업 / 폐업 요청 등록
          ================================================= -->

@@ -239,6 +239,8 @@ public class HospitalUpdateService {
                 }
             }
 
+            fillRequestSnapshot(requestDto);
+
             hospitalUpdateDao.insertRequest(requestDto);
 
             return requestDto.getRequestId();
@@ -918,5 +920,82 @@ public class HospitalUpdateService {
 
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    /**
+     * 요청 DTO에 비어 있는 값은 현재 병원 정보로 채운다.
+     * 사용자가 수정 요청 화면에서 새로 입력한 값은 유지한다.
+     */
+    private void fillRequestSnapshot(HospitalUpdateRequestDto requestDto) {
+        HospitalUpdateRequestDto current =
+                hospitalUpdateDao.findRequestSnapshotByHospitalId(requestDto.getHospitalId());
+
+        if (current == null) {
+            throw new IllegalArgumentException("병원 정보를 찾을 수 없습니다.");
+        }
+
+        if (requestDto.getApplicantName() == null) {
+            requestDto.setApplicantName(current.getApplicantName());
+        }
+        if (requestDto.getBusinessNumber() == null) {
+            requestDto.setBusinessNumber(current.getBusinessNumber());
+        }
+        if (requestDto.getDocumentUrl() == null) {
+            requestDto.setDocumentUrl(current.getDocumentUrl());
+        }
+
+        if (requestDto.getHospitalName() == null) {
+            requestDto.setHospitalName(current.getHospitalName());
+        }
+        if (requestDto.getHospitalPhone() == null) {
+            requestDto.setHospitalPhone(current.getHospitalPhone());
+        }
+        if (requestDto.getHospitalAddress() == null) {
+            requestDto.setHospitalAddress(current.getHospitalAddress());
+        }
+        if (requestDto.getHospitalDetailAddress() == null) {
+            requestDto.setHospitalDetailAddress(current.getHospitalDetailAddress());
+        }
+        if (requestDto.getHospitalDistrict() == null) {
+            requestDto.setHospitalDistrict(current.getHospitalDistrict());
+        }
+        if (requestDto.getHospitalWebsiteUrl() == null) {
+            requestDto.setHospitalWebsiteUrl(current.getHospitalWebsiteUrl());
+        }
+        if (requestDto.getHospitalLatitude() == null) {
+            requestDto.setHospitalLatitude(current.getHospitalLatitude());
+        }
+        if (requestDto.getHospitalLongitude() == null) {
+            requestDto.setHospitalLongitude(current.getHospitalLongitude());
+        }
+        if (requestDto.getMedicalSubjects() == null) {
+            requestDto.setMedicalSubjects(current.getMedicalSubjects());
+        }
+
+        if (requestDto.getOpenTime() == null) {
+            requestDto.setOpenTime(current.getOpenTime());
+        }
+        if (requestDto.getCloseTime() == null) {
+            requestDto.setCloseTime(current.getCloseTime());
+        }
+        if (requestDto.getBreakTime() == null) {
+            requestDto.setBreakTime(current.getBreakTime());
+        }
+        if (requestDto.getClosedDays() == null) {
+            requestDto.setClosedDays(current.getClosedDays());
+        }
+
+        if (requestDto.getHospitalDoctorInfo() == null) {
+            requestDto.setHospitalDoctorInfo(current.getHospitalDoctorInfo());
+        }
+        if (requestDto.getHospitalDescription() == null) {
+            requestDto.setHospitalDescription(current.getHospitalDescription());
+        }
+        if (requestDto.getHospitalImageUrl() == null) {
+            requestDto.setHospitalImageUrl(current.getHospitalImageUrl());
+        }
+        if (requestDto.getHospitalNote() == null) {
+            requestDto.setHospitalNote(current.getHospitalNote());
+        }
     }
 }

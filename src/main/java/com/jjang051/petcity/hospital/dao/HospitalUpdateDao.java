@@ -194,4 +194,6 @@ public interface HospitalUpdateDao {
     void markClosedForWithdrawnMembers();
 
     void deleteOldClosedHospitals();
+
+    HospitalUpdateRequestDto findRequestSnapshotByHospitalId(int hospitalId);
 }
