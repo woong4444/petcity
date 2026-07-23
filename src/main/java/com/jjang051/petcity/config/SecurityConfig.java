@@ -273,7 +273,7 @@ public class SecurityConfig {
                                 "/board/list",
                                 "/board/info-list",
                                 "/board/faq-list",
-
+                                "/api/chatbot/**",
                                 // OAuth2 로그인 시작 및 콜백
                                 "/oauth2/**",
                                 "/login/**",
