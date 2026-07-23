@@ -542,4 +542,10 @@
     WHERE STATUS IN ( 'WAITING', 'CHATTING')
 </select>
 
+
+    <select id="countAllChatRooms" resultType="int">
+        SELECT COUNT(*)
+        FROM CUSTOMER_CHAT_ROOM
+
+    </select>
 </mapper>
