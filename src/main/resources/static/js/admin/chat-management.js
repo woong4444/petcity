@@ -131,7 +131,7 @@ document.addEventListener(
         ======================================== */
 
         const notificationIconUrl =
-            "/images/admin-letter-dog.png";
+            "/images/chatbot/admin-letter-dog.png";
 
         const alertSound =
             new Audio(
