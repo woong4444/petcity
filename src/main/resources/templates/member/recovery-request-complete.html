@@ -1,0 +1,130 @@
+<!-- 상각_07-19: 계정 복구 완료 안내 화면 -->
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>계정 복구 완료 | PetCity</title>
+
+    <!-- 07-22 상각 : 공통 헤더 CSS 적용 -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f8fb;
+            color: #111827;
+        }
+
+        /* 07-22 상각 : 공통 헤더 아래에 복구 완료 화면 배치 */
+        .recovery-complete-page {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+        }
+
+        .recovery-complete-box {
+            width: 100%;
+            max-width: 600px;
+            padding: 42px 38px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(31, 53, 82, 0.1);
+            text-align: center;
+        }
+
+        .success-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 22px;
+            border-radius: 50%;
+            background: #ecfdf3;
+            color: #039855;
+            font-size: 34px;
+            font-weight: 700;
+        }
+
+        .recovery-complete-box h1 {
+            margin: 0 0 22px;
+            font-size: 28px;
+            color: #111827;
+        }
+
+        .success-message {
+            margin: 0;
+            padding: 17px 20px;
+            border-radius: 12px;
+            background: #ecfdf3;
+            color: #027a48;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .guide-message {
+            margin: 22px 0 0;
+            color: #667085;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 600px) {
+            .recovery-complete-page {
+                padding: 40px 16px;
+            }
+
+            .recovery-complete-box {
+                padding: 34px 24px;
+            }
+
+            .recovery-complete-box h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 07-22 상각 : 로그인 페이지와 동일한 공통 헤더 적용 -->
+<header th:replace="~{common/head :: head}"></header>
+
+<!-- 07-22 상각 : 자동 로그인 이동 및 별도 로그인 버튼 제거 -->
+<div class="recovery-complete-page">
+
+    <main class="recovery-complete-box">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <h1>계정 복구 완료</h1>
+
+        <p class="success-message">
+            계정 복구가 완료되었습니다.
+        </p>
+
+        <p class="guide-message">
+            상단 헤더의 로그인 메뉴를 이용해 로그인해 주세요.
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>

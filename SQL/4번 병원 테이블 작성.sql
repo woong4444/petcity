@@ -12,6 +12,7 @@ CREATE TABLE HOSPITAL (
                           DETAIL_ADDRESS VARCHAR2(500 CHAR),
                           PHONE VARCHAR2(50 CHAR),
 
+
                           LATITUDE NUMBER(18, 9),
                           LONGITUDE NUMBER(18, 9),
 
