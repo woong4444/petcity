@@ -1,510 +1,682 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>병원 관리 | PetCity</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/owner/apply.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/owner/hospital-update.css}">
+
+    <script defer
+            th:src="@{/js/owner/hospital-update.js}">
+    </script>
+
 </head>
 
-<body class="bg-slate-50 text-slate-800">
+<body>
+
 <div th:replace="~{common/head :: head}"></div>
 
-<main class="max-w-6xl mx-auto px-4 py-10">
+<main class="owner-apply-page">
 
-    <div class="flex items-center justify-between mb-7">
-        <div>
-            <a th:href="@{/owner/hospital/list}"
-               class="text-sm font-bold text-slate-500 hover:text-sky-600">
-                ← 내 병원 목록
-            </a>
-            <h1 class="text-3xl font-extrabold text-slate-900 mt-3">
-                병원 관리
-            </h1>
-            <p class="text-slate-500 mt-1">
-                병원정보 수정, 휴업, 폐업은 관리자 승인 후 반영됩니다.
-            </p>
-        </div>
+    <div class="owner-apply-container">
 
-        <span class="px-4 py-2 rounded-full text-sm font-bold"
-              th:classappend="${hospital.status == 'OPEN'}
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-red-100 text-red-700'"
-              th:text="${hospital.status == 'OPEN'} ? '정상 운영 중' : '폐업 처리됨'">
-            정상 운영 중
-        </span>
-    </div>
+        <section class="manage-intro">
 
-    <div th:if="${message}"
-         class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 font-bold text-emerald-700"
-         th:text="${message}">
-    </div>
-
-    <div th:if="${errorMessage}"
-         class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 font-bold text-red-700"
-         th:text="${errorMessage}">
-    </div>
-
-    <!-- 관리 중인 병원 -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
-        <p class="text-sm font-bold text-sky-600 mb-1">현재 관리 중인 병원</p>
-
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-extrabold"
-                    th:text="${hospital.name}">
-                    병원 이름
-                </h2>
+                <span class="page-badge">HOSPITAL MANAGEMENT</span>
 
-                <p class="text-slate-500 mt-2">
-                    <span th:text="${hospital.address}">주소</span>
-                    <span th:if="${hospital.detailAddress != null}"
-                          th:text="' ' + ${hospital.detailAddress}">
-                    </span>
+                <h1 th:text="${hospital.name} + ' 관리'">
+                    병원 관리
+                </h1>
+
+                <p>
+                    운영 정보와 공개 정보는 바로 수정할 수 있고,
+                    병원 기본 정보 변경은 관리자 승인을 받아야 합니다.
                 </p>
             </div>
 
-            <div class="text-sm text-slate-500">
-                병원 번호:
-                <strong class="text-slate-800"
-                        th:text="${hospital.hospitalId}">
-                    1
-                </strong>
-            </div>
+            <span class="hospital-status"
+                  th:classappend="${hospital.status == 'OPEN'}
+                    ? ' open'
+                    : (${hospital.status == 'TEMP_CLOSED'} ? ' temp' : ' closed')"
+                  th:text="${hospital.status == 'OPEN'}
+                    ? '운영 중'
+                    : (${hospital.status == 'TEMP_CLOSED'} ? '휴업 중' : '폐업')">
+                운영 중
+            </span>
+
+        </section>
+
+        <div class="alert success"
+             th:if="${message != null}"
+             th:text="${message}">
         </div>
-    </section>
 
-    <!-- 요청 종류 선택 -->
-    <section class="grid md:grid-cols-3 gap-4 mb-8">
+        <div class="alert error"
+             th:if="${errorMessage != null}"
+             th:text="${errorMessage}">
+        </div>
 
-        <button type="button"
-                onclick="showRequestPanel('update-panel', this)"
-                class="request-tab border-2 border-sky-500 bg-sky-50 rounded-2xl p-5 text-left transition">
-            <p class="text-sky-600 text-sm font-bold">UPDATE REQUEST</p>
-            <h2 class="text-lg font-extrabold mt-2">병원정보 수정 요청</h2>
-            <p class="text-sm text-slate-500 mt-2">
-                병원 기본정보, 운영정보, 진료정보를 수정 요청합니다.
-            </p>
-        </button>
+        <!-- 승인 요청 기능 -->
+        <section class="request-action-grid">
 
-        <button type="button"
-                onclick="showRequestPanel('temp-close-panel', this)"
-                class="request-tab border-2 border-slate-200 bg-white rounded-2xl p-5 text-left hover:border-orange-300 transition">
-            <p class="text-orange-500 text-sm font-bold">TEMPORARY CLOSURE</p>
-            <h2 class="text-lg font-extrabold mt-2">휴업 요청</h2>
-            <p class="text-sm text-slate-500 mt-2">
-                공사·리모델링 등으로 휴업해야 하는 기간을 요청합니다.
-            </p>
-        </button>
+            <article class="request-action-card">
 
-        <button type="button"
-                onclick="showRequestPanel('close-panel', this)"
-                class="request-tab border-2 border-slate-200 bg-white rounded-2xl p-5 text-left hover:border-red-300 transition">
-            <p class="text-red-500 text-sm font-bold">CLOSURE REQUEST</p>
-            <h2 class="text-lg font-extrabold mt-2">폐업 요청</h2>
-            <p class="text-sm text-slate-500 mt-2">
-                관리자의 승인 후 병원 상태가 폐업으로 변경됩니다.
-            </p>
-        </button>
+                <span class="action-icon blue-icon">📝</span>
 
-    </section>
+                <h3>병원정보 수정 요청</h3>
 
-    <!-- 병원정보 수정 요청 -->
-    <section id="update-panel" class="request-panel">
-
-        <form th:action="@{/owner/hospital/request/update}"
-              method="post"
-              class="space-y-7">
-
-            <input type="hidden"
-                   name="hospitalId"
-                   th:value="${hospital.hospitalId}">
-
-            <div class="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-                <h2 class="text-xl font-extrabold">병원 기본 정보</h2>
-                <p class="text-sm text-slate-500 mt-1">
-                    병원명·주소·대표 전화번호 등 공개 정보를 수정합니다.
+                <p>
+                    병원명, 주소, 홈페이지, 대표이미지,
+                    증빙서류 변경은 관리자 승인이 필요합니다.
                 </p>
 
-                <div class="grid md:grid-cols-2 gap-5 mt-6">
+                <a class="action-button blue"
+                   th:href="@{/owner/hospital/request/update(hospitalId=${hospital.hospitalId})}">
+                    수정 요청하기
+                </a>
 
-                    <div>
-                        <label class="form-label">병원명</label>
-                        <input class="form-input"
-                               type="text"
-                               name="hospitalName"
-                               th:value="${hospital.name}"
-                               required>
-                    </div>
+            </article>
 
-                    <div>
-                        <label class="form-label">대표 전화번호</label>
-                        <input class="form-input"
-                               type="text"
-                               name="hospitalPhone"
-                               th:value="${hospital.phone}"
-                               required>
-                    </div>
+            <article class="request-action-card">
 
-                    <div class="md:col-span-2">
-                        <label class="form-label">기본 주소</label>
-                        <input class="form-input"
-                               type="text"
-                               name="hospitalAddress"
-                               th:value="${hospital.address}"
-                               required>
-                    </div>
+                <span class="action-icon orange-icon">🌙</span>
 
-                    <div>
-                        <label class="form-label">상세 주소</label>
-                        <input class="form-input"
-                               type="text"
-                               name="hospitalDetailAddress"
-                               th:value="${hospital.detailAddress}">
-                    </div>
+                <h3>휴업 요청</h3>
 
-                    <div>
-                        <label class="form-label">지역구</label>
-                        <input class="form-input"
-                               type="text"
-                               name="hospitalDistrict"
-                               th:value="${hospital.district}"
-                               placeholder="예: 서초구">
-                    </div>
+                <p>
+                    공사·리모델링 등으로 일시적으로 운영하지 못하는
+                    기간을 관리자에게 요청합니다.
+                </p>
 
-                    <div>
-                        <label class="form-label">홈페이지 주소</label>
-                        <input class="form-input"
-                               type="url"
-                               name="hospitalWebsiteUrl"
-                               th:value="${hospital.websiteUrl}"
-                               placeholder="https://">
-                    </div>
-
-                    <div>
-                        <label class="form-label">대표 이미지 URL</label>
-                        <input class="form-input"
-                               type="text"
-                               name="hospitalImageUrl"
-                               th:value="${hospital.imageUrl}"
-                               placeholder="현재 이미지 URL">
-                    </div>
-
-                    <div>
-                        <label class="form-label">위도</label>
-                        <input class="form-input"
-                               type="number"
-                               step="0.000000001"
-                               name="hospitalLatitude"
-                               th:value="${hospital.latitude}">
-                    </div>
-
-                    <div>
-                        <label class="form-label">경도</label>
-                        <input class="form-input"
-                               type="number"
-                               step="0.000000001"
-                               name="hospitalLongitude"
-                               th:value="${hospital.longitude}">
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-                <h2 class="text-xl font-extrabold">병원 운영 정보</h2>
-
-                <div class="grid md:grid-cols-2 gap-5 mt-6">
-
-                    <div>
-                        <label class="form-label">진료 시작 시간</label>
-                        <input class="form-input"
-                               type="time"
-                               name="openTime"
-                               th:value="${hospital.openTime}"
-                               required>
-                    </div>
-
-                    <div>
-                        <label class="form-label">진료 종료 시간</label>
-                        <input class="form-input"
-                               type="time"
-                               name="closeTime"
-                               th:value="${hospital.closeTime}"
-                               required>
-                    </div>
-
-                    <div>
-                        <label class="form-label">휴게 시간</label>
-                        <input class="form-input"
-                               type="text"
-                               name="breakTime"
-                               th:value="${hospital.breakTime}"
-                               placeholder="예: 13:00~14:00">
-                    </div>
-
-                    <div>
-                        <label class="form-label">정기 휴무일</label>
-                        <input class="form-input"
-                               type="text"
-                               name="closedDays"
-                               th:value="${hospital.holiday}"
-                               placeholder="예: 일요일, 공휴일">
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-                <h2 class="text-xl font-extrabold">진료 가능 동물</h2>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-                    <label th:each="animal : ${animalList}"
-                           class="check-label">
-                        <input type="checkbox"
-                               name="animalIds"
-                               th:value="${animal.animalId}"
-                               th:checked="${currentAnimalIds != null and #lists.contains(currentAnimalIds, animal.animalId)}">
-                        <span th:text="${animal.animalName}">강아지</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-                <h2 class="text-xl font-extrabold">제공 진료 서비스</h2>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-                    <label th:each="service : ${medicalServiceList}"
-                           class="check-label">
-                        <input type="checkbox"
-                               name="serviceIds"
-                               th:value="${service.serviceId}"
-                               th:checked="${currentServiceIds != null and #lists.contains(currentServiceIds, service.serviceId)}">
-                        <span th:text="${service.serviceName}">일반 진료</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-                <h2 class="text-xl font-extrabold">진료 과목</h2>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-                    <label th:each="subject : ${medicalSubjectList}"
-                           class="check-label">
-                        <input type="checkbox"
-                               name="subjectIds"
-                               th:value="${subject.subjectId}"
-                               th:checked="${currentSubjectIds != null and #lists.contains(currentSubjectIds, subject.subjectId)}">
-                        <span th:text="${subject.subjectName}">내과</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-                <h2 class="text-xl font-extrabold">병원 공개 정보</h2>
-
-                <div class="space-y-5 mt-6">
-
-                    <div>
-                        <label class="form-label">진료 상세 정보</label>
-                        <textarea class="form-input min-h-28"
-                                  name="hospitalDoctorInfo"
-                                  th:text="${hospital.doctorInfo}"
-                                  placeholder="의료진, 전문 진료, 장비 등의 정보를 입력하세요."></textarea>
-                    </div>
-
-                    <div>
-                        <label class="form-label">병원 소개</label>
-                        <textarea class="form-input min-h-32"
-                                  name="hospitalDescription"
-                                  th:text="${hospital.description}"
-                                  required
-                                  placeholder="병원을 소개하는 내용을 입력하세요."></textarea>
-                    </div>
-
-                    <div>
-                        <label class="form-label">추가 안내 사항</label>
-                        <textarea class="form-input min-h-24"
-                                  name="hospitalNote"
-                                  th:text="${hospital.note}"
-                                  placeholder="주차, 예약, 방문 전 안내사항 등을 입력하세요."></textarea>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="flex justify-end">
-                <button type="submit"
-                        class="rounded-xl bg-sky-500 px-8 py-4 font-bold text-white shadow-sm hover:bg-sky-600">
-                    병원정보 수정 요청하기
-                </button>
-            </div>
-
-        </form>
-    </section>
-
-    <!-- 휴업 요청 -->
-    <section id="temp-close-panel" class="request-panel hidden">
-
-        <form th:action="@{/owner/hospital/request/temp-close}"
-              method="post"
-              class="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-
-            <input type="hidden"
-                   name="hospitalId"
-                   th:value="${hospital.hospitalId}">
-
-            <h2 class="text-xl font-extrabold">휴업 요청</h2>
-            <p class="text-sm text-slate-500 mt-1">
-                공사, 리모델링, 내부 사정 등으로 운영을 중단해야 하는 기간을 요청합니다.
-            </p>
-
-            <div class="grid md:grid-cols-2 gap-5 mt-6">
-
-                <div>
-                    <label class="form-label">휴업 시작일시</label>
-                    <input class="form-input"
-                           type="datetime-local"
-                           name="tempCloseStartAt"
-                           required>
-                </div>
-
-                <div>
-                    <label class="form-label">휴업 종료일시</label>
-                    <input class="form-input"
-                           type="datetime-local"
-                           name="tempCloseEndAt"
-                           required>
-                </div>
-
-                <div class="md:col-span-2">
-                    <label class="form-label">휴업 사유</label>
-                    <textarea class="form-input min-h-32"
-                              name="requestReason"
-                              required
-                              placeholder="예: 내부 리모델링 공사로 인해 휴업을 요청합니다."></textarea>
-                </div>
-
-            </div>
-
-            <div class="flex justify-end mt-6">
-                <button type="submit"
-                        class="rounded-xl bg-orange-500 px-8 py-4 font-bold text-white shadow-sm hover:bg-orange-600">
+                <button type="button"
+                        class="action-button orange"
+                        data-panel-target="temp-close-panel">
                     휴업 요청하기
                 </button>
+
+            </article>
+
+            <article class="request-action-card">
+
+                <span class="action-icon red-icon">⚠️</span>
+
+                <h3>폐업 요청</h3>
+
+                <p>
+                    폐업 요청은 관리자 승인 후 처리됩니다.
+                    승인 전에는 요청 이력에서 취소할 수 있습니다.
+                </p>
+
+                <button type="button"
+                        class="action-button red"
+                        data-panel-target="close-panel">
+                    폐업 요청하기
+                </button>
+
+            </article>
+
+        </section>
+
+        <!-- 휴업 요청 폼 -->
+        <section id="temp-close-panel"
+                 class="request-panel form-section">
+
+            <div class="section-header">
+                <span class="section-number">휴업</span>
+
+                <div>
+                    <h2>휴업 요청</h2>
+                    <p>관리자 승인 후 요청한 기간에 휴업 정보가 표시됩니다.</p>
+                </div>
             </div>
 
-        </form>
-    </section>
+            <form th:action="@{/owner/hospital/request/temp-close}"
+                  method="post">
 
-    <!-- 폐업 요청 -->
-    <section id="close-panel" class="request-panel hidden">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
 
-        <form th:action="@{/owner/hospital/request/close}"
-              method="post"
-              onsubmit="return confirm('폐업 요청을 등록하시겠습니까? 관리자 승인 후 병원이 폐업 처리됩니다.');"
-              class="bg-white border border-red-200 rounded-2xl p-7 shadow-sm">
+                <input type="hidden"
+                       name="hospitalId"
+                       th:value="${hospital.hospitalId}">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="tempCloseStartAt">
+                            휴업 시작 일시
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="datetime-local"
+                               id="tempCloseStartAt"
+                               name="tempCloseStartAt"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tempCloseEndAt">
+                            휴업 종료 일시
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="datetime-local"
+                               id="tempCloseEndAt"
+                               name="tempCloseEndAt"
+                               required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="tempCloseReason">
+                            휴업 사유
+                            <span class="required">*</span>
+                        </label>
+
+                        <textarea id="tempCloseReason"
+                                  name="requestReason"
+                                  rows="4"
+                                  maxlength="500"
+                                  placeholder="예) 내부 리모델링 공사로 인해 휴업을 요청합니다."
+                                  required></textarea>
+                    </div>
+
+                </div>
+
+                <div class="submit-buttons">
+                    <button type="button"
+                            class="cancel-button"
+                            data-panel-close>
+                        닫기
+                    </button>
+
+                    <button type="submit"
+                            class="submit-button">
+                        휴업 요청 제출하기
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- 폐업 요청 폼 -->
+        <section id="close-panel"
+                 class="request-panel form-section">
+
+            <div class="section-header">
+                <span class="section-number">폐업</span>
+
+                <div>
+                    <h2>폐업 요청</h2>
+                    <p>관리자 승인 전에는 요청 이력에서 취소할 수 있습니다.</p>
+                </div>
+            </div>
+
+            <form th:action="@{/owner/hospital/request/close}"
+                  method="post"
+                  onsubmit="return confirm('폐업 요청을 제출하시겠습니까? 관리자 승인 후 폐업 처리됩니다.');">
+
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <input type="hidden"
+                       name="hospitalId"
+                       th:value="${hospital.hospitalId}">
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+                        <label for="closeReason">
+                            폐업 사유
+                            <span class="required">*</span>
+                        </label>
+
+                        <textarea id="closeReason"
+                                  name="requestReason"
+                                  rows="5"
+                                  maxlength="500"
+                                  placeholder="폐업 사유를 입력해 주세요."
+                                  required></textarea>
+                    </div>
+
+                </div>
+
+                <div class="submit-buttons">
+                    <button type="button"
+                            class="cancel-button"
+                            data-panel-close>
+                        닫기
+                    </button>
+
+                    <button type="submit"
+                            class="submit-button"
+                            style="background: #e64a45;">
+                        폐업 요청 제출하기
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- 직접 수정 폼 -->
+        <form th:action="@{/owner/hospital/direct-update}"
+              method="post">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
 
             <input type="hidden"
                    name="hospitalId"
                    th:value="${hospital.hospitalId}">
 
-            <h2 class="text-xl font-extrabold text-red-700">폐업 요청</h2>
-            <p class="text-sm text-slate-500 mt-1">
-                관리자가 승인하기 전에는 요청 내역에서 취소할 수 있습니다.
-            </p>
+            <!-- 대표전화 / 운영 정보 -->
+            <section class="form-section">
 
-            <div class="mt-6">
-                <label class="form-label">폐업 사유</label>
-                <textarea class="form-input min-h-32"
-                          name="requestReason"
-                          required
-                          placeholder="폐업 사유를 입력하세요."></textarea>
-            </div>
+                <div class="section-header">
+                    <span class="section-number">01</span>
 
-            <div class="flex justify-end mt-6">
+                    <div>
+                        <h2>운영 정보 바로 수정</h2>
+
+                        <p>
+                            대표전화와 진료 운영 정보는 저장 즉시 병원 페이지에 반영됩니다.
+                        </p>
+                    </div>
+                </div>
+
+                <p class="request-notice">
+                    병원명, 주소, 홈페이지 주소, 대표이미지는 위의
+                    <strong>병원정보 수정 요청</strong>을 통해 변경해 주세요.
+                </p>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="hospitalPhone">
+                            병원 대표 전화번호
+                            <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="hospitalPhone"
+                               name="hospitalPhone"
+                               th:value="${hospital.phone}"
+                               maxlength="50"
+                               placeholder="예) 02-1234-5678"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="openTime">
+                            진료 시작 시간
+                        </label>
+
+                        <input type="time"
+                               id="openTime"
+                               name="openTime"
+                               th:value="${hospital.openTime}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="closeTime">
+                            진료 종료 시간
+                        </label>
+
+                        <input type="time"
+                               id="closeTime"
+                               name="closeTime"
+                               th:value="${hospital.closeTime}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="breakTime">
+                            휴게 시간
+                        </label>
+
+                        <input type="text"
+                               id="breakTime"
+                               name="breakTime"
+                               th:value="${hospital.breakTime}"
+                               maxlength="100"
+                               placeholder="예) 13:00~14:00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="closedDays">
+                            정기 휴무일
+                        </label>
+
+                        <input type="text"
+                               id="closedDays"
+                               name="closedDays"
+                               th:value="${hospital.holiday}"
+                               maxlength="500"
+                               placeholder="예) 일요일, 공휴일">
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 진료 가능 동물 -->
+
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">02</span>
+
+                    <div>
+                        <h2>진료 가능 동물</h2>
+                        <p>진료 가능한 동물을 선택해 주세요.</p>
+                    </div>
+                </div>
+
+                <div class="animal-category-list">
+
+                    <!-- parentId가 없는 대분류만 표시 -->
+                    <div class="animal-category"
+                         th:each="parent : ${animalList}"
+                         th:if="${parent.parentId == null}">
+
+                        <button type="button"
+                                class="animal-category-header animal-parent-toggle"
+                                aria-expanded="false">
+
+            <span th:text="${parent.animalName}">
+                강아지
+            </span>
+
+                            <span class="toggle-guide">
+                세부 선택
+            </span>
+
+                            <span class="category-toggle-icon"
+                                  aria-hidden="true">
+                ▾
+            </span>
+                        </button>
+
+                        <div class="animal-child-area">
+
+                            <!-- 강아지 전부 / 고양이 전부처럼 대분류 전체 선택 -->
+                            <label class="animal-option all-option">
+
+                                <input type="checkbox"
+                                       class="animal-all-checkbox"
+                                       name="animalIds"
+                                       th:value="${parent.animalId}"
+                                       th:checked="${currentAnimalIds != null
+                       and #lists.contains(currentAnimalIds, parent.animalId)}">
+
+                                <span th:text="${parent.animalName + ' 전부 진료 가능'}">
+                    강아지 전부 진료 가능
+                </span>
+                            </label>
+
+                            <!-- 세부 품종 -->
+                            <div class="animal-child-grid">
+
+                                <label class="animal-option"
+                                       th:each="child : ${animalList}"
+                                       th:if="${child.parentId == parent.animalId}">
+
+                                    <input type="checkbox"
+                                           class="animal-child-checkbox"
+                                           name="animalIds"
+                                           th:value="${child.animalId}"
+                                           th:checked="${currentAnimalIds != null
+                           and #lists.contains(currentAnimalIds, child.animalId)}">
+
+                                    <span th:text="${child.animalName}">
+                        골든리트리버
+                    </span>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 제공 서비스 -->
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">03</span>
+
+                    <div>
+                        <h2>제공 진료 서비스</h2>
+                        <p>병원에서 제공하는 서비스를 선택해 주세요.</p>
+                    </div>
+                </div>
+
+                <div class="selection-box">
+                    <div class="selection-grid">
+
+                        <label class="selection-item"
+                               th:each="service : ${medicalServiceList}">
+
+                            <input type="checkbox"
+                                   name="serviceIds"
+                                   th:value="${service.serviceId}"
+                                   th:checked="${currentServiceIds != null
+                                   and #lists.contains(currentServiceIds, service.serviceId)}">
+
+                            <span th:text="${service.serviceName}">
+                                일반 진료
+                            </span>
+
+                        </label>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- 진료 과목 -->
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">04</span>
+
+                    <div>
+                        <h2>진료 과목</h2>
+                        <p>병원에서 진료하는 과목을 선택해 주세요.</p>
+                    </div>
+                </div>
+
+                <div class="selection-box">
+                    <div class="selection-grid">
+
+                        <label class="selection-item"
+                               th:each="subject : ${medicalSubjectList}">
+
+                            <input type="checkbox"
+                                   name="subjectIds"
+                                   th:value="${subject.subjectId}"
+                                   th:checked="${currentSubjectIds != null
+                                   and #lists.contains(currentSubjectIds, subject.subjectId)}">
+
+                            <span th:text="${subject.subjectName}">
+                                내과
+                            </span>
+
+                        </label>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- 병원 공개 정보 -->
+            <section class="form-section">
+
+                <div class="section-header">
+                    <span class="section-number">05</span>
+
+                    <div>
+                        <h2>병원 공개 정보</h2>
+
+                        <p>
+                            병원 상세 페이지에 공개되는 내용을 수정할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+                        <label for="hospitalDoctorInfo">
+                            진료 상세 정보
+                        </label>
+
+                        <textarea id="hospitalDoctorInfo"
+                                  name="hospitalDoctorInfo"
+                                  rows="5"
+                                  maxlength="1000"
+                                  placeholder="전문 진료, 의료진, 장비 등의 정보를 입력해 주세요."
+                                  th:text="${hospital.doctorInfo}"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="hospitalDescription">
+                            병원 소개
+                            <span class="required">*</span>
+                        </label>
+
+                        <textarea id="hospitalDescription"
+                                  name="hospitalDescription"
+                                  rows="7"
+                                  maxlength="2000"
+                                  placeholder="병원을 소개하는 내용을 입력해 주세요."
+                                  required
+                                  th:text="${hospital.description}"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="hospitalNote">
+                            추가 안내사항
+                        </label>
+
+                        <textarea id="hospitalNote"
+                                  name="hospitalNote"
+                                  rows="4"
+                                  maxlength="2000"
+                                  placeholder="주차, 예약, 방문 전 유의사항 등을 입력해 주세요."
+                                  th:text="${hospital.note}"></textarea>
+                    </div>
+
+                </div>
+            </section>
+
+            <div class="submit-buttons">
+
+                <a th:href="@{/owner/hospital/list}"
+                   class="cancel-button">
+                    목록으로
+                </a>
+
                 <button type="submit"
-                        class="rounded-xl bg-red-500 px-8 py-4 font-bold text-white shadow-sm hover:bg-red-600">
-                    폐업 요청하기
+                        class="submit-button">
+                    직접 수정 내용 저장하기
                 </button>
+
             </div>
 
         </form>
-    </section>
 
-    <!-- 요청 내역 -->
-    <section class="mt-10 bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-        <div class="flex items-center justify-between mb-5">
-            <div>
-                <h2 class="text-xl font-extrabold">병원 관리 요청 내역</h2>
-                <p class="text-sm text-slate-500 mt-1">
-                    승인 대기 상태의 요청만 취소할 수 있습니다.
-                </p>
+        <!-- 요청 이력 -->
+        <section class="form-section request-history">
+
+            <div class="section-header">
+                <span class="section-number">06</span>
+
+                <div>
+                    <h2>병원 관리 요청 이력</h2>
+
+                    <p>
+                        관리자 승인 전인 요청만 취소할 수 있습니다.
+                    </p>
+                </div>
             </div>
-        </div>
 
-        <div th:if="${#lists.isEmpty(requestList)}"
-             class="rounded-xl bg-slate-50 py-10 text-center text-slate-400">
-            등록된 병원 관리 요청이 없습니다.
-        </div>
+            <div th:if="${#lists.isEmpty(requestList)}"
+                 class="empty-history">
+                등록된 병원 관리 요청이 없습니다.
+            </div>
 
-        <div th:unless="${#lists.isEmpty(requestList)}"
-             class="space-y-3">
+            <div th:unless="${#lists.isEmpty(requestList)}">
 
-            <article th:each="request : ${requestList}"
-                     class="border border-slate-200 rounded-xl p-5">
-
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <article class="history-item"
+                         th:each="request : ${requestList}">
 
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-extrabold"
-                                  th:switch="${request.requestType}">
+
+                        <div class="history-title-row">
+
+                            <strong th:switch="${request.requestType}">
                                 <span th:case="'UPDATE'">병원정보 수정 요청</span>
                                 <span th:case="'TEMP_CLOSE'">휴업 요청</span>
                                 <span th:case="'CLOSE'">폐업 요청</span>
                                 <span th:case="*">병원 관리 요청</span>
-                            </span>
+                            </strong>
 
-                            <span class="rounded-full px-3 py-1 text-xs font-bold"
+                            <span class="request-status"
                                   th:classappend="${request.status == 'PENDING'}
-                                    ? 'bg-amber-100 text-amber-700'
-                                    : (${request.status == 'APPROVED'}
-                                        ? 'bg-emerald-100 text-emerald-700'
-                                        : 'bg-red-100 text-red-700')"
+                                  ? ' status-pending'
+                                  : (${request.status == 'APPROVED'}
+                                  ? ' status-approved' : ' status-rejected')"
                                   th:text="${request.status == 'PENDING'}
-                                    ? '승인 대기'
-                                    : (${request.status == 'APPROVED'} ? '승인 완료' : '반려')">
+                                  ? '승인 대기'
+                                  : (${request.status == 'APPROVED'} ? '승인 완료' : '반려')">
                                 승인 대기
                             </span>
+
                         </div>
 
-                        <p class="text-sm text-slate-500 mt-2">
+                        <p class="history-meta">
                             신청일:
                             <span th:text="${#temporals.format(request.createdAt, 'yyyy-MM-dd HH:mm')}">
-                                2026-07-22 15:00
+                                2026-07-23 10:00
                             </span>
                         </p>
 
-                        <p th:if="${request.requestType == 'TEMP_CLOSE'}"
-                           class="text-sm text-slate-600 mt-1">
+                        <p class="history-reason"
+                           th:if="${request.requestType == 'TEMP_CLOSE'}">
                             휴업 기간:
                             <span th:text="${#temporals.format(request.tempCloseStartAt, 'yyyy-MM-dd HH:mm')}"></span>
                             ~
                             <span th:text="${#temporals.format(request.tempCloseEndAt, 'yyyy-MM-dd HH:mm')}"></span>
                         </p>
 
-                        <p th:if="${request.requestReason != null}"
-                           class="text-sm text-slate-600 mt-1"
+                        <p class="history-reason"
+                           th:if="${request.requestReason != null
+                           and !#strings.isEmpty(request.requestReason)}"
                            th:text="'사유: ' + ${request.requestReason}">
                             사유
                         </p>
 
-                        <p th:if="${request.status == 'REJECTED' and request.rejectReason != null}"
-                           class="text-sm font-bold text-red-600 mt-2"
+                        <p class="history-reason reject-reason"
+                           th:if="${request.status == 'REJECTED'
+                           and request.rejectReason != null
+                           and !#strings.isEmpty(request.rejectReason)}"
                            th:text="'반려 사유: ' + ${request.rejectReason}">
                             반려 사유
                         </p>
+
                     </div>
 
                     <form th:if="${request.status == 'PENDING'}"
@@ -512,73 +684,29 @@
                           method="post">
 
                         <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+
+                        <input type="hidden"
                                name="hospitalId"
                                th:value="${hospital.hospitalId}">
 
                         <button type="submit"
-                                onclick="return confirm('이 요청을 취소하시겠습니까?');"
-                                class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100">
+                                class="small-cancel-button"
+                                onclick="return confirm('이 요청을 취소하시겠습니까?');">
                             요청 취소
                         </button>
                     </form>
 
-                </div>
-            </article>
+                </article>
 
-        </div>
-    </section>
+            </div>
+        </section>
 
+    </div>
 </main>
 
-<!-- 추가 안내사항(공지사항) 입력 폼 -->
-<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 mb-8">
-    <div class="flex items-center gap-3 mb-6">
-        <span class="bg-[#1ea1f2] text-white font-bold rounded-lg w-9 h-9 flex items-center justify-center text-sm">08</span>
-        <h2 class="text-xl font-bold">공지사항 및 추가 안내사항</h2>
-    </div>
-    <div class="ml-12">
-        <textarea name="notice" rows="4"
-                  class="w-full border border-slate-200 p-4 rounded-xl outline-none focus:border-[#1ea1f2] resize-none"
-                  placeholder="주차, 예약, 야간진료, 방문 시 주의사항 등을 입력하세요."
-                  th:text="${hospital.notice}"></textarea>
-    </div>
-</div>
-<script>
-    function showRequestPanel(panelId, selectedButton) {
-        document.querySelectorAll('.request-panel').forEach(function (panel) {
-            panel.classList.add('hidden');
-        });
-
-        document.getElementById(panelId).classList.remove('hidden');
-
-        document.querySelectorAll('.request-tab').forEach(function (button) {
-            button.classList.remove(
-                'border-sky-500',
-                'border-orange-400',
-                'border-red-400',
-                'bg-sky-50',
-                'bg-orange-50',
-                'bg-red-50'
-            );
-
-            button.classList.add('border-slate-200', 'bg-white');
-        });
-
-        selectedButton.classList.remove('border-slate-200', 'bg-white');
-
-        if (panelId === 'update-panel') {
-            selectedButton.classList.add('border-sky-500', 'bg-sky-50');
-        }
-
-        if (panelId === 'temp-close-panel') {
-            selectedButton.classList.add('border-orange-400', 'bg-orange-50');
-        }
-
-        if (panelId === 'close-panel') {
-            selectedButton.classList.add('border-red-400', 'bg-red-50');
-        }
-    }
-</script>
 
 </body>
 </html>
