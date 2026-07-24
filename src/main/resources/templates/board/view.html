@@ -24,7 +24,7 @@
     </script>
 </head>
 
-<body>
+<body th:class="|board-page board-page--view board-type-${boardDto.boardType}|">
 
 <div th:replace="~{common/head :: head}"></div>
 
@@ -92,48 +92,30 @@
 
             <!-- 상단 제목 영역 -->
             <section class="board-view-hero">
+                <img th:if="${boardDto.boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/qna-community-hero.png}"
+                     alt="수의사상담 배너">
 
-                <div>
+                <img th:unless="${boardDto.boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/community-hero.png}"
+                     alt="커뮤니티 배너">
 
-                    <h1 th:text="${boardTitle}">
-                        자유 게시판
-                    </h1>
+                <div class="view-hero-copy">
+                    <span class="page-eyebrow">PETCITY COMMUNITY</span>
+
+                    <h1 th:text="${boardTitle}">수다마당</h1>
 
                     <p th:switch="${boardDto.boardType}">
-
-                        <span th:case="'QNA'">
-                            의료 전문 상담이 필요한 분들께 수의사가 직접 답변드립니다!
-                        </span>
-
-                        <span th:case="'FREE'">
-                            반려동물 이야기 및 마이펫 자랑 등 자유로운 토크방입니다!
-                        </span>
-
-                        <span th:case="'INFO'">
-                            반려견, 반려묘 보호자분들을 위한 꿀팁 정보입니다!
-                        </span>
-
-                        <span th:case="'NOTICE'">
-                            PetCity의 중요한 소식과 안내사항을 확인해 주세요.
-                        </span>
-
-                        <span th:case="'FAQ'">
-                            PetCity 이용 중 자주 묻는 질문과 답변을 확인해 주세요.
-                        </span>
-
-                        <span th:case="*">
-                            PetCity 커뮤니티 게시판입니다.
-                        </span>
-
+                        <span th:case="'QNA'">수의사와 병원 관계자가 답변하는 반려동물 상담 공간입니다.</span>
+                        <span th:case="'FREE'">우리 아이의 일상과 이야기를 자유롭게 나누는 공간입니다.</span>
+                        <span th:case="'INFO'">반려동물 건강과 생활 정보를 한곳에 모아보세요.</span>
+                        <span th:case="'NOTICE'">PetCity의 중요한 소식과 안내사항을 확인해 주세요.</span>
+                        <span th:case="'FAQ'">PetCity 이용 중 자주 묻는 질문을 확인해 주세요.</span>
+                        <span th:case="*">PetCity 커뮤니티 게시판입니다.</span>
                     </p>
-
                 </div>
-
-                <div class="board-view-pet">
-                    <span>🐶</span>
-                    <span>🐱</span>
-                </div>
-
             </section>
 
 
@@ -493,7 +475,8 @@
                             최대 1000자
                         </span>
 
-                        <button type="submit">
+                        <button type="submit"
+                                th:text="${boardDto.boardType == 'QNA'} ? '답글 등록' : '댓글 등록'">
                             댓글 등록
                         </button>
 
