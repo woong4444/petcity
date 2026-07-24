@@ -15,18 +15,11 @@
 <body>
 <header th:fragment="head" class="site-header">
     <div class="top-header">
-        <div class="header-inner top-header-inner">
-            <div class="top-left">
+        <div class="header-inner top-header-inner" style="display: flex; justify-content: flex-end; align-items: center;">
+            <!-- top-left (KFIN 및 상단 메시지) 영역 통째로 삭제 -->
 
-                <div class="sns-list">
-                    <span class="sns-icon">K</span>
-                    <span class="sns-icon">F</span>
-                    <span class="sns-icon">I</span>
-                    <span class="sns-icon">N</span>
-                </div>
-                <span class="top-message">동물병원 찾기부터 우리 아이 병원 기록까지, PetCity</span>
-            </div>
-            <div class="top-menu">
+            <!-- top-menu 우측 정렬 유지 -->
+            <div class="top-menu" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
                 <th:block th:if="${session.loginMember == null}">
                     <a href="/member/login">로그인</a><span>|</span>
                     <a href="/member/signup">회원가입</a><span>|</span>
@@ -42,43 +35,32 @@
                     </a>
 
                     <th:block th:if="${session.loginMember.role != 'ADMIN'}">
-
                         <span>|</span>
-
                         <a href="/owner/status"
                            class="owner-status-header-link">
-
                             병원장 신청 현황
-
                             <span id="ownerStatusUnreadBadge"
                                   class="owner-status-notification-badge"
                                   aria-label="확인하지 않은 병원장 신청 결과"
                                   hidden>
                                 0
                             </span>
-
                         </a>
-
                     </th:block>
 
                     <a th:if="${session.loginMember.role == 'ADMIN'}" href="/admin/dashboard">Admin</a>
-                    <!-- 🌟 수정된 부분: update -> list 로 경로 변경 -->
                     <a th:if="${session.loginMember.role == 'OWNER'}" href="/owner/hospital/list">병원관리</a>
                     <span>|</span><a href="/member/logout">로그아웃</a><span>|</span>
                 </th:block>
-                <a href="/pet/list">내 반려동물</a><span>|</span><a href="/board/list">고객센터</a>
+                <!-- 고객센터 링크 삭제 완료 -->
+                <a href="/pet/list">내 반려동물</a>
             </div>
         </div>
     </div>
 
 
-
-
-
-
-
     <!-- ============================= -->
-    <!-- MIDDLE HEADER1 -->
+    <!-- MIDDLE HEADER -->
     <!-- ============================= -->
 
     <div class="middle-header">
@@ -142,13 +124,13 @@
 
     <nav class="bottom-nav">
 
-        <div class="header-inner bottom-nav-inner">
-            <a href="/hospital/list" class="category-button"><span class="category-icon">☰</span><span>전체 카테고리</span></a>
-            <div class="main-menu">
+        <div class="header-inner bottom-nav-inner" style="display: flex; justify-content: space-between; align-items: center;">
+            <!-- 전체 카테고리(카테고리 버튼) 삭제 완료 -->
+            <div class="main-menu" style="display: flex; align-items: center;">
 
                 <a href="/hospital/list">동물병원</a>
 
-                <!-- 🌟 비로그인 시 맞춤검색 클릭 방어 -->
+                <!-- 비로그인 시 맞춤검색 클릭 방어 -->
                 <a th:if="${session.loginMember == null}" href="#" onclick="alert('로그인 후 이용 부탁드립니다.'); location.href='/member/login'; return false;">맞춤검색</a>
                 <a th:unless="${session.loginMember == null}" href="/hospital/search">맞춤검색</a>
 
@@ -156,11 +138,12 @@
 
                 <a href="/board/list">게시판</a>
 
-                <a href="/event/list">이벤트</a>
+                <!-- 이벤트 링크 삭제 완료 -->
 
             </div>
             <div class="right-menu">
-                <a href="/board/notice">고객센터</a><span>|</span><a href="/owner/apply">병원장 신청</a>
+                <!-- 하단 우측 고객센터 링크 삭제 완료 -->
+                <a href="/owner/apply">병원장 신청</a>
             </div>
         </div>
 
