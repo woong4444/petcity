@@ -5,6 +5,8 @@
 
 <head>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+    <script defer th:src="@{/js/common/footer.js}"></script>
 
     <!-- 공통 헤더 기능 -->
     <script defer
@@ -151,6 +153,8 @@
 
     <div th:replace="~{common/chatbot :: chatbot}"></div>
 </header>
+
+<div th:replace="~{common/footer :: footer}"></div>
 
 </body>
 </html>
