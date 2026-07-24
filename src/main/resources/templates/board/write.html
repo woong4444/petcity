@@ -26,7 +26,7 @@
     </script>
     <script defer th:src="@{/js/board/board-write-type.js}"></script>
 </head>
-<body>
+<body th:class="|board-page board-page--write board-type-${boardType}|">
 
 <div th:replace="~{common/head :: head}"></div>
 
@@ -79,17 +79,27 @@
         <section class="board-write-content">
 
             <section class="board-write-hero">
-                <div>
-                    <h1>글쓰기</h1>
-                    <p id="boardWriteGuide"
-                       th:text="${boardTitle} + '에 게시글을 작성해 주세요.'">
-                        PetCity 커뮤니티에 게시글을 작성해 주세요.
-                    </p>
-                </div>
+                <img th:if="${boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/qna-community-hero.png}"
+                     alt="">
 
-                <div class="board-write-pet">
-                    <span>🐶</span>
-                    <span>🐱</span>
+                <img th:unless="${boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/community-hero.png}"
+                     alt="">
+
+                <div class="write-hero-copy">
+                    <span class="page-eyebrow">PETCITY COMMUNITY</span>
+
+                    <h1>
+                        <span th:text="${boardTitle}">수다마당</span> 글쓰기
+                    </h1>
+
+                    <p id="boardWriteGuide"
+                       th:text="${boardTitle} + '에 공유하고 싶은 이야기를 편하게 작성해 보세요.'">
+                        우리 아이와 나누고 싶은 이야기를 편하게 작성해 보세요.
+                    </p>
                 </div>
             </section>
 

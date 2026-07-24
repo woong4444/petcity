@@ -54,7 +54,7 @@
     </script>
 </head>
 
-<body>
+<body th:class="|board-page board-page--write board-page--update board-type-${boardDto.boardType}|">
 
 <div th:replace="~{common/head :: head}"></div>
 
@@ -137,10 +137,22 @@
                     </p>
                 </div>
 
-                <div class="board-write-pet">
-                    <span>🐶</span>
-                    <span>🐱</span>
-                </div>
+                <section class="board-write-hero">
+
+                    <img th:if="${boardDto.boardType == 'QNA'}"
+                         class="board-hero-banner-image"
+                         th:src="@{/images/board/qna-community-hero.png}"
+                         alt="">
+
+                    <img th:unless="${boardDto.boardType == 'QNA'}"
+                         class="board-hero-banner-image"
+                         th:src="@{/images/board/community-hero.png}"
+                         alt="">
+
+                    <div class="write-hero-copy">
+                        ...
+                    </div>
+                </section>
 
             </section>
 
