@@ -389,6 +389,19 @@
 
     </select>
 
+    <!-- 휴업 기간이 기존 휴업 요청과 겹치는지 확인-->
+    <select id="countOverlappingTempCloseRequest"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM HOSPITAL_UPDATE_REQUEST
+        WHERE HOSPITAL_ID = #{hospitalId}
+            AND REQUEST_TYPE = 'TEMP_CLOSE'
+            AND STATUS IN ('PENDING' , 'APPROVED')
+            AND TEMP_CLOSE_START_AT &lt; #{tempCloseEndAt, jdbcType=TIMESTAMP}
+            AND TEMP_CLOSE_END_AT &gt; #{tempCloseStartAt, jdbcType=TIMESTAMP}
+    </select>
+
     <!-- 병원장은 관리자 승인 전 요청만 취소 가능 -->
     <delete id="deletePendingRequest">
 

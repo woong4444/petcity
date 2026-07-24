@@ -336,6 +336,11 @@ public class BoardController {
                 "ADMIN".equals(role)
         );
 
+        model.addAttribute(
+                "canManageBoard",
+                canManageBoard
+        );
+
 
         return "board/view";
     }
