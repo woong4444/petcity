@@ -247,16 +247,26 @@
 
                 <!-- FAQ는 관리자에게만 수정·삭제 표시 -->
                 <div class="right-buttons"
-                     th:if="${canManageBoard}">
+                     th:if="${isAdmin
+              or (
+                  loginMemberId != null
+                  and loginMemberId == boardDto.memberId
+              )}">
 
-                    <a th:href="@{/board/update(
-                            boardId=${boardDto.boardId}
-                        )}"
+                    <!-- 관리자가 아닐 때, 본인 글에만 수정 버튼 표시 -->
+                    <a th:if="${!isAdmin
+               and loginMemberId != null
+               and loginMemberId == boardDto.memberId
+               and boardDto.boardType != 'NOTICE'
+               and boardDto.boardType != 'FAQ'
+               and boardDto.boardType != 'INFO'}"
+                       th:href="@{/board/update(boardId=${boardDto.boardId})}"
                        class="sub-button">
 
                         수정
                     </a>
 
+                    <!-- 관리자는 삭제만 가능 / 일반회원은 본인 글만 삭제 가능 -->
                     <form th:action="@{/board/delete}"
                           method="post"
                           onsubmit="return confirm('정말 삭제하시겠습니까?');">
@@ -272,12 +282,9 @@
 
                         <button type="submit"
                                 class="delete-button">
-
                             삭제
                         </button>
-
                     </form>
-
                 </div>
 
             </div>
@@ -362,8 +369,10 @@
 
                             <button type="button"
                                     class="comment-edit-button"
+                                    th:if="${
+                                              loginMemberId != null
+                                              and loginMemberId == comment.memberId}"
                                     th:attr="data-comment-id=${comment.commentId}">
-
                                 수정
                             </button>
 
@@ -392,6 +401,9 @@
 
                         <!-- 댓글 수정 폼 -->
                         <form class="comment-edit-form"
+                              th:if="${
+                                   loginMemberId != null
+                                    and loginMemberId == comment.memberId}"
                               th:id="'commentEditForm-' + ${comment.commentId}"
                               th:action="@{/board/comment/update}"
                               method="post"

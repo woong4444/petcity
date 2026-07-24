@@ -982,9 +982,9 @@ public class BoardService {
                 commentDto.getMemberId()
                         == loginMemberId;
 
-        if (!admin && !writer) {
+        if (!writer) {
             throw new RuntimeException(
-                    "댓글을 수정할 권한이 없습니다."
+                    "본인이 작성한 댓글만 수정할 수 있습니다."
             );
         }
 

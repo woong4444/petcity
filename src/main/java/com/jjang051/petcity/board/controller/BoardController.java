@@ -474,25 +474,18 @@ public class BoardController {
         BoardDto boardDto =
                 pageDto.getBoardDto();
 
-        boolean admin =
-                isCurrentAdmin(authentication);
+      if(!isCurrentAuthenticated(authentication)) {
+          throw new RuntimeException("로그인이 필요합니다.");
+      }
 
-        int loginMemberId =
-                getCurrentMemberId(authentication);
+      int loginMemberId = getCurrentMemberId(authentication);
+      boolean admin = isCurrentAdmin(authentication);
+      boolean writer = boardDto.getMemberId() == loginMemberId;
 
-        if (!admin) {
-            if (isAdminOnlyBoardType(boardDto.getBoardType())) {
-                throw new RuntimeException(
-                        "펫도감, 공지사항, FAQ는 관리자만 수정할 수 있습니다."
-                );
-            }
+      if(!writer) {
+          throw new RuntimeException("본인이 작성한 게시글만 수정할 수 있습니다.");
+      }
 
-            if (boardDto.getMemberId() != loginMemberId) {
-                throw new RuntimeException(
-                        "본인이 작성한 게시글만 수정할 수 있습니다."
-                );
-            }
-        }
 
         model.addAttribute("boardDto", boardDto);
         model.addAttribute(
