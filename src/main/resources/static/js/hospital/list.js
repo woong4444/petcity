@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(html => {
                 const oldResultArea = document.getElementById("hospitalResultArea");
                 if (oldResultArea) oldResultArea.outerHTML = html;
-                window.history.pushState(null, "", browserUrl);
+                window.history.replaceState(null, "", browserUrl);
 
                 rebindToolbarEvents();
                 rebindMapModalTrigger();

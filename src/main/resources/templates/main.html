@@ -168,204 +168,202 @@
 
     </section>
 
-    <section class="hospital-search-section">
+    <section class="home-main-content">
 
-        <div class="container mx-auto px-6">
+        <div class="home-main-inner">
 
-            <div class="hospital-search-card">
+            <!-- 빠른 이동 -->
+            <section class="home-quick-section">
+                <a th:href="@{/hospital/list}" class="home-quick-item">
+                    <span class="home-quick-icon">📍</span>
+                    <span>
+                    <strong>지역으로 찾기</strong>
+                    <small>원하는 지역의 병원을 찾아보세요.</small>
+                </span>
+                    <b>›</b>
+                </a>
 
-                <div class="hospital-search-text">
+                <a th:href="@{/hospital/list}" class="home-quick-item">
+                    <span class="home-quick-icon">🐾</span>
+                    <span>
+                    <strong>진료 가능 동물</strong>
+                    <small>반려동물 종류별 병원을 확인하세요.</small>
+                </span>
+                    <b>›</b>
+                </a>
 
-                    <span class="hospital-search-label">
-                        동물병원 검색
-                    </span>
+                <a th:href="@{/hospital/list}" class="home-quick-item">
+                    <span class="home-quick-icon">🩺</span>
+                    <span>
+                    <strong>진료 서비스</strong>
+                    <small>필요한 진료 서비스를 찾아보세요.</small>
+                </span>
+                    <b>›</b>
+                </a>
+            </section>
 
-                    <h2 class="hospital-search-title">
-                        우리 아이에게 맞는 병원을 찾아보세요
-                    </h2>
+            <!-- 병원장 신청 현황 -->
+            <section th:if="${session.loginMember != null
+                         and session.loginMember.role != 'ADMIN'}"
+                     class="home-owner-request">
 
-                    <p class="hospital-search-description">
-                        병원명, 지역, 진료 가능한 동물 종류를 기준으로 검색할 수 있습니다.
-                    </p>
+                <div class="home-owner-request__icon">📋</div>
 
+                <div class="home-owner-request__text">
+                    <span>OWNER REQUEST</span>
+                    <strong>병원장 신청 현황</strong>
+                    <p>심사 중, 승인 또는 반려 결과를 확인할 수 있습니다.</p>
                 </div>
 
-                <form th:action="@{/hospital/list}"
-                      method="get"
-                      class="hospital-search-form">
+                <a th:href="@{/owner/status}" class="home-owner-request__button">
+                    신청 현황 확인
+                </a>
+            </section>
 
-                    <input type="text"
-                           name="keyword"
-                           class="input input-bordered hospital-search-input"
-                           placeholder="병원명, 지역, 동물 종류를 검색하세요">
+            <!-- 주요 기능 -->
+            <section class="home-service-section">
 
-                    <button type="submit"
-                            class="btn btn-primary hospital-search-button">
-                        검색
-                    </button>
+                <div class="home-section-heading">
+                    <span>PETCITY SERVICE</span>
+                    <h2>PetCity 주요 기능</h2>
+                    <p>반려동물과 보호자에게 필요한 병원 정보를 편리하게 찾아보세요.</p>
+                </div>
 
-                </form>
+                <div class="home-service-grid">
 
-                <div class="hospital-search-links">
-
-                    <a th:href="@{/hospital/list}"
-                       class="btn btn-outline btn-primary">
-                        병원 목록 보기
+                    <a th:href="@{/hospital/list(sort='distance')}" class="home-service-card">
+                        <span class="home-service-card__icon">🗺️</span>
+                        <div>
+                            <h3>내 주변 동물병원 찾기</h3>
+                            <p>현재 위치를 기준으로 가까운 동물병원을 확인해 보세요.</p>
+                        </div>
                     </a>
 
-                    <a th:href="@{/map}"
-                       class="btn btn-outline">
-                        지도에서 찾기
+                    <a th:href="@{/hospital/list}" class="home-service-card">
+                        <span class="home-service-card__icon">🔎</span>
+                        <div>
+                            <h3>동물병원 검색</h3>
+                            <p>병원명, 지역, 진료 가능 동물과 서비스를 기준으로 검색할 수 있어요.</p>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/hospital/list(sort='review')}" class="home-service-card">
+                        <span class="home-service-card__icon home-service-card__icon--orange">⭐</span>
+                        <div>
+                            <h3>리뷰와 별점</h3>
+                            <p>실제 보호자의 리뷰와 별점을 확인하고 병원을 비교해 보세요.</p>
+                        </div>
                     </a>
 
                 </div>
+            </section>
 
-            </div>
+            <section class="home-bottom-grid">
 
-        </div>
+                <!-- 실제 병원 데이터 -->
+                <section class="home-popular-hospital">
+                    <div class="home-panel-title">
+                        <div>
+                            <span>POPULAR HOSPITAL</span>
+                            <h2>인기 동물병원</h2>
+                        </div>
 
-    </section>
+                        <a th:href="@{/hospital/list(sort='review')}">더보기 ›</a>
+                    </div>
 
+                    <div class="home-hospital-grid">
 
-    <!-- 로그인 회원의 병원장 신청 현황 바로가기 -->
-    <section th:if="${session.loginMember != null
-                     and session.loginMember.role != 'ADMIN'}"
-             class="container mx-auto px-6 pt-10">
+                        <a th:each="hospital, stat : ${popularHospitals}"
+                           th:if="${stat.index < 3}"
+                           th:href="@{/hospital/view(hospitalId=${hospital.hospitalId})}"
+                           class="home-hospital-card">
 
-        <div class="flex flex-col
-                    gap-5
-                    rounded-2xl
-                    border
-                    border-sky-200
-                    bg-white
-                    p-6
-                    shadow-sm
-                    md:flex-row
-                    md:items-center
-                    md:justify-between">
+                            <div class="home-hospital-image">
+                                <img th:if="${hospital.imageUrl != null
+                                         and !#strings.isEmpty(hospital.imageUrl)}"
+                                     th:src="${hospital.imageUrl}"
+                                     th:alt="${hospital.name + ' 대표 이미지'}">
 
-            <div class="flex items-start gap-4">
+                                <div th:unless="${hospital.imageUrl != null
+                                              and !#strings.isEmpty(hospital.imageUrl)}"
+                                     class="home-hospital-no-image">
+                                    🐾
+                                </div>
+                            </div>
 
-                <div class="flex h-12 w-12
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-full
-                            bg-sky-100
-                            text-2xl">
-                    📋
-                </div>
+                            <div class="home-hospital-info">
+                            <span th:text="${#strings.isEmpty(hospital.district)
+                                            ? '지역 정보 없음'
+                                            : hospital.district}">
+                                지역
+                            </span>
 
-                <div>
+                                <strong th:text="${hospital.name}">
+                                    병원명
+                                </strong>
 
-                    <span class="text-sm font-bold text-sky-600">
-                        OWNER REQUEST
+                                <p>
+                                    <b>★</b>
+                                    <em th:text="${#numbers.formatDecimal(hospital.avgRating, 1, 1)}">
+                                        0.0
+                                    </em>
+                                    <small th:text="'리뷰 ' + ${hospital.reviewCount} + '개'">
+                                        리뷰 0개
+                                    </small>
+                                </p>
+                            </div>
+                        </a>
+
+                        <p th:if="${popularHospitals == null
+                               or #lists.isEmpty(popularHospitals)}"
+                           class="home-empty-message">
+                            표시할 병원 정보가 없습니다.
+                        </p>
+
+                    </div>
+                </section>
+
+                <!-- 실제 게시판 링크 -->
+                <section class="home-community">
+                    <div class="home-panel-title">
+                        <div>
+                            <span>PETCITY COMMUNITY</span>
+                            <h2>PetCity 커뮤니티</h2>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/board/list(type='QNA', page=1)}"
+                       class="home-community-link">
+                        <span class="home-community-link__icon home-community-link__icon--qna">🩺</span>
+                        <span>
+                        <strong>수의사상담</strong>
+                        <small>수의사와 병원 관계자가 답변하는 상담 공간입니다.</small>
                     </span>
+                        <b>›</b>
+                    </a>
 
-                    <h2 class="mt-1 text-xl font-bold text-slate-900">
-                        병원장 신청 현황
-                    </h2>
+                    <a th:href="@{/board/list(type='FREE', page=1)}"
+                       class="home-community-link">
+                        <span class="home-community-link__icon home-community-link__icon--free">💬</span>
+                        <span>
+                        <strong>수다마당</strong>
+                        <small>반려동물과 함께하는 일상을 자유롭게 나눠보세요.</small>
+                    </span>
+                        <b>›</b>
+                    </a>
 
-                    <p class="mt-2 text-sm leading-6 text-slate-500">
-                        심사 중, 승인 완료, 반려 상태와 반려 사유를
-                        신청 현황 페이지에서 확인할 수 있습니다.
-                    </p>
+                    <a th:href="@{/board/list(type='INFO', page=1)}"
+                       class="home-community-link">
+                        <span class="home-community-link__icon home-community-link__icon--info">📖</span>
+                        <span>
+                        <strong>펫도감</strong>
+                        <small>다양한 반려동물 건강과 생활 정보를 확인하세요.</small>
+                    </span>
+                        <b>›</b>
+                    </a>
+                </section>
 
-                </div>
-
-            </div>
-
-            <a th:href="@{/owner/status}"
-               class="btn btn-primary shrink-0">
-                신청 현황 확인
-            </a>
-
-        </div>
-
-    </section>
-
-    <section class="container mx-auto px-6 py-16">
-
-        <div class="section-heading">
-
-            <span class="section-label">
-                PETCITY SERVICE
-            </span>
-
-            <h2 class="section-title">
-                PetCity 주요 기능
-            </h2>
-
-            <p class="section-description">
-                반려동물과 보호자에게 필요한 병원 정보를 편리하게 확인해 보세요.
-            </p>
-
-        </div>
-
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-
-            <article class="service-card">
-
-                <div class="service-icon">
-                    📍
-                </div>
-
-                <h3 class="service-title">
-                    지도 기반 병원 찾기
-                </h3>
-
-                <p class="service-description">
-                    내 위치나 선택한 지역을 기준으로 가까운 동물병원을 지도에서 확인할 수 있어요.
-                </p>
-
-                <a th:href="@{/map}"
-                   class="service-link">
-                    지도에서 확인하기
-                </a>
-
-            </article>
-
-            <article class="service-card">
-
-                <div class="service-icon">
-                    🐾
-                </div>
-
-                <h3 class="service-title">
-                    동물별 병원 검색
-                </h3>
-
-                <p class="service-description">
-                    강아지와 고양이 등 진료 가능한 동물과 진료 항목을 기준으로 검색할 수 있어요.
-                </p>
-
-                <a th:href="@{/hospital/list}"
-                   class="service-link">
-                    병원 검색하기
-                </a>
-
-            </article>
-
-            <article class="service-card">
-
-                <div class="service-icon">
-                    ⭐
-                </div>
-
-                <h3 class="service-title">
-                    리뷰와 별점
-                </h3>
-
-                <p class="service-description">
-                    실제 이용자의 리뷰와 별점을 확인하고 우리 아이에게 맞는 병원을 선택할 수 있어요.
-                </p>
-
-                <a th:href="@{/hospital/list}"
-                   class="service-link">
-                    병원 후기 확인하기
-                </a>
-
-            </article>
+            </section>
 
         </div>
 
