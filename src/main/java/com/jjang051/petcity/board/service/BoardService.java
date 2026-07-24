@@ -1076,7 +1076,7 @@ public class BoardService {
             );
         }
 
-        validateBoardManagePermission(
+        validateBoardUpdatePermission(
                 savedBoard,
                 loginMemberId,
                 admin
@@ -1256,6 +1256,31 @@ public class BoardService {
         if(boardDto.getMemberId() != loginMemberId) {
             throw new RuntimeException(
                     "본인이 작성한 게시글만 수정 또는 삭제할 수 있습니다."
+            );
+        }
+    }
+    private void validateBoardUpdatePermission(
+            BoardDto boardDto,
+            int loginMemberId,
+            boolean admin
+    ) {
+    /*
+        관리자도 본인이 작성한 글만 수정 가능
+    */
+        if (boardDto.getMemberId() != loginMemberId) {
+            throw new RuntimeException(
+                    "본인이 작성한 게시글만 수정할 수 있습니다."
+            );
+        }
+
+    /*
+        펫도감·공지사항·FAQ는 관리자 본인만 수정 가능
+    */
+        if (isAdminOnlyBoard(boardDto.getBoardType())
+                && !admin) {
+
+            throw new RuntimeException(
+                    "펫도감, 공지사항, FAQ는 관리자만 수정할 수 있습니다."
             );
         }
     }

@@ -254,12 +254,8 @@
               )}">
 
                     <!-- 관리자가 아닐 때, 본인 글에만 수정 버튼 표시 -->
-                    <a th:if="${!isAdmin
-               and loginMemberId != null
-               and loginMemberId == boardDto.memberId
-               and boardDto.boardType != 'NOTICE'
-               and boardDto.boardType != 'FAQ'
-               and boardDto.boardType != 'INFO'}"
+                    <a th:if="${loginMemberId != null
+        and loginMemberId == boardDto.memberId}"
                        th:href="@{/board/update(boardId=${boardDto.boardId})}"
                        class="sub-button">
 

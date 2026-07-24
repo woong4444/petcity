@@ -72,26 +72,26 @@
 
         </a>
 
-        <a href="#"
+        <a th:href="@{/admin/hospitals}"
            class="admin-nav-link"
+           th:classappend="${activeMenu == 'hospitalManagement' ? ' active' : ''}"
            data-tooltip="병원 관리">
 
-            <span class="nav-icon">
-                <svg viewBox="0 0 24 24"
-                     aria-hidden="true">
-                    <path d="M4 21V7L12 3L20 7V21"/>
-                    <path d="M9 21V15H15V21"/>
-                    <path d="M9 9H15"/>
-                    <path d="M12 6V12"/>
-                </svg>
-            </span>
+    <span class="nav-icon">
+        <svg viewBox="0 0 24 24"
+             aria-hidden="true">
+            <path d="M4 21V7L12 3L20 7V21"/>
+            <path d="M9 21V15H15V21"/>
+            <path d="M9 9H15"/>
+            <path d="M12 6V12"/>
+        </svg>
+    </span>
 
             <span class="nav-label">
-                병원 관리
-            </span>
+        병원 관리
+    </span>
 
         </a>
-
         <a th:href="@{/admin/members}"
            class="admin-nav-link"
            th:classappend="${activeMenu == 'members' ? ' active' : ''}"

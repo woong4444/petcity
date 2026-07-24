@@ -122,13 +122,38 @@
 
             <section class="board-write-hero">
 
-                <div>
+                <!-- 게시판별 배너 이미지 -->
+                <img th:if="${boardDto.boardType == 'INFO'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/pet-guide-hero.png}"
+                     alt="펫도감 배너">
+
+                <img th:if="${boardDto.boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/qna-community-hero.png}"
+                     alt="수의사상담 배너">
+
+                <img th:if="${boardDto.boardType == 'FAQ'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/faq-hero.png}"
+                     alt="FAQ 배너">
+
+                <img th:if="${boardDto.boardType == 'NOTICE'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/notice-hero.png}"
+                     alt="공지사항 배너">
+
+                <img th:if="${boardDto.boardType == 'FREE'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/free-hero.png}"
+                     alt="수다마당 배너">
+
+                <div class="write-hero-copy">
+                    <span class="page-eyebrow">PETCITY COMMUNITY</span>
                     <h1>게시글 수정</h1>
 
                     <p th:if="${boardDto.boardType != 'FAQ'}"
-                       th:text="${boardTitle}
-                                + ' 게시글을 수정해 주세요.'">
-
+                       th:text="${boardTitle + ' 게시글을 수정해 주세요.'}">
                         게시글을 수정해 주세요.
                     </p>
 
@@ -136,26 +161,7 @@
                         자주 묻는 질문과 답변을 수정해 주세요.
                     </p>
                 </div>
-
-                <section class="board-write-hero">
-
-                    <img th:if="${boardDto.boardType == 'QNA'}"
-                         class="board-hero-banner-image"
-                         th:src="@{/images/board/qna-community-hero.png}"
-                         alt="">
-
-                    <img th:unless="${boardDto.boardType == 'QNA'}"
-                         class="board-hero-banner-image"
-                         th:src="@{/images/board/community-hero.png}"
-                         alt="">
-
-                    <div class="write-hero-copy">
-                        ...
-                    </div>
-                </section>
-
             </section>
-
 
             <form th:action="@{/board/update}"
                   method="post"
