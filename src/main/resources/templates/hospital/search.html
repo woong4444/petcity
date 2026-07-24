@@ -175,80 +175,10 @@
         document.getElementById('searchAnimalId').value = animalId;
         document.getElementById('searchSubAnimalId').value = subId;
 
-        document.querySelectorAll('.pet-card-wrap').forEach(el => {
-            el.classList.remove('border-sky-500', 'bg-sky-50');
-            el.classList.add('border-slate-200', 'bg-white');
-        });
-        btn.closest('.pet-card-wrap').classList.remove('border-slate-200', 'bg-white');
-        btn.closest('.pet-card-wrap').classList.add('border-sky-500', 'bg-sky-50');
+<!-- 모든 JS 코드를 분리하여 로드 -->
+<script th:src="@{/js/hospital/search.js?v=6}"></script>
 
-        document.getElementById('content-step2').classList.remove('hidden');
-        document.getElementById('icon-step2').textContent = '−';
-        document.getElementById('content-step3').classList.remove('hidden');
-        document.getElementById('icon-step3').textContent = '−';
+<div th:replace="~{common/footer :: footer}"></div>
 
-        fetchDynamicResults();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('customSearchForm');
-        if (form) {
-            form.addEventListener('change', function() {
-                fetchDynamicResults();
-            });
-        }
-
-        const otherAllSearch = document.getElementById('otherAllSearch');
-        if (otherAllSearch) {
-            otherAllSearch.addEventListener('change', function () {
-                document.querySelectorAll('.hidden-other-district-search').forEach(chk => chk.checked = this.checked);
-                fetchDynamicResults();
-            });
-        }
-
-        const subjectAllSearch = document.getElementById('subjectAllSearch');
-        if(subjectAllSearch) {
-            subjectAllSearch.addEventListener('change', function() {
-                document.querySelectorAll('.step2-subject-chk').forEach(chk => chk.checked = this.checked);
-                fetchDynamicResults();
-            });
-        }
-
-        const serviceAllSearch = document.getElementById('serviceAllSearch');
-        if(serviceAllSearch) {
-            serviceAllSearch.addEventListener('change', function() {
-                document.querySelectorAll('.step2-service-chk').forEach(chk => chk.checked = this.checked);
-                fetchDynamicResults();
-            });
-        }
-    });
-
-    function fetchDynamicResults() {
-        const form = document.getElementById('customSearchForm');
-        const formData = new FormData(form);
-        const searchParams = new URLSearchParams(formData);
-
-        if(!searchParams.get('animalId')) {
-            return;
-        }
-
-        const resultArea = document.getElementById('ajaxDynamicResult');
-        resultArea.classList.remove('hidden');
-        resultArea.innerHTML = '<div class="text-center py-10 text-slate-500 font-bold">맞춤 병원을 불러오는 중입니다...</div>';
-
-        fetch('/hospital/list/ajax?' + searchParams.toString(), {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-            .then(res => res.text())
-            .then(html => {
-                resultArea.innerHTML = html;
-                resultArea.classList.add('bg-white', 'p-6', 'rounded-xl', 'border', 'border-slate-200', 'shadow-sm');
-            })
-            .catch(err => {
-                console.error(err);
-                resultArea.innerHTML = '<div class="text-center py-10 text-red-500 font-bold">오류가 발생했습니다.</div>';
-            });
-    }
-</script>
 </body>
 </html>

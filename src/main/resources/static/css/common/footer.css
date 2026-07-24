@@ -187,8 +187,19 @@
     }
 
     .site-footer__hours {
-        padding: 24px 0 0;
-        border-top: 1px solid #e1e8f0;
-        border-left: 0;
+        align-self: start; /* end → start로 변경 */
+        padding-left: 28px;
+        border-left: 1px solid #e1e8f0;
+    }
+}
+
+/* 이용 안내는 현재 가로 위치를 유지하고 위로만 이동 */
+.site-footer__hours {
+    transform: translateY(-110px);
+}
+
+@media (max-width: 768px) {
+    .site-footer__hours {
+        transform: none;
     }
 }

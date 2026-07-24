@@ -473,5 +473,62 @@
     }
 </script>
 <script th:src="@{/js/hospital/view.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const reviewItems = document.querySelectorAll('.review-item');
+        const itemsPerPage = 10;
+        const totalReviews = reviewItems.length;
+        const totalPages = Math.ceil(totalReviews / itemsPerPage);
+        const paginationWrap = document.getElementById('reviewPaginationWrap');
+
+        if (totalPages > 1) {
+            function showReviewPage(pageNum) {
+                const start = (pageNum - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                reviewItems.forEach((item, index) => {
+                    if (index >= start && index < end) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                renderPagination(pageNum);
+            }
+
+            function renderPagination(currentPage) {
+                let html = '<ul class="pagination">';
+                html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="1">&lt;&lt;</a></li>`;
+                html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">&lt;</a></li>`;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+                }
+
+                html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a></li>`;
+                html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${totalPages}">&gt;&gt;</a></li>`;
+                html += '</ul>';
+
+                paginationWrap.innerHTML = html;
+
+                paginationWrap.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetPage = parseInt(this.getAttribute('data-page'));
+                        showReviewPage(targetPage);
+                        document.getElementById('section-review').scrollIntoView({ behavior: 'smooth' });
+                    });
+                });
+            }
+
+            showReviewPage(1);
+        }
+    });
+</script>
+
+<div th:replace="~{common/footer :: footer}"></div>
+
 </body>
 </html>
