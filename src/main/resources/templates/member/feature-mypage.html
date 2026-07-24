@@ -1,198 +1,224 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <!-- 문서 기본 설정 및 마이페이지 전용 스타일 연결 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Page | PetCity</title>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/member/feature-mypage.css}">
 </head>
 <body>
+<!-- 팀 공통 헤더를 그대로 사용하며 공통 파일은 수정하지 않습니다. -->
 <header th:replace="~{common/head :: head}"></header>
 
-<!-- 상각_07-19: SNS 회원 전용 독립 마이페이지. 팀장 원본 mypage.html은 변경하지 않음. -->
-<main class="mypage-wrap">
-    <section class="mypage-card">
-        <div class="mypage-heading">
-            <span>🐾</span>
-            <div>
-                <h1>마이페이지</h1>
-                <p>SNS 회원 정보를 확인하고 수정할 수 있어요.</p>
+<!--
+    SNS 회원 전용 마이페이지
+    - 팀장 원본 member/mypage.html 수정 없음
+    - 전화번호는 실제 DB 값을 노출하거나 전송하지 않음
+    - 기존 가입/탈퇴/복구/SQL 규칙 변경 없음
+-->
+<main class="feature-mypage">
+    <div class="mypage-layout">
+
+        <!-- 왼쪽 메뉴 -->
+        <aside class="mypage-sidebar" aria-label="마이페이지 메뉴">
+            <div class="sidebar-title">
+                <span class="sidebar-title-icon">♙</span>
+                <strong>마이페이지</strong>
             </div>
+
+            <nav class="sidebar-menu">
+                <a class="sidebar-link active" href="/member/feature/mypage">
+                    <span>●</span> 내 정보
+                </a>
+                <a class="sidebar-link" href="/member/mypage/pets">
+                    <span>🐾</span> 내 반려동물
+                </a>
+                <a class="sidebar-link" href="/owner/status">
+                    <span>▣</span> 병원장 문의 현황
+                </a>
+                <a class="sidebar-link danger" href="/member/feature/withdraw">
+                    <span>♙</span> 회원 탈퇴
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 오른쪽 본문 -->
+        <div class="mypage-content">
+
+            <!-- 회원 요약 -->
+            <section class="profile-summary-card">
+                <div class="profile-main">
+                    <div class="profile-avatar" aria-hidden="true">
+                        <span class="avatar-head"></span>
+                        <span class="avatar-body"></span>
+                        <span class="avatar-camera">▣</span>
+                    </div>
+
+                    <div class="profile-copy">
+                        <div class="profile-name-line">
+                            <h1 th:text="${member != null and member.nickname != null ? member.nickname + '님' : '회원님'}">
+                                회원님
+                            </h1>
+                            <span class="role-badge"
+                                  th:text="${member != null and member.role != null and member.role == 'OWNER' ? '병원장' : '일반회원'}">
+                                일반회원
+                            </span>
+                        </div>
+
+                        <p class="join-copy"
+                           th:text="${member != null and member.loginType != null ? member.loginType + ' 계정으로 가입' : 'SNS 계정으로 가입'}">
+                            SNS 계정으로 가입
+                        </p>
+
+                        <p class="verified-copy">● 이메일 인증 완료</p>
+                    </div>
+                </div>
+
+                <div class="profile-meta">
+                    <div>
+                        <span>가입 방식</span>
+                        <strong th:text="${member != null and member.loginType != null ? member.loginType : 'SNS'}">SNS</strong>
+                    </div>
+                    <div>
+                        <span>회원 구분</span>
+                        <strong th:text="${member != null and member.role != null and member.role == 'OWNER' ? '병원장 회원' : '일반 회원'}">
+                            일반 회원
+                        </strong>
+                    </div>
+                    <div class="last-login-meta"
+                         th:if="${member != null and member.lastLoginAt != null}">
+                        <span>최근 로그인</span>
+                        <strong th:text="${member.lastLoginText}">2026.07.24 09:10</strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 회원 정보 수정 결과 메시지: 값이 있을 때만 표시됩니다. -->
+            <div th:if="${successMessage}" class="page-message success" th:text="${successMessage}"></div>
+            <div th:if="${message}" class="page-message error" th:text="${message}"></div>
+
+            <div class="dashboard-grid">
+
+                <!-- 기본 정보 -->
+                <section class="content-card info-card">
+                    <div class="card-heading">
+                        <h2>기본 정보</h2>
+                        <p><span>*</span> 닉네임만 변경할 수 있습니다.</p>
+                    </div>
+
+                    <!-- SNS 마이페이지에서는 닉네임만 서버로 전송합니다. -->
+                    <form method="post" action="/member/feature/mypage" class="profile-form">
+                        <div class="form-grid">
+                            <label class="form-field">
+                                <span>아이디</span>
+                                <input type="text"
+                                       th:value="${member != null and member.loginId != null ? member.loginId : ''}"
+                                       readonly>
+                            </label>
+
+                            <label class="form-field">
+                                <span>이메일</span>
+                                <input type="email"
+                                       th:value="${member != null and member.email != null ? member.email : ''}"
+                                       readonly>
+                            </label>
+
+                            <label class="form-field nickname-field">
+                                <span>닉네임 <em>*</em></span>
+                                <input type="text"
+                                       name="nickname"
+                                       th:value="${member != null and member.nickname != null ? member.nickname : ''}"
+                                       minlength="2"
+                                       maxlength="20"
+                                       autocomplete="nickname"
+                                       required>
+                                <small>2~20자로 입력해주세요.</small>
+                            </label>
+
+                            <label class="form-field">
+                                <span>전화번호</span>
+                                <!-- name 속성을 두지 않아 서버로 전송되지 않음 -->
+                                <input type="text"
+                                       value="SNS 회원"
+                                       class="sns-phone"
+                                       readonly>
+                                <small>SNS 가입 회원은 전화번호를 등록하거나 변경하지 않습니다.</small>
+                            </label>
+
+                            <label class="form-field">
+                                <span>가입 방식</span>
+                                <input type="text"
+                                       th:value="${member != null and member.loginType != null ? member.loginType + ' (SNS)' : 'SNS'}"
+                                       readonly>
+                            </label>
+
+                            <label class="form-field">
+                                <span>회원 구분</span>
+                                <input type="text"
+                                       th:value="${member != null and member.role != null and member.role == 'OWNER' ? '병원장 회원' : '일반 회원'}"
+                                       readonly>
+                            </label>
+                        </div>
+
+                        <button class="save-button" type="submit">변경사항 저장</button>
+                    </form>
+                </section>
+
+                <!-- 오른쪽 요약 카드 -->
+                <div class="side-cards">
+                    <!-- 기존 반려동물 관리 기능으로 이동하는 요약 카드 -->
+                    <section class="content-card shortcut-card">
+                        <div class="card-heading inline">
+                            <h2>내 반려동물</h2>
+                        </div>
+
+                        <div class="shortcut-body pet-shortcut">
+                            <div class="shortcut-icon">🐾</div>
+                            <div>
+                                <strong>등록한 반려동물을 확인해보세요.</strong>
+                                <p>반려동물 등록, 수정, 삭제는 기존 관리 페이지에서 진행합니다.</p>
+                            </div>
+                        </div>
+
+                        <a class="outline-button full" href="/member/mypage/pets">내 반려동물 관리하기</a>
+                    </section>
+
+                    <!-- 기존 병원장 문의 기능으로 이동하는 요약 카드 -->
+                    <section class="content-card shortcut-card">
+                        <div class="card-heading inline">
+                            <h2>병원장 문의 현황</h2>
+                            <a href="/owner/status">전체보기 ›</a>
+                        </div>
+
+                        <div class="shortcut-body">
+                            <div class="shortcut-icon">▣</div>
+                            <div>
+                                <strong>병원장 문의 내역을 확인할 수 있습니다.</strong>
+                                <p>신청 상태와 처리 결과는 기존 문의 현황 페이지에서 확인합니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="button-row">
+                            <a class="outline-button" href="/owner/status">문의 현황 보기</a>
+                            <a class="outline-button" href="/owner/apply">병원장 문의하기</a>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- 회원 탈퇴 -->
+            <section class="withdraw-card">
+                <div>
+                    <h2>회원 탈퇴</h2>
+                    <p>SNS 회원은 현재 로그인된 SNS 인증으로 본인을 확인하므로 비밀번호를 입력하지 않습니다.</p>
+                    <p>탈퇴 요청 즉시 로그아웃되며 3일 후 계정이 완전히 삭제됩니다. 삭제 전까지 복구를 신청할 수 있습니다.</p>
+                </div>
+                <a class="withdraw-button" href="/member/feature/withdraw">회원 탈퇴 요청</a>
+            </section>
         </div>
-
-        <div th:if="${successMessage}" class="message success" th:text="${successMessage}"></div>
-        <div th:if="${message}" class="message error" th:text="${message}"></div>
-
-        <form method="post" action="/member/feature/mypage" class="profile-form">
-            <div class="field-grid">
-                <label>아이디<input type="text" th:value="${member.loginId}" readonly></label>
-                <label>이메일<input type="email" th:value="${member.email}" readonly></label>
-            </div>
-            <p class="field-help">SNS 아이디와 이메일은 이 화면에서 변경할 수 없습니다.</p>
-
-            <div class="field-grid">
-                <label>닉네임<input type="text" name="nickname" th:value="${member.nickname}" minlength="2" maxlength="20"
-                                 required></label>
-                <label>가입 방식<input type="text" th:value="${member.loginType}" readonly></label>
-            </div>
-            <button class="btn primary" type="submit">회원 정보 저장</button>
-        </form>
-        <a class="pet-link" href="/member/mypage/pets">🐾 내 반려동물 관리하기</a>
-    </section>
-
-    <section class="withdraw-card">
-        <div>
-            <h2>회원 탈퇴</h2>
-            <p>SNS 회원은 현재 로그인된 SNS 인증으로 본인을 확인하므로 비밀번호를 입력하지 않습니다.</p>
-            <p>탈퇴 요청 즉시 로그아웃되며 3일 후 계정이 완전히 삭제됩니다. 삭제 전까지 복구를 신청할 수 있습니다.</p>
-        </div>
-        <a class="btn danger withdraw-link" href="/member/feature/withdraw">회원 탈퇴 요청</a>
-    </section>
+    </div>
 </main>
-
-<style>
-    .mypage-wrap {
-        max-width: 980px;
-        margin: 56px auto 90px;
-        padding: 0 20px;
-        color: #172033
-    }
-
-    .mypage-card, .withdraw-card {
-        background: #fff;
-        border: 1px solid #e6ebf2;
-        border-radius: 20px;
-        padding: 34px;
-        box-shadow: 0 12px 30px rgba(31, 53, 82, .08);
-        margin-bottom: 24px
-    }
-
-    .mypage-heading {
-        display: flex;
-        gap: 13px;
-        align-items: center;
-        border-bottom: 1px solid #edf0f5;
-        padding-bottom: 22px;
-        margin-bottom: 25px
-    }
-
-    .mypage-heading span {
-        font-size: 34px
-    }
-
-    .mypage-heading h1 {
-        font-size: 28px;
-        margin: 0
-    }
-
-    .mypage-heading p, .withdraw-card p {
-        color: #718096;
-        margin: 6px 0 0;
-        line-height: 1.6
-    }
-
-    .field-grid {
-        display: grid;
-        grid-template-columns:1fr 1fr;
-        gap: 18px;
-        margin: 18px 0
-    }
-
-    .profile-form label {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        font-weight: 700;
-        font-size: 14px
-    }
-
-    .profile-form input {
-        border: 1px solid #d8e0ec;
-        border-radius: 10px;
-        padding: 13px 14px;
-        font-size: 15px
-    }
-
-    .profile-form input[readonly] {
-        background: #f5f7fa;
-        color: #778398
-    }
-
-    .field-help {
-        font-size: 13px;
-        color: #8c98a9;
-        margin: -8px 0 18px
-    }
-
-    .btn {
-        display: inline-block;
-        border: 0;
-        border-radius: 10px;
-        padding: 13px 20px;
-        font-weight: 800;
-        cursor: pointer;
-        text-decoration: none
-    }
-
-    .primary {
-        background: #2563eb;
-        color: #fff
-    }
-
-    .pet-link {
-        display: inline-block;
-        margin-left: 10px;
-        color: #0f766e;
-        font-weight: 800;
-        text-decoration: none
-    }
-
-    .withdraw-card {
-        border-color: #ffe1e5
-    }
-
-    .withdraw-card h2 {
-        margin: 0;
-        color: #bd2739
-    }
-
-    .danger {
-        background: #fff1f2;
-        color: #d7374b;
-        border: 1px solid #fecdd3
-    }
-
-    .withdraw-link {
-        margin-top: 22px
-    }
-
-    .message {
-        padding: 13px 15px;
-        border-radius: 10px;
-        margin: 14px 0;
-        font-weight: 700
-    }
-
-    .success {
-        background: #eafaf0;
-        color: #167a40
-    }
-
-    .error {
-        background: #fff0f1;
-        color: #c43646
-    }
-
-    @media (max-width: 650px) {
-        .field-grid {
-            grid-template-columns:1fr
-        }
-
-        .pet-link {
-            display: block;
-            margin: 16px 0 0
-        }
-    }
-</style>
 </body>
 </html>
