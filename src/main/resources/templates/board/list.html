@@ -27,7 +27,14 @@
 
 <div th:replace="~{common/head :: head}"></div>
 
-<main class="board-wrap">
+<main class="board-wrap"
+      th:classappend="${boardType == 'QNA'
+          ? ' theme-qna'
+          : (boardType == 'FREE'
+          ? ' theme-free'
+          : (boardType == 'NOTICE'
+          ? ' theme-notice'
+          : ''))}">
 
     <div class="board-layout">
 
@@ -109,49 +116,74 @@
 
                 <div class="board-hero-title">
 
+        <span class="board-eyebrow"
+              th:switch="${boardType}">
+
+            <span th:case="'QNA'">
+                VETERINARY Q&amp;A
+            </span>
+
+            <span th:case="'FREE'">
+                PET COMMUNITY
+            </span>
+
+            <span th:case="'NOTICE'">
+                PETCITY NOTICE
+            </span>
+
+            <span th:case="*">
+                PETCITY COMMUNITY
+            </span>
+
+        </span>
+
                     <h1 th:text="${boardTitle}">
-                        자유 게시판
+                        수다마당
                     </h1>
 
                     <p th:switch="${boardType}">
 
-                        <span th:case="'QNA'">
-                            의료 전문 상담이 필요한 분들께 수의사가 직접 답변드립니다!
-                        </span>
+            <span th:case="'QNA'">
+                반려동물 건강과 생활에 관한 궁금증을 수의사에게 물어보세요.
+            </span>
 
                         <span th:case="'FREE'">
-                            반려동물 이야기 및 마이펫 자랑 등 자유로운 토크방입니다!
-                        </span>
-
-                        <span th:case="'INFO'">
-                            반려견, 반려묘 보호자분들을 위한 꿀팁 정보입니다!
-                        </span>
+                우리 아이와의 일상, 자랑하고 싶은 이야기를 자유롭게 나눠보세요.
+            </span>
 
                         <span th:case="'NOTICE'">
-                            PetCity의 중요한 소식과 안내사항을 확인해 주세요.
-                        </span>
-
-                        <span th:case="'FAQ'">
-                            PetCity 이용 중 자주 묻는 질문과 답변을 확인해 주세요.
-                        </span>
+                PetCity의 중요 소식과 서비스 안내를 확인할 수 있습니다.
+            </span>
 
                         <span th:case="*">
-                            PetCity 커뮤니티 게시판입니다.
-                        </span>
+                PetCity 커뮤니티 게시판입니다.
+            </span>
 
                     </p>
-
                 </div>
 
-                <div class="board-hero-image">
-                    <div class="pet pet-cat">🐱</div>
-                    <div class="pet pet-dog">🐶</div>
-                    <div class="pet pet-bird">🐥</div>
-                    <div class="pet pet-puppy">🐕</div>
+                <div class="board-hero-image"
+                     th:switch="${boardType}">
+
+                    <img th:case="'QNA'"
+                         th:src="@{/images/board/qna-hero.png}"
+                         alt="수의사 상담 배너">
+
+                    <img th:case="'FREE'"
+                         th:src="@{/images/board/free-hero.png}"
+                         alt="수다마당 배너">
+
+                    <img th:case="'NOTICE'"
+                         th:src="@{/images/board/notice-hero.png}"
+                         alt="공지사항 배너">
+
+                    <img th:case="*"
+                         th:src="@{/images/board/free-hero.png}"
+                         alt="커뮤니티 배너">
+
                 </div>
 
             </section>
-
 
             <!-- NOTICE와 FAQ는 동물 필터 없음 -->
             <section class="animal-filter-area"
@@ -522,7 +554,9 @@
 
             <!-- 글쓰기 -->
             <div class="board-bottom"
-                 th:if="${(boardType != 'NOTICE' and boardType != 'FAQ') or isAdmin}"
+                 th:if="${boardType == 'QNA'
+          || boardType == 'FREE'
+          || isAdmin}"
                  style="justify-content: flex-end;">
 
                 <a th:href="@{/board/write(

@@ -203,16 +203,38 @@ public class HospitalUpdateService {
 
         validateRequestByType(requestDto);
 
-        int pendingCount =
-                hospitalUpdateDao.countPendingRequestByHospitalAndType(
-                        requestDto.getHospitalId(),
-                        requestType
-                );
+        /*
+    UPDATE / CLOSE는 병원당 PENDING 요청 1개만 허용.
+    TEMP_CLOSE는 여러 건 신청할 수 있지만,
+    기존 PENDING 또는 APPROVED 휴업 기간과 겹치면 신청 불가.
+*/
+        if("TEMP_CLOSE".equals(requestType)) {
 
-        if (pendingCount > 0) {
-            throw new IllegalStateException(
-                    "같은 종류의 처리 대기 요청이 이미 있습니다."
-            );
+            int overlapCount =
+                    hospitalUpdateDao.countOverlappingTempCloseRequest(
+                            requestDto.getHospitalId(),
+                            requestDto.getTempCloseStartAt(),
+                            requestDto.getTempCloseEndAt()
+                    );
+
+            if(overlapCount > 0) {
+                throw new IllegalStateException(
+                        "이미 신청되었거나 승인된 휴업 기간과 겹칩니다."
+                );
+            }
+        } else {
+
+            int pendingCount =
+                    hospitalUpdateDao.countPendingRequestByHospitalAndType(
+                            requestDto.getHospitalId(),
+                            requestType
+                    );
+
+            if( pendingCount > 0) {
+                throw  new IllegalStateException(
+                        "같은 종류의 처리 대기 요청이 이미 있습니다."
+                );
+            }
         }
 
         String savedDocumentUrl = null;

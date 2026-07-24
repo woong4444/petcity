@@ -302,6 +302,39 @@
 
                             2026.07.09
                         </p>
+                        <!-- 관리자 전용 글 관리 버튼 -->
+                        <div class="info-admin-actions"
+                             th:if="${isAdmin}">
+
+                            <a th:href="@{/board/update(
+            boardId=${board.boardId}
+        )}"
+                               class="info-admin-edit">
+
+                                수정
+                            </a>
+
+                            <form th:action="@{/board/delete}"
+                                  method="post"
+                                  class="info-admin-delete-form"
+                                  onsubmit="return confirm('정말 이 펫도감 글을 삭제하시겠습니까?');">
+
+                                <input type="hidden"
+                                       name="boardId"
+                                       th:value="${board.boardId}">
+
+                                <input type="hidden"
+                                       th:if="${_csrf != null}"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}">
+
+                                <button type="submit"
+                                        class="info-admin-delete">
+
+                                    삭제
+                                </button>
+                            </form>
+                        </div>
 
                     </div>
 
