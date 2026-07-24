@@ -19,7 +19,6 @@ public class HospitalService {
 
     private final HospitalDao hospitalDao;
 
-    // 🌟 DB에서 이미 '내과/외과' 문자열로 쪼개져 오기 때문에, 만약 숫자가 섞여 있을 때만 동작하도록 유지
     private void refineMedicalSubjects(HospitalDto h) {
         if (h.getMedicalSubjects() == null) return;
         String sub = h.getMedicalSubjects().trim();
@@ -28,35 +27,72 @@ public class HospitalService {
             String[] ids = sub.split(",");
             java.util.List<String> subjectNames = new java.util.ArrayList<>();
             for (String idStr : ids) {
-                if(idStr.trim().isEmpty()) continue;
+                if (idStr.trim().isEmpty()) continue;
                 try {
                     int id = Integer.parseInt(idStr.trim());
                     switch (id) {
-                        case 1: subjectNames.add("내과"); break;
-                        case 2: subjectNames.add("외과"); break;
-                        case 3: subjectNames.add("정형외과"); break;
-                        case 4: subjectNames.add("피부과"); break;
-                        case 5: subjectNames.add("안과"); break;
-                        case 6: subjectNames.add("치과"); break;
-                        case 7: subjectNames.add("영상의학과"); break;
-                        case 8: subjectNames.add("이비인후과"); break;
-                        case 9: subjectNames.add("비뇨기과"); break;
-                        case 10: subjectNames.add("신경외과"); break;
-                        case 11: subjectNames.add("산과"); break;
-                        case 12: subjectNames.add("심장내과"); break;
-                        case 13: subjectNames.add("마취통증의학과"); break;
-                        case 14: subjectNames.add("예방의학과"); break;
-                        case 15: subjectNames.add("재활의학과"); break;
-                        case 16: subjectNames.add("중성화"); break;
-                        case 17: subjectNames.add("영양상담"); break;
-                        case 18: subjectNames.add("헌혈"); break;
-                        case 19: subjectNames.add("미용"); break;
+                        case 1:
+                            subjectNames.add("내과");
+                            break;
+                        case 2:
+                            subjectNames.add("외과");
+                            break;
+                        case 3:
+                            subjectNames.add("정형외과");
+                            break;
+                        case 4:
+                            subjectNames.add("피부과");
+                            break;
+                        case 5:
+                            subjectNames.add("안과");
+                            break;
+                        case 6:
+                            subjectNames.add("치과");
+                            break;
+                        case 7:
+                            subjectNames.add("영상의학과");
+                            break;
+                        case 8:
+                            subjectNames.add("이비인후과");
+                            break;
+                        case 9:
+                            subjectNames.add("비뇨기과");
+                            break;
+                        case 10:
+                            subjectNames.add("신경외과");
+                            break;
+                        case 11:
+                            subjectNames.add("산과");
+                            break;
+                        case 12:
+                            subjectNames.add("심장내과");
+                            break;
+                        case 13:
+                            subjectNames.add("마취통증의학과");
+                            break;
+                        case 14:
+                            subjectNames.add("예방의학과");
+                            break;
+                        case 15:
+                            subjectNames.add("재활의학과");
+                            break;
+                        case 16:
+                            subjectNames.add("중성화");
+                            break;
+                        case 17:
+                            subjectNames.add("영양상담");
+                            break;
+                        case 18:
+                            subjectNames.add("헌혈");
+                            break;
+                        case 19:
+                            subjectNames.add("미용");
+                            break;
                     }
                 } catch (NumberFormatException e) {
                 }
             }
             if (!subjectNames.isEmpty()) {
-                // 🌟 여기서 "/" 기호로 합쳐줘야 html의 .split('/') 가 정확히 작동하여 화면에 표시됩니다!
                 h.setMedicalSubjects(String.join("/", subjectNames));
             } else {
                 h.setMedicalSubjects("정보 없음");
@@ -67,10 +103,21 @@ public class HospitalService {
     private void applyCurrentStatus(HospitalDto h) {
         refineMedicalSubjects(h);
 
+        // 🌟 폐업 및 휴업 상태 우선 처리 🌟
+        if ("CLOSED".equals(h.getStatus())) {
+            h.setCurrentStatus("폐업");
+            return;
+        }
+        if ("TEMP_CLOSED".equals(h.getStatus())) {
+            h.setCurrentStatus("휴업");
+            return;
+        }
+
         if (h.getOpenTime() == null || h.getCloseTime() == null) {
             h.setCurrentStatus("정보 없음");
             return;
         }
+
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
         String currentTime = now.format(DateTimeFormatter.ofPattern("HH:mm"));
         String currentDay = now.format(DateTimeFormatter.ofPattern("E", Locale.KOREAN));
@@ -81,15 +128,15 @@ public class HospitalService {
         }
 
         boolean isOpen = false;
-        if(h.getOpenTime().contains("24") || h.getOpenTime().equals("00:00")) isOpen = true;
-        else if (currentTime.compareTo(h.getOpenTime()) >= 0 && currentTime.compareTo(h.getCloseTime()) <= 0) isOpen = true;
+        if (h.getOpenTime().contains("24") || h.getOpenTime().equals("00:00")) isOpen = true;
+        else if (currentTime.compareTo(h.getOpenTime()) >= 0 && currentTime.compareTo(h.getCloseTime()) <= 0)
+            isOpen = true;
 
         if (!isOpen) {
-            h.setCurrentStatus("진료 종료");
+            h.setCurrentStatus("진료종료");
             return;
         }
 
-        // 🌟 에러 원인 해결: getLunchTime() -> getBreakTime() 으로 완벽하게 동기화!
         if (h.getBreakTime() != null && h.getBreakTime().contains("~")) {
             try {
                 String breakT = h.getBreakTime();
@@ -100,7 +147,8 @@ public class HospitalService {
                     h.setCurrentStatus("휴게시간");
                     return;
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         h.setCurrentStatus("진료중");
     }
@@ -123,12 +171,12 @@ public class HospitalService {
 
         List<HospitalDto> hospitalList = hospitalDao.findHospitalList(offset, limit, openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword, sort, userLat, userLng);
 
-        for(HospitalDto h : hospitalList) {
+        for (HospitalDto h : hospitalList) {
             applyCurrentStatus(h);
         }
 
         int blockLimit = 5;
-        int startPage = (((int)(Math.ceil((double)page / blockLimit))) - 1) * blockLimit + 1;
+        int startPage = (((int) (Math.ceil((double) page / blockLimit))) - 1) * blockLimit + 1;
         int endPage = startPage + blockLimit - 1;
         if (endPage > totalPages) endPage = totalPages;
 
@@ -157,7 +205,7 @@ public class HospitalService {
 
     public HospitalDto getHospitalById(int hospitalId, Double userLat, Double userLng) {
         HospitalDto h = hospitalDao.findHospitalById((long) hospitalId, userLat, userLng);
-        if(h != null) applyCurrentStatus(h);
+        if (h != null) applyCurrentStatus(h);
         return h;
     }
 
@@ -174,7 +222,7 @@ public class HospitalService {
     }
 
     public boolean toggleZzim(int hospitalId, int memberId) {
-        if(isZzim(hospitalId, memberId)) {
+        if (isZzim(hospitalId, memberId)) {
             hospitalDao.deleteZzim((long) hospitalId, (long) memberId);
             return false;
         } else {
@@ -184,7 +232,7 @@ public class HospitalService {
     }
 
     public boolean toggleLike(int hospitalId, int memberId) {
-        if(hospitalDao.checkLike((long) hospitalId, (long) memberId) > 0) {
+        if (hospitalDao.checkLike((long) hospitalId, (long) memberId) > 0) {
             hospitalDao.deleteLike((long) hospitalId, (long) memberId);
             return false;
         } else {
