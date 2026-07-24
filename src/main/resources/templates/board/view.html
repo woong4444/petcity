@@ -54,7 +54,7 @@
                    th:classappend="${boardDto.boardType == 'FREE'}
                        ? ' active' : ''">
 
-                    <span>자유토크</span>
+                    <span>수다마당</span>
                     <strong>›</strong>
                 </a>
 
@@ -62,7 +62,7 @@
                    th:classappend="${boardDto.boardType == 'INFO'}
                        ? ' active' : ''">
 
-                    <span>멍냥백서</span>
+                    <span>펫도감</span>
                     <strong>›</strong>
                 </a>
 
@@ -156,11 +156,11 @@
                             </span>
 
                             <span th:case="'FREE'">
-                                자유토크
+                                수다마당
                             </span>
 
                             <span th:case="'INFO'">
-                                멍냥백서
+                                펫도감
                             </span>
 
                             <span th:case="'FAQ'">
@@ -265,10 +265,7 @@
 
                 <!-- FAQ는 관리자에게만 수정·삭제 표시 -->
                 <div class="right-buttons"
-                     th:if="${isAdmin
-          or (isAuthenticated
-          and loginMemberId != null
-          and loginMemberId == boardDto.memberId)}">
+                     th:if="${canManageBoard}">
 
                     <a th:href="@{/board/update(
                             boardId=${boardDto.boardId}

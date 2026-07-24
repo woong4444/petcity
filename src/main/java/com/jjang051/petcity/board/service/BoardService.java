@@ -309,40 +309,36 @@ public class BoardService {
         /*
             공지사항과 FAQ는 관리자만 작성 가능
         */
-        if ("NOTICE".equals(boardType)
-                || "FAQ".equals(boardType)) {
-
-            if (!admin) {
-                throw new RuntimeException(
-                        "공지사항과 FAQ는 관리자만 작성할 수 있습니다."
-                );
-            }
-
-            boardDto.setAnimalId(null);
-
-        } else {
-
-            if (boardDto.getAnimalId() == null) {
-                throw new RuntimeException(
-                        "동물 종류를 선택해야 합니다."
-                );
-            }
+        if (isAdminOnlyBoard(boardType) && !admin) {
+            throw new RuntimeException(
+                    "펫도감, 공지사항, FAQ는 관리자만 작성할 수 있습니다."
+            );
         }
 
+        if ("NOTICE".equals(boardType) || "FAQ".equals(boardType)) {
+            boardDto.setAnimalId(null);
+
+        } else if (boardDto.getAnimalId() == null) {
+            throw new RuntimeException(
+                    "동물 종류를 선택해야 합니다."
+            );
+        }
+
+
         /*
-            멍냥백서는 대표 이미지와 링크 필수
+            펫도감은 대표 이미지와 링크 필수
         */
         if ("INFO".equals(boardType)) {
 
             if (!hasImageFile(imageFiles)) {
                 throw new RuntimeException(
-                        "멍냥백서는 대표 이미지를 반드시 등록해야 합니다."
+                        "펫도감은 대표 이미지를 반드시 등록해야 합니다."
                 );
             }
 
             if (linkUrl == null || linkUrl.isBlank()) {
                 throw new RuntimeException(
-                        "멍냥백서는 관련 링크를 반드시 입력해야 합니다."
+                        "펫도감은 관련 링크를 반드시 입력해야 합니다."
                 );
             }
         }
@@ -466,7 +462,7 @@ public class BoardService {
         boardDto.setTitle(trimmedTitle);
     }
     /*
-        멍냥백서 대표 이미지 저장
+        펫도감 대표 이미지 저장
     */
     private void saveBoardImages(
             int boardId,
@@ -779,6 +775,11 @@ public class BoardService {
         );
     }
 
+    private boolean isAdminOnlyBoard(String boardType) {
+        return "INFO".equals(boardType)
+                || "NOTICE".equals(boardType)
+                || "FAQ".equals(boardType);
+    }
     /*
         게시판 종류 검사
     */
@@ -819,7 +820,7 @@ public class BoardService {
             case "NOTICE" -> "공지사항";
             case "QNA" -> "수의사상담";
             case "FREE" -> "자유 게시판";
-            case "INFO" -> "멍냥백서";
+            case "INFO" -> "펫도감";
             case "FAQ" -> "자주 묻는 질문";
             default -> "게시판";
         };
@@ -1125,7 +1126,7 @@ public class BoardService {
                     || linkUrl.isBlank()) {
 
                 throw new RuntimeException(
-                        "멍냥백서는 관련 링크를 입력해야 합니다."
+                        "펫도감은 관련 링크를 입력해야 합니다."
                 );
             }
 
@@ -1137,7 +1138,7 @@ public class BoardService {
                     && !newImageExists) {
 
                 throw new RuntimeException(
-                        "멍냥백서는 대표 이미지가 필요합니다."
+                        "펫도감은 대표 이미지가 필요합니다."
                 );
             }
         }
@@ -1245,11 +1246,10 @@ public class BoardService {
             return;
         }
 
-        if("NOTICES".equals(boardDto.getBoardType())
-        || "FAQ".equals(boardDto.getBoardType())) {
+        if(isAdminOnlyBoard(boardDto.getBoardType())) {
 
             throw  new RuntimeException(
-                    "공지사항과 FAQ는 관리자만 수정 또는 삭제할 수 있습니다."
+                    "펫도감, 공지사항, FAQ는 관리자만 수정 또는 삭제할 수 있습니다."
             );
         }
 

@@ -263,7 +263,7 @@ public class OwnerHospitalUpdateController {
             @ModelAttribute HospitalDirectUpdateDto directUpdateDto,
             HttpSession session,
             RedirectAttributes redirectAttributes
-            ) {
+    ) {
 
         MemberDto loginMember = getOwnerLoginMember(session);
 

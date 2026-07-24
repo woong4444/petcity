@@ -41,4 +41,3 @@ public class HospitalDirectUpdateDto {
     private List<Integer> serviceIds;
     private List<Integer> subjectIds;
 }
-

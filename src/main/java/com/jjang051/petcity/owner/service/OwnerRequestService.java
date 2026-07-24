@@ -1364,7 +1364,7 @@ public class OwnerRequestService {
                 ownerRequestDao.findOwnerRequestSubjectIds(requestId)
         );
 
-         return requestDto;
+        return requestDto;
     }
 
     public void updateOwnerRequest(
@@ -1392,46 +1392,46 @@ public class OwnerRequestService {
                                 businessNumber,
                                 requestDto.getRequestId()
                         );
-            if(duplicateCount > 0) {
-                throw  new RuntimeException(
-                        "이미 신청되었거나 승인된 사업자등록번호입니다."
-                );
-            }
-
-            validateOwnerRequestForUpdate(
-                    requestDto,
-                    documentFile,
-                    hospitalImage
+        if(duplicateCount > 0) {
+            throw  new RuntimeException(
+                    "이미 신청되었거나 승인된 사업자등록번호입니다."
             );
+        }
 
-            List<Integer> animalIds =
-                    normalizeAnimalIds(requestDto.getAnimalIds());
+        validateOwnerRequestForUpdate(
+                requestDto,
+                documentFile,
+                hospitalImage
+        );
 
-            List<Integer> serviceIds =
-                    normalizeServiceIds(requestDto.getServiceIds());
+        List<Integer> animalIds =
+                normalizeAnimalIds(requestDto.getAnimalIds());
 
-            List<Integer> subjectIds =
-                    normalizeSubjectIds(requestDto.getSubjectIds());
+        List<Integer> serviceIds =
+                normalizeServiceIds(requestDto.getServiceIds());
 
-            requestDto.setAnimalIds(animalIds);
-            requestDto.setServiceIds(serviceIds);
-            requestDto.setSubjectIds(subjectIds);
+        List<Integer> subjectIds =
+                normalizeSubjectIds(requestDto.getSubjectIds());
 
-            requestDto.setHospitalMedicalSubjects(
-                    buildMedicalSubjectNames(subjectIds)
-            );
+        requestDto.setAnimalIds(animalIds);
+        requestDto.setServiceIds(serviceIds);
+        requestDto.setSubjectIds(subjectIds);
 
-            String oldDocumentUrl = existing.getDocumentUrl();
-            String oldHospitalImageUrl = existing.getHospitalImageUrl();
+        requestDto.setHospitalMedicalSubjects(
+                buildMedicalSubjectNames(subjectIds)
+        );
 
-            String newDocumentUrl = oldDocumentUrl;
-            String newHospitalImageUrl = oldHospitalImageUrl;
+        String oldDocumentUrl = existing.getDocumentUrl();
+        String oldHospitalImageUrl = existing.getHospitalImageUrl();
 
-            boolean documentChanged =
-                    documentFile != null && !documentFile.isEmpty();
+        String newDocumentUrl = oldDocumentUrl;
+        String newHospitalImageUrl = oldHospitalImageUrl;
 
-            boolean imageChanged =
-                    hospitalImage != null && !hospitalImage.isEmpty();
+        boolean documentChanged =
+                documentFile != null && !documentFile.isEmpty();
+
+        boolean imageChanged =
+                hospitalImage != null && !hospitalImage.isEmpty();
 
         if (documentChanged) {
             newDocumentUrl = saveFile(
@@ -1452,69 +1452,69 @@ public class OwnerRequestService {
         requestDto.setDocumentUrl(newDocumentUrl);
         requestDto.setHospitalImageUrl(newHospitalImageUrl);
 
-            try{
+        try{
 
-                int updatedCount =
-                        ownerRequestDao.updatePendingOwnerRequest(requestDto);
+            int updatedCount =
+                    ownerRequestDao.updatePendingOwnerRequest(requestDto);
 
-                if(updatedCount == 0) {
-                    throw new RuntimeException(
-                            "신청이 이미 처리되어 수정할 수 없습니다."
-                    );
-                }
-
-                ownerRequestDao.deleteOwnerRequestAnimals(
-                        requestDto.getRequestId()
+            if(updatedCount == 0) {
+                throw new RuntimeException(
+                        "신청이 이미 처리되어 수정할 수 없습니다."
                 );
-
-                ownerRequestDao.deleteOwnerRequestServices(
-                        requestDto.getRequestId()
-                );
-
-                ownerRequestDao.deleteOwnerRequestSubjects(
-                        requestDto.getRequestId()
-                );
-
-                for( Integer animalId : animalIds) {
-                    ownerRequestDao.insertOwnerRequestAnimal(
-                            requestDto.getRequestId(),
-                            animalId
-                    );
-                }
-
-                for( Integer serviceId : serviceIds) {
-                    ownerRequestDao.insertOwnerRequestService(
-                            requestDto.getRequestId(),
-                            serviceId
-                    );
-                }
-
-                for( Integer subjectId : subjectIds) {
-                    ownerRequestDao.insertOwnerRequestMedicalSubject(
-                            requestDto.getRequestId(),
-                            subjectId
-                    );
-                }
-
-                if(documentChanged) {
-                    deleteSavedFile(oldDocumentUrl);
-                }
-
-                if(imageChanged) {
-                    deleteSavedFile(oldHospitalImageUrl);
-                }
-            } catch (Exception exception) {
-
-                if (documentChanged) {
-                    deleteSavedFile(newDocumentUrl);
-                }
-
-                if (imageChanged) {
-                    deleteSavedFile(newHospitalImageUrl);
-                }
-
-                throw exception;
             }
+
+            ownerRequestDao.deleteOwnerRequestAnimals(
+                    requestDto.getRequestId()
+            );
+
+            ownerRequestDao.deleteOwnerRequestServices(
+                    requestDto.getRequestId()
+            );
+
+            ownerRequestDao.deleteOwnerRequestSubjects(
+                    requestDto.getRequestId()
+            );
+
+            for( Integer animalId : animalIds) {
+                ownerRequestDao.insertOwnerRequestAnimal(
+                        requestDto.getRequestId(),
+                        animalId
+                );
+            }
+
+            for( Integer serviceId : serviceIds) {
+                ownerRequestDao.insertOwnerRequestService(
+                        requestDto.getRequestId(),
+                        serviceId
+                );
+            }
+
+            for( Integer subjectId : subjectIds) {
+                ownerRequestDao.insertOwnerRequestMedicalSubject(
+                        requestDto.getRequestId(),
+                        subjectId
+                );
+            }
+
+            if(documentChanged) {
+                deleteSavedFile(oldDocumentUrl);
+            }
+
+            if(imageChanged) {
+                deleteSavedFile(oldHospitalImageUrl);
+            }
+        } catch (Exception exception) {
+
+            if (documentChanged) {
+                deleteSavedFile(newDocumentUrl);
+            }
+
+            if (imageChanged) {
+                deleteSavedFile(newHospitalImageUrl);
+            }
+
+            throw exception;
+        }
 
 
     }
