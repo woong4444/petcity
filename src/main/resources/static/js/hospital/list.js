@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const seoulAll = document.getElementById("seoulAll");
     const serviceAll = document.getElementById("serviceAll");
+    const subjectAll = document.getElementById("subjectAll");
 
+    const subjectChecks = form.querySelectorAll("input[name='subjects']");
     const districtChecks = form.querySelectorAll("input[name='districts']");
     const serviceChecks = form.querySelectorAll("input[name='serviceIds']");
     const animalRadios = form.querySelectorAll("input[name='animalId']");
@@ -187,6 +189,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const checkedSubAnimal = form.querySelector("input[name='subAnimalId']:checked");
         if (checkedSubAnimal && checkedSubAnimal.value !== "") params.append("subAnimalId", checkedSubAnimal.value);
 
+        if (subjectAll && !subjectAll.checked) {
+            form.querySelectorAll("input[name='subjects']:checked").forEach(subj => {
+                if (subj.value !== "") params.append("subjects", subj.value);
+            });
+        }
+
         if (serviceAll && !serviceAll.checked) {
             form.querySelectorAll("input[name='serviceIds']:checked").forEach(svc => {
                 if (svc.value !== "") params.append("serviceIds", svc.value);
@@ -257,7 +265,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
 
-        // 🌟 찜하기(하트) 토글 로직
         document.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -280,31 +287,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     })
                     .catch(err => console.error("찜하기 통신 에러:", err));
-            });
-        });
-
-        // 🌟 추천하기(별) 토글 로직
-        document.querySelectorAll('.btn-like-toggle').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const hospitalId = this.dataset.id;
-
-                fetch('/hospital/api/like', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ hospitalId: hospitalId })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.isSuccess) {
-                            this.classList.toggle('active', data.isLike);
-                            this.querySelector('.count').textContent = data.likeCount;
-                        } else {
-                            alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-                            location.href = '/member/login';
-                        }
-                    })
-                    .catch(err => console.error("추천하기 통신 에러:", err));
             });
         });
     }
@@ -521,6 +503,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if(this.name === 'animalId') {
                 updateSubAnimalUI();
             }
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList();
         });
     });
 
@@ -540,6 +524,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 const total = districtChecks.length;
                 const checkedCount = form.querySelectorAll("input[name='districts']:checked").length;
                 seoulAll.checked = (total === checkedCount);
+            }
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList();
+        });
+    });
+
+    if (subjectAll) {
+        subjectAll.addEventListener("change", function () {
+            subjectChecks.forEach(c => c.checked = this.checked);
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList();
+        });
+    }
+
+    subjectChecks.forEach(function (check) {
+        check.addEventListener("change", function () {
+            if (subjectAll) {
+                const total = subjectChecks.length;
+                const checkedCount = form.querySelectorAll("input[name='subjects']:checked").length;
+                subjectAll.checked = (total === checkedCount);
             }
             if (pageInput) pageInput.value = 1;
             loadHospitalList();
@@ -614,21 +618,36 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🌟 [추가됨] 그 외 지역 한 번에 체크하는 로직
+    // 🌟 [수정됨] 그 외 지역 전체 체크 시 파란색(.active) 토글 및 전체 숨김 체크박스 제어
     const otherAllBtn = document.getElementById('otherAll');
     const hiddenOtherDistricts = document.querySelectorAll('.hidden-other-district');
 
     if (otherAllBtn) {
-        // 새로고침 시 이전에 체크된 게 있으면 버튼도 활성화
-        const isChecked = Array.from(hiddenOtherDistricts).some(chk => chk.checked);
-        otherAllBtn.checked = isChecked;
+        const checkInitialState = () => {
+            const isAllChecked = Array.from(hiddenOtherDistricts).length > 0 &&
+                Array.from(hiddenOtherDistricts).every(chk => chk.checked);
+            otherAllBtn.checked = isAllChecked;
+            const label = otherAllBtn.closest('label');
+            if (label) {
+                if (isAllChecked) label.classList.add('active');
+                else label.classList.remove('active');
+            }
+        };
+        checkInitialState();
 
-        // 클릭 시 모든 숨겨진 '그 외 지역' 체크박스 토글
         otherAllBtn.addEventListener('change', function() {
+            const isChecked = this.checked;
+
             hiddenOtherDistricts.forEach(chk => {
-                chk.checked = this.checked;
+                chk.checked = isChecked;
             });
-            // Ajax로 자연스럽게 검색 결과 갱신
+
+            const label = this.closest('label');
+            if (label) {
+                if (isChecked) label.classList.add('active');
+                else label.classList.remove('active');
+            }
+
             if (pageInput) pageInput.value = 1;
             loadHospitalList();
         });
