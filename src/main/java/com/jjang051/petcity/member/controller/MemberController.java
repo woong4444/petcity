@@ -2,6 +2,8 @@ package com.jjang051.petcity.member.controller;
 
 import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberService;
+import com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto;
+import com.jjang051.petcity.memberfeature.service.MemberFeatureService;
 import com.jjang051.petcity.mail.service.EmailVerificationService;
 import com.jjang051.petcity.config.CustomUserDetails;
 import com.jjang051.petcity.visit.service.ActiveLoginRedisService;
@@ -42,6 +44,10 @@ public class MemberController {
     // MemberService
     // ===========================
     private final MemberService memberService;
+
+    // 07-24 상각: 기존 memberfeature 조회 기능을 재사용해 최근 로그인만 표시
+    // DB를 수정하지 않고 APP_MEMBER.LAST_LOGIN_AT 조회 결과만 사용합니다.
+    private final MemberFeatureService memberFeatureService;
     private final EmailVerificationService emailVerificationService;
 
     private final LoginHistoryRedisService loginHistoryRedisService;
@@ -782,8 +788,85 @@ public class MemberController {
                 member
         );
 
+        /*
+         * 07-24 상각: 일반회원 마이페이지 최근 로그인 표시
+         *
+         * - 기존 MemberFeatureAccountDto의 NULL 안전 포맷터를 재사용합니다.
+         * - LAST_LOGIN_AT이 NULL이면 빈 문자열을 전달하고 화면에서 영역을 숨깁니다.
+         * - 이 조회는 회원정보를 UPDATE하지 않습니다.
+         */
+        MemberFeatureAccountDto featureAccount =
+                memberFeatureService.findByMemberId(
+                        member.getMemberId()
+                );
+
+        model.addAttribute(
+                "lastLoginText",
+                featureAccount == null
+                        ? ""
+                        : featureAccount.getLastLoginText()
+        );
+
         return "member/mypage";
     }
+
+    // =====================================================
+    // 07-24 상각: 마이페이지 닉네임 사전 중복확인(AJAX)
+    // =====================================================
+    @ResponseBody
+    @GetMapping("/member/mypage/check-nickname")
+    public boolean checkMypageNickname(
+            @RequestParam String nickname,
+            HttpSession session
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        /*
+         * 로그인 정보가 없으면 사용 불가(true)로 반환하여
+         * 비로그인 상태에서 중복확인이 통과하지 않도록 합니다.
+         */
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            return true;
+        }
+
+        return memberService.existsNicknameExceptMember(
+                loginMember.getMemberId(),
+                nickname
+        );
+    }
+
+
+    // =====================================================
+    // 07-24 상각: 마이페이지 전화번호 사전 중복확인(AJAX)
+    // =====================================================
+    @ResponseBody
+    @GetMapping("/member/mypage/check-phone")
+    public boolean checkMypagePhone(
+            @RequestParam String phone,
+            HttpSession session
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute(
+                        "loginMember"
+                );
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            return true;
+        }
+
+        return memberService.existsPhoneExceptMember(
+                loginMember.getMemberId(),
+                phone
+        );
+    }
+
 
     // 07-16 상각: 아이디·이메일을 제외한 내 정보 수정
     @PostMapping("/member/mypage")

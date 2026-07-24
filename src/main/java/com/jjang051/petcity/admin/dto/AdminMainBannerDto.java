@@ -1,7 +1,6 @@
 package com.jjang051.petcity.admin.dto;
 
 import lombok.*;
-import org.apache.ibatis.type.Alias;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Alias("AdminMainBannerDto")
 public class AdminMainBannerDto {
     private Long bannerId;
     private String title;

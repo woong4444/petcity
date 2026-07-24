@@ -19,8 +19,6 @@ public class WebConfig implements WebMvcConfigurer {
     private final LoginActivityInterceptor loginActivityInterceptor;
     @Value("${file.upload}")
     private String uploadPath;
-    @Value("${app.upload.root-dir:uploads}")
-    private String uploadRootDir;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -33,15 +31,6 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/upload/**")
                 .addResourceLocations(uploadUrl);
-
-        String bannerUploadUrl = Paths.get(uploadRootDir)
-                .toAbsolutePath()
-                .normalize()
-                .toUri().toString();
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(bannerUploadUrl);
-
-
     }
 
     @Override
@@ -52,7 +41,6 @@ public class WebConfig implements WebMvcConfigurer {
                         "/css/**",
                         "/js/**",
                         "/images/**",
-                        "/uploads/**",
                         "/favicon.ico",
                         "/admin/**"
                 );
@@ -61,7 +49,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/css/**",
                         "/js/**",
-                        "/uploads/**",
                         "/images/**",
                         "/favicon.ico",
                         "/member/login",

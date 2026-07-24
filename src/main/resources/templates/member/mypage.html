@@ -3,58 +3,745 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>My Page | PetCity</title>
+
+    <!-- 공통 헤더 CSS -->
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
+
+    <!-- 일반회원 마이페이지 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/member/mypage.css}">
 </head>
 <body>
+
+<!-- 기존 PetCity 공통 헤더 유지 -->
 <header th:replace="~{common/head :: head}"></header>
 
-<main class="mypage-wrap">
-    <section class="mypage-card">
-        <div class="mypage-heading">
-            <span>&#128062;</span>
+<!--
+    일반회원(LOCAL) 전용 마이페이지
+
+    주의:
+    1. SNS 전용 feature-mypage.html은 수정하지 않습니다.
+    2. 아이디와 이메일은 기존 규칙대로 수정할 수 없습니다.
+    3. 일반회원은 닉네임과 전화번호만 수정할 수 있습니다.
+    4. 반려동물·병원장 문의 기능은 해당 페이지로 이동하는 링크만 제공합니다.
+-->
+<main class="mypage-page">
+
+    <!-- =========================
+         왼쪽 마이페이지 메뉴
+    ========================== -->
+    <aside class="mypage-sidebar">
+        <div class="sidebar-title">
+            <span class="sidebar-title-icon">♙</span>
+            <strong>마이페이지</strong>
+        </div>
+
+        <nav class="sidebar-menu" aria-label="마이페이지 메뉴">
+            <a class="sidebar-link active" href="#my-info">
+                <span>●</span>
+                내 정보
+            </a>
+
+            <a class="sidebar-link" th:href="@{/member/mypage/pets}">
+                <span>🐾</span>
+                내 반려동물
+            </a>
+
+            <a class="sidebar-link" th:href="@{/owner/status}">
+                <span>▣</span>
+                병원장 문의 현황
+            </a>
+
+            <a class="sidebar-link danger-link" href="#withdraw">
+                <span>♟</span>
+                회원 탈퇴
+            </a>
+        </nav>
+    </aside>
+
+    <!-- =========================
+         오른쪽 마이페이지 본문
+    ========================== -->
+    <div class="mypage-content">
+
+        <!-- 성공 및 오류 메시지 -->
+        <div th:if="${successMessage}"
+             class="mypage-message success"
+             th:text="${successMessage}">
+        </div>
+
+        <div th:if="${message}"
+             class="mypage-message error"
+             th:text="${message}">
+        </div>
+
+        <!-- =========================
+             회원 요약 카드
+        ========================== -->
+        <section class="profile-summary-card">
+            <div class="profile-summary-main">
+                <div class="profile-avatar" aria-hidden="true">
+                    <span class="avatar-head"></span>
+                    <span class="avatar-body"></span>
+                </div>
+
+                <div class="profile-summary-text">
+                    <div class="profile-name-row">
+                        <h1 th:text="${member.nickname != null ? member.nickname + '님' : '회원님'}">
+                            회원님
+                        </h1>
+                        <span class="member-badge">일반회원</span>
+                    </div>
+
+                    <p class="join-type">
+                        LOCAL 계정으로 가입
+                    </p>
+
+                    <p class="verified-text"
+                       th:if="${member.emailVerified == 'Y'}">
+                        ● 이메일 인증 완료
+                    </p>
+                </div>
+            </div>
+
+            <div class="profile-summary-meta">
+                <div class="summary-meta-item">
+                    <span>가입 방식</span>
+                    <strong>LOCAL</strong>
+                </div>
+
+                <div class="summary-meta-item">
+                    <span>회원 구분</span>
+                    <strong>일반 회원</strong>
+                </div>
+
+                <!--
+                    07-24 상각: LAST_LOGIN_AT이 NULL이면 lastLoginText가 빈 문자열이므로
+                    최근 로그인 항목 전체를 표시하지 않습니다.
+                -->
+                <div class="summary-meta-item"
+                     th:if="${lastLoginText != null and !#strings.isEmpty(lastLoginText)}">
+                    <span>최근 로그인</span>
+                    <strong th:text="${lastLoginText}">2026.07.24 15:08</strong>
+                </div>
+            </div>
+        </section>
+
+        <div class="mypage-grid">
+
+            <!-- =========================
+                 일반회원 기본 정보
+            ========================== -->
+            <section class="mypage-card info-card" id="my-info">
+                <div class="card-heading">
+                    <h2>기본 정보</h2>
+                    <p><b>*</b> 닉네임과 전화번호만 변경할 수 있습니다.</p>
+                </div>
+
+                <!-- 기존 일반회원 정보 수정 주소 유지 -->
+                <form id="localMypageForm"
+                      method="post"
+                      th:action="@{/member/mypage}"
+                      class="profile-form">
+
+                    <div class="form-grid">
+                        <label class="form-field">
+                            <span>아이디</span>
+                            <input type="text"
+                                   th:value="${member.loginId}"
+                                   readonly>
+                        </label>
+
+                        <label class="form-field">
+                            <span>이메일</span>
+                            <input type="email"
+                                   th:value="${member.email}"
+                                   readonly>
+                        </label>
+
+                        <label class="form-field">
+                            <span>닉네임 <b>*</b></span>
+
+                            <!-- 07-24 상각: 저장 전에 현재 사용 가능 여부를 확인합니다. -->
+                            <div class="duplicate-check-row">
+                                <input type="text"
+                                       id="localNickname"
+                                       name="nickname"
+                                       th:value="${member.nickname}"
+                                       th:attr="data-original=${member.nickname}"
+                                       minlength="2"
+                                       maxlength="20"
+                                       autocomplete="nickname"
+                                       required>
+
+                                <button type="button"
+                                        id="nicknameCheckButton"
+                                        class="duplicate-check-button">
+                                    중복확인
+                                </button>
+                            </div>
+
+                            <small id="nicknameCheckMessage"
+                                   class="duplicate-check-message">
+                                닉네임을 변경하면 중복확인이 필요합니다.
+                            </small>
+                        </label>
+
+                        <label class="form-field">
+                            <span>전화번호 <b>*</b></span>
+
+                            <!--
+                                07-24 상각:
+                                전화번호는 참고 연락처이며 현재 다른 회원의 사용 여부만 확인합니다.
+                            -->
+                            <div class="duplicate-check-row">
+                                <input type="tel"
+                                       id="localPhone"
+                                       name="phone"
+                                       th:value="${member.phone}"
+                                       th:attr="data-original=${member.phone}"
+                                       placeholder="010-0000-0000"
+                                       maxlength="13"
+                                       autocomplete="tel"
+                                       required>
+
+                                <button type="button"
+                                        id="phoneCheckButton"
+                                        class="duplicate-check-button">
+                                    중복확인
+                                </button>
+                            </div>
+
+                            <small id="phoneCheckMessage"
+                                   class="duplicate-check-message">
+                                전화번호를 변경하면 중복확인이 필요합니다.
+                            </small>
+                        </label>
+
+                        <label class="form-field">
+                            <span>가입 방식</span>
+                            <input type="text"
+                                   value="LOCAL"
+                                   readonly>
+                        </label>
+
+                        <label class="form-field">
+                            <span>회원 구분</span>
+                            <input type="text"
+                                   value="일반 회원"
+                                   readonly>
+                        </label>
+                    </div>
+
+                    <button id="localSaveButton"
+                            class="primary-button"
+                            type="submit">
+                        변경사항 저장
+                    </button>
+                </form>
+            </section>
+
+            <!-- =========================
+                 오른쪽 기능 카드 영역
+            ========================== -->
+            <div class="side-card-column">
+
+                <!-- 반려동물 영역은 조회·수정 기능을 직접 처리하지 않고 링크만 제공합니다. -->
+                <section class="mypage-card shortcut-card">
+                    <div class="shortcut-heading">
+                        <h2>내 반려동물</h2>
+                    </div>
+
+                    <div class="shortcut-description">
+                        <div class="shortcut-icon">🐾</div>
+                        <div>
+                            <strong>등록한 반려동물을 확인해보세요.</strong>
+                            <p>반려동물 등록, 수정, 삭제는 기존 관리 페이지에서 진행합니다.</p>
+                        </div>
+                    </div>
+
+                    <a class="outline-button"
+                       th:href="@{/member/mypage/pets}">
+                        내 반려동물 관리하기
+                    </a>
+                </section>
+
+                <!--
+                    07-24 상각:
+                    SNS 회원 마이페이지와 동일한 병원장 문의 흐름을 사용합니다.
+                    현황 확인은 /owner/status,
+                    실제 신청은 /owner/apply로 이동합니다.
+                -->
+                <section class="mypage-card shortcut-card">
+                    <div class="shortcut-heading">
+                        <h2>병원장 문의 현황</h2>
+
+                        <a th:href="@{/owner/status}"
+                           style="font-size: 12px; font-weight: 700; color: #2563eb; text-decoration: none;">
+                            전체보기 ›
+                        </a>
+                    </div>
+
+                    <div class="shortcut-description">
+                        <div class="shortcut-icon">▣</div>
+
+                        <div>
+                            <strong>병원장 문의 내역을 확인할 수 있습니다.</strong>
+                            <p>
+                                신청 상태와 처리 결과는
+                                기존 문의 현황 페이지에서 확인합니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!--
+                        기존 CSS 파일을 수정하지 않기 위해
+                        버튼 배치 스타일은 일반회원 HTML 내부에만 적용합니다.
+                    -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <a class="outline-button"
+                           th:href="@{/owner/status}">
+                            문의 현황 보기
+                        </a>
+
+                        <a class="outline-button"
+                           th:href="@{/owner/apply}">
+                            병원장 문의하기
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- =========================
+             일반회원 탈퇴 영역
+        ========================== -->
+        <section class="withdraw-card" id="withdraw">
             <div>
-                <h1>&#47560;&#51060;&#54168;&#51060;&#51648;</h1>
-                <p>&#45236; &#54924;&#50896; &#51221;&#48372;&#47484; &#54869;&#51064;&#54616;&#44256; &#49688;&#51221;&#54624; &#49688; &#51080;&#50612;&#50836;.</p>
+                <h2>회원 탈퇴</h2>
+                <p>
+                    탈퇴 요청 후 3일 동안 <b>DELETE_PENDING</b> 상태로 보관되며,
+                    기간이 지나면 삭제 처리됩니다.
+                </p>
+                <p>
+                    일반회원은 기존 탈퇴 화면에서 비밀번호 확인 절차를 진행합니다.
+                </p>
             </div>
-        </div>
 
-        <div th:if="${successMessage}" class="message success" th:text="${successMessage}"></div>
-        <div th:if="${message}" class="message error" th:text="${message}"></div>
-
-        <form method="post" action="/member/mypage" class="profile-form">
-            <div class="field-grid">
-                <label>&#50500;&#51060;&#46356;<input type="text" th:value="${member.loginId}" readonly></label>
-                <label>&#51060;&#47700;&#51068;<input type="email" th:value="${member.email}" readonly></label>
+            <div th:if="${withdrawMessage}"
+                 class="mypage-message error"
+                 th:text="${withdrawMessage}">
             </div>
-            <p class="field-help">&#50500;&#51060;&#46356;&#50752; &#51060;&#47700;&#51068;&#51008; &#48372;&#50504;&#51012; &#50948;&#54644; &#51060; &#54868;&#47732;&#50640;&#49436; &#48320;&#44221;&#54624; &#49688; &#50630;&#49845;&#45768;&#45796;.</p>
 
-            <div class="field-grid">
-                <label>&#45769;&#45348;&#51076;<input type="text" name="nickname" th:value="${member.nickname}" minlength="2" maxlength="20" required></label>
-                <label>&#51204;&#54868;&#48264;&#54840;<input type="tel" name="phone" th:value="${member.phone}" placeholder="010-0000-0000" required></label>
-            </div>
-            <button class="btn primary" type="submit">&#54924;&#50896; &#51221;&#48372; &#51200;&#51109;</button>
-        </form>
-        <a class="pet-link" href="/member/mypage/pets">&#128062; &#45236; &#48152;&#47140;&#46041;&#47932; &#44288;&#47532;&#54616;&#44592;</a>
-    </section>
-
-    <section class="withdraw-card">
-        <div>
-            <h2>&#54924;&#50896; &#53448;&#53748;</h2>
-            <p>&#53448;&#53664; &#50836;&#52397; &#54980; 3&#51068; &#46041;&#50504; <b>DELETE_PENDING</b> &#49345;&#53468;&#47196; &#48372;&#44288;&#46104;&#47728;, &#44592;&#44036;&#51060; &#51648;&#45208;&#47732; &#49325;&#51228; &#52376;&#47532;&#46121;&#45768;&#45796;.</p>
-        </div>
-        <div th:if="${withdrawMessage}" class="message error" th:text="${withdrawMessage}"></div>
-        <form method="post" action="/member/mypage/withdraw" onsubmit="return confirm('&#53448;&#53748;&#47484; &#50836;&#52397;&#54616;&#49884;&#44192;&#49845;&#45768;&#44620;? &#50836;&#52397; &#54980; &#48148;&#47196; &#47196;&#44536;&#50500;&#50883;&#46121;&#45768;&#45796;.');" class="withdraw-form">
-            <label>&#54788;&#51116; &#48708;&#48128;&#48264;&#54840;
-                <input type="password" name="password" autocomplete="current-password" required placeholder="&#48708;&#48128;&#48264;&#54840;&#47484; &#51077;&#47141;&#54616;&#49464;&#50836;">
-            </label>
-            <button class="btn danger" type="submit">&#54924;&#50896; &#53448;&#53748; &#50836;&#52397;</button>
-        </form>
-    </section>
+            <!-- 기존 일반회원 탈퇴 화면 연결 유지 -->
+            <form method="get"
+                  th:action="@{/member/feature/withdraw}">
+                <button class="danger-button"
+                        type="submit">
+                    회원 탈퇴 요청
+                </button>
+            </form>
+        </section>
+    </div>
 </main>
 
-<style>
-.mypage-wrap{max-width:980px;margin:56px auto 90px;padding:0 20px;color:#172033}.mypage-card,.withdraw-card{background:#fff;border:1px solid #e6ebf2;border-radius:20px;padding:34px;box-shadow:0 12px 30px rgba(31,53,82,.08);margin-bottom:24px}.mypage-heading{display:flex;gap:13px;align-items:center;border-bottom:1px solid #edf0f5;padding-bottom:22px;margin-bottom:25px}.mypage-heading span{font-size:34px}.mypage-heading h1{font-size:28px;margin:0}.mypage-heading p,.withdraw-card p{color:#718096;margin:6px 0 0;line-height:1.6}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.profile-form label,.withdraw-form label{display:flex;flex-direction:column;gap:8px;font-weight:700;font-size:14px}.profile-form input,.withdraw-form input{border:1px solid #d8e0ec;border-radius:10px;padding:13px 14px;font-size:15px}.profile-form input[readonly]{background:#f5f7fa;color:#778398}.field-help{font-size:13px;color:#8c98a9;margin:-8px 0 18px}.btn{border:0;border-radius:10px;padding:13px 20px;font-weight:800;cursor:pointer}.primary{background:#2563eb;color:#fff}.danger{background:#fff1f2;color:#d7374b;border:1px solid #fecdd3}.pet-link{display:inline-block;margin-left:10px;color:#0f766e;font-weight:800;text-decoration:none}.withdraw-card{border-color:#ffe1e5}.withdraw-card h2{margin:0;color:#bd2739}.withdraw-form{display:flex;gap:12px;align-items:end;margin-top:22px}.withdraw-form label{flex:1}.message{padding:13px 15px;border-radius:10px;margin:14px 0;font-weight:700}.success{background:#eafaf0;color:#167a40}.error{background:#fff0f1;color:#c43646}@media(max-width:650px){.field-grid{grid-template-columns:1fr}.withdraw-form{flex-direction:column;align-items:stretch}.withdraw-form .btn{width:100%}.pet-link{display:block;margin:16px 0 0}}
-</style>
+<!--
+    07-24 상각: 일반회원 마이페이지 사전 중복확인 및 최종 저장 검증
+
+    처리 순서:
+    1. 닉네임/전화번호 입력
+    2. 변경한 항목별 중복확인
+    3. 저장 버튼 클릭
+    4. 서버에서 형식 및 중복 최종 재검사
+    5. DB 저장
+-->
+<script th:inline="javascript">
+    (() => {
+        "use strict";
+
+        const form = document.getElementById("localMypageForm");
+        const nicknameInput = document.getElementById("localNickname");
+        const phoneInput = document.getElementById("localPhone");
+        const nicknameCheckButton = document.getElementById("nicknameCheckButton");
+        const phoneCheckButton = document.getElementById("phoneCheckButton");
+        const nicknameMessage = document.getElementById("nicknameCheckMessage");
+        const phoneMessage = document.getElementById("phoneCheckMessage");
+        const saveButton = document.getElementById("localSaveButton");
+
+        const serverError = /*[[${message}]]*/ null;
+        const serverSuccess = /*[[${successMessage}]]*/ null;
+
+        if (serverError) {
+            alert(serverError);
+        } else if (serverSuccess) {
+            alert(serverSuccess);
+        }
+
+        if (!form
+            || !nicknameInput
+            || !phoneInput
+            || !nicknameCheckButton
+            || !phoneCheckButton
+            || !nicknameMessage
+            || !phoneMessage
+            || !saveButton) {
+            return;
+        }
+
+        const nicknamePattern = /^[가-힣a-zA-Z0-9_]{2,20}$/;
+        const phonePattern = /^01[016789]-\d{3,4}-\d{4}$/;
+
+        const originalNickname =
+            (nicknameInput.dataset.original || "").trim();
+
+        const normalizePhone = (value) => {
+            const digits = (value || "").replace(/\D/g, "");
+
+            if (digits.length === 11) {
+                return digits.replace(
+                    /^(01[016789])(\d{4})(\d{4})$/,
+                    "$1-$2-$3"
+                );
+            }
+
+            if (digits.length === 10) {
+                return digits.replace(
+                    /^(01[016789])(\d{3})(\d{4})$/,
+                    "$1-$2-$3"
+                );
+            }
+
+            return (value || "").trim();
+        };
+
+        const originalPhone =
+            normalizePhone(
+                phoneInput.dataset.original || ""
+            );
+
+        /*
+         * 확인 완료 값입니다.
+         * 확인 후 사용자가 다시 입력하면 즉시 초기화합니다.
+         */
+        let checkedNickname = originalNickname;
+        let checkedPhone = originalPhone;
+
+        const setMessage = (element, message, type) => {
+            element.textContent = message;
+            element.classList.remove("success", "error", "pending");
+
+            if (type) {
+                element.classList.add(type);
+            }
+        };
+
+        const resetNicknameCheck = () => {
+            const current = nicknameInput.value.trim();
+
+            if (current === originalNickname) {
+                checkedNickname = originalNickname;
+                setMessage(
+                    nicknameMessage,
+                    "현재 사용 중인 닉네임입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            checkedNickname = "";
+            setMessage(
+                nicknameMessage,
+                "변경한 닉네임의 중복확인을 완료해주세요.",
+                "pending"
+            );
+        };
+
+        const resetPhoneCheck = () => {
+            const current =
+                normalizePhone(
+                    phoneInput.value
+                );
+
+            if (current === originalPhone) {
+                checkedPhone = originalPhone;
+                setMessage(
+                    phoneMessage,
+                    "현재 사용 중인 참고 연락처입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            checkedPhone = "";
+            setMessage(
+                phoneMessage,
+                "변경한 전화번호의 중복확인을 완료해주세요.",
+                "pending"
+            );
+        };
+
+        nicknameInput.addEventListener(
+            "input",
+            resetNicknameCheck
+        );
+
+        phoneInput.addEventListener(
+            "input",
+            resetPhoneCheck
+        );
+
+        phoneInput.addEventListener("blur", () => {
+            phoneInput.value =
+                normalizePhone(
+                    phoneInput.value
+                );
+
+            resetPhoneCheck();
+        });
+
+        nicknameCheckButton.addEventListener("click", async () => {
+            const nickname = nicknameInput.value.trim();
+
+            nicknameInput.value = nickname;
+
+            if (!nicknamePattern.test(nickname)) {
+                checkedNickname = "";
+                setMessage(
+                    nicknameMessage,
+                    "닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다.",
+                    "error"
+                );
+                nicknameInput.focus();
+                return;
+            }
+
+            if (nickname === originalNickname) {
+                checkedNickname = originalNickname;
+                setMessage(
+                    nicknameMessage,
+                    "현재 사용 중인 닉네임입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            nicknameCheckButton.disabled = true;
+            nicknameCheckButton.textContent = "확인 중...";
+
+            try {
+                const response = await fetch(
+                    `/member/mypage/check-nickname?nickname=${encodeURIComponent(nickname)}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("닉네임 중복확인 요청에 실패했습니다.");
+                }
+
+                const duplicated = await response.json();
+
+                if (duplicated) {
+                    checkedNickname = "";
+                    setMessage(
+                        nicknameMessage,
+                        "이미 사용 중인 닉네임입니다.",
+                        "error"
+                    );
+                    return;
+                }
+
+                checkedNickname = nickname;
+                setMessage(
+                    nicknameMessage,
+                    "사용 가능한 닉네임입니다.",
+                    "success"
+                );
+
+            } catch (error) {
+                checkedNickname = "";
+                setMessage(
+                    nicknameMessage,
+                    error.message || "닉네임 중복확인 중 오류가 발생했습니다.",
+                    "error"
+                );
+
+            } finally {
+                nicknameCheckButton.disabled = false;
+                nicknameCheckButton.textContent = "중복확인";
+            }
+        });
+
+        phoneCheckButton.addEventListener("click", async () => {
+            const phone =
+                normalizePhone(
+                    phoneInput.value
+                );
+
+            phoneInput.value = phone;
+
+            if (!phonePattern.test(phone)) {
+                checkedPhone = "";
+                setMessage(
+                    phoneMessage,
+                    "휴대전화 번호 형식을 확인해주세요. 예: 010-1234-5678",
+                    "error"
+                );
+                phoneInput.focus();
+                return;
+            }
+
+            if (phone === originalPhone) {
+                checkedPhone = originalPhone;
+                setMessage(
+                    phoneMessage,
+                    "현재 사용 중인 참고 연락처입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            phoneCheckButton.disabled = true;
+            phoneCheckButton.textContent = "확인 중...";
+
+            try {
+                const response = await fetch(
+                    `/member/mypage/check-phone?phone=${encodeURIComponent(phone)}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("전화번호 중복확인 요청에 실패했습니다.");
+                }
+
+                const duplicated = await response.json();
+
+                if (duplicated) {
+                    checkedPhone = "";
+                    setMessage(
+                        phoneMessage,
+                        "이미 다른 회원이 사용 중인 전화번호입니다.",
+                        "error"
+                    );
+                    return;
+                }
+
+                checkedPhone = phone;
+                setMessage(
+                    phoneMessage,
+                    "사용 가능한 참고 연락처입니다.",
+                    "success"
+                );
+
+            } catch (error) {
+                checkedPhone = "";
+                setMessage(
+                    phoneMessage,
+                    error.message || "전화번호 중복확인 중 오류가 발생했습니다.",
+                    "error"
+                );
+
+            } finally {
+                phoneCheckButton.disabled = false;
+                phoneCheckButton.textContent = "중복확인";
+            }
+        });
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const nickname = nicknameInput.value.trim();
+            const phone =
+                normalizePhone(
+                    phoneInput.value
+                );
+
+            nicknameInput.value = nickname;
+            phoneInput.value = phone;
+
+            if (!nicknamePattern.test(nickname)) {
+                alert("닉네임 형식을 확인해주세요.");
+                nicknameInput.focus();
+                return;
+            }
+
+            if (!phonePattern.test(phone)) {
+                alert("휴대전화 번호 형식을 확인해주세요.");
+                phoneInput.focus();
+                return;
+            }
+
+            const nicknameChanged =
+                nickname !== originalNickname;
+
+            const phoneChanged =
+                phone !== originalPhone;
+
+            if (!nicknameChanged && !phoneChanged) {
+                alert("변경된 회원 정보가 없습니다.");
+                return;
+            }
+
+            if (nicknameChanged
+                && checkedNickname !== nickname) {
+                alert("변경한 닉네임의 중복확인을 완료해주세요.");
+                nicknameInput.focus();
+                return;
+            }
+
+            if (phoneChanged
+                && checkedPhone !== phone) {
+                alert("변경한 전화번호의 중복확인을 완료해주세요.");
+                phoneInput.focus();
+                return;
+            }
+
+            const changes = [];
+
+            if (nicknameChanged) {
+                changes.push(
+                    `닉네임: ${originalNickname} → ${nickname}`
+                );
+            }
+
+            if (phoneChanged) {
+                changes.push(
+                    `전화번호: ${originalPhone} → ${phone}`
+                );
+            }
+
+            const confirmed = confirm(
+                `${changes.join("\n")}\n\n위 내용으로 회원 정보를 변경하시겠습니까?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            /*
+             * 사전 중복확인을 통과했더라도
+             * 저장 시 MemberService가 같은 검사를 다시 수행합니다.
+             */
+            saveButton.disabled = true;
+            saveButton.textContent = "저장 중...";
+            form.submit();
+        });
+
+        // 최초 화면의 기존 값은 별도 중복확인 없이 사용 가능합니다.
+        resetNicknameCheck();
+        resetPhoneCheck();
+    })();
+</script>
+
 </body>
 </html>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 상각_07-19: 팀장 원본 member 매퍼를 변경하지 않는 독립 기능 SQL 매퍼 -->
+<mapper namespace="com.jjang051.petcity.memberfeature.dao.MemberFeatureMapper">
+
+    <!-- 상각_07-19: OAuth 시작 시점의 기존 SNS 회원을 독립 기능에서 판별 -->
+    <select id="findAllSnsMemberIds" resultType="long">
+        SELECT MEMBER_ID
+        FROM APP_MEMBER
+        WHERE LOGIN_TYPE IS NOT NULL
+        AND LOGIN_TYPE &lt;&gt; 'LOCAL'
+    </select>
+
+    <select id="findByMemberId"
+            resultType="com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto">
+        SELECT *
+        FROM APP_MEMBER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
+    <select id="findByLoginId"
+            resultType="com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto">
+        SELECT *
+        FROM APP_MEMBER
+        WHERE LOWER(LOGIN_ID) = LOWER(#{loginId})
+    </select>
+
+    <!-- 상각_07-19: 일반회원과 SNS 회원 모두 등록 이메일+복구코드로 복구하되 가입 유형은 분리 -->
+    <select id="findRecoverableByEmail"
+            resultType="com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto">
+        SELECT *
+        FROM APP_MEMBER
+        WHERE LOWER(EMAIL) = LOWER(#{email})
+        AND MEMBER_STATUS = 'DELETE_PENDING'
+        AND (
+        (#{accountType} = 'sns' AND LOGIN_TYPE &lt;&gt; 'LOCAL')
+        OR
+        (#{accountType} = 'local' AND LOGIN_TYPE = 'LOCAL')
+        )
+    </select>
+
+    <select id="findActiveLocalByEmail"
+            resultType="com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto">
+        SELECT *
+        FROM APP_MEMBER
+        WHERE LOWER(EMAIL) = #{email}
+        AND LOGIN_TYPE = 'LOCAL'
+        AND STATUS = 'ACTIVE'
+        AND MEMBER_STATUS = 'ACTIVE'
+    </select>
+
+    <select id="findActiveIdentity"
+            resultType="com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto">
+        SELECT *
+        FROM APP_MEMBER
+        WHERE LOWER(LOGIN_ID) = #{loginId}
+        AND LOWER(EMAIL) = #{email}
+        AND PHONE = #{phone}
+        AND LOGIN_TYPE = 'LOCAL'
+        AND STATUS = 'ACTIVE'
+        AND MEMBER_STATUS = 'ACTIVE'
+    </select>
+
+    <update id="requestWithdrawal">
+        UPDATE APP_MEMBER
+        SET STATUS = 'BLOCKED',
+        MEMBER_STATUS = 'DELETE_PENDING',
+        DELETE_REQUESTED_AT = SYSDATE,
+        HARD_DELETE_AT = SYSDATE + 3,
+        DELETE_REASON = #{deleteReason},
+        RECOVERY_TOKEN_HASH = #{recoveryTokenHash},
+        UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+        AND MEMBER_STATUS = 'ACTIVE'
+        AND ROLE &lt;&gt; 'ADMIN'
+    </update>
+
+    <update id="restoreWithdrawal">
+        UPDATE APP_MEMBER
+        SET STATUS = 'ACTIVE',
+        MEMBER_STATUS = 'ACTIVE',
+        DELETE_REQUESTED_AT = NULL,
+        HARD_DELETE_AT = NULL,
+        DELETE_REASON = NULL,
+        RECOVERY_TOKEN_HASH = NULL,
+        UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+        AND MEMBER_STATUS = 'DELETE_PENDING'
+        AND HARD_DELETE_AT &gt; SYSDATE
+    </update>
+
+    <update id="updateRecoveryToken">
+        UPDATE APP_MEMBER
+        SET RECOVERY_TOKEN_HASH = #{recoveryTokenHash},
+        UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+        AND MEMBER_STATUS = 'DELETE_PENDING'
+        AND HARD_DELETE_AT &gt; SYSDATE
+    </update>
+
+    <update id="updatePassword">
+        UPDATE APP_MEMBER
+        SET PASSWORD = #{password},
+        UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+        AND MEMBER_STATUS = 'ACTIVE'
+    </update>
+
+    <!-- 상각_07-19: 팀장 원본 회원 수정 SQL과 분리된 SNS 닉네임 수정 -->
+    <select id="countNicknameExceptMember" resultType="int">
+        SELECT COUNT(*)
+        FROM APP_MEMBER
+        WHERE NICKNAME = #{nickname}
+        AND MEMBER_ID &lt;&gt; #{memberId}
+    </select>
+
+    <update id="updateSnsNickname">
+        UPDATE APP_MEMBER
+        SET NICKNAME = #{nickname},
+        UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+        AND LOGIN_TYPE &lt;&gt; 'LOCAL'
+        AND MEMBER_STATUS = 'ACTIVE'
+    </update>
+
+    <!--
+        상각_07-23:
+        로그인 성공 시 APP_MEMBER 테이블의 LAST_LOGIN_AT을 갱신한다.
+
+        관리자 회원관리 화면은 수정하지 않고,
+        기존 "최근 로그인" 항목에서 이 DB 값을 표시하도록 한다.
+    -->
+    <update id="updateLastLoginAt">
+        UPDATE APP_MEMBER
+        SET LAST_LOGIN_AT = #{lastLoginAt},
+        UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+        AND STATUS = 'ACTIVE'
+        AND MEMBER_STATUS = 'ACTIVE'
+    </update>
+
+</mapper>

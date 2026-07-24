@@ -26,7 +26,7 @@ public class HospitalService {
 
         if (sub.matches("^[0-9, ]+$")) {
             String[] ids = sub.split(",");
-            java.util.List<String> subjectNames = new java.util.ArrayList<>();
+            List<String> subjectNames = new java.util.ArrayList<>();
             for (String idStr : ids) {
                 if(idStr.trim().isEmpty()) continue;
                 try {

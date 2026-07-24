@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 상각_07-19: 탈퇴·복구 보안 감사 이력(1년 보관) -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjang051.petcity.member.dao.MemberSecurityAuditMapper">
+    <insert id="insert" parameterType="com.jjang051.petcity.member.dto.MemberSecurityAuditDto">
+        INSERT INTO MEMBER_SECURITY_AUDIT
+        (AUDIT_ID, MEMBER_ID, LOGIN_ID, NICKNAME, LOGIN_TYPE, EVENT_TYPE,
+         EVENT_RESULT, EVENT_REASON, IP_ADDRESS, OCCURRED_AT, EXPIRES_AT)
+        VALUES
+        (
+        SEQ_MEMBER_SECURITY_AUDIT.NEXTVAL,
+        #{memberId,jdbcType=NUMERIC},
+        #{loginId,jdbcType=VARCHAR},
+        #{nickname,jdbcType=VARCHAR},
+        #{loginType,jdbcType=VARCHAR},
+        #{eventType,jdbcType=VARCHAR},
+        #{eventResult,jdbcType=VARCHAR},
+        #{eventReason,jdbcType=VARCHAR},
+        #{ipAddress,jdbcType=VARCHAR},
+        SYSTIMESTAMP,
+        ADD_MONTHS(SYSTIMESTAMP, 12)
+        )
+    </insert>
+
+    <select id="findAll" resultType="com.jjang051.petcity.member.dto.MemberSecurityAuditDto">
+        SELECT AUDIT_ID auditId, MEMBER_ID memberId, LOGIN_ID loginId, NICKNAME nickname,
+               LOGIN_TYPE loginType, EVENT_TYPE eventType, EVENT_RESULT eventResult,
+               EVENT_REASON eventReason, IP_ADDRESS ipAddress,
+               OCCURRED_AT occurredAt, EXPIRES_AT expiresAt
+          FROM MEMBER_SECURITY_AUDIT
+         ORDER BY OCCURRED_AT DESC
+    </select>
+
+    <select id="findByMemberId" resultType="com.jjang051.petcity.member.dto.MemberSecurityAuditDto">
+        SELECT AUDIT_ID auditId, MEMBER_ID memberId, LOGIN_ID loginId, NICKNAME nickname,
+               LOGIN_TYPE loginType, EVENT_TYPE eventType, EVENT_RESULT eventResult,
+               EVENT_REASON eventReason, IP_ADDRESS ipAddress,
+               OCCURRED_AT occurredAt, EXPIRES_AT expiresAt
+          FROM MEMBER_SECURITY_AUDIT
+         WHERE MEMBER_ID = #{memberId}
+         ORDER BY OCCURRED_AT DESC
+    </select>
+
+    <delete id="deleteExpired">
+        DELETE FROM MEMBER_SECURITY_AUDIT WHERE EXPIRES_AT &lt;= SYSTIMESTAMP
+    </delete>
+</mapper>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 문서 기본 설정 및 마이페이지 전용 스타일 연결 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page | PetCity</title>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/member/feature-mypage.css}">
+
+    <!-- 07-24 상각: SNS 닉네임 중복확인 전용 보조 스타일 -->
+    <style>
+        .feature-duplicate-check-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 92px;
+            gap: 8px;
+        }
+
+        .feature-duplicate-check-button {
+            min-height: 44px;
+            padding: 0 12px;
+            border: 1px solid #2864e8;
+            border-radius: 9px;
+            color: #2864e8;
+            background: #ffffff;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .feature-duplicate-check-button:hover {
+            background: #f3f7ff;
+        }
+
+        .feature-duplicate-check-button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .feature-duplicate-check-message.success {
+            color: #059669;
+        }
+
+        .feature-duplicate-check-message.error {
+            color: #dc2626;
+        }
+
+        .feature-duplicate-check-message.pending {
+            color: #b45309;
+        }
+
+        @media (max-width: 560px) {
+            .feature-duplicate-check-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 팀 공통 헤더를 그대로 사용하며 공통 파일은 수정하지 않습니다. -->
+<header th:replace="~{common/head :: head}"></header>
+
+<!--
+    SNS 회원 전용 마이페이지
+    - 팀장 원본 member/mypage.html 수정 없음
+    - 전화번호는 실제 DB 값을 노출하거나 전송하지 않음
+    - 기존 가입/탈퇴/복구/SQL 규칙 변경 없음
+-->
+<main class="feature-mypage">
+    <div class="mypage-layout">
+
+        <!-- 왼쪽 메뉴 -->
+        <aside class="mypage-sidebar" aria-label="마이페이지 메뉴">
+            <div class="sidebar-title">
+                <span class="sidebar-title-icon">♙</span>
+                <strong>마이페이지</strong>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a class="sidebar-link active" href="/member/feature/mypage">
+                    <span>●</span> 내 정보
+                </a>
+                <a class="sidebar-link" href="/member/mypage/pets">
+                    <span>🐾</span> 내 반려동물
+                </a>
+                <a class="sidebar-link" href="/owner/status">
+                    <span>▣</span> 병원장 문의 현황
+                </a>
+                <a class="sidebar-link danger" href="/member/feature/withdraw">
+                    <span>♙</span> 회원 탈퇴
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 오른쪽 본문 -->
+        <div class="mypage-content">
+
+            <!-- 회원 요약 -->
+            <section class="profile-summary-card">
+                <div class="profile-main">
+                    <div class="profile-avatar" aria-hidden="true">
+                        <span class="avatar-head"></span>
+                        <span class="avatar-body"></span>
+                        <span class="avatar-camera">▣</span>
+                    </div>
+
+                    <div class="profile-copy">
+                        <div class="profile-name-line">
+                            <h1 th:text="${member != null and member.nickname != null ? member.nickname + '님' : '회원님'}">
+                                회원님
+                            </h1>
+                            <span class="role-badge"
+                                  th:text="${member != null and member.role != null and member.role == 'OWNER' ? '병원장' : '일반회원'}">
+                                일반회원
+                            </span>
+                        </div>
+
+                        <p class="join-copy"
+                           th:text="${member != null and member.loginType != null ? member.loginType + ' 계정으로 가입' : 'SNS 계정으로 가입'}">
+                            SNS 계정으로 가입
+                        </p>
+
+                        <p class="verified-copy">● 이메일 인증 완료</p>
+                    </div>
+                </div>
+
+                <div class="profile-meta">
+                    <div>
+                        <span>가입 방식</span>
+                        <strong th:text="${member != null and member.loginType != null ? member.loginType : 'SNS'}">SNS</strong>
+                    </div>
+                    <div>
+                        <span>회원 구분</span>
+                        <strong th:text="${member != null and member.role != null and member.role == 'OWNER' ? '병원장 회원' : '일반 회원'}">
+                            일반 회원
+                        </strong>
+                    </div>
+                    <div class="last-login-meta"
+                         th:if="${member != null and member.lastLoginAt != null}">
+                        <span>최근 로그인</span>
+                        <strong th:text="${member.lastLoginText}">2026.07.24 09:10</strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 회원 정보 수정 결과 메시지: 값이 있을 때만 표시됩니다. -->
+            <div th:if="${successMessage}" class="page-message success" th:text="${successMessage}"></div>
+            <div th:if="${message}" class="page-message error" th:text="${message}"></div>
+
+            <div class="dashboard-grid">
+
+                <!-- 기본 정보 -->
+                <section class="content-card info-card">
+                    <div class="card-heading">
+                        <h2>기본 정보</h2>
+                        <p><span>*</span> 닉네임만 변경할 수 있습니다.</p>
+                    </div>
+
+                    <!-- SNS 마이페이지에서는 닉네임만 서버로 전송합니다. -->
+                    <form id="snsMypageForm" method="post" action="/member/feature/mypage" class="profile-form">
+                        <div class="form-grid">
+                            <label class="form-field">
+                                <span>아이디</span>
+                                <input type="text"
+                                       th:value="${member != null and member.loginId != null ? member.loginId : ''}"
+                                       readonly>
+                            </label>
+
+                            <label class="form-field">
+                                <span>이메일</span>
+                                <input type="email"
+                                       th:value="${member != null and member.email != null ? member.email : ''}"
+                                       readonly>
+                            </label>
+
+                            <label class="form-field nickname-field">
+                                <span>닉네임 <em>*</em></span>
+
+                                <!-- 07-24 상각: SNS 회원도 일반회원과 같은 닉네임 중복확인을 사용합니다. -->
+                                <div class="feature-duplicate-check-row">
+                                    <input type="text"
+                                           id="snsNickname"
+                                           name="nickname"
+                                           th:value="${member != null and member.nickname != null ? member.nickname : ''}"
+                                           th:attr="data-original=${member != null and member.nickname != null ? member.nickname : ''}"
+                                           minlength="2"
+                                           maxlength="20"
+                                           autocomplete="nickname"
+                                           required>
+
+                                    <button type="button"
+                                            id="snsNicknameCheckButton"
+                                            class="feature-duplicate-check-button">
+                                        중복확인
+                                    </button>
+                                </div>
+
+                                <small id="snsNicknameCheckMessage"
+                                       class="feature-duplicate-check-message">
+                                    닉네임을 변경하면 중복확인이 필요합니다.
+                                </small>
+                            </label>
+
+                            <label class="form-field">
+                                <span>전화번호</span>
+                                <!-- name 속성을 두지 않아 서버로 전송되지 않음 -->
+                                <input type="text"
+                                       value="SNS 회원"
+                                       class="sns-phone"
+                                       readonly>
+                                <small>SNS 가입 회원은 전화번호를 등록하거나 변경하지 않습니다.</small>
+                            </label>
+
+                            <label class="form-field">
+                                <span>가입 방식</span>
+                                <input type="text"
+                                       th:value="${member != null and member.loginType != null ? member.loginType + ' (SNS)' : 'SNS'}"
+                                       readonly>
+                            </label>
+
+                            <label class="form-field">
+                                <span>회원 구분</span>
+                                <input type="text"
+                                       th:value="${member != null and member.role != null and member.role == 'OWNER' ? '병원장 회원' : '일반 회원'}"
+                                       readonly>
+                            </label>
+                        </div>
+
+                        <button id="snsSaveButton" class="save-button" type="submit">변경사항 저장</button>
+                    </form>
+                </section>
+
+                <!-- 오른쪽 요약 카드 -->
+                <div class="side-cards">
+                    <!-- 기존 반려동물 관리 기능으로 이동하는 요약 카드 -->
+                    <section class="content-card shortcut-card">
+                        <div class="card-heading inline">
+                            <h2>내 반려동물</h2>
+                        </div>
+
+                        <div class="shortcut-body pet-shortcut">
+                            <div class="shortcut-icon">🐾</div>
+                            <div>
+                                <strong>등록한 반려동물을 확인해보세요.</strong>
+                                <p>반려동물 등록, 수정, 삭제는 기존 관리 페이지에서 진행합니다.</p>
+                            </div>
+                        </div>
+
+                        <a class="outline-button full" href="/member/mypage/pets">내 반려동물 관리하기</a>
+                    </section>
+
+                    <!-- 기존 병원장 문의 기능으로 이동하는 요약 카드 -->
+                    <section class="content-card shortcut-card">
+                        <div class="card-heading inline">
+                            <h2>병원장 문의 현황</h2>
+                            <a href="/owner/status">전체보기 ›</a>
+                        </div>
+
+                        <div class="shortcut-body">
+                            <div class="shortcut-icon">▣</div>
+                            <div>
+                                <strong>병원장 문의 내역을 확인할 수 있습니다.</strong>
+                                <p>신청 상태와 처리 결과는 기존 문의 현황 페이지에서 확인합니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="button-row">
+                            <a class="outline-button" href="/owner/status">문의 현황 보기</a>
+                            <a class="outline-button" href="/owner/apply">병원장 문의하기</a>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- 회원 탈퇴 -->
+            <section class="withdraw-card">
+                <div>
+                    <h2>회원 탈퇴</h2>
+                    <p>SNS 회원은 현재 로그인된 SNS 인증으로 본인을 확인하므로 비밀번호를 입력하지 않습니다.</p>
+                    <p>탈퇴 요청 즉시 로그아웃되며 3일 후 계정이 완전히 삭제됩니다. 삭제 전까지 복구를 신청할 수 있습니다.</p>
+                </div>
+                <a class="withdraw-button" href="/member/feature/withdraw">회원 탈퇴 요청</a>
+            </section>
+        </div>
+    </div>
+</main>
+<!--
+    07-24 상각: SNS 회원 닉네임 사전 중복확인 및 저장 검증
+-->
+<script th:inline="javascript">
+    (() => {
+        "use strict";
+
+        const form = document.getElementById("snsMypageForm");
+        const nicknameInput = document.getElementById("snsNickname");
+        const checkButton = document.getElementById("snsNicknameCheckButton");
+        const checkMessage = document.getElementById("snsNicknameCheckMessage");
+        const saveButton = document.getElementById("snsSaveButton");
+
+        const serverError = /*[[${message}]]*/ null;
+        const serverSuccess = /*[[${successMessage}]]*/ null;
+
+        if (serverError) {
+            alert(serverError);
+        } else if (serverSuccess) {
+            alert(serverSuccess);
+        }
+
+        if (!form
+                || !nicknameInput
+                || !checkButton
+                || !checkMessage
+                || !saveButton) {
+            return;
+        }
+
+        const nicknamePattern = /^[가-힣a-zA-Z0-9_]{2,20}$/;
+        const originalNickname =
+                (nicknameInput.dataset.original || "").trim();
+
+        let checkedNickname = originalNickname;
+
+        const setMessage = (message, type) => {
+            checkMessage.textContent = message;
+            checkMessage.classList.remove("success", "error", "pending");
+
+            if (type) {
+                checkMessage.classList.add(type);
+            }
+        };
+
+        const resetCheck = () => {
+            const nickname = nicknameInput.value.trim();
+
+            if (nickname === originalNickname) {
+                checkedNickname = originalNickname;
+                setMessage(
+                    "현재 사용 중인 닉네임입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            checkedNickname = "";
+            setMessage(
+                "변경한 닉네임의 중복확인을 완료해주세요.",
+                "pending"
+            );
+        };
+
+        nicknameInput.addEventListener(
+            "input",
+            resetCheck
+        );
+
+        checkButton.addEventListener("click", async () => {
+            const nickname = nicknameInput.value.trim();
+
+            nicknameInput.value = nickname;
+
+            if (!nicknamePattern.test(nickname)) {
+                checkedNickname = "";
+                setMessage(
+                    "닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다.",
+                    "error"
+                );
+                nicknameInput.focus();
+                return;
+            }
+
+            if (nickname === originalNickname) {
+                checkedNickname = originalNickname;
+                setMessage(
+                    "현재 사용 중인 닉네임입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            checkButton.disabled = true;
+            checkButton.textContent = "확인 중...";
+
+            try {
+                const response = await fetch(
+                    `/member/mypage/check-nickname?nickname=${encodeURIComponent(nickname)}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("닉네임 중복확인 요청에 실패했습니다.");
+                }
+
+                const duplicated = await response.json();
+
+                if (duplicated) {
+                    checkedNickname = "";
+                    setMessage(
+                        "이미 사용 중인 닉네임입니다.",
+                        "error"
+                    );
+                    return;
+                }
+
+                checkedNickname = nickname;
+                setMessage(
+                    "사용 가능한 닉네임입니다.",
+                    "success"
+                );
+
+            } catch (error) {
+                checkedNickname = "";
+                setMessage(
+                    error.message || "닉네임 중복확인 중 오류가 발생했습니다.",
+                    "error"
+                );
+
+            } finally {
+                checkButton.disabled = false;
+                checkButton.textContent = "중복확인";
+            }
+        });
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const nickname = nicknameInput.value.trim();
+            nicknameInput.value = nickname;
+
+            if (!nicknamePattern.test(nickname)) {
+                alert("닉네임 형식을 확인해주세요.");
+                nicknameInput.focus();
+                return;
+            }
+
+            if (nickname === originalNickname) {
+                alert("변경된 회원 정보가 없습니다.");
+                return;
+            }
+
+            if (checkedNickname !== nickname) {
+                alert("변경한 닉네임의 중복확인을 완료해주세요.");
+                nicknameInput.focus();
+                return;
+            }
+
+            const confirmed = confirm(
+                `닉네임: ${originalNickname} → ${nickname}\n\n위 내용으로 회원 정보를 변경하시겠습니까?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = "저장 중...";
+            form.submit();
+        });
+
+        resetCheck();
+    })();
+</script>
+
+</body>
+</html>
