@@ -7,6 +7,53 @@
     <title>My Page | PetCity</title>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <link rel="stylesheet" th:href="@{/css/member/feature-mypage.css}">
+
+    <!-- 07-24 상각: SNS 닉네임 중복확인 전용 보조 스타일 -->
+    <style>
+        .feature-duplicate-check-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 92px;
+            gap: 8px;
+        }
+
+        .feature-duplicate-check-button {
+            min-height: 44px;
+            padding: 0 12px;
+            border: 1px solid #2864e8;
+            border-radius: 9px;
+            color: #2864e8;
+            background: #ffffff;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .feature-duplicate-check-button:hover {
+            background: #f3f7ff;
+        }
+
+        .feature-duplicate-check-button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .feature-duplicate-check-message.success {
+            color: #059669;
+        }
+
+        .feature-duplicate-check-message.error {
+            color: #dc2626;
+        }
+
+        .feature-duplicate-check-message.pending {
+            color: #b45309;
+        }
+
+        @media (max-width: 560px) {
+            .feature-duplicate-check-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 <!-- 팀 공통 헤더를 그대로 사용하며 공통 파일은 수정하지 않습니다. -->
@@ -109,7 +156,7 @@
                     </div>
 
                     <!-- SNS 마이페이지에서는 닉네임만 서버로 전송합니다. -->
-                    <form method="post" action="/member/feature/mypage" class="profile-form">
+                    <form id="snsMypageForm" method="post" action="/member/feature/mypage" class="profile-form">
                         <div class="form-grid">
                             <label class="form-field">
                                 <span>아이디</span>
@@ -127,14 +174,30 @@
 
                             <label class="form-field nickname-field">
                                 <span>닉네임 <em>*</em></span>
-                                <input type="text"
-                                       name="nickname"
-                                       th:value="${member != null and member.nickname != null ? member.nickname : ''}"
-                                       minlength="2"
-                                       maxlength="20"
-                                       autocomplete="nickname"
-                                       required>
-                                <small>2~20자로 입력해주세요.</small>
+
+                                <!-- 07-24 상각: SNS 회원도 일반회원과 같은 닉네임 중복확인을 사용합니다. -->
+                                <div class="feature-duplicate-check-row">
+                                    <input type="text"
+                                           id="snsNickname"
+                                           name="nickname"
+                                           th:value="${member != null and member.nickname != null ? member.nickname : ''}"
+                                           th:attr="data-original=${member != null and member.nickname != null ? member.nickname : ''}"
+                                           minlength="2"
+                                           maxlength="20"
+                                           autocomplete="nickname"
+                                           required>
+
+                                    <button type="button"
+                                            id="snsNicknameCheckButton"
+                                            class="feature-duplicate-check-button">
+                                        중복확인
+                                    </button>
+                                </div>
+
+                                <small id="snsNicknameCheckMessage"
+                                       class="feature-duplicate-check-message">
+                                    닉네임을 변경하면 중복확인이 필요합니다.
+                                </small>
                             </label>
 
                             <label class="form-field">
@@ -162,7 +225,7 @@
                             </label>
                         </div>
 
-                        <button class="save-button" type="submit">변경사항 저장</button>
+                        <button id="snsSaveButton" class="save-button" type="submit">변경사항 저장</button>
                     </form>
                 </section>
 
@@ -220,5 +283,186 @@
         </div>
     </div>
 </main>
+<!--
+    07-24 상각: SNS 회원 닉네임 사전 중복확인 및 저장 검증
+-->
+<script th:inline="javascript">
+    (() => {
+        "use strict";
+
+        const form = document.getElementById("snsMypageForm");
+        const nicknameInput = document.getElementById("snsNickname");
+        const checkButton = document.getElementById("snsNicknameCheckButton");
+        const checkMessage = document.getElementById("snsNicknameCheckMessage");
+        const saveButton = document.getElementById("snsSaveButton");
+
+        const serverError = /*[[${message}]]*/ null;
+        const serverSuccess = /*[[${successMessage}]]*/ null;
+
+        if (serverError) {
+            alert(serverError);
+        } else if (serverSuccess) {
+            alert(serverSuccess);
+        }
+
+        if (!form
+                || !nicknameInput
+                || !checkButton
+                || !checkMessage
+                || !saveButton) {
+            return;
+        }
+
+        const nicknamePattern = /^[가-힣a-zA-Z0-9_]{2,20}$/;
+        const originalNickname =
+                (nicknameInput.dataset.original || "").trim();
+
+        let checkedNickname = originalNickname;
+
+        const setMessage = (message, type) => {
+            checkMessage.textContent = message;
+            checkMessage.classList.remove("success", "error", "pending");
+
+            if (type) {
+                checkMessage.classList.add(type);
+            }
+        };
+
+        const resetCheck = () => {
+            const nickname = nicknameInput.value.trim();
+
+            if (nickname === originalNickname) {
+                checkedNickname = originalNickname;
+                setMessage(
+                    "현재 사용 중인 닉네임입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            checkedNickname = "";
+            setMessage(
+                "변경한 닉네임의 중복확인을 완료해주세요.",
+                "pending"
+            );
+        };
+
+        nicknameInput.addEventListener(
+            "input",
+            resetCheck
+        );
+
+        checkButton.addEventListener("click", async () => {
+            const nickname = nicknameInput.value.trim();
+
+            nicknameInput.value = nickname;
+
+            if (!nicknamePattern.test(nickname)) {
+                checkedNickname = "";
+                setMessage(
+                    "닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다.",
+                    "error"
+                );
+                nicknameInput.focus();
+                return;
+            }
+
+            if (nickname === originalNickname) {
+                checkedNickname = originalNickname;
+                setMessage(
+                    "현재 사용 중인 닉네임입니다.",
+                    "success"
+                );
+                return;
+            }
+
+            checkButton.disabled = true;
+            checkButton.textContent = "확인 중...";
+
+            try {
+                const response = await fetch(
+                    `/member/mypage/check-nickname?nickname=${encodeURIComponent(nickname)}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("닉네임 중복확인 요청에 실패했습니다.");
+                }
+
+                const duplicated = await response.json();
+
+                if (duplicated) {
+                    checkedNickname = "";
+                    setMessage(
+                        "이미 사용 중인 닉네임입니다.",
+                        "error"
+                    );
+                    return;
+                }
+
+                checkedNickname = nickname;
+                setMessage(
+                    "사용 가능한 닉네임입니다.",
+                    "success"
+                );
+
+            } catch (error) {
+                checkedNickname = "";
+                setMessage(
+                    error.message || "닉네임 중복확인 중 오류가 발생했습니다.",
+                    "error"
+                );
+
+            } finally {
+                checkButton.disabled = false;
+                checkButton.textContent = "중복확인";
+            }
+        });
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const nickname = nicknameInput.value.trim();
+            nicknameInput.value = nickname;
+
+            if (!nicknamePattern.test(nickname)) {
+                alert("닉네임 형식을 확인해주세요.");
+                nicknameInput.focus();
+                return;
+            }
+
+            if (nickname === originalNickname) {
+                alert("변경된 회원 정보가 없습니다.");
+                return;
+            }
+
+            if (checkedNickname !== nickname) {
+                alert("변경한 닉네임의 중복확인을 완료해주세요.");
+                nicknameInput.focus();
+                return;
+            }
+
+            const confirmed = confirm(
+                `닉네임: ${originalNickname} → ${nickname}\n\n위 내용으로 회원 정보를 변경하시겠습니까?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = "저장 중...";
+            form.submit();
+        });
+
+        resetCheck();
+    })();
+</script>
+
 </body>
 </html>
