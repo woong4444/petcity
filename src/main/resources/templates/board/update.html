@@ -84,7 +84,7 @@
                    th:classappend="${boardDto.boardType == 'FREE'}
                        ? ' active' : ''">
 
-                    <span>자유토크</span>
+                    <span>수다마당</span>
                     <strong>›</strong>
                 </a>
 
@@ -180,11 +180,11 @@
                         </span>
 
                         <span th:case="'FREE'">
-                            자유토크
+                            수다마당
                         </span>
 
                         <span th:case="'INFO'">
-                            멍냥백서
+                            펫도감
                         </span>
 
                         <span th:case="'FAQ'">
@@ -349,7 +349,7 @@
                 </div>
 
 
-                <!-- 멍냥백서 전용 -->
+                <!-- 펫도감 전용 -->
                 <div th:if="${boardDto.boardType == 'INFO'}">
 
                     <!-- 기존 대표 이미지 -->
@@ -423,7 +423,7 @@
                                    required>
 
                             <p class="form-help">
-                                멍냥백서 카드를 누르면 이동하는 주소입니다.
+                                펫도감 카드를 누르면 이동하는 주소입니다.
                             </p>
 
                         </div>

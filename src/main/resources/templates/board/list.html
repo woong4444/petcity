@@ -59,7 +59,7 @@
                    th:classappend="${boardType == 'FREE'}
                         ? ' active' : ''">
 
-                    <span>자유토크</span>
+                    <span>수다마당</span>
                     <strong>›</strong>
                 </a>
 
@@ -70,7 +70,7 @@
                    th:classappend="${boardType == 'INFO'}
                         ? ' active' : ''">
 
-                    <span>멍냥백서</span>
+                    <span>펫도감</span>
                     <strong>›</strong>
                 </a>
 
@@ -401,11 +401,11 @@
                                 </span>
 
                                 <span th:case="'FREE'">
-                                    자유토크
+                                    수다마당
                                 </span>
 
                                 <span th:case="'INFO'">
-                                    멍냥백서
+                                    펫도감
                                 </span>
 
                                 <span th:case="'FAQ'">

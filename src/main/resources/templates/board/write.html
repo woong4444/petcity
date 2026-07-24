@@ -50,13 +50,13 @@
 
                 <a th:href="@{/board/list(type='FREE')}"
                    th:classappend="${boardType == 'FREE'} ? ' active' : ''">
-                    <span>자유토크</span>
+                    <span>수다마당</span>
                     <strong>›</strong>
                 </a>
 
                 <a th:href="@{/board/list(type='INFO')}"
                    th:classappend="${boardType == 'INFO'} ? ' active' : ''">
-                    <span>멍냥백서</span>
+                    <span>펫도감</span>
                     <strong>›</strong>
                 </a>
 
@@ -120,12 +120,13 @@
 
                             <option value="FREE"
                                     th:selected="${boardType == 'FREE'}">
-                                자유토크
+                                수다마당
                             </option>
 
                             <option value="INFO"
+                                    th:if="${isAdmin}"
                                     th:selected="${boardType == 'INFO'}">
-                                멍냥백서
+                                펫도감
                             </option>
 
                             <option value="NOTICE"
@@ -219,7 +220,7 @@
 
                 </div>
 
-                <!-- 여기부터 멍냥백서 전용. 처음에는 화면에서 안 보임 -->
+                <!-- 여기부터 펫도감 전용. 처음에는 화면에서 안 보임 -->
                 <div id="infoOnlyArea" style="display: none;">
 
                     <div class="form-row file-row pretty-row">
@@ -231,7 +232,7 @@
                                    name="imageFiles"
                                    accept="image/*">
 
-                            <p>멍냥백서 카드 목록에 표시될 대표 이미지입니다.</p>
+                            <p>펫도감 카드 목록에 표시될 대표 이미지입니다.</p>
 
                             <div id="imagePreview" class="image-preview-list"></div>
                         </div>
@@ -247,7 +248,7 @@
                                    placeholder="https://blog.naver.com/...">
 
                             <p class="form-help">
-                                멍냥백서 목록에서 대표 이미지를 클릭했을 때 이동할 링크입니다.
+                                펫도감 목록에서 대표 이미지를 클릭했을 때 이동할 링크입니다.
                             </p>
                         </div>
                     </div>

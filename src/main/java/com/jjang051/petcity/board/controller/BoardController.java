@@ -224,6 +224,23 @@ public class BoardController {
         String boardType =
                 boardDto.getBoardType();
 
+        boolean isAdmin =
+                "ADMIN".equals(role);
+
+        boolean adminOnlyBoard =
+                isAdminOnlyBoardType(boardType);
+
+        boolean canManageBoard =
+                isAdmin
+                || (
+                        authenticated
+                        && !adminOnlyBoard
+                        && loginMemberId != null
+                        && loginMemberId.equals(boardDto.getMemberId())
+                        );
+
+
+
 
     /*
         댓글 영역 사용 게시판
@@ -345,11 +362,7 @@ public class BoardController {
             일반 사용자가 주소로 NOTICE 또는 FAQ에 접근하면
             FREE 글쓰기 화면으로 이동
         */
-        if ((
-                "NOTICE".equals(boardType)
-                        || "FAQ".equals(boardType)
-        ) && !admin) {
-
+        if (isAdminOnlyBoardType(boardType) && !admin) {
             boardType = "FREE";
         }
 
@@ -463,19 +476,13 @@ public class BoardController {
                 getCurrentMemberId(authentication);
 
         if (!admin) {
-
-            // 공지사항과 FAQ는 관리자만 수정 가능
-            if ("NOTICE".equals(boardDto.getBoardType())
-                    || "FAQ".equals(boardDto.getBoardType())) {
-
+            if (isAdminOnlyBoardType(boardDto.getBoardType())) {
                 throw new RuntimeException(
-                        "공지사항과 FAQ는 관리자만 수정할 수 있습니다."
+                        "펫도감, 공지사항, FAQ는 관리자만 수정할 수 있습니다."
                 );
             }
 
-            // 일반 게시글은 작성자 본인만 수정 가능
             if (boardDto.getMemberId() != loginMemberId) {
-
                 throw new RuntimeException(
                         "본인이 작성한 게시글만 수정할 수 있습니다."
                 );
@@ -652,13 +659,11 @@ public class BoardController {
                 boardService.getBoardUpdatePage(boardId)
                         .getBoardDto();
 
-        if ((
-                "NOTICE".equals(boardDto.getBoardType())
-                        || "FAQ".equals(boardDto.getBoardType())
-        ) && !isCurrentAdmin(authentication)) {
+        if (isAdminOnlyBoardType(boardDto.getBoardType())
+                && !isCurrentAdmin(authentication)) {
 
             throw new RuntimeException(
-                    "공지사항과 FAQ는 관리자만 삭제할 수 있습니다."
+                    "펫도감, 공지사항, FAQ는 관리자만 삭제할 수 있습니다."
             );
         }
 
@@ -757,6 +762,11 @@ public class BoardController {
         return "ADMIN".equals(
                 getCurrentRole(authentication)
         );
+    }
+    private boolean isAdminOnlyBoardType(String boardType) {
+        return "INFO".equals(boardType)
+                || "NOTICE".equals(boardType)
+                || "FAQ".equals(boardType);
     }
 
     /*
