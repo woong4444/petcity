@@ -1,5 +1,23 @@
 @charset "UTF-8";
 
+/* 페이지 높이와 관계없이 스크롤바 영역을 항상 확보해 헤더 가로 위치를 고정 */
+html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
+
+/* 모든 페이지의 브라우저 기본 여백 제거 */
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --header-max-width: 1320px;
+    --header-side-gap: 32px;
+}
+
 .site-header {
     width: 100%;
     background-color: #ffffff;
@@ -7,10 +25,19 @@
     font-family: Arial, "Noto Sans KR", sans-serif;
 }
 
+/* Tailwind 사용 페이지를 포함한 모든 페이지 헤더 규격 통일 */
+.site-header,
+.site-header * {
+    box-sizing: border-box;
+}
+
+/* 화면 양쪽 여백과 최대 폭을 공통 기준으로 통일 */
 .header-inner {
-    max-width: 1320px;
+    width: min(var(--header-max-width),
+    calc(100% - (var(--header-side-gap) * 2)));
+    max-width: none;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0;
 }
 
 .top-header {
@@ -692,172 +719,49 @@
 .owner-status-notification-badge[hidden] {
     display: none;
 }
-
-/* ========================================
-   인라인 스타일 분리 (head.html)
-======================================== */
-.top-header-flex {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+/* 하단 메뉴: 가운데 메뉴는 화면 중앙, 병원장 신청은 우측 고정 */
+.bottom-nav-inner {
+    height: 56px;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center !important;
 }
 
-.top-menu-flex {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.bottom-nav-inner::before {
+    content: none !important;
+    display: none !important;
 }
 
-.mini-banner-btn {
-    cursor: pointer;
-}
-
-.bottom-nav-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.main-menu-flex {
-    display: flex;
-    align-items: center;
-}
-
-/* ========================================
-   전역 퀵 메뉴 (Quick Menu) - 🌟 왼쪽 정렬 및 최상단 노출
-======================================== */
-.quick-menu {
-    position: fixed;
-    top: 160px;
-    left: 20px;
-    width: 130px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-    padding: 15px 10px;
-    z-index: 9999;
-    text-align: center;
-}
-
-.quick-title {
-    font-size: 13px;
-    font-weight: 900;
-    color: #0284c7;
-    margin-bottom: 12px;
-    border-bottom: 2px solid #e0f2fe;
-    padding-bottom: 8px;
-}
-
-.quick-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 12px 0;
-}
-
-.quick-list.recent-list {
-    margin: 0;
-}
-
-.quick-list li {
-    margin-bottom: 10px;
-}
-
-.quick-list a {
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 700;
-    color: #4b5563;
-    display: block;
-    padding: 4px;
-    border-radius: 6px;
-    transition: 0.2s;
-}
-
-.quick-list a:hover {
-    background: #f1f5f9;
-    color: #0ea5e9;
-}
-
-.btn-top {
-    width: 100%;
-    height: 32px;
-    border: none;
-    border-radius: 8px;
-    background: #334155;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-top: 10px;
-}
-
-.btn-top:hover {
-    background: #0f172a;
-}
-
-.quick-recent-box {
-    margin-top: 15px;
-    border-top: 1px dashed #e2e8f0;
-    padding-top: 15px;
-}
-
-.quick-recent-title {
-    font-size: 11px;
-    font-weight: 800;
-    color: #94a3b8;
-    margin-bottom: 8px;
-}
-
-.quick-recent-item {
-    display: block;
-    margin-bottom: 8px;
-    text-decoration: none;
-}
-
-.quick-recent-item img {
-    width: 100%;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
-
-.quick-recent-item span {
-    font-size: 11px;
-    color: #334155;
-    font-weight: 700;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-top: 4px;
-}
-
-.quick-recent-empty {
-    font-size: 11px;
-    color: #94a3b8;
-    padding: 10px 0;
-}
-
-.quick-recent-no-img {
-    width: 100%;
-    height: 60px;
-    background: #e0f2fe;
-    border-radius: 8px;
+.main-menu {
+    grid-column: 2;
+    width: auto;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
-    color: #0284c7;
-    font-weight: bold;
 }
 
-/* 모바일 같은 아주 좁은 화면에서만 퀵메뉴 숨김 */
-@media (max-width: 768px) {
-    .quick-menu {
-        display: none;
+.right-menu {
+    grid-column: 3;
+    justify-self: end;
+    width: 180px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.right-menu a {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ========================================
+   공통 헤더 보호
+   페이지별 CSS가 헤더 검색 영역에 영향을 주지 못하게 고정
     }
 }
