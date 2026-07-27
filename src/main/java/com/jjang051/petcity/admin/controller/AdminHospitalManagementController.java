@@ -45,14 +45,6 @@ public class AdminHospitalManagementController {
         return "admin/hospital-management";
     }
 
-    @GetMapping("/requests/{requestId}")
-    public String hospitalRequestDetail(@PathVariable("requestId") Long requestId, Model model) {
-        AdminHospitalUpdateRequestDetailDto requestDetail = adminHospitalManagementService.findRequestDetail(requestId);
-        model.addAttribute("requestDetail", requestDetail);
-        return "admin/hospital-request-detail";
-    }
-
-
     @PostMapping("/{hospitalId}/hard-delete")
     public String hardDeleteHospital(@PathVariable("hospitalId") Long hospitalId, RedirectAttributes redirectAttributes, HttpSession session) {
 

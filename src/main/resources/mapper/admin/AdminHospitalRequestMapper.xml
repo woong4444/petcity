@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.admin.dao.AdminHospitalRequestDao">
+
+    <select id="findRequestDetail" resultType="AdminHospitalUpdateRequestDetailDto">
+            SELECT HUR.REQUEST_ID AS requestId,
+        HUR.HOSPITAL_ID AS hospitalId,
+        HUR.MEMBER_ID AS memberId,
+        HUR.REQUEST_TYPE AS requestType,
+        HUR.STATUS AS requestStatus,
+        HUR.APPLICANT_NAME AS applicantName,
+        NVL( M.NICKNAME, NVL(H.OWNER_NAME, '병원장 미등록')) AS ownerName,
+        M.EMAIL AS ownerEmail,
+        HUR.BUSINESS_NUMBER AS businessNumber,
+        HUR.DOCUMENT_URL AS documentUrl,
+        HUR.REQUEST_REASON AS requestReason,
+        HUR.REJECT_REASON AS rejectReason,
+        HUR.CREATED_AT AS createdAt,
+        HUR.PROCESSED_AT AS processedAt,
+        HUR.PROCESSED_BY AS processedBy,
+        H.STATUS AS currentHospitalStatus,
+        H.NAME AS currentHospitalName,
+        H.ADDRESS AS currentHospitalAddress,
+        H.DETAIL_ADDRESS AS currentHospitalDetailAddress,
+        H.DISTRICT AS currentHospitalDistrict,
+        H.WEBSITE_URL AS currentHospitalWebsiteUrl,
+        H.IMAGE_URL AS currentHospitalImageUrl,
+        HUR.HOSPITAL_NAME AS requestedHospitalName,
+        HUR.HOSPITAL_ADDRESS AS requestedHospitalAddress,
+        HUR.HOSPITAL_DETAIL_ADDRESS AS requestedHospitalDetailAddress,
+        HUR.HOSPITAL_DISTRICT AS requestedHospitalDistrict,
+        HUR.HOSPITAL_WEBSITE_URL AS requestedHospitalWebsiteUrl,
+        HUR.HOSPITAL_IMAGE_URL AS requestedHospitalImageUrl,
+        HUR.TEMP_CLOSE_START_AT AS tempCloseStartAt,
+        HUR.TEMP_CLOSE_END_AT AS tempCloseEndAt
+        FROM HOSPITAL_UPDATE_REQUEST HUR
+        JOIN HOSPITAL H ON H.HOSPITAL_ID = HUR.HOSPITAL_ID
+        LEFT JOIN APP_MEMBER M ON M.MEMBER_ID = H.OWNER_ID
+        WHERE HUR.REQUEST_ID = #{requestId}
+    </select>
+
+    <select id="findRequestForUpdate" resultType="AdminHospitalUpdateRequestDetailDto">
+        SELECT REQUEST_ID AS requestId,
+        HOSPITAL_ID AS hospitalId,
+        REQUEST_TYPE AS requestType,
+        STATUS AS requestStatus,
+        TEMP_CLOSE_START_AT AS tempCloseStartAt,
+        TEMP_CLOSE_END_AT AS tempCloseEndAt
+        FROM HOSPITAL_UPDATE_REQUEST
+        WHERE REQUEST_ID = #{requestId}
+        FOR UPDATE
+    </select>
+
+    <update id="applyHospitalUpdateRequest">
+        UPDATE HOSPITAL H
+        SET( OWNER_NAME, NAME,ADDRESS,DETAIL_ADDRESS,
+            DISTRICT, WEBSITE_URL, LATITUDE, LONGITUDE,IMAGE_URL)
+        = ( SELECT HUR.APPLICANT_NAME,
+        HUR.HOSPITAL_NAME,
+        HUR.HOSPITAL_ADDRESS,
+        HUR.HOSPITAL_DETAIL_ADDRESS,
+        HUR.HOSPITAL_DISTRICT,
+        HUR.HOSPITAL_WEBSITE_URL,
+        HUR.HOSPITAL_LATITUDE,
+        HUR.HOSPITAL_LONGITUDE,
+        HUR.HOSPITAL_IMAGE_URL
+        FROM HOSPITAL_UPDATE_REQUEST HUR
+        WHERE REQUEST_ID = #{requestId}
+         AND HUR.HOSPITAL_ID = H.HOSPITAL_ID
+        AND HUR.REQUEST_TYPE = 'UPDATE'
+        AND HUR.STATUS = 'PENDING')
+        WHERE H.STATUS IN('OPEN', 'TEMP_CLOSED')
+        AND EXISTS ( SELECT 1 FROM HOSPITAL_UPDATE_REQUEST HUR
+            WHERE HUR.REQUEST_ID = #{requestId}
+        AND HUR.HOSPITAL_ID = H.HOSPITAL_ID
+        AND HUR.REQUEST_TYPE = 'UPDATE'
+        AND HUR.STATUS = 'PENDING'
+        )
+    </update>
+    <update id="applyHospitalCloseRequest">
+        UPDATE HOSPITAL H
+        SET STATUS = 'CLOSED'
+        WHERE H.STATUS IN ('OPEN', 'TEMP_CLOSED')
+        AND EXISTS( SELECT 1 FROM HOSPITAL_UPDATE_REQUEST HUR
+        WHERE HUR.REQUEST_ID = #{requestId}
+        AND HUR.HOSPITAL_ID = H.HOSPITAL_ID
+        AND HUR.REQUEST_TYPE   = 'CLOSE'
+        AND HUR.STATUS = 'PENDING'
+        )
+    </update>
+
+<update id="approveHospitalRequest">
+    UPDATE HOSPITAL_UPDATE_REQUEST
+    SET STATUS = 'APPROVED',
+    PROCESSED_AT = SYSTIMESTAMP,
+    PROCESSED_BY = #{processedBy},
+    REJECT_REASON = NULL
+    WHERE REQUEST_ID = #{requestId}
+    AND STATUS = 'PENDING'
+</update>
+
+    <update id="rejectHospitalRequest">
+        UPDATE HOSPITAL_UPDATE_REQUEST
+        SET STATUS = 'REJECTED',
+        REJECT_REASON = #{rejectReason},
+        PROCESSED_AT = SYSTIMESTAMP,
+        PROCESSED_BY = #{processedBy}
+        WHERE REQUEST_ID = #{requestId}
+        AND STATUS = 'PENDING'
+    </update>
+
+
+</mapper>
