@@ -27,15 +27,16 @@ document.addEventListener("DOMContentLoaded", function () {
     let gpsWgsY = null;
     let gpsAddressName = "위치 확인 중...";
 
-    let activeTmX = null;
-    let activeTmY = null;
+    // 🌟 변경점: TM좌표를 완전히 제거하고 위도/경도(WGS84)를 직접 저장
+    let activeLat = null;
+    let activeLng = null;
     let activeAddressName = null;
     let isCustomLocation = false;
 
     let geocoder = null;
 
     if (typeof kakao !== 'undefined') {
-        kakao.maps.load(function() {
+        kakao.maps.load(function () {
             if (kakao.maps.services) {
                 geocoder = new kakao.maps.services.Geocoder();
             }
@@ -53,14 +54,24 @@ document.addEventListener("DOMContentLoaded", function () {
             gpsWgsY = savedLoc.gpsWgsY;
             gpsAddressName = savedLoc.gpsAddressName;
 
-            activeTmX = savedLoc.activeTmX;
-            activeTmY = savedLoc.activeTmY;
+            // 과거 세션 스토리지에 남아있는 비정상 TM 데이터 대응
+            activeLat = savedLoc.activeLat !== undefined ? savedLoc.activeLat : savedLoc.activeTmY;
+            activeLng = savedLoc.activeLng !== undefined ? savedLoc.activeLng : savedLoc.activeTmX;
+
+            // TM 좌표 캐시가 남아있다면 과감히 비우고 다시 찾음
+            if (activeLat > 1000 || activeLng > 1000) {
+                activeLat = null;
+                activeLng = null;
+            }
+
             activeAddressName = savedLoc.activeAddressName;
             isCustomLocation = savedLoc.isCustomLocation;
 
-            updateLocationUI();
-            loadHospitalList();
-            return;
+            if (activeLat && activeLng) {
+                updateLocationUI();
+                loadHospitalList();
+                return;
+            }
         }
 
         let isLocationInited = false;
@@ -72,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                function(position) {
+                function (position) {
                     if (isLocationInited) return;
                     clearTimeout(timeoutId);
                     isLocationInited = true;
@@ -80,12 +91,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     gpsWgsY = position.coords.latitude;
                     resolveAddressAndApply(gpsWgsX, gpsWgsY, true, false);
                 },
-                function(error) {
+                function (error) {
                     if (isLocationInited) return;
                     clearTimeout(timeoutId);
                     setDefaultLocation();
                 },
-                { timeout: 2500 }
+                {timeout: 2500}
             );
         } else {
             clearTimeout(timeoutId);
@@ -103,11 +114,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function resolveAddressAndApply(lon, lat, doSearch, isCustom) {
         if (geocoder) {
-            geocoder.coord2RegionCode(lon, lat, function(result, status) {
+            geocoder.coord2RegionCode(lon, lat, function (result, status) {
                 let addressName = "주소 알 수 없음";
                 if (status === kakao.maps.services.Status.OK) {
-                    for(let i=0; i<result.length; i++) {
-                        if(result[i].region_type === 'H') {
+                    for (let i = 0; i < result.length; i++) {
+                        if (result[i].region_type === 'H') {
                             addressName = result[i].address_name;
                             break;
                         }
@@ -129,17 +140,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (gpsNameElem) gpsNameElem.textContent = gpsAddressName;
 
         if (isCustomLocation && activeAddressName && activeAddressName !== gpsAddressName) {
-            if(customTextSpan) customTextSpan.style.display = 'inline';
-            if(customNameSpan) customNameSpan.textContent = activeAddressName;
+            if (customTextSpan) customTextSpan.style.display = 'inline';
+            if (customNameSpan) customNameSpan.textContent = activeAddressName;
         } else {
-            if(customTextSpan) customTextSpan.style.display = 'none';
+            if (customTextSpan) customTextSpan.style.display = 'none';
         }
     }
 
     function saveLocationToSession() {
         const locData = {
             gpsWgsX, gpsWgsY, gpsAddressName,
-            activeTmX, activeTmY, activeAddressName,
+            activeLat, activeLng, activeAddressName, // 🌟 저장 객체명 변경
             isCustomLocation
         };
         sessionStorage.setItem('petcity_loc_data', JSON.stringify(locData));
@@ -152,31 +163,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
         updateLocationUI();
 
-        if (geocoder) {
-            geocoder.transCoord(lon, lat, function(result, status) {
-                if (status === kakao.maps.services.Status.OK) {
-                    activeTmX = result[0].x;
-                    activeTmY = result[0].y;
+        // 🌟 변경점: 골치 아픈 카카오 맵 TM 변환을 없애고 WGS84 좌표를 그대로 저장
+        activeLng = lon;
+        activeLat = lat;
 
-                    saveLocationToSession();
+        saveLocationToSession();
 
-                    if (doSearch || (sortInput && sortInput.value === 'distance')) {
-                        loadHospitalList();
-                    }
-                }
-            }, {
-                input_coord: kakao.maps.services.Coords.WGS84,
-                output_coord: kakao.maps.services.Coords.TM
-            });
+        if (doSearch || (sortInput && sortInput.value === 'distance')) {
+            loadHospitalList();
         }
     }
 
     function makeParams() {
         const params = new URLSearchParams();
 
-        if (activeTmX && activeTmY) {
-            params.append("userLat", activeTmX);
-            params.append("userLng", activeTmY);
+        // 🌟 WGS84 좌표 전송
+        if (activeLat && activeLng) {
+            params.append("userLat", activeLat);
+            params.append("userLng", activeLng);
         }
 
         if (pageInput && pageInput.value) params.append("page", pageInput.value);
@@ -229,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch(requestUrl, {
             method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" },
+            headers: {"X-Requested-With": "XMLHttpRequest"},
             signal: abortController.signal
         })
             .then(response => {
@@ -253,34 +257,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function rebindDetailLinks() {
         document.querySelectorAll('.go-detail-link, .detail-button').forEach(elem => {
-            elem.addEventListener('click', function(e) {
+
+            elem.onclick = null; // 혹시 모를 중복 방지
+
+            elem.addEventListener('click', function (e) {
                 e.preventDefault();
+
+                const status = this.getAttribute('data-status');
+                const notice = this.getAttribute('data-notice') || '등록된 사유가 없습니다.';
+
+                if (status === '휴업') {
+                    const msg = "🏥 해당 병원은 현재 [휴업] 중입니다.\n\n[휴업 사유 / 공지사항]\n" + notice + "\n\n그래도 상세 페이지로 이동하시겠습니까?";
+                    if (!confirm(msg)) {
+                        return;
+                    }
+                }
+
                 let href = this.tagName === 'A' ? this.href : this.dataset.url;
                 let url = new URL(href, window.location.origin);
-                if (activeTmX && activeTmY) {
-                    url.searchParams.set('userLat', activeTmX);
-                    url.searchParams.set('userLng', activeTmY);
+
+                // 🌟 정상적인 WGS84 좌표 전달
+                if (activeLat && activeLng) {
+                    url.searchParams.set('userLat', activeLat);
+                    url.searchParams.set('userLng', activeLng);
                 }
                 window.location.href = url.toString();
             });
         });
 
         document.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const hospitalId = this.dataset.id;
 
                 fetch('/hospital/api/zzim', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ hospitalId: hospitalId })
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: new URLSearchParams({hospitalId: hospitalId})
                 })
                     .then(res => res.json())
                     .then(data => {
-                        if(data.isSuccess) {
+                        if (data.isSuccess) {
                             this.classList.toggle('active', data.isZzim);
                             const countSpan = this.querySelector('.count');
-                            if(countSpan) countSpan.textContent = data.zzimCount;
+                            if (countSpan) countSpan.textContent = data.zzimCount;
                         } else {
                             alert("세션이 만료되었습니다. 다시 로그인해주세요.");
                             location.href = '/member/login';
@@ -294,8 +314,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function rebindToolbarEvents() {
         const sortSelect = document.getElementById("sortSelect");
         if (sortSelect) {
-            sortSelect.addEventListener("change", function() {
-                if (this.value === 'distance' && (!activeTmX || !activeTmY)) {
+            sortSelect.addEventListener("change", function () {
+                if (this.value === 'distance' && (!activeLat || !activeLng)) {
                     alert("가까운순 정렬을 이용하시려면 기준 위치를 먼저 설정해주세요.");
                     this.value = sortInput.value;
                     return;
@@ -308,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const statusBtns = document.querySelectorAll(".status-btn");
         statusBtns.forEach(btn => {
-            btn.addEventListener("click", function() {
+            btn.addEventListener("click", function () {
                 statusBtns.forEach(b => b.classList.remove("active"));
                 this.classList.add("active");
                 if (openStatusInput) openStatusInput.value = this.dataset.status;
@@ -318,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         document.querySelectorAll(".page-link").forEach(link => {
-            link.addEventListener("click", function(event) {
+            link.addEventListener("click", function (event) {
                 event.preventDefault();
                 const parentLi = this.parentElement;
                 if (!parentLi.classList.contains("disabled") && !parentLi.classList.contains("active")) {
@@ -342,21 +362,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let tempWgsY = null;
     let tempAddressName = null;
 
-    if(btnCloseModal) {
-        btnCloseModal.addEventListener('click', () => { locationModal.style.display = 'none'; });
+    if (btnCloseModal) {
+        btnCloseModal.addEventListener('click', () => {
+            locationModal.style.display = 'none';
+        });
     }
 
-    if(btnConfirmLocation) {
+    if (btnConfirmLocation) {
         btnConfirmLocation.addEventListener('click', () => {
-            if(tempWgsX && tempWgsY && tempAddressName) {
+            if (tempWgsX && tempWgsY && tempAddressName) {
                 applyLocationAndSearch(tempWgsX, tempWgsY, tempAddressName, true, true);
             }
             locationModal.style.display = 'none';
         });
     }
 
-    if(btnGoMyLocation) {
-        btnGoMyLocation.addEventListener('click', function() {
+    if (btnGoMyLocation) {
+        btnGoMyLocation.addEventListener('click', function () {
             if (gpsWgsX && gpsWgsY) {
                 locationModal.style.display = 'none';
                 resolveAddressAndApply(gpsWgsX, gpsWgsY, true, false);
@@ -368,22 +390,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function rebindMapModalTrigger() {
         const btnLocationSelect = document.getElementById('btnLocationSelect');
-        if(btnLocationSelect) {
-            btnLocationSelect.addEventListener('click', function() {
+        if (btnLocationSelect) {
+            btnLocationSelect.addEventListener('click', function () {
                 locationModal.style.display = 'flex';
 
                 setTimeout(() => {
                     let mapLat = gpsWgsY || 37.566826;
                     let mapLng = gpsWgsX || 126.9786567;
 
-                    if (isCustomLocation && activeTmX && activeTmY && geocoder) {
-                        geocoder.transCoord(activeTmX, activeTmY, function(result, status) {
-                            if (status === kakao.maps.services.Status.OK) {
-                                openMap(result[0].y, result[0].x);
-                            } else {
-                                openMap(mapLat, mapLng);
-                            }
-                        }, { input_coord: kakao.maps.services.Coords.TM, output_coord: kakao.maps.services.Coords.WGS84 });
+                    // 🌟 TM변환 과정 필요 없이 바로 지도 열기
+                    if (isCustomLocation && activeLat && activeLng) {
+                        openMap(activeLat, activeLng);
                     } else {
                         openMap(mapLat, mapLng);
                     }
@@ -393,20 +410,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function openMap(lat, lng) {
-        if(!selectMap) {
-            const mapOption = { center: new kakao.maps.LatLng(lat, lng), level: 4 };
+        if (!selectMap) {
+            const mapOption = {center: new kakao.maps.LatLng(lat, lng), level: 4};
             selectMap = new kakao.maps.Map(selectMapContainer, mapOption);
 
-            kakao.maps.event.addListener(selectMap, 'idle', function() {
+            kakao.maps.event.addListener(selectMap, 'idle', function () {
                 const center = selectMap.getCenter();
                 tempWgsX = center.getLng();
                 tempWgsY = center.getLat();
 
-                if(geocoder) {
-                    geocoder.coord2RegionCode(tempWgsX, tempWgsY, function(result, status) {
+                if (geocoder) {
+                    geocoder.coord2RegionCode(tempWgsX, tempWgsY, function (result, status) {
                         if (status === kakao.maps.services.Status.OK) {
-                            for(let i=0; i<result.length; i++) {
-                                if(result[i].region_type === 'H') {
+                            for (let i = 0; i < result.length; i++) {
+                                if (result[i].region_type === 'H') {
                                     tempAddressName = result[i].address_name;
                                     document.getElementById('selectedAddressText').textContent = tempAddressName;
                                     break;
@@ -422,33 +439,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function renderRecentHospitals() {
-        const recentBox = document.getElementById('quickRecentList');
-        if (!recentBox) return;
-
-        const recents = JSON.parse(localStorage.getItem('petcity_recent') || '[]');
-        if (recents.length === 0) {
-            recentBox.innerHTML = '<li style="font-size:11px; color:#94a3b8; padding:10px 0;">최근 본 병원이<br>없습니다.</li>';
-            return;
-        }
-
-        let html = '';
-        recents.forEach(h => {
-            let imgHtml = h.img && h.img !== 'null' ? `<img src="${h.img}" alt="병원">` : `<div style="width:100%; height:60px; background:#e0f2fe; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#0284c7; font-weight:bold;">이미지 없음</div>`;
-            html += `<li>
-                <a href="/hospital/view?hospitalId=${h.id}" class="quick-recent-item">
-                    ${imgHtml}
-                    <span>${h.name}</span>
-                </a>
-            </li>`;
-        });
-        recentBox.innerHTML = html;
-    }
-
     rebindToolbarEvents();
     rebindMapModalTrigger();
     rebindDetailLinks();
-    renderRecentHospitals();
 
     function updateSubAnimalUI() {
         const checkedAnimal = form.querySelector("input[name='animalId']:checked");
@@ -500,7 +493,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 group.forEach(r => r.dataset.wasChecked = "false");
                 this.dataset.wasChecked = "true";
             }
-            if(this.name === 'animalId') {
+            if (this.name === 'animalId') {
                 updateSubAnimalUI();
             }
             if (pageInput) pageInput.value = 1;
@@ -603,10 +596,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const toggleButtons = document.querySelectorAll(".btn-toggle-filter");
     toggleButtons.forEach(button => {
-        button.addEventListener("click", function() {
+        button.addEventListener("click", function () {
             const contentWrap = this.parentElement.previousElementSibling;
 
-            if(this.dataset.state === "open") {
+            if (this.dataset.state === "open") {
                 contentWrap.classList.add("is-minimized");
                 this.dataset.state = "closed";
                 this.textContent = "+ 펼치기";
@@ -618,35 +611,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🌟 [수정됨] 그 외 지역 전체 체크 시 파란색(.active) 토글 및 전체 숨김 체크박스 제어
     const otherAllBtn = document.getElementById('otherAll');
     const hiddenOtherDistricts = document.querySelectorAll('.hidden-other-district');
 
     if (otherAllBtn) {
         const checkInitialState = () => {
-            const isAllChecked = Array.from(hiddenOtherDistricts).length > 0 &&
-                Array.from(hiddenOtherDistricts).every(chk => chk.checked);
+            const isAllChecked = Array.from(hiddenOtherDistricts).length > 0 && Array.from(hiddenOtherDistricts).every(chk => chk.checked);
             otherAllBtn.checked = isAllChecked;
-            const label = otherAllBtn.closest('label');
-            if (label) {
-                if (isAllChecked) label.classList.add('active');
-                else label.classList.remove('active');
-            }
         };
         checkInitialState();
 
-        otherAllBtn.addEventListener('change', function() {
+        otherAllBtn.addEventListener('change', function () {
             const isChecked = this.checked;
-
             hiddenOtherDistricts.forEach(chk => {
                 chk.checked = isChecked;
             });
-
-            const label = this.closest('label');
-            if (label) {
-                if (isChecked) label.classList.add('active');
-                else label.classList.remove('active');
-            }
 
             if (pageInput) pageInput.value = 1;
             loadHospitalList();

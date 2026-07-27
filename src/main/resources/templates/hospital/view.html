@@ -9,65 +9,10 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/common/head.css?v=3}">
     <link rel="stylesheet" th:href="@{/css/hospital/view.css}">
-
-    <style>
-        body {
-            background-color: #f8fafc;
-            font-family: 'Noto Sans KR', sans-serif;
-        }
-
-        .pagination-wrap {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
-        .pagination {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .pagination .page-item .page-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            background: #fff;
-            color: #64748b;
-            font-weight: 700;
-            font-size: 14px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .pagination .page-item.active .page-link {
-            background: #0ea5e9;
-            border-color: #0ea5e9;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-        }
-
-        .pagination .page-item .page-link:hover:not(:disabled) {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-    </style>
 </head>
-<body class="pb-20 lg:pb-0">
+<body class="view-body-bg pb-20 lg:pb-0">
 
 <div th:replace="~{common/head :: head}"></div>
 
@@ -82,10 +27,8 @@
     <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-slate-900/60"></div>
 </section>
 
-<!-- 🌟 1024px 규격 완벽 통일 -->
 <main class="view-wrap max-w-[1024px] w-full mx-auto -mt-28 sm:-mt-32 relative z-10 px-4 mb-20">
     <div class="bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl space-y-10">
-
         <section class="info-card relative bg-white border border-slate-100 p-6 sm:p-8 rounded-[2rem] shadow-sm">
             <div class="info-badges mb-4 flex gap-2">
                 <span th:if="${hospital.currentStatus == '진료중'}"
@@ -146,7 +89,6 @@
                                  th:text="${reviewList != null ? reviewList.size() : 0}">0</strong></span>
             </div>
 
-            <!-- 🌟 Null 안정형 태그 출력 (에러 원인 완벽 방어) -->
             <div class="h-tags flex flex-wrap gap-2 mb-8">
                 <th:block th:if="${hospital.animalNames != null and hospital.animalNames != ''}">
                     <span class="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm"
@@ -264,7 +206,6 @@
                                             class="inline-block w-20 text-slate-400">정기휴무</span> <span
                                             class="text-red-500 bg-red-50 px-2.5 py-1 rounded-md"
                                             th:text="${hospital.holiday}"></span></p>
-
                                     <div class="w-full h-px bg-slate-200/50 my-3"></div>
                                     <div class="bg-sky-50/70 border border-sky-100 p-4 rounded-2xl">
                                         <strong class="block text-sky-900 text-sm mb-1.5 flex items-center gap-1 font-extrabold">📢
@@ -292,18 +233,20 @@
                         </div>
                     </div>
 
-                    <div class="relative rounded-3xl overflow-hidden border border-slate-200 shadow-inner"
-                         style="height: 330px;">
-                        <div id="kakaoMap" style="width: 100%; height: 100%;"></div>
-                        <a href="#" id="kakaoMapLink" target="_blank"
-                           class="absolute bottom-4 right-4 z-10 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-xl text-sm font-extrabold text-slate-900 shadow-lg hover:bg-sky-50 transition flex items-center gap-2">
-                            카카오맵 이동
-                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
-                            </svg>
-                        </a>
+                    <!-- 🌟 카카오맵 및 버튼 부분 수정 -->
+                    <div class="view-map-wrap">
+                        <div id="kakaoMap" class="view-map-container border border-slate-200 rounded-2xl"></div>
+                        <div class="flex justify-end mt-3">
+                            <a href="#" id="kakaoMapLink" target="_blank"
+                               class="bg-white border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-extrabold text-slate-700 shadow-sm hover:bg-slate-50 transition flex items-center gap-2">
+                                카카오맵 이동
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -382,12 +325,11 @@
                                         </button>
                                         <span class="text-slate-300 text-[10px]">|</span>
                                         <form th:action="@{/hospital/review/delete}" method="post"
-                                              style="margin: 0; padding: 0; display: flex; align-items: center;"
-                                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                                              class="delete-form-inline" onsubmit="return confirm('정말 삭제하시겠습니까?');">
                                             <input type="hidden" name="reviewId" th:value="${review.reviewId}">
                                             <input type="hidden" name="hospitalId" th:value="${hospital.hospitalId}">
                                             <button type="submit"
-                                                    class="text-[13px] text-red-400 hover:text-red-600 font-extrabold transition bg-transparent border-0 p-0 cursor-pointer">
+                                                    class="text-[13px] text-red-400 hover:text-red-600 font-extrabold transition btn-delete-transparent">
                                                 삭제
                                             </button>
                                         </form>
@@ -404,8 +346,7 @@
                                     <div class="r-text-content text-slate-700 text-base leading-relaxed whitespace-pre-wrap"
                                          th:data-full="${review.content}"
                                          th:data-short="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}"
-                                         th:text="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}">
-                                    </div>
+                                         th:text="${#strings.length(review.content) > 150 ? #strings.substring(review.content, 0, 150) + '...' : review.content}"></div>
                                     <button type="button"
                                             class="btn-more-text text-sky-500 font-extrabold text-sm mt-3 hover:underline"
                                             th:if="${#strings.length(review.content) > 150}">+ 더보기
@@ -450,13 +391,17 @@
 
 <script type="text/javascript"
         src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
+
 <script th:inline="javascript">
     const lat = /*[[${hospital.latitude != null ? hospital.latitude : 0}]]*/ 0;
     const lng = /*[[${hospital.longitude != null ? hospital.longitude : 0}]]*/ 0;
-    const hName = /*[[${hospital.name}]]*/ '병원명';
-    const hAddress = /*[[${hospital.address}]]*/ '병원주소';
+    const hName = /*[[${hospital.name != null ? hospital.name : '이름없음'}]]*/ '병원명';
+    const hAddress = /*[[${hospital.address != null ? hospital.address : ''}]]*/ '병원주소';
     const csrfHeader = /*[[${_csrf != null ? _csrf.headerName : ''}]]*/ 'X-CSRF-TOKEN';
     const csrfToken = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
+
+    const hId = /*[[${hospital.hospitalId}]]*/ 0;
+    const hImg = /*[[${hospital.imageUrl != null ? hospital.imageUrl : ''}]]*/ '';
 
     function toggleNoticeText() {
         const txtEle = document.getElementById('noticeText');
@@ -472,10 +417,11 @@
         }
     }
 </script>
-<script th:src="@{/js/hospital/view.js}"></script>
+
+<script th:src="@{/js/hospital/view.js?v=3}"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const reviewItems = document.querySelectorAll('.review-item');
         const itemsPerPage = 10;
         const totalReviews = reviewItems.length;
@@ -494,7 +440,6 @@
                         item.style.display = 'none';
                     }
                 });
-
                 renderPagination(pageNum);
             }
 
@@ -512,13 +457,12 @@
                 html += '</ul>';
 
                 paginationWrap.innerHTML = html;
-
                 paginationWrap.querySelectorAll('.page-link').forEach(link => {
-                    link.addEventListener('click', function(e) {
+                    link.addEventListener('click', function (e) {
                         e.preventDefault();
                         const targetPage = parseInt(this.getAttribute('data-page'));
                         showReviewPage(targetPage);
-                        document.getElementById('section-review').scrollIntoView({ behavior: 'smooth' });
+                        document.getElementById('section-review').scrollIntoView({behavior: 'smooth'});
                     });
                 });
             }
@@ -529,6 +473,5 @@
 </script>
 
 <div th:replace="~{common/footer :: footer}"></div>
-
 </body>
 </html>

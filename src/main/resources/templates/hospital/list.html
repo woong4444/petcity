@@ -5,25 +5,11 @@
     <title>동물병원 찾기 - PetCity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/common/head.css?v=2}">
     <link rel="stylesheet" th:href="@{/css/hospital/list.css}">
 </head>
 <body>
 <div th:replace="~{common/head :: head}"></div>
-
-<!-- 퀵 메뉴 -->
-<aside class="quick-menu">
-    <div class="quick-title">Quick Menu</div>
-    <ul class="quick-list">
-        <li><a href="/member/mypage">내 정보(반려동물)</a></li>
-        <li><a href="/board/list?type=FAQ">자주 묻는 질문(FAQ)</a></li>
-    </ul>
-    <div class="quick-recent-box">
-        <div class="quick-recent-title">최근 본 병원</div>
-        <ul id="quickRecentList" class="quick-list" style="margin:0;"></ul>
-    </div>
-    <button class="btn-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">맨위로 TOP</button>
-</aside>
 
 <main class="hospital-list-wrap">
     <section class="hospital-list-header">
@@ -57,11 +43,11 @@
             <div class="filter-action-row"><button type="button" class="btn-toggle-filter" data-state="open">- 필터 접기</button></div>
         </div>
 
-        <div class="filter-box sub-animal-box" id="subAnimalBox" style="display: none; background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 18px;">
+        <div class="filter-box sub-animal-box" id="subAnimalBox">
             <div class="filter-title">세부 품종 <span>(단일 선택)</span></div>
             <div class="filter-content-wrap">
                 <div class="pill-group wrap-group">
-                    <label class="pill-check sub-animal-item" th:each="sub : ${subAnimalTypeList}" th:data-parent="${sub.parentId}" style="display: none;">
+                    <label class="pill-check sub-animal-item hidden-element" th:each="sub : ${subAnimalTypeList}" th:data-parent="${sub.parentId}">
                         <input type="radio" name="subAnimalId" th:value="${sub.animalId}" th:checked="${subAnimalId != null and subAnimalId == sub.animalId}">
                         <span th:text="${sub.animalName}">세부동물</span>
                     </label>
@@ -73,7 +59,7 @@
             <div class="filter-title">진료 과목 <span>(다중 선택)</span></div>
             <div class="filter-content-wrap">
                 <div class="pill-group wrap-group">
-                    <label class="pill-check subject-all-check">
+                    <label class="pill-check">
                         <input type="checkbox" id="subjectAll" value="">
                         <span>전체 선택</span>
                     </label>
@@ -90,7 +76,7 @@
             <div class="filter-title">제공 서비스 <span>(다중 선택)</span></div>
             <div class="filter-content-wrap">
                 <div class="pill-group wrap-group">
-                    <label class="pill-check service-all-check">
+                    <label class="pill-check">
                         <input type="checkbox" id="serviceAll" value="">
                         <span>전체 선택</span>
                     </label>
@@ -103,39 +89,29 @@
             <div class="filter-action-row"><button type="button" class="btn-toggle-filter" data-state="open">- 필터 접기</button></div>
         </div>
 
-        <!-- 지역 선택 -->
         <div class="filter-box">
             <div class="filter-title">지역 선택 <span>(다중 선택)</span></div>
             <div class="filter-content-wrap">
                 <div class="pill-group wrap-group region-checkbox-group">
-                    <label class="pill-check seoul-all-check">
+                    <label class="pill-check">
                         <input type="checkbox" id="seoulAll" value="">
                         <span>서울 전체</span>
                     </label>
-
-                    <!-- 서울 구 리스트 -->
                     <th:block th:each="item : ${districtList}">
                         <label class="pill-check seoul-district" th:if="${!item.contains('시 ') and !item.endsWith('군') and !item.endsWith('시')}">
                             <input type="checkbox" name="districts" th:value="${item}" th:checked="${districts != null and districts.contains(item)}">
                             <span th:text="${item}">구이름</span>
                         </label>
                     </th:block>
-
-                    <!-- 그 외 지역 전체 버튼 (active 클래스 연동) -->
-                    <label class="pill-check other-all-check" th:classappend="${otherAllChecked} ? ' active'" style="margin-left: 10px; padding-left: 14px; border-left: 2px solid #e2e8f0;">
+                    <label class="pill-check">
                         <input type="checkbox" id="otherAll" value="OTHER" th:checked="${otherAllChecked}">
-                        <span style="color: #0ea5e9; font-weight: 800;">그 외 지역 전체</span>
+                        <span>그 외 지역 전체</span>
                     </label>
-
-                    <!-- 그 외 지역 데이터 (서버 전송용 숨김) -->
-                    <div style="display: none;">
+                    <div class="hidden-element">
                         <th:block th:each="item : ${districtList}">
-                            <input type="checkbox" name="districts" class="hidden-other-district" th:value="${item}"
-                                   th:if="${item.contains('시 ') or item.endsWith('군') or item.endsWith('시')}"
-                                   th:checked="${districts != null and districts.contains(item)}">
+                            <input type="checkbox" name="districts" class="hidden-other-district" th:value="${item}" th:if="${item.contains('시 ') or item.endsWith('군') or item.endsWith('시')}" th:checked="${districts != null and districts.contains(item)}">
                         </th:block>
                     </div>
-
                 </div>
             </div>
             <div class="filter-action-row"><button type="button" class="btn-toggle-filter" data-state="open">- 필터 접기</button></div>
@@ -147,17 +123,14 @@
     </form>
 
     <div id="hospitalResultArea" th:fragment="hospitalResultArea" class="hospital-result-area">
-
         <div class="list-toolbar">
             <div class="status-toggles flex flex-wrap gap-2">
                 <button type="button" class="status-btn" th:classappend="${openStatus == 'ALL'} ? 'active' : ''" data-status="ALL">전체 보기</button>
                 <button type="button" class="status-btn" th:classappend="${openStatus == 'OPEN'} ? 'active' : ''" data-status="OPEN">진료중</button>
                 <button type="button" class="status-btn" th:classappend="${openStatus == 'HOLIDAY'} ? 'active' : ''" data-status="HOLIDAY">휴무일</button>
                 <button type="button" class="status-btn" th:classappend="${openStatus == 'CLOSED'} ? 'active' : ''" data-status="CLOSED">진료종료</button>
-                <button type="button" class="status-btn" th:classappend="${openStatus == 'SHUTDOWN'} ? 'active' : ''" data-status="SHUTDOWN">폐업</button>
                 <button type="button" class="status-btn" th:classappend="${openStatus == 'SUSPENDED'} ? 'active' : ''" data-status="SUSPENDED">휴업</button>
             </div>
-
             <div class="sort-wrap">
                 <select id="sortSelect" class="sort-select">
                     <option value="recommend" th:selected="${sort == 'recommend'}">펫시티 추천순</option>
@@ -176,9 +149,9 @@
             <div class="user-location-area">
                 <span class="current-location-text">
                     <span id="locationLabel">현재 위치 : </span>
-                    <strong id="gpsLocationName" style="color:#334155; font-weight:600;">위치 탐색중...</strong>
-                    <span id="customLocationText" style="display:none; margin-left:8px; padding-left:10px; border-left:2px solid #cbd5e1;">
-                            설정된 위치 : <strong id="customLocationName" style="color:#0ea5e9;"></strong>
+                    <strong id="gpsLocationName" class="gps-location-name">위치 탐색중...</strong>
+                    <span id="customLocationText" class="custom-location-text-wrap">
+                            설정된 위치 : <strong id="customLocationName" class="custom-location-name"></strong>
                     </span>
                 </span>
                 <button type="button" id="btnLocationSelect" class="btn-location-select">위치 변경</button>
@@ -186,44 +159,40 @@
         </section>
 
         <section class="hospital-card-list">
+            <!-- 🌟 변경점: th:if 숨김 조건 삭제! 이제 DB가 깔끔하게 준 12개가 꽉 차서 나옵니다 -->
             <article class="hospital-card" th:each="hospital : ${hospitalList}">
-
-                <div class="hospital-image go-detail-link" style="cursor:pointer;" th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}" onclick="location.href=this.getAttribute('data-url')">
+                <div class="hospital-image hospital-image-link go-detail-link" th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}" onclick="location.href=this.getAttribute('data-url')">
                     <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}" alt="병원 이미지">
                     <div th:if="${hospital.imageUrl == null or hospital.imageUrl == ''}" class="no-image"><span>No Image</span></div>
                     <div class="hover-overlay"><p th:text="${hospital.description != null and hospital.description != '' ? hospital.description : '상세 소개가 없습니다.'}"></p></div>
                 </div>
 
                 <div class="hospital-info">
-                    <div class="hospital-title-row flex justify-between items-start">
-
-                        <div class="title-left" style="flex: 1; padding-right: 10px;">
-                            <div style="margin-bottom: 6px;">
+                    <div class="hospital-title-row">
+                        <div class="title-left">
+                            <div class="hospital-status-badges">
                                 <span class="district-badge" th:text="${hospital.district}">지역</span>
-                                <span th:if="${hospital.currentStatus == '진료중'}" class="district-badge" style="background:#dcfce7; color:#059669; margin-left:4px;">진료중</span>
-                                <span th:if="${hospital.currentStatus == '진료종료'}" class="district-badge" style="background:#fee2e2; color:#e11d48; margin-left:4px;">진료종료</span>
-                                <span th:if="${hospital.currentStatus == '휴무일'}" class="district-badge" style="background:#f1f5f9; color:#64748b; margin-left:4px;">휴무일</span>
-                                <span th:if="${hospital.currentStatus == '폐업'}" class="district-badge" style="background:#cbd5e1; color:#334155; margin-left:4px;">폐업</span>
-                                <span th:if="${hospital.currentStatus == '휴업'}" class="district-badge" style="background:#fef08a; color:#b45309; margin-left:4px;">휴업</span>
+                                <span th:if="${hospital.currentStatus == '진료중'}" class="district-badge badge-status-open">진료중</span>
+                                <span th:if="${hospital.currentStatus == '진료종료'}" class="district-badge badge-status-end">진료종료</span>
+                                <span th:if="${hospital.currentStatus == '휴무일'}" class="district-badge badge-status-holi">휴무일</span>
+                                <span th:if="${hospital.currentStatus == '휴업'}" class="district-badge badge-status-susp">휴업</span>
                             </div>
 
-                            <h2 class="hospital-name go-detail-link" style="cursor:pointer; white-space: normal !important; display: block; line-height: 1.35; margin-bottom: 8px; word-break: keep-all;" th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}" onclick="location.href=this.getAttribute('data-url')">
+                            <h2 class="hospital-name hospital-name-text go-detail-link" th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}" onclick="location.href=this.getAttribute('data-url')">
                                 <span th:text="${hospital.name}">병원 이름</span>
                             </h2>
 
-                            <!-- 거리와 별점 -->
-                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                                <p class="h-distance" th:if="${hospital.distance != null and hospital.distance > 0}" style="margin: 0;">
+                            <div class="rating-wrap">
+                                <p class="h-distance rating-dist-margin" th:if="${hospital.distance != null and hospital.distance > 0}">
                                     <strong th:text="${#numbers.formatDecimal(hospital.distance, 1, 1)}"></strong>km
                                 </p>
-                                <span class="h-rating-review" style="position: static !important; margin: 0; font-size: 0.9rem; display: inline-block;">
-                                    <span class="star" style="color: #f59e0b; font-weight: bold;">★ <th:block th:text="${hospital.avgRating > 0 ? hospital.avgRating : '0.0'}"></th:block></span>
-                                    <span class="rev-cnt" style="color: #64748b;">(<th:block th:text="${hospital.reviewCount}"></th:block>)</span>
+                                <span class="h-rating-review static-inline">
+                                    <span class="star rating-star-icon">★ <th:block th:text="${hospital.avgRating > 0 ? hospital.avgRating : '0.0'}"></th:block></span>
+                                    <span class="rev-cnt rating-rev-cnt">(<th:block th:text="${hospital.reviewCount}"></th:block>)</span>
                                 </span>
                             </div>
                         </div>
 
-                        <!-- 찜 버튼 -->
                         <div class="title-right shrink-0 pt-1">
                             <button th:if="${session.loginMember == null}" type="button" class="btn-list-zzim is-anonymous flex items-center gap-1.5 text-slate-300 hover:text-rose-400 transition-colors" onclick="alert('로그인 후 이용 가능합니다.'); location.href='/member/login';">
                                 <svg class="w-7 h-7 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -248,8 +217,8 @@
                         <p><span class="detail-label">진료동물</span><span class="txt-ellipsis" th:text="${hospital.animalNames != null ? hospital.animalNames : '정보 없음'}"></span></p>
                         <p><span class="detail-label">제공옵션</span><span class="txt-ellipsis" th:text="${hospital.serviceNames != null ? hospital.serviceNames : '정보 없음'}"></span></p>
                         <p><span class="detail-label">진료시간</span><span class="txt-ellipsis" th:text="${hospital.openTime != null and hospital.openTime != '' ? hospital.openTime + ' ~ ' + hospital.closeTime : '정보 없음'}"></span></p>
-                        <p><span class="detail-label">휴게시간</span><span class="txt-ellipsis" style="color:#d97706; font-weight: 600;" th:text="${hospital.breakTime != null and hospital.breakTime != '' ? hospital.breakTime : '휴게시간 없음'}"></span></p>
-                        <p><span class="detail-label">정기휴무</span><span class="txt-ellipsis" style="color:#ef4444; font-weight: 600;" th:text="${hospital.holiday != null and hospital.holiday != '' ? hospital.holiday : '연중무휴'}"></span></p>
+                        <p><span class="detail-label">휴게시간</span><span class="txt-ellipsis detail-info-break" th:text="${hospital.breakTime != null and hospital.breakTime != '' ? hospital.breakTime : '휴게시간 없음'}"></span></p>
+                        <p><span class="detail-label">정기휴무</span><span class="txt-ellipsis detail-info-holi" th:text="${hospital.holiday != null and hospital.holiday != '' ? hospital.holiday : '연중무휴'}"></span></p>
                         <p><span class="detail-label">병원주소</span><span class="txt-ellipsis" th:text="${hospital.address}"></span></p>
                     </div>
                 </div>
@@ -266,7 +235,6 @@
                 <li th:class="${pageDto.page == pageDto.totalPages} ? 'page-item disabled' : 'page-item'"><a class="page-link" href="#" th:data-page="${pageDto.totalPages}">&gt;&gt;</a></li>
             </ul>
         </div>
-
     </div>
 </main>
 
@@ -279,8 +247,8 @@
             </div>
             <button type="button" id="btnCloseModal">닫기</button>
         </div>
-        <div class="map-container-relative" style="position:relative;">
-            <div id="selectMap" style="width:100%; height:350px; background:#e2e8f0;"></div>
+        <div class="map-relative-wrap">
+            <div id="selectMap" class="select-map-container"></div>
             <div class="map-crosshair"></div>
         </div>
         <div class="location-modal-footer">
