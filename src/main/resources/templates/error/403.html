@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - 접근 권한 없음 | PetCity</title>
+
+    <link rel="stylesheet" th:href="@{/css/error/error.css}">
+</head>
+
+<body class="error-page error-page-403">
+
+<main class="error-container">
+    <section class="error-card">
+
+        <img class="error-image"
+             th:src="@{/images/error/403.png}"
+             alt="접근 권한이 없어 슬퍼하는 강아지와 고양이">
+
+        <p class="error-code">403</p>
+
+        <h1>접근 권한이 없어요</h1>
+
+        <p class="error-description">
+            이 페이지는 관리자 또는 권한이 있는 회원만 이용할 수 있습니다.
+        </p>
+
+        <div class="error-button-group">
+            <a th:href="@{/}"
+               class="error-button error-button-primary">
+                메인으로 돌아가기
+            </a>
+
+            <button type="button"
+                    class="error-button error-button-outline"
+                    onclick="history.back()">
+                이전 페이지
+            </button>
+        </div>
+
+    </section>
+</main>
+
+</body>
+</html>
