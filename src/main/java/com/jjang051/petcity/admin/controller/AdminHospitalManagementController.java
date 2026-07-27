@@ -5,6 +5,7 @@ import com.jjang051.petcity.admin.dto.AdminHospitalManagementDto;
 import com.jjang051.petcity.admin.dto.AdminHospitalUpdateRequestDetailDto;
 import com.jjang051.petcity.admin.dto.LoginMemberDto;
 import com.jjang051.petcity.admin.service.AdminHospitalManagementService;
+import com.jjang051.petcity.member.dto.MemberDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.type.Alias;
@@ -48,7 +49,7 @@ public class AdminHospitalManagementController {
     @PostMapping("/{hospitalId}/hard-delete")
     public String hardDeleteHospital(@PathVariable("hospitalId") Long hospitalId, RedirectAttributes redirectAttributes, HttpSession session) {
 
-        LoginMemberDto loginMember = (LoginMemberDto) session.getAttribute("loginMember");
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
         if (loginMember == null) {
             return "redirect:/login";
         }

@@ -72,7 +72,7 @@
         )
     </delete>
     <delete id="deleteHospitalUpdateRequestSubjects">
-        DELETE FROM HOSPITAL_UPDATE_MEDICAL_REQUEST_SUBJECT
+        DELETE FROM HOSPITAL_UPDATE_REQUEST_MEDICAL_SUBJECT
         WHERE REQUEST_ID IN( SELECT REQUEST_ID
         FROM HOSPITAL_UPDATE_REQUEST
         WHERE HOSPITAL_ID = #{hospitalId}
