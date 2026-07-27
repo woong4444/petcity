@@ -15,16 +15,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 2. 폼 내부의 모든 입력 요소(input, select, checkbox 등) 변경 시 즉시 반응
     const form = document.getElementById('customSearchForm');
     if (form) {
         form.addEventListener('change', function (e) {
             fetchDynamicResults();
         });
 
-        // 3. 버튼이나 필터 항목을 클릭했을 때 (동물 분류, 진료 과목 버튼 등 타겟 포함)
         form.addEventListener('click', function (e) {
-            // 버튼이나 칩 형태의 필터 요소를 클릭한 경우 딜레이를 두고 즉시 반영
             const target = e.target.closest('button, a, input, label');
             if (target) {
                 setTimeout(fetchDynamicResults, 50);
@@ -32,23 +29,39 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 4. 반려동물 폼 선택 이벤트 (step 2로 이동)
+    // 🌟 변경점: 반려동물 선택 시 파란색 하이라이팅 버그 완벽 수정!
     const petSelectBtns = document.querySelectorAll('.btn-select-pet');
     petSelectBtns.forEach(btn => {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
+
+            // 데이터 뽑기
             const animalId = this.getAttribute('data-animal-id');
             const subId = this.getAttribute('data-sub-animal-id') || '';
 
+            // 검색창 폼에 값 숨겨서 넣기
             const animalInput = document.getElementById('searchAnimalId');
             const subAnimalInput = document.getElementById('searchSubAnimalId');
             if (animalInput) animalInput.value = animalId;
             if (subAnimalInput) subAnimalInput.value = subId;
 
-            document.querySelectorAll('#myPetListArea > div').forEach(el => el.classList.remove('border-sky-500', 'bg-sky-50'));
-            this.closest('div.bg-white').classList.add('border-sky-500', 'bg-sky-50');
+            // 기존에 선택됐던 파란색 테두리 다 초기화
+            document.querySelectorAll('.pet-card-wrap').forEach(el => {
+                el.classList.remove('border-sky-500', 'bg-sky-50');
+                el.classList.add('border-slate-200', 'bg-white');
+            });
 
+            // 지금 클릭한 애한테만 파란색 하이라이트 추가!
+            const currentCard = this.closest('.pet-card-wrap');
+            if (currentCard) {
+                currentCard.classList.remove('border-slate-200', 'bg-white');
+                currentCard.classList.add('border-sky-500', 'bg-sky-50');
+            }
+
+            // 다음 탭으로 스무스하게 넘어가기
             if (typeof toggleStep === 'function') toggleStep('step2');
+
+            // 결과 바로 보여주기
             fetchDynamicResults();
         });
     });
