@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const seoulAll = document.getElementById("seoulAll");
     const serviceAll = document.getElementById("serviceAll");
+    const subjectAll = document.getElementById("subjectAll");
 
+    const subjectChecks = form.querySelectorAll("input[name='subjects']");
     const districtChecks = form.querySelectorAll("input[name='districts']");
     const serviceChecks = form.querySelectorAll("input[name='serviceIds']");
     const animalRadios = form.querySelectorAll("input[name='animalId']");
@@ -25,15 +27,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let gpsWgsY = null;
     let gpsAddressName = "위치 확인 중...";
 
-    let activeTmX = null;
-    let activeTmY = null;
+    // 🌟 오로지 WGS84(위경도)만 사용합니다. TM 관련 변수 완전 삭제!
+    let activeLat = null;
+    let activeLng = null;
     let activeAddressName = null;
     let isCustomLocation = false;
 
     let geocoder = null;
+    let pendingDetailUrl = "";
 
     if (typeof kakao !== 'undefined') {
-        kakao.maps.load(function() {
+        kakao.maps.load(function () {
             if (kakao.maps.services) {
                 geocoder = new kakao.maps.services.Geocoder();
             }
@@ -51,14 +55,22 @@ document.addEventListener("DOMContentLoaded", function () {
             gpsWgsY = savedLoc.gpsWgsY;
             gpsAddressName = savedLoc.gpsAddressName;
 
-            activeTmX = savedLoc.activeTmX;
-            activeTmY = savedLoc.activeTmY;
+            activeLat = savedLoc.activeLat;
+            activeLng = savedLoc.activeLng;
             activeAddressName = savedLoc.activeAddressName;
             isCustomLocation = savedLoc.isCustomLocation;
 
-            updateLocationUI();
-            loadHospitalList();
-            return;
+            // 혹시 예전에 잘못 저장된 TM 값이 남아있으면 날려버립니다.
+            if (activeLat > 1000 || activeLng > 1000) {
+                activeLat = null;
+                activeLng = null;
+            }
+
+            if (activeLat && activeLng) {
+                updateLocationUI();
+                loadHospitalList();
+                return;
+            }
         }
 
         let isLocationInited = false;
@@ -70,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                function(position) {
+                function (position) {
                     if (isLocationInited) return;
                     clearTimeout(timeoutId);
                     isLocationInited = true;
@@ -78,12 +90,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     gpsWgsY = position.coords.latitude;
                     resolveAddressAndApply(gpsWgsX, gpsWgsY, true, false);
                 },
-                function(error) {
+                function (error) {
                     if (isLocationInited) return;
                     clearTimeout(timeoutId);
                     setDefaultLocation();
                 },
-                { timeout: 2500 }
+                {timeout: 2500}
             );
         } else {
             clearTimeout(timeoutId);
@@ -101,11 +113,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function resolveAddressAndApply(lon, lat, doSearch, isCustom) {
         if (geocoder) {
-            geocoder.coord2RegionCode(lon, lat, function(result, status) {
+            geocoder.coord2RegionCode(lon, lat, function (result, status) {
                 let addressName = "주소 알 수 없음";
                 if (status === kakao.maps.services.Status.OK) {
-                    for(let i=0; i<result.length; i++) {
-                        if(result[i].region_type === 'H') {
+                    for (let i = 0; i < result.length; i++) {
+                        if (result[i].region_type === 'H') {
                             addressName = result[i].address_name;
                             break;
                         }
@@ -127,22 +139,23 @@ document.addEventListener("DOMContentLoaded", function () {
         if (gpsNameElem) gpsNameElem.textContent = gpsAddressName;
 
         if (isCustomLocation && activeAddressName && activeAddressName !== gpsAddressName) {
-            if(customTextSpan) customTextSpan.style.display = 'inline';
-            if(customNameSpan) customNameSpan.textContent = activeAddressName;
+            if (customTextSpan) customTextSpan.style.display = 'inline';
+            if (customNameSpan) customNameSpan.textContent = activeAddressName;
         } else {
-            if(customTextSpan) customTextSpan.style.display = 'none';
+            if (customTextSpan) customTextSpan.style.display = 'none';
         }
     }
 
     function saveLocationToSession() {
         const locData = {
             gpsWgsX, gpsWgsY, gpsAddressName,
-            activeTmX, activeTmY, activeAddressName,
+            activeLat, activeLng, activeAddressName,
             isCustomLocation
         };
         sessionStorage.setItem('petcity_loc_data', JSON.stringify(locData));
     }
 
+    // 🌟 WGS84 좌표 그대로 사용 (TM 변환 없음)
     function applyLocationAndSearch(lon, lat, addressName, doSearch = false, isCustom = false) {
         activeAddressName = addressName;
         isCustomLocation = isCustom;
@@ -150,31 +163,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
         updateLocationUI();
 
-        if (geocoder) {
-            geocoder.transCoord(lon, lat, function(result, status) {
-                if (status === kakao.maps.services.Status.OK) {
-                    activeTmX = result[0].x;
-                    activeTmY = result[0].y;
+        activeLng = lon;
+        activeLat = lat;
 
-                    saveLocationToSession();
+        saveLocationToSession();
 
-                    if (doSearch || (sortInput && sortInput.value === 'distance')) {
-                        loadHospitalList();
-                    }
-                }
-            }, {
-                input_coord: kakao.maps.services.Coords.WGS84,
-                output_coord: kakao.maps.services.Coords.TM
-            });
+        if (doSearch || (sortInput && sortInput.value === 'distance')) {
+            loadHospitalList();
         }
     }
 
     function makeParams() {
         const params = new URLSearchParams();
 
-        if (activeTmX && activeTmY) {
-            params.append("userLat", activeTmX);
-            params.append("userLng", activeTmY);
+        if (activeLat && activeLng) {
+            params.append("userLat", activeLat);
+            params.append("userLng", activeLng);
         }
 
         if (pageInput && pageInput.value) params.append("page", pageInput.value);
@@ -186,6 +190,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const checkedSubAnimal = form.querySelector("input[name='subAnimalId']:checked");
         if (checkedSubAnimal && checkedSubAnimal.value !== "") params.append("subAnimalId", checkedSubAnimal.value);
+
+        if (subjectAll && !subjectAll.checked) {
+            form.querySelectorAll("input[name='subjects']:checked").forEach(subj => {
+                if (subj.value !== "") params.append("subjects", subj.value);
+            });
+        }
 
         if (serviceAll && !serviceAll.checked) {
             form.querySelectorAll("input[name='serviceIds']:checked").forEach(svc => {
@@ -221,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch(requestUrl, {
             method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" },
+            headers: {"X-Requested-With": "XMLHttpRequest"},
             signal: abortController.signal
         })
             .then(response => {
@@ -231,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(html => {
                 const oldResultArea = document.getElementById("hospitalResultArea");
                 if (oldResultArea) oldResultArea.outerHTML = html;
-                window.history.pushState(null, "", browserUrl);
+                window.history.replaceState(null, "", browserUrl);
 
                 rebindToolbarEvents();
                 rebindMapModalTrigger();
@@ -245,35 +255,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function rebindDetailLinks() {
         document.querySelectorAll('.go-detail-link, .detail-button').forEach(elem => {
-            elem.addEventListener('click', function(e) {
+            elem.onclick = null;
+
+            elem.addEventListener('click', function (e) {
                 e.preventDefault();
+
+                const status = this.getAttribute('data-status');
+                const notice = this.getAttribute('data-notice') || '등록된 휴업 사유(공지)가 없습니다.';
+
                 let href = this.tagName === 'A' ? this.href : this.dataset.url;
                 let url = new URL(href, window.location.origin);
-                if (activeTmX && activeTmY) {
-                    url.searchParams.set('userLat', activeTmX);
-                    url.searchParams.set('userLng', activeTmY);
+
+                if (activeLat && activeLng) {
+                    url.searchParams.set('userLat', activeLat);
+                    url.searchParams.set('userLng', activeLng);
                 }
+
+                if (status === '휴업' || status === 'SUSPENDED') {
+                    document.getElementById('suspendNoticeText').textContent = notice;
+                    document.getElementById('suspendModal').style.display = 'flex';
+                    pendingDetailUrl = url.toString();
+                    return;
+                }
+
                 window.location.href = url.toString();
             });
         });
 
-        // 🌟 찜하기(하트) 토글 로직
         document.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const hospitalId = this.dataset.id;
 
                 fetch('/hospital/api/zzim', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ hospitalId: hospitalId })
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: new URLSearchParams({hospitalId: hospitalId})
                 })
                     .then(res => res.json())
                     .then(data => {
-                        if(data.isSuccess) {
+                        if (data.isSuccess) {
                             this.classList.toggle('active', data.isZzim);
                             const countSpan = this.querySelector('.count');
-                            if(countSpan) countSpan.textContent = data.zzimCount;
+                            if (countSpan) countSpan.textContent = data.zzimCount;
                         } else {
                             alert("세션이 만료되었습니다. 다시 로그인해주세요.");
                             location.href = '/member/login';
@@ -282,38 +306,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     .catch(err => console.error("찜하기 통신 에러:", err));
             });
         });
-
-        // 🌟 추천하기(별) 토글 로직
-        document.querySelectorAll('.btn-like-toggle').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const hospitalId = this.dataset.id;
-
-                fetch('/hospital/api/like', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ hospitalId: hospitalId })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.isSuccess) {
-                            this.classList.toggle('active', data.isLike);
-                            this.querySelector('.count').textContent = data.likeCount;
-                        } else {
-                            alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-                            location.href = '/member/login';
-                        }
-                    })
-                    .catch(err => console.error("추천하기 통신 에러:", err));
-            });
-        });
     }
 
     function rebindToolbarEvents() {
         const sortSelect = document.getElementById("sortSelect");
         if (sortSelect) {
-            sortSelect.addEventListener("change", function() {
-                if (this.value === 'distance' && (!activeTmX || !activeTmY)) {
+            sortSelect.addEventListener("change", function () {
+                if (this.value === 'distance' && (!activeLat || !activeLng)) {
                     alert("가까운순 정렬을 이용하시려면 기준 위치를 먼저 설정해주세요.");
                     this.value = sortInput.value;
                     return;
@@ -326,7 +325,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const statusBtns = document.querySelectorAll(".status-btn");
         statusBtns.forEach(btn => {
-            btn.addEventListener("click", function() {
+            btn.addEventListener("click", function () {
                 statusBtns.forEach(b => b.classList.remove("active"));
                 this.classList.add("active");
                 if (openStatusInput) openStatusInput.value = this.dataset.status;
@@ -336,7 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         document.querySelectorAll(".page-link").forEach(link => {
-            link.addEventListener("click", function(event) {
+            link.addEventListener("click", function (event) {
                 event.preventDefault();
                 const parentLi = this.parentElement;
                 if (!parentLi.classList.contains("disabled") && !parentLi.classList.contains("active")) {
@@ -360,21 +359,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let tempWgsY = null;
     let tempAddressName = null;
 
-    if(btnCloseModal) {
-        btnCloseModal.addEventListener('click', () => { locationModal.style.display = 'none'; });
+    if (btnCloseModal) {
+        btnCloseModal.addEventListener('click', () => {
+            locationModal.style.display = 'none';
+        });
     }
 
-    if(btnConfirmLocation) {
+    if (btnConfirmLocation) {
         btnConfirmLocation.addEventListener('click', () => {
-            if(tempWgsX && tempWgsY && tempAddressName) {
+            if (tempWgsX && tempWgsY && tempAddressName) {
                 applyLocationAndSearch(tempWgsX, tempWgsY, tempAddressName, true, true);
             }
             locationModal.style.display = 'none';
         });
     }
 
-    if(btnGoMyLocation) {
-        btnGoMyLocation.addEventListener('click', function() {
+    if (btnGoMyLocation) {
+        btnGoMyLocation.addEventListener('click', function () {
             if (gpsWgsX && gpsWgsY) {
                 locationModal.style.display = 'none';
                 resolveAddressAndApply(gpsWgsX, gpsWgsY, true, false);
@@ -386,22 +387,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function rebindMapModalTrigger() {
         const btnLocationSelect = document.getElementById('btnLocationSelect');
-        if(btnLocationSelect) {
-            btnLocationSelect.addEventListener('click', function() {
+        if (btnLocationSelect) {
+            btnLocationSelect.addEventListener('click', function () {
                 locationModal.style.display = 'flex';
 
                 setTimeout(() => {
                     let mapLat = gpsWgsY || 37.566826;
                     let mapLng = gpsWgsX || 126.9786567;
 
-                    if (isCustomLocation && activeTmX && activeTmY && geocoder) {
-                        geocoder.transCoord(activeTmX, activeTmY, function(result, status) {
-                            if (status === kakao.maps.services.Status.OK) {
-                                openMap(result[0].y, result[0].x);
-                            } else {
-                                openMap(mapLat, mapLng);
-                            }
-                        }, { input_coord: kakao.maps.services.Coords.TM, output_coord: kakao.maps.services.Coords.WGS84 });
+                    if (isCustomLocation && activeLat && activeLng) {
+                        openMap(activeLat, activeLng);
                     } else {
                         openMap(mapLat, mapLng);
                     }
@@ -411,20 +406,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function openMap(lat, lng) {
-        if(!selectMap) {
-            const mapOption = { center: new kakao.maps.LatLng(lat, lng), level: 4 };
+        if (!selectMap) {
+            const mapOption = {center: new kakao.maps.LatLng(lat, lng), level: 4};
             selectMap = new kakao.maps.Map(selectMapContainer, mapOption);
 
-            kakao.maps.event.addListener(selectMap, 'idle', function() {
+            kakao.maps.event.addListener(selectMap, 'idle', function () {
                 const center = selectMap.getCenter();
                 tempWgsX = center.getLng();
                 tempWgsY = center.getLat();
 
-                if(geocoder) {
-                    geocoder.coord2RegionCode(tempWgsX, tempWgsY, function(result, status) {
+                if (geocoder) {
+                    geocoder.coord2RegionCode(tempWgsX, tempWgsY, function (result, status) {
                         if (status === kakao.maps.services.Status.OK) {
-                            for(let i=0; i<result.length; i++) {
-                                if(result[i].region_type === 'H') {
+                            for (let i = 0; i < result.length; i++) {
+                                if (result[i].region_type === 'H') {
                                     tempAddressName = result[i].address_name;
                                     document.getElementById('selectedAddressText').textContent = tempAddressName;
                                     break;
@@ -440,33 +435,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function renderRecentHospitals() {
-        const recentBox = document.getElementById('quickRecentList');
-        if (!recentBox) return;
-
-        const recents = JSON.parse(localStorage.getItem('petcity_recent') || '[]');
-        if (recents.length === 0) {
-            recentBox.innerHTML = '<li style="font-size:11px; color:#94a3b8; padding:10px 0;">최근 본 병원이<br>없습니다.</li>';
-            return;
-        }
-
-        let html = '';
-        recents.forEach(h => {
-            let imgHtml = h.img && h.img !== 'null' ? `<img src="${h.img}" alt="병원">` : `<div style="width:100%; height:60px; background:#e0f2fe; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#0284c7; font-weight:bold;">이미지 없음</div>`;
-            html += `<li>
-                <a href="/hospital/view?hospitalId=${h.id}" class="quick-recent-item">
-                    ${imgHtml}
-                    <span>${h.name}</span>
-                </a>
-            </li>`;
-        });
-        recentBox.innerHTML = html;
-    }
-
     rebindToolbarEvents();
     rebindMapModalTrigger();
     rebindDetailLinks();
-    renderRecentHospitals();
 
     function updateSubAnimalUI() {
         const checkedAnimal = form.querySelector("input[name='animalId']:checked");
@@ -518,9 +489,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 group.forEach(r => r.dataset.wasChecked = "false");
                 this.dataset.wasChecked = "true";
             }
-            if(this.name === 'animalId') {
+            if (this.name === 'animalId') {
                 updateSubAnimalUI();
             }
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList();
         });
     });
 
@@ -540,6 +513,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 const total = districtChecks.length;
                 const checkedCount = form.querySelectorAll("input[name='districts']:checked").length;
                 seoulAll.checked = (total === checkedCount);
+            }
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList();
+        });
+    });
+
+    if (subjectAll) {
+        subjectAll.addEventListener("change", function () {
+            subjectChecks.forEach(c => c.checked = this.checked);
+            if (pageInput) pageInput.value = 1;
+            loadHospitalList();
+        });
+    }
+
+    subjectChecks.forEach(function (check) {
+        check.addEventListener("change", function () {
+            if (subjectAll) {
+                const total = subjectChecks.length;
+                const checkedCount = form.querySelectorAll("input[name='subjects']:checked").length;
+                subjectAll.checked = (total === checkedCount);
             }
             if (pageInput) pageInput.value = 1;
             loadHospitalList();
@@ -599,10 +592,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const toggleButtons = document.querySelectorAll(".btn-toggle-filter");
     toggleButtons.forEach(button => {
-        button.addEventListener("click", function() {
+        button.addEventListener("click", function () {
             const contentWrap = this.parentElement.previousElementSibling;
 
-            if(this.dataset.state === "open") {
+            if (this.dataset.state === "open") {
                 contentWrap.classList.add("is-minimized");
                 this.dataset.state = "closed";
                 this.textContent = "+ 펼치기";
@@ -614,21 +607,22 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🌟 [추가됨] 그 외 지역 한 번에 체크하는 로직
     const otherAllBtn = document.getElementById('otherAll');
     const hiddenOtherDistricts = document.querySelectorAll('.hidden-other-district');
 
     if (otherAllBtn) {
-        // 새로고침 시 이전에 체크된 게 있으면 버튼도 활성화
-        const isChecked = Array.from(hiddenOtherDistricts).some(chk => chk.checked);
-        otherAllBtn.checked = isChecked;
+        const checkInitialState = () => {
+            const isAllChecked = Array.from(hiddenOtherDistricts).length > 0 && Array.from(hiddenOtherDistricts).every(chk => chk.checked);
+            otherAllBtn.checked = isAllChecked;
+        };
+        checkInitialState();
 
-        // 클릭 시 모든 숨겨진 '그 외 지역' 체크박스 토글
-        otherAllBtn.addEventListener('change', function() {
+        otherAllBtn.addEventListener('change', function () {
+            const isChecked = this.checked;
             hiddenOtherDistricts.forEach(chk => {
-                chk.checked = this.checked;
+                chk.checked = isChecked;
             });
-            // Ajax로 자연스럽게 검색 결과 갱신
+
             if (pageInput) pageInput.value = 1;
             loadHospitalList();
         });
@@ -637,4 +631,23 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("popstate", function () {
         window.location.reload();
     });
+
+    const btnSuspendYes = document.getElementById('btnSuspendYes');
+    const btnSuspendNo = document.getElementById('btnSuspendNo');
+    const suspendModal = document.getElementById('suspendModal');
+
+    if (btnSuspendYes) {
+        btnSuspendYes.addEventListener('click', function() {
+            if (pendingDetailUrl) {
+                window.location.href = pendingDetailUrl;
+            }
+        });
+    }
+
+    if (btnSuspendNo) {
+        btnSuspendNo.addEventListener('click', function() {
+            suspendModal.style.display = 'none';
+            pendingDetailUrl = "";
+        });
+    }
 });

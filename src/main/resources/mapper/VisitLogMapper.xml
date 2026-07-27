@@ -19,10 +19,10 @@
             SVL.UPDATED_AT = SYSTIMESTAMP
         WHEN NOT MATCHED THEN
         INSERT(
-                VISIV_ID,
-                VISIV_DATE,
-                VISIV_TYPE,
-                VISIV_KEY,
+                VISIT_ID,
+                VISIT_DATE,
+                VISIT_TYPE,
+                VISIT_KEY,
                 MEMBER_ID,
                 SESSION_ID,
                 IP_ADDRESS,
@@ -30,8 +30,8 @@
                 VISITED_URL,
                 FIRST_VISITED_AT,
                 LAST_VISITED_AT,
-                CREATE_AT,
-                UPDATE_AT,
+                CREATED_AT,
+                UPDATED_AT
         )
         VALUES(
             SEQ_SITE_VISIT_LOG.NEXTVAL,
@@ -39,10 +39,10 @@
             #{visitorType},
             #{visitorKey},
             #{memberId, jdbcType=NUMERIC},
-            #{sessionId, jdbcType=NUMERIC},
-            #{ipAddress, jdbcType=NUMERIC},
-            #{userAgent, jdbcType=NUMERIC},
-            #{visitedUrl, jdbcType=NUMERIC},
+            #{sessionId, jdbcType=VARCHAR},
+            #{ipAddress, jdbcType=VARCHAR},
+            #{userAgent, jdbcType=VARCHAR},
+            #{visitedUrl, jdbcType=VARCHAR},
             TO_TIMESTAMP( #{firstVisitedAt}, 'YYYY-MM-DD HH24:MI:SS' ),
             TO_TIMESTAMP( #{lastVisitedAt}, 'YYYY-MM-DD HH24:MI:SS' ),
             SYSTIMESTAMP,

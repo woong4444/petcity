@@ -2,6 +2,8 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+        hideRoleBlockMessage();
+
         initBusinessNumber();
         initHospitalPhone();
         initBreakTime();
@@ -22,6 +24,21 @@ document.addEventListener(
         initOwnerApplyForm();
     }
 );
+
+function hideRoleBlockMessage() {
+
+    const roleBlockMessage =
+        document.getElementById(
+            "roleBlockMessage"
+        );
+
+    if(!roleBlockMessage) {
+        return;
+    }
+
+    roleBlockMessage.style.display =
+        "none";
+}
 
 
 /* ========================================
@@ -263,6 +280,126 @@ function initBreakTime() {
 
         endInput.value =
             savedEnd || "";
+    }
+
+    function initOperatingTimeValidation() {
+
+        const openInput =
+            document.getElementById(
+                "hospitalOpenTime"
+            );
+
+        const closeInput =
+            document.getElementById(
+                "hospitalCloseTime"
+            );
+
+        const breakStartInput =
+            document.getElementById(
+                "hospitalBreakStart"
+            );
+
+        const breakEndInput =
+            document.getElementById(
+                "hospitalBreakEnd"
+            );
+
+        if (!openInput
+            || !closeInput
+            || !breakStartInput
+            || !breakEndInput) {
+
+            return;
+        }
+
+        function validateTimes() {
+
+            const openTime =
+                openInput.value;
+
+            const closeTime =
+                closeInput.value;
+
+            const breakStart =
+                breakStartInput.value;
+
+            const breakEnd =
+                breakEndInput.value;
+
+            closeInput.setCustomValidity("");
+            breakStartInput.setCustomValidity("");
+            breakEndInput.setCustomValidity("");
+
+            /* 진료 종료 시간은 진료 시작 시간보다 늦어야 함 */
+            if (openTime
+                && closeTime
+                && openTime >= closeTime) {
+
+                closeInput.setCustomValidity(
+                    "진료 종료 시간은 진료 시작 시간보다 늦어야 합니다."
+                );
+
+                return;
+            }
+
+            /* 휴게 시작·종료는 함께 입력 */
+            if ((breakStart && !breakEnd)
+                || (!breakStart && breakEnd)) {
+
+                const message =
+                    "휴게시간 시작과 종료 시간을 모두 입력해 주세요.";
+
+                breakStartInput.setCustomValidity(message);
+                breakEndInput.setCustomValidity(message);
+
+                return;
+            }
+
+            /* 휴게시간을 입력하지 않은 경우 */
+            if (!breakStart
+                && !breakEnd) {
+
+                return;
+            }
+
+            /* 휴게 종료는 시작보다 늦어야 함 */
+            if (breakStart >= breakEnd) {
+
+                breakEndInput.setCustomValidity(
+                    "휴게 종료 시간은 휴게 시작 시간보다 늦어야 합니다."
+                );
+
+                return;
+            }
+
+            /* 휴게시간은 진료시간 범위 안에 있어야 함 */
+            if (openTime
+                && closeTime
+                && (breakStart < openTime
+                    || breakEnd > closeTime)) {
+
+                breakEndInput.setCustomValidity(
+                    "휴게시간은 진료 시작 시간과 종료 시간 사이로 설정해 주세요."
+                );
+            }
+        }
+
+        [
+            openInput,
+            closeInput,
+            breakStartInput,
+            breakEndInput
+        ].forEach(
+            function (input) {
+
+                input.addEventListener(
+                    "change",
+                    validateTimes
+                );
+            }
+        );
+
+        validateTimes();
     }
 
     function updateBreakTime() {

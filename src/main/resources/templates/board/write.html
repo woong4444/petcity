@@ -26,7 +26,7 @@
     </script>
     <script defer th:src="@{/js/board/board-write-type.js}"></script>
 </head>
-<body>
+<body th:class="|board-page board-page--write board-type-${boardType}|">
 
 <div th:replace="~{common/head :: head}"></div>
 
@@ -50,13 +50,13 @@
 
                 <a th:href="@{/board/list(type='FREE')}"
                    th:classappend="${boardType == 'FREE'} ? ' active' : ''">
-                    <span>자유토크</span>
+                    <span>수다마당</span>
                     <strong>›</strong>
                 </a>
 
                 <a th:href="@{/board/list(type='INFO')}"
                    th:classappend="${boardType == 'INFO'} ? ' active' : ''">
-                    <span>멍냥백서</span>
+                    <span>펫도감</span>
                     <strong>›</strong>
                 </a>
 
@@ -79,17 +79,27 @@
         <section class="board-write-content">
 
             <section class="board-write-hero">
-                <div>
-                    <h1>글쓰기</h1>
-                    <p id="boardWriteGuide"
-                       th:text="${boardTitle} + '에 게시글을 작성해 주세요.'">
-                        PetCity 커뮤니티에 게시글을 작성해 주세요.
-                    </p>
-                </div>
+                <img th:if="${boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/qna-community-hero.png}"
+                     alt="">
 
-                <div class="board-write-pet">
-                    <span>🐶</span>
-                    <span>🐱</span>
+                <img th:unless="${boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/community-hero.png}"
+                     alt="">
+
+                <div class="write-hero-copy">
+                    <span class="page-eyebrow">PETCITY COMMUNITY</span>
+
+                    <h1>
+                        <span th:text="${boardTitle}">수다마당</span> 글쓰기
+                    </h1>
+
+                    <p id="boardWriteGuide"
+                       th:text="${boardTitle} + '에 공유하고 싶은 이야기를 편하게 작성해 보세요.'">
+                        우리 아이와 나누고 싶은 이야기를 편하게 작성해 보세요.
+                    </p>
                 </div>
             </section>
 
@@ -120,12 +130,13 @@
 
                             <option value="FREE"
                                     th:selected="${boardType == 'FREE'}">
-                                자유토크
+                                수다마당
                             </option>
 
                             <option value="INFO"
+                                    th:if="${isAdmin}"
                                     th:selected="${boardType == 'INFO'}">
-                                멍냥백서
+                                펫도감
                             </option>
 
                             <option value="NOTICE"
@@ -219,7 +230,7 @@
 
                 </div>
 
-                <!-- 여기부터 멍냥백서 전용. 처음에는 화면에서 안 보임 -->
+                <!-- 여기부터 펫도감 전용. 처음에는 화면에서 안 보임 -->
                 <div id="infoOnlyArea" style="display: none;">
 
                     <div class="form-row file-row pretty-row">
@@ -231,7 +242,7 @@
                                    name="imageFiles"
                                    accept="image/*">
 
-                            <p>멍냥백서 카드 목록에 표시될 대표 이미지입니다.</p>
+                            <p>펫도감 카드 목록에 표시될 대표 이미지입니다.</p>
 
                             <div id="imagePreview" class="image-preview-list"></div>
                         </div>
@@ -247,7 +258,7 @@
                                    placeholder="https://blog.naver.com/...">
 
                             <p class="form-help">
-                                멍냥백서 목록에서 대표 이미지를 클릭했을 때 이동할 링크입니다.
+                                펫도감 목록에서 대표 이미지를 클릭했을 때 이동할 링크입니다.
                             </p>
                         </div>
                     </div>
@@ -271,6 +282,8 @@
     </div>
 
 </main>
+
+<div th:replace="~{common/footer :: footer}"></div>
 
 </body>
 </html>

@@ -55,7 +55,7 @@
                         type='FREE',
                         page=1
                     )}">
-                    <span>자유토크</span>
+                    <span>수다마당</span>
                     <strong>›</strong>
                 </a>
 
@@ -63,7 +63,7 @@
                         type='INFO',
                         page=1
                     )}">
-                    <span>멍냥백서</span>
+                    <span>펫도감</span>
                     <strong>›</strong>
                 </a>
 
@@ -98,6 +98,10 @@
 
                 <div class="faq-hero-title">
 
+        <span class="faq-eyebrow">
+            PETCITY HELP CENTER
+        </span>
+
                     <h1>자주 묻는 질문</h1>
 
                     <p>
@@ -106,13 +110,9 @@
 
                 </div>
 
-                <div class="faq-hero-pets">
-
-                    <span>🐱</span>
-                    <span>🐶</span>
-                    <span>🐥</span>
-                    <span>🐾</span>
-
+                <div class="faq-hero-image">
+                    <img th:src="@{/images/board/faq-hero.png}"
+                         alt="자주 묻는 질문 배너">
                 </div>
 
             </section>
@@ -460,6 +460,8 @@
     </div>
 
 </main>
+
+<div th:replace="~{common/footer :: footer}"></div>
 
 </body>
 </html>

@@ -35,8 +35,10 @@ public class VisitCountInterceptor implements HandlerInterceptor {
                 || requestUri.startsWith("/js/")
                 || requestUri.startsWith("/images/")
                 || requestUri.startsWith("/upload/")
+                || requestUri.startsWith("/audio/")
                 || requestUri.startsWith("/webjars/")
                 || requestUri.startsWith("/favicon/")
                 || requestUri.equals("/error/");
+
     }
 }

@@ -7,6 +7,7 @@
 
     <select id="findHospitals" resultType="AdminHospitalManagementDto">
         SELECT H.HOSPITAL_ID AS hospitalId,
+        H.NAME AS hospitalName,
         NVL(M.NICKNAME,NVL(H.OWNER_NAME, '병원장 미등록'))AS ownerName,
         M.EMAIL AS ownerEmail,
         H.STATUS AS hospitalStatus,
@@ -20,20 +21,50 @@
         ON HUR.HOSPITAL_ID = H.HOSPITAL_ID
         AND HUR.STATUS = 'PENDING'
         <where>
+            <if test="keyword != null and keyword!=''">
+                AND (UPPER(H.NAME) LIKE '%' || UPPER(#{keyword}) || '%'
+                OR
+                    UPPER(NVL(M.NICKNAME, NVL(H.OWNER_NAME, '') ) )
+                    LIKE '%' || UPPER(#{keyword}) || '%'
+                )
+            </if>
+
             <if test="animalType != null">
                 AND EXISTS ( SELECT 1 FROM HOSPITAL_ANIMAL HA
                 WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID
                 AND HA.ANIMAL_ID = #{animalType}
                 )
             </if>
+            <if test="requestType != null">
+                AND HUR.REQUEST_TYPE = #{requestType}
+            </if>
         </where>
         ORDER BY
         <choose>
+
+            <when test="sortBy == 'hospitalName'">
+                H.NAME
+            </when>
+
+            <when test="sortBy == 'ownerName'">
+                NVL( M.NICKNAME,
+                    NVL(H.OWNER_NAME, '병원장 미등록'))
+
+            </when>
+
             <when test="sortBy == 'status'">
                 CASE H.STATUS
                 WHEN 'OPEN' THEN 1
                 WHEN 'TEMP_CLOSED' THEN 2
                 WHEN 'CLOSED' THEN 3
+                ELSE 4
+                END
+            </when>
+
+            <when test="sortBy == 'requestType'">
+                CASE HUR.REQUEST_TYPE WHEN 'UPDATE' THEN 1
+                WHEN 'TEMP_CLOSE' THEN 2
+                WHEN 'CLOSE' THEN 3
                 ELSE 4
                 END
             </when>

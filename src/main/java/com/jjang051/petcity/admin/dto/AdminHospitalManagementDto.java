@@ -10,6 +10,7 @@ import org.apache.ibatis.type.Alias;
 public class AdminHospitalManagementDto {
 
     private Long hospitalId;
+    private String hospitalName;
     private String ownerName;
     private String ownerEmail;
     private String hospitalStatus;

@@ -13,6 +13,9 @@
     <link rel="stylesheet"
           th:href="@{/css/owner/apply.css}">
 
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
     <!-- 카카오 우편번호 검색 -->
     <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js">
     </script>
@@ -1101,22 +1104,8 @@
     </div>
 
 </main>
-</section>
-</form>
-</div>
-</main>
 
-<!-- 🌟 이 스크립트가 JS의 차단벽을 강제로 부숴버립니다 🌟 -->
-<script>
-    window.addEventListener('load', function() {
-        const blockMsg = document.getElementById('roleBlockMessage');
-        if(blockMsg) blockMsg.style.display = 'none';
-        const oldBtn = document.querySelector('.submit-button');
-        if(oldBtn) {
-            const newBtn = oldBtn.cloneNode(true);
-            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-        }
-    });
-</script>
+<div th:replace="~{common/footer :: footer}"></div>
+
 </body>
 </html>

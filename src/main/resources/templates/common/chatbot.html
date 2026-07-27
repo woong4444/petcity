@@ -44,19 +44,62 @@
                         🐶
                     </div>
 
-                    <div>
-                        <strong>PetCity 고객센터</strong>
-                        <p>궁금한 질문을 선택해 주세요.</p>
+                    <div class="chatbot-header-text">
+
+                        <strong>
+                            PetCity 고객센터
+                        </strong>
+
+                        <p>
+                            궁금한 질문을 선택해 주세요.
+                        </p>
+
                     </div>
 
                 </div>
 
-                <button type="button"
-                        id="chatbotCloseButton"
-                        class="chatbot-close-button"
-                        aria-label="챗봇 닫기">
-                    ×
-                </button>
+
+                <div class="chatbot-header-actions">
+
+                    <!-- 사용자 알림 설정 버튼 -->
+                    <button type="button"
+                            id="customerChatNotificationButton"
+                            class="chatbot-notification-button"
+                            aria-label="채팅 알림과 소리 켜기"
+                            aria-pressed="false">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M18 8A6 6 0 0 0 6 8
+                                     C6 15 3 16 3 16
+                                     H21
+                                     C21 16 18 15 18 8Z">
+                            </path>
+
+                            <path d="M10 20H14">
+                            </path>
+
+                        </svg>
+
+                        <span>
+                            알림받기
+                        </span>
+
+                    </button>
+
+
+                    <!-- 챗봇 닫기 버튼 -->
+                    <button type="button"
+                            id="chatbotCloseButton"
+                            class="chatbot-close-button"
+                            aria-label="챗봇 닫기">
+
+                        ×
+
+                    </button>
+
+                </div>
 
             </div>
 
@@ -73,9 +116,15 @@
                   hidden>
 
                 <div class="chatbot-chat-count">
-                    <span id="chatbotChatLength">0</span>
+
+                    <span id="chatbotChatLength">
+                        0
+                    </span>
+
                     / 500
+
                 </div>
+
 
                 <div class="chatbot-chat-input-row">
 
@@ -92,6 +141,7 @@
                     </button>
 
                 </div>
+
 
                 <p id="chatbotChatNotice"
                    class="chatbot-chat-notice">

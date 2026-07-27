@@ -23,11 +23,14 @@ public class AdminHospitalManagementController {
             @RequestParam(name = "animalType", required = false) Integer animalType,
             @RequestParam(name = "sortBy", defaultValue = "hospitalId") String sortBy,
             @RequestParam(name = "direction", defaultValue = "asc") String direction,
+            @RequestParam(name = "requestType", required = false) String requestType,
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
             Model model) {
-        List<AdminHospitalManagementDto> hospitalList = adminHospitalManagementService.findHospitals(animalType, sortBy, direction);
-
+        List<AdminHospitalManagementDto> hospitalList = adminHospitalManagementService.findHospitals(keyword,animalType, requestType, sortBy, direction);
+        model.addAttribute("keyword", keyword);
         model.addAttribute("hospitalList", hospitalList);
         model.addAttribute("selectedAnimalType", animalType);
+        model.addAttribute("selectedRequestType", requestType);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("direction", direction);
 

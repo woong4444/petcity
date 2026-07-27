@@ -54,7 +54,7 @@
     </script>
 </head>
 
-<body>
+<body th:class="|board-page board-page--write board-page--update board-type-${boardDto.boardType}|">
 
 <div th:replace="~{common/head :: head}"></div>
 
@@ -84,7 +84,7 @@
                    th:classappend="${boardDto.boardType == 'FREE'}
                        ? ' active' : ''">
 
-                    <span>자유토크</span>
+                    <span>수다마당</span>
                     <strong>›</strong>
                 </a>
 
@@ -122,13 +122,38 @@
 
             <section class="board-write-hero">
 
-                <div>
+                <!-- 게시판별 배너 이미지 -->
+                <img th:if="${boardDto.boardType == 'INFO'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/pet-guide-hero.png}"
+                     alt="펫도감 배너">
+
+                <img th:if="${boardDto.boardType == 'QNA'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/qna-community-hero.png}"
+                     alt="수의사상담 배너">
+
+                <img th:if="${boardDto.boardType == 'FAQ'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/faq-hero.png}"
+                     alt="FAQ 배너">
+
+                <img th:if="${boardDto.boardType == 'NOTICE'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/notice-hero.png}"
+                     alt="공지사항 배너">
+
+                <img th:if="${boardDto.boardType == 'FREE'}"
+                     class="board-hero-banner-image"
+                     th:src="@{/images/board/free-hero.png}"
+                     alt="수다마당 배너">
+
+                <div class="write-hero-copy">
+                    <span class="page-eyebrow">PETCITY COMMUNITY</span>
                     <h1>게시글 수정</h1>
 
                     <p th:if="${boardDto.boardType != 'FAQ'}"
-                       th:text="${boardTitle}
-                                + ' 게시글을 수정해 주세요.'">
-
+                       th:text="${boardTitle + ' 게시글을 수정해 주세요.'}">
                         게시글을 수정해 주세요.
                     </p>
 
@@ -136,14 +161,7 @@
                         자주 묻는 질문과 답변을 수정해 주세요.
                     </p>
                 </div>
-
-                <div class="board-write-pet">
-                    <span>🐶</span>
-                    <span>🐱</span>
-                </div>
-
             </section>
-
 
             <form th:action="@{/board/update}"
                   method="post"
@@ -180,11 +198,11 @@
                         </span>
 
                         <span th:case="'FREE'">
-                            자유토크
+                            수다마당
                         </span>
 
                         <span th:case="'INFO'">
-                            멍냥백서
+                            펫도감
                         </span>
 
                         <span th:case="'FAQ'">
@@ -349,7 +367,7 @@
                 </div>
 
 
-                <!-- 멍냥백서 전용 -->
+                <!-- 펫도감 전용 -->
                 <div th:if="${boardDto.boardType == 'INFO'}">
 
                     <!-- 기존 대표 이미지 -->
@@ -423,7 +441,7 @@
                                    required>
 
                             <p class="form-help">
-                                멍냥백서 카드를 누르면 이동하는 주소입니다.
+                                펫도감 카드를 누르면 이동하는 주소입니다.
                             </p>
 
                         </div>
@@ -469,6 +487,8 @@
     </div>
 
 </main>
+
+<div th:replace="~{common/footer :: footer}"></div>
 
 </body>
 </html>

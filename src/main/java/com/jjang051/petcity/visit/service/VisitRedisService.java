@@ -81,7 +81,7 @@ public class VisitRedisService {
                 .userAgent(limitText(userAgent, 1000))
                 .visitedUrl(limitText(visitedUrl, 1000))
                 .firstVisitedAt(firstVisitedAt)
-                .lastVisitedAt(firstVisitedAt)
+                .lastVisitedAt(nowText)
                 .build();
         try {
             String json = objectMapper.writeValueAsString(visitRedisDto);

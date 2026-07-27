@@ -4,94 +4,63 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
-
-    <!-- 공통 헤더 기능 -->
-    <script defer
-            th:src="@{/js/common/head.js}">
-    </script>
+    <!-- 🌟 버전을 명시해서 변경된 CSS/JS가 무조건 즉시 적용되게 강제함 -->
+    <link rel="stylesheet" th:href="@{/css/common/head.css?v=3}">
+    <link rel="stylesheet" th:href="@{/css/common/quick.css}"> <!-- 퀵메뉴 CSS 추가 -->
+    <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+    <script defer th:src="@{/js/common/footer.js}"></script>
+    <script defer th:src="@{/js/common/head.js?v=3}"></script>
+    <script defer th:src="@{/js/common/quick.js}"></script> <!-- 퀵메뉴 JS 추가 -->
 </head>
 
 <body>
 <header th:fragment="head" class="site-header">
     <div class="top-header">
-        <div class="header-inner top-header-inner">
-            <div class="top-left">
-
-                <div class="sns-list">
-                    <span class="sns-icon">K</span>
-                    <span class="sns-icon">F</span>
-                    <span class="sns-icon">I</span>
-                    <span class="sns-icon">N</span>
-                </div>
-                <span class="top-message">동물병원 찾기부터 우리 아이 병원 기록까지, PetCity</span>
-            </div>
-            <div class="top-menu">
+        <div class="header-inner top-header-inner top-header-flex">
+            <div class="top-menu top-menu-flex">
                 <th:block th:if="${session.loginMember == null}">
                     <a href="/member/login">로그인</a><span>|</span>
                     <a href="/member/signup">회원가입</a><span>|</span>
                 </th:block>
                 <th:block th:if="${session.loginMember != null}">
-                    <span th:if="${session.loginMember.role == 'USER'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-primary badge-sm">일반회원</span></span>
-                    <span th:if="${session.loginMember.role == 'OWNER'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-warning badge-sm">병원장</span></span>
-                    <span th:if="${session.loginMember.role == 'ADMIN'}"><b th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-error badge-sm">관리자</span></span>
+                    <span th:if="${session.loginMember.role == 'USER'}"><b
+                            th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-primary badge-sm">일반회원</span></span>
+                    <span th:if="${session.loginMember.role == 'OWNER'}"><b
+                            th:text="${session.loginMember.nickname}"></b>님 <span class="badge badge-warning badge-sm">병원장</span></span>
+                    <span th:if="${session.loginMember.role == 'ADMIN'}"><b
+                            th:text="${session.loginMember.nickname}"></b>님 <span
+                            class="badge badge-error badge-sm">관리자</span></span>
 
-                    <a th:if="${session.loginMember.role != 'ADMIN'}"
-                       href="/member/mypage">
-                        마이페이지
-                    </a>
+                    <a th:if="${session.loginMember.role != 'ADMIN'}" href="/member/mypage">마이페이지</a>
 
                     <th:block th:if="${session.loginMember.role != 'ADMIN'}">
-
                         <span>|</span>
-
-                        <a href="/owner/status"
-                           class="owner-status-header-link">
-
+                        <a href="/owner/status" class="owner-status-header-link">
                             병원장 신청 현황
-
-                            <span id="ownerStatusUnreadBadge"
-                                  class="owner-status-notification-badge"
-                                  aria-label="확인하지 않은 병원장 신청 결과"
-                                  hidden>
-                                0
-                            </span>
-
+                            <span id="ownerStatusUnreadBadge" class="owner-status-notification-badge"
+                                  aria-label="확인하지 않은 병원장 신청 결과" hidden>0</span>
                         </a>
-
                     </th:block>
 
                     <a th:if="${session.loginMember.role == 'ADMIN'}" href="/admin/dashboard">Admin</a>
-                    <!-- 🌟 수정된 부분: update -> list 로 경로 변경 -->
                     <a th:if="${session.loginMember.role == 'OWNER'}" href="/owner/hospital/list">병원관리</a>
                     <span>|</span><a href="/member/logout">로그아웃</a><span>|</span>
                 </th:block>
-                <a href="/pet/list">내 반려동물</a><span>|</span><a href="/board/list">고객센터</a>
+                <a href="/pet/list">내 반려동물</a>
             </div>
         </div>
     </div>
 
-
-
-
-
-
-
-    <!-- ============================= -->
-    <!-- MIDDLE HEADER -->
-    <!-- ============================= -->
-
     <div class="middle-header">
-
         <div class="header-inner middle-header-inner">
             <div class="logo-area">
-
                 <a href="/" class="logo-link">
-
                     <div class="logo-icon">🐾</div>
-                    <div><div class="logo-text">PetCity</div><div class="logo-sub-text">Animal Hospital Finder</div></div>
+                    <div>
+                        <div class="logo-text">PetCity</div>
+                        <div class="logo-sub-text">Animal Hospital Finder</div>
+                    </div>
                 </a>
-
             </div>
             <div class="search-area">
                 <div class="notice-line"><strong>NOTICE</strong> <a href="/board/list">우리 아이에게 맞는 동물병원을 찾아보세요!</a></div>
@@ -100,74 +69,47 @@
                     <button type="submit" class="search-button">검색</button>
                 </form>
                 <div class="popular-keywords">
-
                     <span>인기검색어 :</span>
-
                     <a href="/hospital/list?keyword=강아지">강아지</a>
-
                     <a href="/hospital/list?keyword=고양이">고양이</a>
-
                     <a href="/hospital/list?keyword=24시">24시병원</a>
-
                     <a href="/hospital/list?keyword=건강검진">건강검진</a>
-
                 </div>
-
             </div>
             <div class="banner-area">
-                <div class="mini-banner" style="cursor: pointer;" onclick="location.href='/hospital/list?sort=distance'">
+                <div class="mini-banner mini-banner-btn" onclick="location.href='/hospital/list?sort=distance'">
                     <div class="mini-banner-icon">🏥</div>
                     <div>
-
-                        <p class="mini-banner-title">
-                            가까운 동물병원 찾기
-                        </p>
-
-                        <p class="mini-banner-desc">
-                            지도 기반 병원 검색 서비스
-                        </p>
-
+                        <p class="mini-banner-title">가까운 동물병원 찾기</p>
+                        <p class="mini-banner-desc">지도 기반 병원 검색 서비스</p>
                     </div>
-
                 </div>
-
             </div>
         </div>
-
     </div>
 
-    <!-- ============================= -->
-    <!-- NAV -->
-    <!-- ============================= -->
-
     <nav class="bottom-nav">
-
-        <div class="header-inner bottom-nav-inner">
-            <a href="/hospital/list" class="category-button"><span class="category-icon">☰</span><span>전체 카테고리</span></a>
-            <div class="main-menu">
-
+        <div class="header-inner bottom-nav-inner bottom-nav-flex">
+            <div class="main-menu main-menu-flex">
                 <a href="/hospital/list">동물병원</a>
-
-                <!-- 🌟 비로그인 시 맞춤검색 클릭 방어 -->
-                <a th:if="${session.loginMember == null}" href="#" onclick="alert('로그인 후 이용 부탁드립니다.'); location.href='/member/login'; return false;">맞춤검색</a>
+                <a th:if="${session.loginMember == null}" href="#"
+                   onclick="alert('로그인 후 이용 부탁드립니다.'); location.href='/member/login'; return false;">맞춤검색</a>
                 <a th:unless="${session.loginMember == null}" href="/hospital/search">맞춤검색</a>
-
                 <a href="/pet/list">내 반려동물</a>
-
                 <a href="/board/list">게시판</a>
-
-                <a href="/event/list">이벤트</a>
-
             </div>
             <div class="right-menu">
-                <a href="/board/notice">고객센터</a><span>|</span><a href="/owner/apply">병원장 신청</a>
+                <a href="/owner/apply">병원장 신청</a>
             </div>
         </div>
-
     </nav>
 
     <div th:replace="~{common/chatbot :: chatbot}"></div>
+
+    <!-- 🌟 전역 공통 퀵 메뉴 (분리된 프래그먼트 호출) -->
+    <div th:replace="~{common/quick :: quick}"></div>
 </header>
 
+<div th:replace="~{common/footer :: footer}"></div>
 </body>
 </html>

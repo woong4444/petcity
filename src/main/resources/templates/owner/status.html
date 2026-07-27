@@ -13,6 +13,9 @@
     <!-- 기존 병원장 신청 CSS를 같이 사용 -->
     <link rel="stylesheet"
           th:href="@{/css/owner/apply.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
 </head>
 
 <body>
@@ -211,9 +214,6 @@
 
                 </div>
 
-                <div class="owner-status-message approved"
-                     th:if="${request.status == 'APPROVED'}">
-
 
                 <div class="owner-status-message approved"
                      th:if="${request.status == 'APPROVED'}">
@@ -246,6 +246,8 @@
     </div>
 
 </main>
+
+<div th:replace="~{common/footer :: footer}"></div>
 
 </body>
 </html>

@@ -5,9 +5,11 @@
     <title>맞춤 동물병원 검색 - PetCity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/common/head.css?v=2}">
     <link rel="stylesheet" th:href="@{/css/hospital/list.css}">
-    <!-- 맞춤검색 전용 임시 스타일 (나중에 css 파일로 옮기셔도 됩니다) -->
+    <link rel="stylesheet" th:href="@{/css/hospital/search.css}">
+
+    <!-- 🌟 변경점: 원래 있던 스타일 코드 복원! (이게 있어야 크기가 아까처럼 똑같아짐) -->
     <style>
         .custom-search-wrap {
             max-width: 1024px;
@@ -17,7 +19,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-slate-50 text-slate-800 pb-20 font-sans">
 <div th:replace="~{common/head :: head}"></div>
 
 <main class="custom-search-wrap">
@@ -33,7 +35,6 @@
 
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-8">
 
-            <!-- STEP 01: 반려동물 선택 -->
             <div class="step-section border-b border-slate-200">
                 <div class="step-header flex cursor-pointer" onclick="toggleStep('step1')">
                     <div class="bg-slate-800 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">
@@ -53,13 +54,14 @@
                             <span class="text-xl leading-none">+</span> 반려동물 추가하기
                         </button>
                     </div>
+
                     <div th:unless="${#lists.isEmpty(myPets)}" id="myPetListArea" class="mb-6 space-y-4">
                         <div th:each="pet : ${myPets}"
-                             class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-6 shadow-sm hover:border-sky-300 transition">
-                            <div class="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-3xl overflow-hidden border border-slate-200">
-                                <img th:if="${pet.photoUrl != null and pet.photoUrl != ''}" th:src="${pet.photoUrl}"
+                             class="pet-card-wrap bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-6 shadow-sm hover:border-sky-300 transition">
+                            <div class="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-3xl overflow-hidden border border-slate-200 shrink-0">
+                                <img th:if="${not #strings.isEmpty(pet.photoUrl)}" th:src="${pet.photoUrl}"
                                      class="w-full h-full object-cover">
-                                <span th:unless="${pet.photoUrl != null and pet.photoUrl != ''}">🐾</span>
+                                <span th:unless="${not #strings.isEmpty(pet.photoUrl)}">🐾</span>
                             </div>
                             <div class="flex-1 grid grid-cols-2 gap-y-2 text-sm">
                                 <div class="col-span-2 mb-2">
@@ -69,33 +71,32 @@
                                 </div>
                                 <div class="text-slate-600"
                                      th:text="'생년월일 : ' + ${pet.birthDate} + ' (' + ${pet.age} + '살)'"></div>
-                                <div class="text-slate-600">성별 : <span th:text="${pet.gender}"></span></div>
+                                <div class="text-slate-600">성별 : <span th:if="${pet.gender == 'M'}">수컷</span><span
+                                        th:if="${pet.gender == 'F'}">암컷</span><span th:if="${pet.gender == 'NM'}">수컷(중성화)</span><span
+                                        th:if="${pet.gender == 'NF'}">암컷(중성화)</span></div>
                                 <div class="text-slate-600" th:text="'품종 : ' + ${pet.breedName}"></div>
                                 <div class="text-slate-600" th:text="'몸무게 : ' + ${pet.weight} + 'kg'"></div>
                             </div>
-                            <div class="flex flex-col gap-2 w-24">
+                            <div class="flex flex-col gap-2 w-24 shrink-0">
                                 <button type="button"
                                         class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 rounded-lg text-sm transition btn-select-pet"
                                         th:data-animal-id="${pet.animalId}" th:data-sub-animal-id="${pet.subAnimalId}">
                                     선택
                                 </button>
                                 <button type="button"
-                                        class="btn-edit-pet bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold py-2 rounded-lg text-sm transition"
-                                        th:data-id="${pet.petId}" onclick="loadPetModal(this)">수정
+                                        class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold py-2 rounded-lg text-sm transition btn-edit-pet"
+                                        th:data-id="${pet.petId}" th:data-name="${pet.petName}"
+                                        th:data-animal="${pet.animalId}" th:data-breed="${pet.breedName}"
+                                        th:data-gender="${pet.gender}" th:data-birth="${pet.birthDate}"
+                                        th:data-weight="${pet.weight}" th:data-reg="${pet.registrationNo}"
+                                        onclick="loadPetModal(this)">수정
                                 </button>
                             </div>
-                        </div>
-                        <div class="text-center mt-4">
-                            <button type="button" onclick="openPetModalForAdd()"
-                                    class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold py-2 px-6 rounded-full transition inline-flex items-center gap-2 text-sm">
-                                <span class="text-lg leading-none">+</span> 다른 반려동물 추가
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- STEP 02: 진료 항목 선택 -->
             <div class="step-section border-b border-slate-200">
                 <div class="step-header flex cursor-pointer" onclick="toggleStep('step2')">
                     <div class="bg-slate-700 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">
@@ -109,30 +110,32 @@
                 <div id="content-step2" class="step-content p-8 bg-slate-50 border-t border-slate-100 hidden">
                     <h4 class="font-bold text-slate-700 mb-3">진료 과목 <span class="text-sm font-normal text-slate-500">(다중 선택)</span>
                     </h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-                        <label class="custom-chk-btn" th:each="subj : ${medicalSubjectList}">
+                    <div class="pill-group wrap-group mb-8">
+                        <label class="pill-check">
+                            <input type="checkbox" id="subjectAllSearch" value="">
+                            <span>전체 선택</span>
+                        </label>
+                        <label class="pill-check" th:each="subj : ${medicalSubjectList}">
                             <input type="checkbox" name="subjects" class="step2-subject-chk" th:value="${subj}">
                             <span th:text="${subj}">과목명</span>
                         </label>
                     </div>
+
                     <h4 class="font-bold text-slate-700 mb-3 border-t border-slate-200 pt-6">진료 옵션 및 시설</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <label class="custom-chk-btn" th:each="svc : ${medicalServiceList}">
+                    <div class="pill-group wrap-group">
+                        <label class="pill-check">
+                            <input type="checkbox" id="serviceAllSearch" value="">
+                            <span>전체 선택</span>
+                        </label>
+                        <label class="pill-check" th:each="svc : ${medicalServiceList}">
                             <input type="checkbox" name="serviceIds" class="step2-service-chk"
                                    th:value="${svc.serviceId}">
                             <span th:text="${svc.serviceName}">옵션명</span>
                         </label>
                     </div>
-                    <div class="text-right mt-8">
-                        <button type="button"
-                                class="bg-slate-800 text-white font-bold py-2 px-6 rounded-lg text-sm hover:bg-slate-900 transition"
-                                onclick="toggleStep('step3')">다음 단계로
-                        </button>
-                    </div>
                 </div>
             </div>
 
-            <!-- STEP 03: 의료지역 선택 -->
             <div class="step-section">
                 <div class="step-header flex cursor-pointer" onclick="toggleStep('step3')">
                     <div class="bg-slate-600 text-white w-40 flex items-center justify-center font-bold text-sm tracking-wide">
@@ -144,29 +147,23 @@
                     </div>
                 </div>
                 <div id="content-step3" class="step-content p-8 bg-slate-50 border-t border-slate-100 hidden">
-                    <div class="mb-4 flex items-center gap-4">
-                        <label class="custom-chk-btn seoul-all" style="width: auto;">
-                            <input type="checkbox" id="seoulAllSearch" class="step3-district-chk">
-                            <span style="padding: 10px 20px;">서울 전체</span>
+                    <div class="pill-group wrap-group region-checkbox-group">
+                        <label class="pill-check">
+                            <input type="checkbox" id="seoulAllSearch" value="">
+                            <span>전체 선택</span>
                         </label>
-                        <!-- 🌟 그 외 지역 버튼 -->
-                        <label class="custom-chk-btn" style="width: auto;">
-                            <input type="checkbox" id="otherAllSearch" class="step3-district-chk">
-                            <span style="color:#0ea5e9; font-weight: 800; padding: 10px 20px;">그 외 지역 전체</span>
-                        </label>
-                    </div>
-
-                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-3 border-t border-slate-200 pt-4">
                         <th:block th:each="item : ${districtList}">
-                            <label class="custom-chk-btn seoul-district-search"
+                            <label class="pill-check"
                                    th:if="${!item.contains('시 ') and !item.endsWith('군') and !item.endsWith('시')}">
                                 <input type="checkbox" name="districts" class="step3-district-chk" th:value="${item}">
                                 <span th:text="${item}">지역명</span>
                             </label>
                         </th:block>
+                        <label class="pill-check">
+                            <input type="checkbox" id="otherAllSearch" value="">
+                            <span>그 외 지역 전체</span>
+                        </label>
                     </div>
-
-                    <!-- 🌟 서버로 전송할 그 외 지역 (숨김) -->
                     <div style="display: none;">
                         <th:block th:each="item : ${districtList}">
                             <input type="checkbox" name="districts" class="hidden-other-district-search"
@@ -182,19 +179,31 @@
 
         <div class="text-center mt-8">
             <button type="submit" id="btnFullSearch"
-                    class="bg-sky-500 hover:bg-sky-600 text-white text-lg font-extrabold py-4 px-20 rounded-xl shadow-lg transition transform hover:-translate-y-1">
+                    class="bg-sky-500 hover:bg-sky-600 text-white text-lg font-extrabold py-4 px-20 rounded-xl shadow-lg transition">
                 전체 맞춤 검색 결과 보기
             </button>
         </div>
     </form>
 </main>
 
-<!-- JS에서 사용하기 위해 타임리프 변수는 여기에 둡니다 -->
-<script th:inline="javascript">
-    const subAnimalList = /*[[${subAnimalTypeList}]]*/ [];
-</script>
+<div id="petModal"
+     class="fixed top-0 left-0 w-full h-full bg-slate-900/60 z-50 hidden items-center justify-center p-4"></div>
 
-<!-- 모든 JS 코드를 분리하여 로드 -->
+<script th:inline="javascript">
+    function toggleStep(stepId) {
+        const content = document.getElementById('content-' + stepId);
+        const icon = document.getElementById('icon-' + stepId);
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.textContent = '−';
+        } else {
+            content.classList.add('hidden');
+            icon.textContent = '+';
+        }
+    }
+</script>
 <script th:src="@{/js/hospital/search.js?v=6}"></script>
+
+<div th:replace="~{common/footer :: footer}"></div>
 </body>
 </html>
