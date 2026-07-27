@@ -6,7 +6,11 @@
         SELECT
         H.HOSPITAL_ID AS hospitalId, H.OWNER_ID AS ownerId, H.NAME AS name, H.ADDRESS AS address, H.DETAIL_ADDRESS AS
         detailAddress,
-        H.PHONE AS phone, H.DISTRICT AS district, H.LATITUDE AS latitude, H.LONGITUDE AS longitude,
+        H.PHONE AS phone, H.DISTRICT AS district,
+
+        <!-- 🌟 핵심 반전: DB 데이터가 반대로 들어가 있어서 SELECT 할 때 서로 바꿔서 가져옵니다! -->
+        H.LONGITUDE AS latitude, H.LATITUDE AS longitude,
+
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS breakTime, H.CLOSED_DAYS AS holiday,
         H.NOTE AS note, H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl,
         H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
@@ -42,10 +46,12 @@
         (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID) AS zzimCount,
         (SELECT NVL(ROUND(AVG(RATING), 1), 0) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS avgRating
 
-        <if test="userLat != null and userLng != null">, (SQRT(POWER(H.LATITUDE - #{userLat}, 2) + POWER(H.LONGITUDE -
-            #{userLng}, 2))) / 1000 AS distance
+        <!-- 🌟 여기서도 계산할 때 H.LONGITUDE(진짜 위도)와 H.LATITUDE(진짜 경도)를 교체해서 계산합니다! -->
+        <if test="userLat != null and userLng != null">
+            , (SQRT(POWER((H.LONGITUDE - #{userLat}) * 111.2, 2) + POWER((H.LATITUDE - #{userLng}) * 88.8, 2))) AS distance
         </if>
         <if test="userLat == null or userLng == null">, 0 AS distance</if>
+
         FROM HOSPITAL H WHERE 1 = 1
 
         <if test="openStatus == 'OPEN'">
@@ -93,7 +99,6 @@
             AND H.STATUS = 'TEMP_CLOSED'
         </if>
 
-        <!-- 반려동물 검색 필터 -->
         <choose>
             <when test="subAnimalId != null">
                 AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID = #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
@@ -103,7 +108,6 @@
             </when>
         </choose>
 
-        <!-- 🌟 핵심 오류 해결 부분: 숫자가 아닌 글자(SUBJECT_NAME)로 완벽하게 JOIN 검색!!! 🌟 -->
         <if test="subjects != null and subjects.size() > 0">
             AND EXISTS (
             SELECT 1 FROM HOSPITAL_MEDICAL_SUBJECT HMS_SUB
@@ -207,7 +211,6 @@
             </when>
         </choose>
 
-        <!-- 🌟 카운트 쿼리에서도 숫자가 아닌 글자(SUBJECT_NAME)로 완벽하게 JOIN 검색!!! 🌟 -->
         <if test="subjects != null and subjects.size() > 0">
             AND EXISTS (
             SELECT 1 FROM HOSPITAL_MEDICAL_SUBJECT HMS_SUB
@@ -252,7 +255,11 @@
         SELECT
         H.HOSPITAL_ID AS hospitalId, H.OWNER_ID AS ownerId, H.NAME AS name, H.ADDRESS AS address, H.DETAIL_ADDRESS AS
         detailAddress,
-        H.PHONE AS phone, H.DISTRICT AS district, H.LATITUDE AS latitude, H.LONGITUDE AS longitude,
+        H.PHONE AS phone, H.DISTRICT AS district,
+
+        <!-- 🌟 여기도 마찬가지로 교체! -->
+        H.LONGITUDE AS latitude, H.LATITUDE AS longitude,
+
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS breakTime, H.CLOSED_DAYS AS holiday,
         H.NOTE AS note, H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl,
         H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
@@ -275,10 +282,13 @@
         (SELECT COUNT(*) FROM HOSPITAL_LIKE HL WHERE HL.HOSPITAL_ID = H.HOSPITAL_ID) AS likeCount,
         (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID) AS zzimCount,
         (SELECT NVL(ROUND(AVG(RATING), 1), 0) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS avgRating
-        <if test="userLat != null and userLng != null">, (SQRT(POWER(H.LATITUDE - #{userLat}, 2) + POWER(H.LONGITUDE -
-            #{userLng}, 2))) / 1000 AS distance
+
+        <!-- 🌟 여기서도 교체 완료! -->
+        <if test="userLat != null and userLng != null">
+            , (SQRT(POWER((H.LONGITUDE - #{userLat}) * 111.2, 2) + POWER((H.LATITUDE - #{userLng}) * 88.8, 2))) AS distance
         </if>
         <if test="userLat == null or userLng == null">, 0 AS distance</if>
+
         FROM HOSPITAL H WHERE H.HOSPITAL_ID = #{hospitalId}
     </select>
 

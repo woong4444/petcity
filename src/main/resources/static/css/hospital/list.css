@@ -7,7 +7,6 @@ body {
     font-family: Arial, "Noto Sans KR", sans-serif;
 }
 
-/* 🌟 [수정 핵심] 모든 요소가 패딩을 포함하여 크기를 계산하도록 강제하여 화면 침범 완벽 방어! */
 .hospital-list-wrap * {
     box-sizing: border-box;
 }
@@ -17,111 +16,6 @@ body {
     margin: 0 auto;
     padding: 40px 180px 70px 40px;
     box-sizing: border-box;
-}
-
-.quick-menu {
-    position: fixed;
-    top: 160px;
-    right: 30px;
-    width: 130px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-    padding: 15px 10px;
-    z-index: 100;
-    text-align: center;
-}
-
-.quick-title {
-    font-size: 13px;
-    font-weight: 900;
-    color: #0284c7;
-    margin-bottom: 12px;
-    border-bottom: 2px solid #e0f2fe;
-    padding-bottom: 8px;
-}
-
-.quick-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 12px 0;
-}
-
-.quick-list li {
-    margin-bottom: 10px;
-}
-
-.quick-list a {
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 700;
-    color: #4b5563;
-    display: block;
-    padding: 4px;
-    border-radius: 6px;
-    transition: 0.2s;
-}
-
-.quick-list a:hover {
-    background: #f1f5f9;
-    color: #0ea5e9;
-}
-
-.btn-top {
-    width: 100%;
-    height: 32px;
-    border: none;
-    border-radius: 8px;
-    background: #334155;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-top: 10px;
-}
-
-.btn-top:hover {
-    background: #0f172a;
-}
-
-.quick-recent-box {
-    margin-top: 15px;
-    border-top: 1px dashed #e2e8f0;
-    padding-top: 15px;
-}
-
-.quick-recent-title {
-    font-size: 11px;
-    font-weight: 800;
-    color: #94a3b8;
-    margin-bottom: 8px;
-}
-
-.quick-recent-item {
-    display: block;
-    margin-bottom: 8px;
-    text-decoration: none;
-}
-
-.quick-recent-item img {
-    width: 100%;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
-
-.quick-recent-item span {
-    font-size: 11px;
-    color: #334155;
-    font-weight: 700;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-top: 4px;
 }
 
 .hospital-list-header {
@@ -278,7 +172,7 @@ body {
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
-    white-space: nowrap; /* 🌟 이 속성 하나가 네모 박스로 변하는 현상을 완벽하게 막아줍니다! */
+    white-space: nowrap;
 }
 
 .pill-check input {
@@ -297,18 +191,7 @@ body {
     box-shadow: 0 4px 10px rgba(14, 165, 233, 0.25);
 }
 
-.seoul-all-check, .service-all-check {
-    border-color: #38bdf8;
-    background-color: #f0f9ff;
-    color: #0369a1;
-}
-
-.seoul-all-check:has(input:checked), .service-all-check:has(input:checked) {
-    border-color: #0284c7;
-    background-color: #0ea5e9;
-    color: #ffffff;
-}
-
+/* 🌟 변경점: seoul-all-check, service-all-check 특수 파란색 CSS를 모두 완전히 삭제해서 취소 시 회색으로 정상 복구되게 함! */
 .filter-actions {
     display: flex;
     justify-content: flex-end;
@@ -570,14 +453,6 @@ body {
     min-width: 0;
 }
 
-.hospital-title-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-    min-width: 0;
-}
-
 .title-left {
     flex: 1;
     min-width: 0;
@@ -643,26 +518,6 @@ body {
     width: 100%;
 }
 
-.h-rating-review {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 6px;
-    font-size: 14px;
-    font-weight: 700;
-    vertical-align: middle;
-}
-
-.h-rating-review .star {
-    color: #f59e0b;
-    margin-right: 3px;
-}
-
-.h-rating-review .rev-cnt {
-    color: #94a3b8;
-    font-size: 13px;
-    font-weight: 600;
-}
-
 .h-distance {
     margin: 6px 0 0;
     font-size: 13px;
@@ -713,53 +568,6 @@ body {
     word-break: keep-all;
 }
 
-.hospital-actions {
-    margin-top: auto;
-    padding-top: 18px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.hospital-actions a, .hospital-actions button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 800;
-    transition: all 0.2s ease;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.detail-button {
-    background-color: #0ea5e9;
-    color: #ffffff;
-}
-
-.detail-button:hover {
-    background-color: #0284c7;
-}
-
-.recommend-btn {
-    background-color: #fff1f2;
-    color: #e11d48;
-    border: 1px solid #fecdd3 !important;
-}
-
-.recommend-btn:hover {
-    background-color: #ffe4e6;
-}
-
-.recommend-btn.active {
-    background-color: #e11d48;
-    color: #ffffff;
-    border-color: #be123c !important;
-}
-
 .empty-list {
     padding: 80px 20px;
     border: 1px dashed #cbd5e1;
@@ -773,30 +581,6 @@ body {
     font-size: 18px;
     color: #334155;
     margin-bottom: 8px;
-}
-
-.match-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 8px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 800;
-    margin-left: 6px;
-    vertical-align: top;
-}
-
-.match-badge.perfect {
-    background-color: #fef2f2;
-    color: #e11d48;
-    border: 1px solid #fecdd3;
-}
-
-.match-badge.partial {
-    background-color: #f8fafc;
-    color: #475569;
-    border: 1px solid #e2e8f0;
 }
 
 .pagination-wrap {
@@ -987,12 +771,7 @@ body {
     background: #0284c7;
 }
 
-/* 🌟 반응형 레이아웃 처리 (화면 좁아지면 퀵메뉴 숨기고 패딩 복구) */
 @media (max-width: 1400px) {
-    .quick-menu {
-        display: none;
-    }
-
     .hospital-list-wrap {
         padding: 40px 40px 70px 40px;
     }
@@ -1077,4 +856,134 @@ body {
 .hospital-result-area.is-loading {
     opacity: 0.45;
     pointer-events: none;
+}
+
+/* 인라인 대체 클래스 */
+.sub-animal-box {
+    display: none;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+}
+
+.gps-location-name {
+    color: #334155;
+    font-weight: 600;
+}
+
+.custom-location-text-wrap {
+    display: none;
+    margin-left: 8px;
+    padding-left: 10px;
+    border-left: 2px solid #cbd5e1;
+}
+
+.custom-location-name {
+    color: #0ea5e9;
+}
+
+.hospital-image-link {
+    cursor: pointer;
+}
+
+.hospital-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.hospital-status-badges {
+    margin-bottom: 6px;
+}
+
+.badge-status-open {
+    background: #dcfce7;
+    color: #059669;
+    margin-left: 4px;
+}
+
+.badge-status-end {
+    background: #fee2e2;
+    color: #e11d48;
+    margin-left: 4px;
+}
+
+.badge-status-holi {
+    background: #f1f5f9;
+    color: #64748b;
+    margin-left: 4px;
+}
+
+.badge-status-shut {
+    background: #cbd5e1;
+    color: #334155;
+    margin-left: 4px;
+}
+
+.badge-status-susp {
+    background: #fef08a;
+    color: #b45309;
+    margin-left: 4px;
+}
+
+.hospital-name-text {
+    cursor: pointer;
+    white-space: normal !important;
+    display: block;
+    line-height: 1.35;
+    margin-bottom: 8px;
+    word-break: keep-all;
+}
+
+.rating-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.rating-dist-margin {
+    margin: 0;
+}
+
+.h-rating-review.static-inline {
+    position: static !important;
+    margin: 0;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+.rating-star-icon {
+    color: #f59e0b;
+    font-weight: bold;
+}
+
+.rating-rev-cnt {
+    color: #64748b;
+}
+
+.hidden-element {
+    display: none;
+}
+
+.detail-info-break {
+    color: #d97706;
+    font-weight: 600;
+}
+
+.detail-info-holi {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.map-relative-wrap {
+    position: relative;
+}
+
+.select-map-container {
+    width: 100%;
+    height: 350px;
+    background: #e2e8f0;
 }
