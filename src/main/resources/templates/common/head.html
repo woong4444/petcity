@@ -6,9 +6,11 @@
 <head>
     <!-- 🌟 버전을 명시해서 변경된 CSS/JS가 무조건 즉시 적용되게 강제함 -->
     <link rel="stylesheet" th:href="@{/css/common/head.css?v=2}">
+    <link rel="stylesheet" th:href="@{/css/common/quick.css}"> <!-- 퀵메뉴 CSS 추가 -->
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
     <script defer th:src="@{/js/common/footer.js}"></script>
     <script defer th:src="@{/js/common/head.js?v=2}"></script>
+    <script defer th:src="@{/js/common/quick.js}"></script> <!-- 퀵메뉴 JS 추가 -->
 </head>
 
 <body>
@@ -104,19 +106,8 @@
 
     <div th:replace="~{common/chatbot :: chatbot}"></div>
 
-    <!-- 🌟 전역 공통 퀵 메뉴 -->
-    <aside class="quick-menu">
-        <div class="quick-title">Quick Menu</div>
-        <ul class="quick-list">
-            <li><a href="/member/mypage">내 정보(반려동물)</a></li>
-            <li><a href="/board/list?type=FAQ">자주 묻는 질문(FAQ)</a></li>
-        </ul>
-        <div class="quick-recent-box">
-            <div class="quick-recent-title">최근 본 병원</div>
-            <ul id="quickRecentList" class="quick-list recent-list"></ul>
-        </div>
-        <button class="btn-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">맨위로 TOP</button>
-    </aside>
+    <!-- 🌟 전역 공통 퀵 메뉴 (분리된 프래그먼트 호출) -->
+    <div th:replace="~{common/quick :: quick}"></div>
 </header>
 
 <div th:replace="~{common/footer :: footer}"></div>
