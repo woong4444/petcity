@@ -48,8 +48,8 @@
         <if test="userLat == null or userLng == null">, 0 AS distance</if>
         FROM HOSPITAL H WHERE 1 = 1
 
-        <!-- 오픈 상태 및 휴게/휴무일 필터 쿼리 연동 -->
         <if test="openStatus == 'OPEN'">
+            AND H.STATUS = 'OPEN'
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= H.OPEN_TIME
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= H.CLOSE_TIME
             AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
@@ -63,6 +63,7 @@
             )
         </if>
         <if test="openStatus == 'BREAK'">
+            AND H.STATUS = 'OPEN'
             AND H.BREAK_TIME IS NOT NULL AND H.BREAK_TIME LIKE '%~%'
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= TRIM(SUBSTR(H.BREAK_TIME, 1,
             INSTR(H.BREAK_TIME, '~') - 1))
@@ -72,10 +73,12 @@
             'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'HOLIDAY'">
+            AND H.STATUS = 'OPEN'
             AND NVL(H.CLOSED_DAYS, '무') LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
             'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'CLOSED'">
+            AND H.STATUS = 'OPEN'
             AND (
             TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt; H.OPEN_TIME
             OR TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt; H.CLOSE_TIME
@@ -83,22 +86,30 @@
             AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
             'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
+        <if test="openStatus == 'SHUTDOWN'">
+            AND H.STATUS = 'CLOSED'
+        </if>
+        <if test="openStatus == 'SUSPENDED'">
+            AND H.STATUS = 'TEMP_CLOSED'
+        </if>
 
+        <!-- 반려동물 검색 필터 -->
         <choose>
-            <when test="subAnimalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID =
-                H.HOSPITAL_ID AND HA.ANIMAL_ID = #{subAnimalId})
+            <when test="subAnimalId != null">
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID = #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
             </when>
-            <when test="animalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON
-                HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR
-                AT2.PARENT_ID = #{animalId}))
+            <when test="animalId != null">
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
             </when>
         </choose>
 
+        <!-- 🌟 핵심 오류 해결 부분: 숫자가 아닌 글자(SUBJECT_NAME)로 완벽하게 JOIN 검색!!! 🌟 -->
         <if test="subjects != null and subjects.size() > 0">
             AND EXISTS (
             SELECT 1 FROM HOSPITAL_MEDICAL_SUBJECT HMS_SUB
+            JOIN MEDICAL_SUBJECT MS_SUB ON HMS_SUB.SUBJECT_ID = MS_SUB.SUBJECT_ID
             WHERE HMS_SUB.HOSPITAL_ID = H.HOSPITAL_ID
-            AND HMS_SUB.SUBJECT_ID IN
+            AND MS_SUB.SUBJECT_NAME IN
             <foreach collection="subjects" item="subj" open="(" separator="," close=")">
                 #{subj}
             </foreach>
@@ -141,7 +152,9 @@
 
     <select id="countHospitalList" resultType="int">
         SELECT COUNT(DISTINCT H.HOSPITAL_ID) FROM HOSPITAL H WHERE 1 = 1
+
         <if test="openStatus == 'OPEN'">
+            AND H.STATUS = 'OPEN'
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= H.OPEN_TIME
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= H.CLOSE_TIME
             AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
@@ -155,6 +168,7 @@
             )
         </if>
         <if test="openStatus == 'BREAK'">
+            AND H.STATUS = 'OPEN'
             AND H.BREAK_TIME IS NOT NULL AND H.BREAK_TIME LIKE '%~%'
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= TRIM(SUBSTR(H.BREAK_TIME, 1,
             INSTR(H.BREAK_TIME, '~') - 1))
@@ -164,10 +178,12 @@
             'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'HOLIDAY'">
+            AND H.STATUS = 'OPEN'
             AND NVL(H.CLOSED_DAYS, '무') LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
             'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'CLOSED'">
+            AND H.STATUS = 'OPEN'
             AND (
             TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt; H.OPEN_TIME
             OR TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt; H.CLOSE_TIME
@@ -175,20 +191,29 @@
             AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
             'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
+        <if test="openStatus == 'SHUTDOWN'">
+            AND H.STATUS = 'CLOSED'
+        </if>
+        <if test="openStatus == 'SUSPENDED'">
+            AND H.STATUS = 'TEMP_CLOSED'
+        </if>
+
         <choose>
-            <when test="subAnimalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID =
-                H.HOSPITAL_ID AND HA.ANIMAL_ID = #{subAnimalId})
+            <when test="subAnimalId != null">
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID = #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
             </when>
-            <when test="animalId != null">AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON
-                HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR
-                AT2.PARENT_ID = #{animalId}))
+            <when test="animalId != null">
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
             </when>
         </choose>
+
+        <!-- 🌟 카운트 쿼리에서도 숫자가 아닌 글자(SUBJECT_NAME)로 완벽하게 JOIN 검색!!! 🌟 -->
         <if test="subjects != null and subjects.size() > 0">
             AND EXISTS (
             SELECT 1 FROM HOSPITAL_MEDICAL_SUBJECT HMS_SUB
+            JOIN MEDICAL_SUBJECT MS_SUB ON HMS_SUB.SUBJECT_ID = MS_SUB.SUBJECT_ID
             WHERE HMS_SUB.HOSPITAL_ID = H.HOSPITAL_ID
-            AND HMS_SUB.SUBJECT_ID IN
+            AND MS_SUB.SUBJECT_NAME IN
             <foreach collection="subjects" item="subj" open="(" separator="," close=")">
                 #{subj}
             </foreach>

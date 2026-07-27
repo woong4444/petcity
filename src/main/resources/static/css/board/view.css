@@ -924,3 +924,383 @@ body {
 .comment-edit-submit:hover {
     background-color: #374151;
 }
+
+/* ================================
+   게시글 상세 화면 리디자인
+================================ */
+
+.board-page--view .board-view-hero {
+    position: relative;
+    min-height: 168px;
+    margin: 0;
+    padding: 30px 34px;
+    overflow: hidden;
+    align-items: center;
+    border: 1px solid var(--board-line);
+    border-radius: 22px;
+    background: var(--board-soft);
+}
+
+.board-page--view .board-view-hero::before {
+    content: "🐾  🐾  🐾";
+    position: absolute;
+    top: 18px;
+    right: 220px;
+    color: var(--board-accent);
+    font-size: 20px;
+    letter-spacing: 20px;
+    opacity: 0.16;
+    transform: rotate(-10deg);
+}
+
+.view-hero-copy {
+    position: relative;
+    z-index: 1;
+}
+
+.board-page--view .board-view-hero h1 {
+    color: var(--board-dark);
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: -2px;
+}
+
+.board-page--view .board-view-hero p {
+    max-width: 590px;
+    color: #58708e;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.board-page--view .view-hero-animals {
+    z-index: 1;
+    gap: 10px;
+}
+
+.board-page--view .view-hero-animals span,
+.board-page--view .view-hero-animals span:first-child {
+    width: 86px;
+    height: 86px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 10px 24px rgba(36, 58, 88, 0.08);
+    font-size: 47px;
+}
+
+.board-page--view .board-view-card {
+    margin-top: 22px;
+    overflow: hidden;
+    border: 1px solid #dce7f2;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(27, 56, 89, 0.06);
+}
+
+.board-page--view .board-view-header {
+    padding: 30px 32px 24px;
+    border-bottom-color: #e8eef5;
+}
+
+.board-page--view .type-badge {
+    min-width: auto;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--board-soft);
+    color: var(--board-accent);
+    font-weight: 900;
+}
+
+.board-page--view .board-view-header h2 {
+    color: var(--board-dark);
+    font-size: 30px;
+    line-height: 1.45;
+}
+
+.board-page--view .board-meta {
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.board-page--view .board-meta div {
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: #f7faff;
+}
+
+.board-page--view .board-meta span {
+    color: #8ca0b7;
+    font-size: 12px;
+}
+
+.board-page--view .board-meta strong {
+    color: #53687f;
+    font-size: 12px;
+}
+
+.board-page--view .board-view-body {
+    min-height: 280px;
+    padding: 38px 32px 44px;
+}
+
+.board-page--view .content-html {
+    color: #35445a;
+    font-size: 16px;
+    line-height: 1.9;
+}
+
+.board-page--view .content-html p {
+    margin-bottom: 20px;
+}
+
+.board-page--view .content-html img {
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(27, 56, 89, 0.1);
+}
+
+.board-page--view .board-view-buttons {
+    margin-top: 20px;
+}
+
+.board-page--view .list-button,
+.board-page--view .sub-button,
+.board-page--view .delete-button {
+    height: 44px;
+    border-radius: 10px;
+}
+
+.board-page--view .list-button {
+    background: var(--board-dark);
+}
+
+.board-page--view .sub-button {
+    border-color: #d7e3ef;
+    color: #5a6d81;
+}
+
+.board-page--view .sub-button:hover {
+    border-color: var(--board-accent);
+    background: var(--board-soft);
+    color: var(--board-accent);
+}
+
+.board-page--view .delete-button {
+    background: #f16b62;
+}
+
+.board-page--view .comment-section {
+    margin-top: 34px;
+    overflow: hidden;
+    border: 1px solid #dce7f2;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(27, 56, 89, 0.05);
+}
+
+.board-page--view .comment-title {
+    padding: 20px 24px;
+    border-bottom-color: #e8eef5;
+    background: #f8fbfe;
+}
+
+.board-page--view .comment-title h3 {
+    color: var(--board-dark);
+}
+
+.board-page--view .comment-title h3 span {
+    color: var(--board-accent);
+}
+
+.board-page--view .comment-item {
+    padding: 22px 24px;
+    border-bottom-color: #e8eef5;
+}
+
+.board-page--view .comment-write-form {
+    margin: 18px;
+    border-color: #dce7f2;
+    border-radius: 14px;
+    background: #f8fbfe;
+}
+
+.board-page--view .comment-write-form textarea:focus,
+.board-page--view .comment-edit-form textarea:focus {
+    border-color: var(--board-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--board-accent) 15%, transparent);
+}
+
+.board-page--view .comment-write-bottom button,
+.board-page--view .comment-edit-submit {
+    border-radius: 8px;
+    background: var(--board-accent);
+}
+
+.board-page--view .comment-guide,
+.board-page--view .comment-empty {
+    border: 0;
+    background: #f8fbfe;
+}
+
+@media (max-width: 768px) {
+    .board-page--view .board-view-hero {
+        min-height: auto;
+        padding: 26px 22px;
+    }
+
+    .board-page--view .board-view-hero h1 {
+        font-size: 30px;
+    }
+
+    .board-page--view .view-hero-animals {
+        margin-top: 16px;
+    }
+
+    .board-page--view .view-hero-animals span,
+    .board-page--view .view-hero-animals span:first-child {
+        width: 62px;
+        height: 62px;
+        font-size: 34px;
+    }
+
+    .board-page--view .board-view-header,
+    .board-page--view .board-view-body {
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+
+    .board-page--view .board-view-header h2 {
+        font-size: 24px;
+    }
+
+    .board-page--view .board-meta {
+        display: flex;
+    }
+}
+
+/* 실제 커뮤니티 배너 이미지 */
+
+.board-page--write .board-write-hero,
+.board-page--view .board-view-hero {
+    position: relative;
+    min-height: 205px;
+    overflow: hidden;
+    border: 1px solid var(--board-line);
+    border-radius: 22px;
+    background: #fff9f4;
+}
+
+.board-page--write .board-write-hero::before,
+.board-page--view .board-view-hero::before {
+    content: none;
+}
+
+.board-hero-banner-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+}
+
+.board-page--write .write-hero-copy,
+.board-page--view .view-hero-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 56%;
+}
+
+@media (max-width: 768px) {
+    .board-page--write .board-write-hero,
+    .board-page--view .board-view-hero {
+        min-height: 220px;
+    }
+
+    .board-hero-banner-image {
+        opacity: 0.38;
+        object-position: 72% center;
+    }
+
+    .board-page--write .write-hero-copy,
+    .board-page--view .view-hero-copy {
+        max-width: 100%;
+    }
+}
+
+/* 상세 화면 게시판별 색상 변수 */
+
+.board-page {
+    --board-accent: #ff9e4a;
+    --board-soft: #fff7ef;
+    --board-line: #ffd9b6;
+    --board-dark: #10213d;
+}
+
+.board-page.board-type-QNA {
+    --board-accent: #22a879;
+    --board-soft: #f0fbf4;
+    --board-line: #c7edd6;
+}
+
+.board-page.board-type-FREE {
+    --board-accent: #ff9e4a;
+    --board-soft: #fff7ef;
+    --board-line: #ffd9b6;
+}
+
+.board-page.board-type-INFO {
+    --board-accent: #16a6df;
+    --board-soft: #eef9ff;
+    --board-line: #c3eafb;
+}
+
+.board-page.board-type-NOTICE {
+    --board-accent: #ef6a62;
+    --board-soft: #fff2f1;
+    --board-line: #ffd3d0;
+}
+
+.board-page.board-type-FAQ {
+    --board-accent: #8c70dc;
+    --board-soft: #f5f1ff;
+    --board-line: #dfd4ff;
+}
+
+/* 답글/댓글 등록 버튼이 항상 보이도록 */
+
+.board-page--view .comment-write-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.board-page--view .comment-write-bottom button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    height: 42px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--board-accent) !important;
+    color: #ffffff !important;
+    font-size: 13px;
+    font-weight: 900;
+    opacity: 1 !important;
+    cursor: pointer;
+}
+
+.board-page--view .comment-write-bottom button:hover {
+    filter: brightness(0.94);
+}
+
+.board-page--view .comment-write-bottom button:disabled {
+    background: #cbd5e1 !important;
+    color: #ffffff !important;
+    cursor: not-allowed;
+}

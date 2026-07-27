@@ -211,9 +211,6 @@
 
                 </div>
 
-                <div class="owner-status-message approved"
-                     th:if="${request.status == 'APPROVED'}">
-
 
                 <div class="owner-status-message approved"
                      th:if="${request.status == 'APPROVED'}">
@@ -246,6 +243,8 @@
     </div>
 
 </main>
+
+<div th:replace="~{common/footer :: footer}"></div>
 
 </body>
 </html>

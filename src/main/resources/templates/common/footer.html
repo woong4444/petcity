@@ -1,0 +1,71 @@
+<footer th:fragment="footer" class="site-footer">
+    <div class="site-footer__inner">
+
+        <div class="site-footer__top">
+            <nav class="site-footer__links" aria-label="푸터 메뉴">
+                <a th:href="@{/hospital/list}">동물병원 찾기</a>
+                <a th:href="@{/board/list(type='QNA', page=1)}">수의사상담</a>
+                <a th:href="@{/board/list(type='FREE', page=1)}">수다마당</a>
+                <a th:href="@{/board/list(type='INFO', page=1)}">펫도감</a>
+                <a th:href="@{/board/list(type='NOTICE', page=1)}">공지사항</a>
+                <a th:href="@{/board/list(type='FAQ', page=1)}">자주 묻는 질문</a>
+                <a th:href="@{/owner/apply}">병원장 신청</a>
+            </nav>
+
+            <button type="button" class="footer-to-top" data-footer-top>
+                TOP <span>↑</span>
+            </button>
+        </div>
+
+        <div class="site-footer__divider"></div>
+
+        <div class="site-footer__body">
+            <section class="site-footer__company">
+                <a th:href="@{/}" class="site-footer__logo">
+                    🐾 <strong>PetCity</strong>
+                </a>
+
+                <p class="site-footer__intro">
+                    반려동물과 보호자가 필요한 동물병원 정보를
+                    더 쉽게 찾을 수 있도록 돕는 동물병원 검색 플랫폼입니다.
+                </p>
+
+                <div class="site-footer__info">
+                    <p><strong>팀장</strong> 전세진</p>
+                    <p>
+                        <strong>문의</strong>
+                        <a href="mailto:kevin8899@naver.com">kevin8899@naver.com</a>
+                    </p>
+                    <p>
+                        <strong>대표전화</strong>
+                        <a href="tel:01051163961">010-5116-3961</a>
+                    </p>
+                    <p>
+                        <strong>주소</strong>
+                        경기도 고양시 일산동구 중앙로 1275번길 38-10
+                        우림로데오스위트 2층
+                    </p>
+                </div>
+
+                <p class="site-footer__copyright">
+                    © 2026 PetCity Team. All rights reserved.
+                </p>
+            </section>
+
+            <section class="site-footer__hours">
+                <h3>이용 안내</h3>
+
+                <dl>
+                    <div>
+                        <dt>운영시간</dt>
+                        <dd>평일 09:30 ~ 18:00</dd>
+                    </div>
+                    <div>
+                        <dt>휴무일</dt>
+                        <dd>주말 및 공휴일</dd>
+                    </div>
+                </dl>
+            </section>
+        </div>
+    </div>
+</footer>

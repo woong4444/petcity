@@ -82,13 +82,13 @@ body {
 }
 
 .community-menu a strong {
-    color: #0f9ca8;
+    color: #159ed7;
     font-size: 22px;
 }
 
 .community-menu a:hover,
 .community-menu a.active {
-    color: #0f9ca8;
+    color: #159ed7;
     padding-left: 8px;
 }
 
@@ -388,22 +388,25 @@ body {
 }
 
 .animal-reset-link {
-    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 34px;
-    padding: 0 14px;
-    border-radius: 999px;
-    background-color: #111827;
-    color: #ffffff;
-    font-size: 13px;
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid #d6e5f0;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #52718e;
+    font-size: 12px;
     font-weight: 800;
     text-decoration: none;
+    transition: 0.2s ease;
 }
 
 .animal-reset-link:hover {
-    background-color: #374151;
+    border-color: #18a8e1;
+    background: #edfaff;
+    color: #078cc5;
 }
 
 .animal-filter-block {
@@ -618,13 +621,25 @@ body {
 }
 
 .animal-reset-link {
-    padding: 10px 16px;
-    border-radius: 999px;
-    background: #101d35;
-    color: #ffffff;
-    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid #d6e5f0;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #52718e;
+    font-size: 12px;
     font-weight: 800;
     text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.animal-reset-link:hover {
+    border-color: #18a8e1;
+    background: #edfaff;
+    color: #078cc5;
 }
 
 .animal-filter-block {
@@ -826,5 +841,66 @@ body {
 
 .animal-chip-parent.active .animal-chip-icon {
     background: #13a9dc;
+    color: #ffffff;
+}
+
+
+/* 펫도감 관리자 전용 카드 관리 버튼 */
+.info-admin-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #edf2f7;
+}
+
+.info-admin-edit,
+.info-admin-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid #cfe0ec;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #52718e;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.info-admin-edit:hover {
+    border-color: #11a5dd;
+    background: #edfaff;
+    color: #078cc5;
+}
+
+.info-admin-delete-form {
+    margin: 0;
+}
+
+.info-admin-delete {
+    border-color: #ffd4d4;
+    color: #df4c4c;
+}
+
+.info-admin-delete:hover {
+    border-color: #ef5555;
+    background: #fff1f1;
+}
+
+/* 펫도감 페이지네이션 - 하늘색 테마 */
+.info-content .page-button:hover {
+    border-color: #159ed7;
+    background: #edfaff;
+    color: #087eae;
+}
+
+.info-content .page-button.active,
+.info-content .page-button.active:hover {
+    border-color: #159ed7;
+    background: #159ed7;
     color: #ffffff;
 }

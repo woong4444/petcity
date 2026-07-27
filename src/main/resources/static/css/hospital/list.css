@@ -278,6 +278,7 @@ body {
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap; /* 🌟 이 속성 하나가 네모 박스로 변하는 현상을 완벽하게 막아줍니다! */
 }
 
 .pill-check input {

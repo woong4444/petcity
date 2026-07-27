@@ -655,3 +655,401 @@ body {
 .note-editable p {
     margin-top: 0;
 }
+
+/* ================================
+   커뮤니티 글쓰기 화면 리디자인
+================================ */
+
+.board-page {
+    --board-accent: #ff9e4a;
+    --board-soft: #fff7ef;
+    --board-line: #ffd9b6;
+    --board-dark: #10213d;
+    background: #fbfcff;
+}
+
+.board-type-QNA {
+    --board-accent: #19a7b8;
+    --board-soft: #edfafd;
+    --board-line: #bdebf1;
+}
+
+.board-type-FREE {
+    --board-accent: #ff9e4a;
+    --board-soft: #fff7ef;
+    --board-line: #ffd9b6;
+}
+
+.board-type-INFO {
+    --board-accent: #16a6df;
+    --board-soft: #eef9ff;
+    --board-line: #c3eafb;
+}
+
+.board-type-NOTICE {
+    --board-accent: #ef6a62;
+    --board-soft: #fff2f1;
+    --board-line: #ffd3d0;
+}
+
+.board-type-FAQ {
+    --board-accent: #8c70dc;
+    --board-soft: #f5f1ff;
+    --board-line: #dfd4ff;
+}
+
+.board-page--write .board-write-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 24px;
+}
+
+.board-page--write .board-write-hero {
+    grid-column: 1 / -1;
+    position: relative;
+    min-height: 168px;
+    margin: 0;
+    padding: 30px 34px;
+    overflow: hidden;
+    align-items: center;
+    border: 1px solid var(--board-line);
+    border-radius: 22px;
+    background: var(--board-soft);
+}
+
+.board-page--write .board-write-hero::before {
+    content: "🐾  🐾  🐾";
+    position: absolute;
+    top: 18px;
+    right: 220px;
+    color: var(--board-accent);
+    font-size: 20px;
+    letter-spacing: 20px;
+    opacity: 0.16;
+    transform: rotate(-10deg);
+}
+
+.write-hero-copy {
+    position: relative;
+    z-index: 1;
+}
+
+.page-eyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: var(--board-accent);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+}
+
+.board-page--write .board-write-hero h1 {
+    color: var(--board-dark);
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: -2px;
+}
+
+.board-page--write .board-write-hero h1 span {
+    color: var(--board-accent);
+}
+
+.board-page--write .board-write-hero p {
+    max-width: 580px;
+    color: #58708e;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.board-page--write .write-hero-animals {
+    z-index: 1;
+    gap: 10px;
+}
+
+.board-page--write .write-hero-animals span,
+.board-page--write .write-hero-animals span:first-child {
+    width: 86px;
+    height: 86px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 10px 24px rgba(36, 58, 88, 0.08);
+    font-size: 47px;
+}
+
+.board-page--write .write-form {
+    grid-column: 1;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid #dce7f2;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(27, 56, 89, 0.06);
+}
+
+.board-page--write .form-row {
+    grid-template-columns: 126px minmax(0, 1fr);
+    border-color: #e8eef5;
+}
+
+.board-page--write .form-row label {
+    padding-left: 22px;
+    border-right: 0;
+    background: #f8fbfe;
+    color: var(--board-dark);
+}
+
+.board-page--write .form-row input {
+    min-width: 0;
+    color: var(--board-dark);
+    font-weight: 600;
+}
+
+.board-page--write .form-row input:focus {
+    background: #ffffff;
+    box-shadow: inset 0 -2px 0 var(--board-accent);
+}
+
+.board-page--write .input-box,
+.board-page--write .editor-box {
+    padding: 16px 18px;
+}
+
+.board-page--write .form-select,
+.board-page--write .input-box input[type="url"] {
+    border-color: #d7e3ef;
+    border-radius: 12px;
+}
+
+.board-page--write .form-select:focus,
+.board-page--write .input-box input[type="url"]:focus {
+    border-color: var(--board-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--board-accent) 15%, transparent);
+}
+
+.board-page--write .form-help {
+    color: #8193a8;
+}
+
+.board-page--write .note-editor.note-frame {
+    border-color: #d7e3ef;
+    border-radius: 14px;
+}
+
+.board-page--write .note-toolbar {
+    background: #f8fbfe;
+}
+
+.board-page--write .note-editable {
+    min-height: 330px;
+    padding: 18px !important;
+    color: #344258;
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+.board-page--write .note-btn:hover,
+.board-page--write .note-btn:focus {
+    background: var(--board-soft);
+}
+
+.board-page--write .write-buttons {
+    grid-column: 1;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 0;
+    padding: 20px 0 0;
+}
+
+.board-page--write .cancel-button,
+.board-page--write .submit-button {
+    min-width: 112px;
+    height: 46px;
+    border-radius: 10px;
+}
+
+.board-page--write .cancel-button {
+    border-color: #d7e3ef;
+    background: #ffffff;
+    color: #596b7f;
+}
+
+.board-page--write .submit-button {
+    background: var(--board-accent);
+    box-shadow: 0 8px 16px color-mix(in srgb, var(--board-accent) 28%, transparent);
+}
+
+.board-page--write .submit-button:hover {
+    background: var(--board-accent);
+    filter: brightness(0.94);
+}
+
+.write-tip-card {
+    grid-column: 2;
+    align-self: start;
+    padding: 22px 18px;
+    border: 1px solid var(--board-line);
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 28px rgba(27, 56, 89, 0.05);
+}
+
+.write-tip-card h2 {
+    margin: 0 0 18px;
+    color: var(--board-dark);
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.write-tip-card ul {
+    display: grid;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.write-tip-card li {
+    position: relative;
+    padding-left: 20px;
+    color: #667b92;
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.55;
+}
+
+.write-tip-card li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--board-accent);
+    font-weight: 900;
+}
+
+@media (max-width: 1100px) {
+    .board-page--write .board-write-content {
+        display: block;
+    }
+
+    .board-page--write .write-form {
+        margin-top: 22px;
+    }
+
+    .write-tip-card {
+        margin-top: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .board-page--write .board-write-hero {
+        min-height: auto;
+        padding: 26px 22px;
+    }
+
+    .board-page--write .board-write-hero h1 {
+        font-size: 30px;
+    }
+
+    .board-page--write .write-hero-animals {
+        margin-top: 16px;
+    }
+
+    .board-page--write .write-hero-animals span,
+    .board-page--write .write-hero-animals span:first-child {
+        width: 62px;
+        height: 62px;
+        font-size: 34px;
+    }
+
+    .board-page--write .form-row {
+        display: block;
+    }
+
+    .board-page--write .form-row label {
+        height: 46px;
+    }
+
+    .board-page--write .write-buttons {
+        display: flex;
+    }
+
+    .board-page--write .cancel-button,
+    .board-page--write .submit-button {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+/* 실제 커뮤니티 배너 이미지 */
+
+.board-page--write .board-write-hero,
+.board-page--view .board-view-hero {
+    position: relative;
+    min-height: 205px;
+    overflow: hidden;
+    border: 1px solid var(--board-line);
+    border-radius: 22px;
+    background: #fff9f4;
+}
+
+.board-page--write .board-write-hero::before,
+.board-page--view .board-view-hero::before {
+    content: none;
+}
+
+.board-hero-banner-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+}
+
+.board-page--write .write-hero-copy,
+.board-page--view .view-hero-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 56%;
+}
+
+@media (max-width: 768px) {
+    .board-page--write .board-write-hero,
+    .board-page--view .board-view-hero {
+        min-height: 220px;
+    }
+
+    .board-hero-banner-image {
+        opacity: 0.38;
+        object-position: 72% center;
+    }
+
+    .board-page--write .write-hero-copy,
+    .board-page--view .view-hero-copy {
+        max-width: 100%;
+    }
+}
+
+/* 작성 팁 유무와 관계없이 작성 폼은 전체 너비 사용 */
+
+.board-page--write .board-write-content {
+    display: block;
+}
+
+.board-page--write .write-form {
+    width: 100%;
+    margin-top: 22px;
+}
+
+.board-page--write .write-buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.board-page--write .write-tip-card {
+    width: 100%;
+    margin-top: 18px;
+    box-sizing: border-box;
+}

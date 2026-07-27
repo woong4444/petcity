@@ -6,6 +6,7 @@ import com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -77,6 +78,12 @@ public interface HospitalUpdateDao {
             @Param("hospitalId") int hospitalId,
             @Param("requestType") String requestType
     );
+
+    int countOverlappingTempCloseRequest(
+            @Param("hospitalId") int hospitalId,
+            @Param("tempCloseStartAt")LocalDateTime tempCloseStartAt,
+            @Param("tempCloseEndAt") LocalDateTime tempCloseEndAt
+            );
 
     /*
         병원장이 관리자 처리 전 PENDING 요청을 취소할 때 사용.
