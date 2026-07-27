@@ -27,13 +27,14 @@ document.addEventListener("DOMContentLoaded", function () {
     let gpsWgsY = null;
     let gpsAddressName = "위치 확인 중...";
 
-    // 🌟 변경점: TM좌표를 완전히 제거하고 위도/경도(WGS84)를 직접 저장
+    // 🌟 오로지 WGS84(위경도)만 사용합니다. TM 관련 변수 완전 삭제!
     let activeLat = null;
     let activeLng = null;
     let activeAddressName = null;
     let isCustomLocation = false;
 
     let geocoder = null;
+    let pendingDetailUrl = "";
 
     if (typeof kakao !== 'undefined') {
         kakao.maps.load(function () {
@@ -54,18 +55,16 @@ document.addEventListener("DOMContentLoaded", function () {
             gpsWgsY = savedLoc.gpsWgsY;
             gpsAddressName = savedLoc.gpsAddressName;
 
-            // 과거 세션 스토리지에 남아있는 비정상 TM 데이터 대응
-            activeLat = savedLoc.activeLat !== undefined ? savedLoc.activeLat : savedLoc.activeTmY;
-            activeLng = savedLoc.activeLng !== undefined ? savedLoc.activeLng : savedLoc.activeTmX;
+            activeLat = savedLoc.activeLat;
+            activeLng = savedLoc.activeLng;
+            activeAddressName = savedLoc.activeAddressName;
+            isCustomLocation = savedLoc.isCustomLocation;
 
-            // TM 좌표 캐시가 남아있다면 과감히 비우고 다시 찾음
+            // 혹시 예전에 잘못 저장된 TM 값이 남아있으면 날려버립니다.
             if (activeLat > 1000 || activeLng > 1000) {
                 activeLat = null;
                 activeLng = null;
             }
-
-            activeAddressName = savedLoc.activeAddressName;
-            isCustomLocation = savedLoc.isCustomLocation;
 
             if (activeLat && activeLng) {
                 updateLocationUI();
@@ -150,12 +149,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function saveLocationToSession() {
         const locData = {
             gpsWgsX, gpsWgsY, gpsAddressName,
-            activeLat, activeLng, activeAddressName, // 🌟 저장 객체명 변경
+            activeLat, activeLng, activeAddressName,
             isCustomLocation
         };
         sessionStorage.setItem('petcity_loc_data', JSON.stringify(locData));
     }
 
+    // 🌟 WGS84 좌표 그대로 사용 (TM 변환 없음)
     function applyLocationAndSearch(lon, lat, addressName, doSearch = false, isCustom = false) {
         activeAddressName = addressName;
         isCustomLocation = isCustom;
@@ -163,7 +163,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         updateLocationUI();
 
-        // 🌟 변경점: 골치 아픈 카카오 맵 TM 변환을 없애고 WGS84 좌표를 그대로 저장
         activeLng = lon;
         activeLat = lat;
 
@@ -177,7 +176,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function makeParams() {
         const params = new URLSearchParams();
 
-        // 🌟 WGS84 좌표 전송
         if (activeLat && activeLng) {
             params.append("userLat", activeLat);
             params.append("userLng", activeLng);
@@ -257,30 +255,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function rebindDetailLinks() {
         document.querySelectorAll('.go-detail-link, .detail-button').forEach(elem => {
-
-            elem.onclick = null; // 혹시 모를 중복 방지
+            elem.onclick = null;
 
             elem.addEventListener('click', function (e) {
                 e.preventDefault();
 
                 const status = this.getAttribute('data-status');
-                const notice = this.getAttribute('data-notice') || '등록된 사유가 없습니다.';
-
-                if (status === '휴업') {
-                    const msg = "🏥 해당 병원은 현재 [휴업] 중입니다.\n\n[휴업 사유 / 공지사항]\n" + notice + "\n\n그래도 상세 페이지로 이동하시겠습니까?";
-                    if (!confirm(msg)) {
-                        return;
-                    }
-                }
+                const notice = this.getAttribute('data-notice') || '등록된 휴업 사유(공지)가 없습니다.';
 
                 let href = this.tagName === 'A' ? this.href : this.dataset.url;
                 let url = new URL(href, window.location.origin);
 
-                // 🌟 정상적인 WGS84 좌표 전달
                 if (activeLat && activeLng) {
                     url.searchParams.set('userLat', activeLat);
                     url.searchParams.set('userLng', activeLng);
                 }
+
+                if (status === '휴업' || status === 'SUSPENDED') {
+                    document.getElementById('suspendNoticeText').textContent = notice;
+                    document.getElementById('suspendModal').style.display = 'flex';
+                    pendingDetailUrl = url.toString();
+                    return;
+                }
+
                 window.location.href = url.toString();
             });
         });
@@ -398,7 +395,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     let mapLat = gpsWgsY || 37.566826;
                     let mapLng = gpsWgsX || 126.9786567;
 
-                    // 🌟 TM변환 과정 필요 없이 바로 지도 열기
                     if (isCustomLocation && activeLat && activeLng) {
                         openMap(activeLat, activeLng);
                     } else {
@@ -635,4 +631,23 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("popstate", function () {
         window.location.reload();
     });
+
+    const btnSuspendYes = document.getElementById('btnSuspendYes');
+    const btnSuspendNo = document.getElementById('btnSuspendNo');
+    const suspendModal = document.getElementById('suspendModal');
+
+    if (btnSuspendYes) {
+        btnSuspendYes.addEventListener('click', function() {
+            if (pendingDetailUrl) {
+                window.location.href = pendingDetailUrl;
+            }
+        });
+    }
+
+    if (btnSuspendNo) {
+        btnSuspendNo.addEventListener('click', function() {
+            suspendModal.style.display = 'none';
+            pendingDetailUrl = "";
+        });
+    }
 });

@@ -8,7 +8,6 @@
         detailAddress,
         H.PHONE AS phone, H.DISTRICT AS district,
 
-        <!-- 🌟 핵심 반전: DB 데이터가 반대로 들어가 있어서 SELECT 할 때 서로 바꿔서 가져옵니다! -->
         H.LONGITUDE AS latitude, H.LATITUDE AS longitude,
 
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS breakTime, H.CLOSED_DAYS AS holiday,
@@ -46,9 +45,16 @@
         (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID) AS zzimCount,
         (SELECT NVL(ROUND(AVG(RATING), 1), 0) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS avgRating
 
-        <!-- 🌟 여기서도 계산할 때 H.LONGITUDE(진짜 위도)와 H.LATITUDE(진짜 경도)를 교체해서 계산합니다! -->
+        <!-- 🌟 혼종 데이터(TM좌표) 방어 코드 추가! 좌표가 1000보다 크면 거리를 0으로 반환해서 숨깁니다. -->
         <if test="userLat != null and userLng != null">
-            , (SQRT(POWER((H.LONGITUDE - #{userLat}) * 111.2, 2) + POWER((H.LATITUDE - #{userLng}) * 88.8, 2))) AS distance
+            , CASE
+            WHEN H.LONGITUDE > 1000 OR H.LATITUDE > 1000 THEN 0
+            ELSE (SQRT(
+            POWER(((CASE WHEN H.LONGITUDE &lt; H.LATITUDE THEN H.LONGITUDE ELSE H.LATITUDE END) - #{userLat}) * 111.2,
+            2) +
+            POWER(((CASE WHEN H.LONGITUDE &gt; H.LATITUDE THEN H.LONGITUDE ELSE H.LATITUDE END) - #{userLng}) * 88.8, 2)
+            ))
+            END AS distance
         </if>
         <if test="userLat == null or userLng == null">, 0 AS distance</if>
 
@@ -101,10 +107,12 @@
 
         <choose>
             <when test="subAnimalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID = #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID =
+                #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
             </when>
             <when test="animalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE
+                HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
             </when>
         </choose>
 
@@ -204,10 +212,12 @@
 
         <choose>
             <when test="subAnimalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID = #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID =
+                #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
             </when>
             <when test="animalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE
+                HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
             </when>
         </choose>
 
@@ -257,7 +267,6 @@
         detailAddress,
         H.PHONE AS phone, H.DISTRICT AS district,
 
-        <!-- 🌟 여기도 마찬가지로 교체! -->
         H.LONGITUDE AS latitude, H.LATITUDE AS longitude,
 
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS breakTime, H.CLOSED_DAYS AS holiday,
@@ -283,9 +292,16 @@
         (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID) AS zzimCount,
         (SELECT NVL(ROUND(AVG(RATING), 1), 0) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS avgRating
 
-        <!-- 🌟 여기서도 교체 완료! -->
+        <!-- 🌟 여기도 방어 코드 동일 적용 -->
         <if test="userLat != null and userLng != null">
-            , (SQRT(POWER((H.LONGITUDE - #{userLat}) * 111.2, 2) + POWER((H.LATITUDE - #{userLng}) * 88.8, 2))) AS distance
+            , CASE
+            WHEN H.LONGITUDE > 1000 OR H.LATITUDE > 1000 THEN 0
+            ELSE (SQRT(
+            POWER(((CASE WHEN H.LONGITUDE &lt; H.LATITUDE THEN H.LONGITUDE ELSE H.LATITUDE END) - #{userLat}) * 111.2,
+            2) +
+            POWER(((CASE WHEN H.LONGITUDE &gt; H.LATITUDE THEN H.LONGITUDE ELSE H.LATITUDE END) - #{userLng}) * 88.8, 2)
+            ))
+            END AS distance
         </if>
         <if test="userLat == null or userLng == null">, 0 AS distance</if>
 
