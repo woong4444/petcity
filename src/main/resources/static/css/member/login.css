@@ -146,7 +146,7 @@ body{
 
 }
 
-label{
+.login-box label{
 
     display:block;
 
@@ -156,7 +156,7 @@ label{
 
 }
 
-input{
+.login-box input{
 
     width:100%;
 
@@ -168,7 +168,7 @@ input{
 
 }
 
-button{
+.login-box button{
 
     width:100%;
 
@@ -190,7 +190,7 @@ button{
 
 }
 
-button:hover{
+.login-box button:hover{
 
     background:#1d4ed8;
 
@@ -413,7 +413,7 @@ body{
 
 }
 
-label{
+.login-box label{
 
     display:block;
 
@@ -425,7 +425,7 @@ label{
 
 }
 
-input{
+.login-box input{
 
     width:100%;
 
@@ -439,7 +439,7 @@ input{
 
 }
 
-input:focus{
+.login-box input:focus{
 
     outline:none;
 
@@ -451,7 +451,7 @@ input:focus{
 /* 로그인 버튼 */
 /* ============================= */
 
-button{
+.login-box button{
 
     width:100%;
 
@@ -475,7 +475,7 @@ button{
 
 }
 
-button:hover{
+.login-box button:hover{
 
     background:#1d4ed8;
 
