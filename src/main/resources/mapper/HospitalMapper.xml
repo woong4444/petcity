@@ -14,7 +14,7 @@
         H.NOTE AS note, H.NOTE AS notice, H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl,
         H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
 
-        <!-- TEMP_CLOSE 타입 및 APPROVED 상태의 가장 최근 휴업 사유(REQUEST_REASON) 매핑 -->
+        <!-- 🌟 TEMP_CLOSE 타입의 가장 최근 휴업 사유(REQUEST_REASON) 매핑 (상태 조건 제거) -->
         (
         SELECT REQUEST_REASON
         FROM (
@@ -22,7 +22,6 @@
         FROM HOSPITAL_UPDATE_REQUEST
         WHERE HOSPITAL_ID = H.HOSPITAL_ID
         AND REQUEST_TYPE = 'TEMP_CLOSE'
-        AND STATUS = 'APPROVED'
         ORDER BY CREATED_AT DESC, REQUEST_ID DESC
         )
         WHERE ROWNUM = 1
@@ -175,7 +174,6 @@
         OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
     </select>
 
-    <!-- 🌟 필터 조건이 완벽하게 반영되도록 수정된 countHospitalList 쿼리 -->
     <select id="countHospitalList" resultType="int">
         SELECT COUNT(DISTINCT H.HOSPITAL_ID)
         FROM HOSPITAL H
@@ -185,30 +183,23 @@
             AND H.STATUS = 'OPEN'
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= H.OPEN_TIME
             AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= H.CLOSE_TIME
-            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
-            'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
+            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
             AND NOT (
             H.BREAK_TIME IS NOT NULL AND H.BREAK_TIME LIKE '%~%'
-            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= TRIM(SUBSTR(H.BREAK_TIME, 1,
-            INSTR(H.BREAK_TIME, '~') - 1))
-            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= TRIM(SUBSTR(H.BREAK_TIME,
-            INSTR(H.BREAK_TIME, '~') + 1))
+            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= TRIM(SUBSTR(H.BREAK_TIME, 1, INSTR(H.BREAK_TIME, '~') - 1))
+            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= TRIM(SUBSTR(H.BREAK_TIME, INSTR(H.BREAK_TIME, '~') + 1))
             )
         </if>
         <if test="openStatus == 'BREAK'">
             AND H.STATUS = 'OPEN'
             AND H.BREAK_TIME IS NOT NULL AND H.BREAK_TIME LIKE '%~%'
-            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= TRIM(SUBSTR(H.BREAK_TIME, 1,
-            INSTR(H.BREAK_TIME, '~') - 1))
-            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= TRIM(SUBSTR(H.BREAK_TIME,
-            INSTR(H.BREAK_TIME, '~') + 1))
-            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
-            'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
+            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt;= TRIM(SUBSTR(H.BREAK_TIME, 1, INSTR(H.BREAK_TIME, '~') - 1))
+            AND TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt;= TRIM(SUBSTR(H.BREAK_TIME, INSTR(H.BREAK_TIME, '~') + 1))
+            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'HOLIDAY'">
             AND H.STATUS = 'OPEN'
-            AND NVL(H.CLOSED_DAYS, '무') LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
-            'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
+            AND NVL(H.CLOSED_DAYS, '무') LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'CLOSED'">
             AND H.STATUS = 'OPEN'
@@ -216,8 +207,7 @@
             TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &lt; H.OPEN_TIME
             OR TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'HH24:MI') &gt; H.CLOSE_TIME
             )
-            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY',
-            'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
+            AND NVL(H.CLOSED_DAYS, '무') NOT LIKE '%' || SUBSTR(TO_CHAR(SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul', 'DAY', 'NLS_DATE_LANGUAGE=KOREAN'), 1, 1) || '%'
         </if>
         <if test="openStatus == 'SHUTDOWN'">
             AND H.STATUS = 'CLOSED'
@@ -228,12 +218,10 @@
 
         <choose>
             <when test="subAnimalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID =
-                #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (HA.ANIMAL_ID = #{subAnimalId} OR HA.ANIMAL_ID = #{animalId}))
             </when>
             <when test="animalId != null">
-                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE
-                HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
+                AND EXISTS (SELECT 1 FROM HOSPITAL_ANIMAL HA JOIN ANIMAL_TYPE AT2 ON HA.ANIMAL_ID = AT2.ANIMAL_ID WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND (AT2.ANIMAL_ID = #{animalId} OR AT2.PARENT_ID = #{animalId}))
             </when>
         </choose>
 
@@ -268,8 +256,7 @@
         </if>
 
         <if test="keyword != null and keyword != ''">
-            AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS
-            LIKE '%' || #{keyword} || '%')
+            AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')
         </if>
     </select>
 
@@ -298,8 +285,7 @@
         H.NOTE AS note, H.NOTE AS notice, H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl,
         H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
         (SELECT REQUEST_REASON FROM (SELECT REQUEST_REASON FROM HOSPITAL_UPDATE_REQUEST WHERE HOSPITAL_ID =
-        H.HOSPITAL_ID AND REQUEST_TYPE = 'TEMP_CLOSE' AND STATUS = 'APPROVED' ORDER BY CREATED_AT DESC, REQUEST_ID DESC)
-        WHERE ROWNUM = 1) AS
+        H.HOSPITAL_ID AND REQUEST_TYPE = 'TEMP_CLOSE' ORDER BY CREATED_AT DESC, REQUEST_ID DESC) WHERE ROWNUM = 1) AS
         tempCloseReason,
         (SELECT NICKNAME FROM APP_MEMBER WHERE MEMBER_ID = H.OWNER_ID) AS ownerName
         FROM HOSPITAL H WHERE H.HOSPITAL_ID = #{hospitalId}
