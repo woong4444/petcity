@@ -14,7 +14,6 @@
         H.NOTE AS note, H.NOTE AS notice, H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl,
         H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
 
-        <!-- 🌟 TEMP_CLOSE 타입의 가장 최근 휴업 사유(REQUEST_REASON) 매핑 (상태 조건 제거) -->
         (
         SELECT REQUEST_REASON
         FROM (
@@ -277,6 +276,7 @@
         SUBJECT_ID
     </select>
 
+    <!-- 🌟 상세 페이지용 쿼리: 진료과목, 동물, 서비스, 리뷰수, 찜수 등 모두 추가 -->
     <select id="findHospitalById" resultType="HospitalDto">
         SELECT H.HOSPITAL_ID AS hospitalId, H.OWNER_ID AS ownerId, H.NAME AS name, H.ADDRESS AS address,
         H.DETAIL_ADDRESS AS detailAddress,
@@ -284,10 +284,45 @@
         H.OPEN_TIME AS openTime, H.CLOSE_TIME AS closeTime, H.BREAK_TIME AS breakTime, H.CLOSED_DAYS AS holiday,
         H.NOTE AS note, H.NOTE AS notice, H.STATUS AS status, H.DESCRIPTION AS description, H.IMAGE_URL AS imageUrl,
         H.WEBSITE_URL AS websiteUrl, H.CREATED_AT AS createdAt, H.UPDATED_AT AS updatedAt,
+
         (SELECT REQUEST_REASON FROM (SELECT REQUEST_REASON FROM HOSPITAL_UPDATE_REQUEST WHERE HOSPITAL_ID =
         H.HOSPITAL_ID AND REQUEST_TYPE = 'TEMP_CLOSE' ORDER BY CREATED_AT DESC, REQUEST_ID DESC) WHERE ROWNUM = 1) AS
         tempCloseReason,
-        (SELECT NICKNAME FROM APP_MEMBER WHERE MEMBER_ID = H.OWNER_ID) AS ownerName
+
+        (SELECT NICKNAME FROM APP_MEMBER WHERE MEMBER_ID = H.OWNER_ID) AS ownerName,
+
+        <!-- 누락된 조회 컬럼들 병합 -->
+        COALESCE(
+        (SELECT LISTAGG(MS.SUBJECT_NAME, ', ') WITHIN GROUP (ORDER BY MS.SUBJECT_ID)
+        FROM HOSPITAL_MEDICAL_SUBJECT HMS
+        JOIN MEDICAL_SUBJECT MS ON HMS.SUBJECT_ID = MS.SUBJECT_ID
+        WHERE HMS.HOSPITAL_ID = H.HOSPITAL_ID),
+        H.MEDICAL_SUBJECTS
+        ) AS medicalSubjects,
+
+        (SELECT LISTAGG(AT.ANIMAL_NAME, ', ') WITHIN GROUP (ORDER BY AT.ANIMAL_ID) FROM HOSPITAL_ANIMAL HA2 JOIN
+        ANIMAL_TYPE AT ON HA2.ANIMAL_ID = AT.ANIMAL_ID WHERE HA2.HOSPITAL_ID = H.HOSPITAL_ID) AS animalNames,
+
+        (SELECT LISTAGG(MS.SERVICE_NAME, ',') WITHIN GROUP (ORDER BY MS.SERVICE_ID) FROM HOSPITAL_SERVICE HS2 JOIN
+        MEDICAL_SERVICE MS ON HS2.SERVICE_ID = MS.SERVICE_ID WHERE HS2.HOSPITAL_ID = H.HOSPITAL_ID) AS serviceNames,
+
+        (SELECT COUNT(*) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS reviewCount,
+        (SELECT COUNT(*) FROM HOSPITAL_LIKE HL WHERE HL.HOSPITAL_ID = H.HOSPITAL_ID) AS likeCount,
+        (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID) AS zzimCount,
+        (SELECT NVL(ROUND(AVG(RATING), 1), 0) FROM HOSPITAL_REVIEW HR WHERE HR.HOSPITAL_ID = H.HOSPITAL_ID) AS avgRating
+
+        <if test="userLat != null and userLng != null">
+            , CASE
+            WHEN H.LONGITUDE > 1000 OR H.LATITUDE > 1000 THEN 0
+            ELSE (SQRT(
+            POWER(((CASE WHEN H.LONGITUDE &lt; H.LATITUDE THEN H.LONGITUDE ELSE H.LATITUDE END) - #{userLat}) * 111.2,
+            2) +
+            POWER(((CASE WHEN H.LONGITUDE &gt; H.LATITUDE THEN H.LONGITUDE ELSE H.LATITUDE END) - #{userLng}) * 88.8, 2)
+            ))
+            END AS distance
+        </if>
+        <if test="userLat == null or userLng == null">, 0 AS distance</if>
+
         FROM HOSPITAL H WHERE H.HOSPITAL_ID = #{hospitalId}
     </select>
 
