@@ -5,6 +5,233 @@
 
 <mapper namespace="com.jjang051.petcity.admin.dao.AdminHospitalManagementDao">
 
+    <select id="countPendingHospitalRequests" resultType="int">
+        SELECT COUNT(*) FROM HOSPITAL_UPDATE_REQUEST
+        WHERE HOSPITAL_ID = #{hospitalId}
+        AND STATUS = 'PENDING'
+    </select>
+
+    <insert id="insertHospitalDeleteHistory">
+        INSERT INTO HOSPITAL_DELETE_HISTORY(
+        DELETE_HISTORY_ID,
+        HOSPITAL_ID,
+        HOSPITAL_NAME,
+        OWNER_ID,
+        OWNER_NAME,
+        CLOSE_REQUEST_ID,
+        DELETE_REASON,
+        CLOSED_AT,
+        DELETED_AT,
+        DELETED_BY
+        )
+        SELECT SEQ_HOSPITAL_DELETE_HISTORY.NEXTVAL,
+        H.HOSPITAL_ID,
+        H.NAME,
+        H.OWNER_ID,
+        NVL(M.NICKNAME, NVL(H.OWNER_NAME,'병원장 미등록')),
+
+        CLOSE_REQUEST.REQUEST_ID,
+        CLOSE_REQUEST.REQUEST_REASON,
+        CLOSE_REQUEST.PROCESSED_AT,
+        SYSTIMESTAMP,
+        #{deletedBy}
+        FROM HOSPITAL H
+        LEFT JOIN APP_MEMBER M
+        ON M.MEMBER_ID = H.OWNER_ID
+        LEFT JOIN ( SELECT
+        REQUEST_ID,
+        HOSPITAL_ID,
+        REQUEST_REASON,
+        PROCESSED_AT,
+        ROW_NUMBER() OVER( PARTITION BY HOSPITAL_ID
+        ORDER BY PROCESSED_AT DESC NULLS LAST,
+        REQUEST_ID DESC) AS RN
+        FROM HOSPITAL_UPDATE_REQUEST
+        WHERE REQUEST_TYPE = 'CLOSE'
+        AND STATUS = 'APPROVED'
+        ) CLOSE_REQUEST
+        ON CLOSE_REQUEST.HOSPITAL_ID = H.HOSPITAL_ID
+        AND CLOSE_REQUEST.RN = 1
+        WHERE H.HOSPITAL_ID = #{hospitalId}
+        AND H.STATUS = 'CLOSED'
+
+    </insert>
+    <delete id="deleteHospitalUpdateRequestAnimals">
+        DELETE FROM HOSPITAL_UPDATE_REQUEST_ANIMAL
+        WHERE REQUEST_ID IN( SELECT REQUEST_ID
+        FROM HOSPITAL_UPDATE_REQUEST
+        WHERE HOSPITAL_ID = #{hospitalId}
+        )
+    </delete>
+
+    <delete id="deleteHospitalUpdateRequestServices">
+        DELETE FROM HOSPITAL_UPDATE_REQUEST_SERVICE
+        WHERE REQUEST_ID IN( SELECT REQUEST_ID
+        FROM HOSPITAL_UPDATE_REQUEST
+        WHERE HOSPITAL_ID = #{hospitalId}
+        )
+    </delete>
+    <delete id="deleteHospitalUpdateRequestSubjects">
+        DELETE FROM HOSPITAL_UPDATE_MEDICAL_REQUEST_SUBJECT
+        WHERE REQUEST_ID IN( SELECT REQUEST_ID
+        FROM HOSPITAL_UPDATE_REQUEST
+        WHERE HOSPITAL_ID = #{hospitalId}
+        )
+    </delete>
+
+    <delete id="deleteHospitalUpdateRequests">
+        DELETE FROM HOSPITAL_UPDATE_REQUEST
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <delete id="deleteHospitalAnimals">
+        DELETE FROM HOSPITAL_ANIMAL
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <delete id="deleteHospitalServices">
+        DELETE FROM HOSPITAL_SERVICE
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <delete id="deleteHospitalSubjects">
+        DELETE FROM HOSPITAL_MEDICAL_SUBJECT
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <delete id="deleteHospitalLikes">
+        DELETE FROM HOSPITAL_LIKE
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <delete id="deleteHospitalReviews">
+        DELETE FROM HOSPITAL_REVIEW
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <update id="disconnectHospitalOwnerRequests">
+        UPDATE HOSPITAL_OWNER_REQUEST
+        SET HOSPITAL_ID = NULL
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </update>
+    <delete id="hardDeleteClosedHospital">
+        DELETE FROM HOSPITAL
+        WHERE HOSPITAL_ID = #{hospitalId}
+        AND STATUS='CLOSED'
+    </delete>
+
+    <select id="findRequestDetail" resultType="AdminHospitalUpdateRequestDetailDto">
+        SELECT HUR.REQUEST_ID AS requestId,
+        HUR.HOSPITAL_ID AS hospitalId,
+        HUR.MEMBER_ID AS memberId,
+        HUR.REQUEST_TYPE AS requestType,
+        HUR.STATUS AS requestStatus,
+        HUR.APPLICANT_NAME AS applicantName,
+        NVL( M.NICKNAME, NVL(H.OWNER_NAME, '병원장 미등록')) AS ownerName,
+        M.EMAIL AS ownerEmail,
+        HUR.BUSINESS_NUMBER AS businessNumber,
+        HUR.DOCUMENT_URL AS documentUrl,
+        HUR.REQUEST_REASON AS requestReason,
+        HUR.REJECT_REASON AS rejectReason,
+        HUR.CREATED_AT AS createdAt,
+        HUR.PROCESSED_AT AS processedAt,
+        HUR.PROCESSED_BY AS processedBy,
+        H.STATUS AS currentHospitalStatus,
+        H.NAME AS currentHospitalName,
+        H.PHONE AS currentHospitalPhone,
+        H.ADDRESS AS currentHospitalAddress,
+        H.DETAIL_ADDRESS AS currentHospitalDetailAddress,
+        H.DISTRICT AS currentHospitalDistrict,
+        H.WEBSITE_URL AS currentHospitalWebsiteUrl,
+        H.LATITUDE AS currentHospitalLatitude,
+        H.LONGITUDE AS currentHospitalLongitude,
+        H.OPEN_TIME AS currentHospitalOpenTime,
+        H.CLOSE_TIME AS currentHospitalCloseTime,
+        H.BREAK_TIME AS currentHospitalBreakTime,
+        H.CLOSED_DAYS AS currentHospitalClosedDays,
+        H.DOCTOR_INFO AS currentHospitalDoctorInfo,
+        H.DESCRIPTION AS currentHospitalDescription,
+        H.IMAGE_URL AS currentHospitalImageUrl,
+        H.NOTE AS currentHospitalNote,
+        HUR.HOSPITAL_NAME AS requestedHospitalName,
+        HUR.HOSPITAL_PHONE AS requestedHospitalPhone,
+        HUR.HOSPITAL_ADDRESS AS requestedHospitalAddress,
+        HUR.HOSPITAL_DETAIL_ADDRESS AS requestedHospitalDetailAddress,
+        HUR.HOSPITAL_DISTRICT AS requestedHospitalDistrict,
+        HUR.HOSPITAL_WEBSITE_URL AS requestedHospitalWebsiteUrl,
+        HUR.HOSPITAL_LATITUDE AS requestedHospitalLatitude,
+        HUR.HOSPITAL_LONGITUDE AS requestedHospitalLongitude,
+        HUR.OPEN_TIME AS requestedHospitalOpenTime,
+        HUR.CLOSE_TIME AS requestedHospitalCloseTime,
+        HUR.BREAK_TIME AS requestedHospitalBreakTime,
+        HUR.CLOSED_DAYS AS requestedHospitalClosedDays,
+        HUR.HOSPITAL_DOCTOR_INFO AS requestedHospitalDoctorInfo,
+        HUR.HOSPITAL_DESCRIPTION AS requestedHospitalDescription,
+        HUR.HOSPITAL_IMAGE_URL AS requestedHospitalImageUrl,
+        HUR.HOSPITAL_NOTE AS requestedHospitalNote,
+        HUR.TEMP_CLOSE_START_AT AS tempCloseStartAt,
+        HUR.TEMP_CLOSE_END_AT AS tempCloseEndAt
+        FROM HOSPITAL_UPDATE_REQUEST HUR
+        JOIN HOSPITAL H ON H.HOSPITAL_ID = HUR.HOSPITAL_ID
+        LEFT JOIN APP_MEMBER M ON M.MEMBER_ID = H.OWNER_ID
+        WHERE HUR.REQUEST_ID = #{requestId}
+
+    </select>
+
+    <select id="findCurrentAnimalNames" resultType="string">
+        SELECT AT.ANIMAL_NAME FROM HOSPITAL_ANIMAL HA
+        JOIN ANIMAL_TYPE AT ON AT.ANIMAL_ID = HA.ANIMAL_ID
+        WHERE HA.HOSPITAL_ID = #{hospitalId}
+        ORDER BY AT.ANIMAL_ID
+
+    </select>
+    <select id="findRequestedAnimalNames" resultType="string">
+        SELECT AT.ANIMAL_NAME FROM HOSPITAL_UPDATE_REQUEST_ANIMAL HURA
+        JOIN ANIMAL_TYPE AT ON AT.ANIMAL_ID = HURA.ANIMAL_ID
+        WHERE HURA.REQUEST_ID = #{requestId}
+        ORDER BY AT.ANIMAL_ID
+
+    </select>
+
+
+    <select id="findClosedHospitals" resultType="AdminClosedHospitalDto">
+        SELECT H.HOSPITAL_ID AS hospitalId,
+        H.NAME AS hospitalName,
+        H.OWNER_ID AS ownerId,
+        NVL( M.NICKNAME, NVL(H.OWNER_NAME, '병원장 미등록')) AS ownerName,
+
+        M.EMAIL AS ownerEmail,
+        CLOSE_REQUEST.REQUEST_ID AS closeRequestId,
+        CLOSE_REQUEST.REQUEST_REASON  AS closeReason,
+        CLOSE_REQUEST.PROCESSED_AT AS closedAt
+        FROM HOSPITAL H
+        LEFT JOIN APP_MEMBER M ON M.MEMBER_ID = H.OWNER_ID
+        LEFT JOIN (SELECT
+            REQUEST_ID,
+            HOSPITAL_ID,
+            REQUEST_REASON,
+            PROCESSED_AT,
+            ROW_NUMBER()OVER(PARTITION BY HOSPITAL_ID
+                ORDER BY PROCESSED_AT DESC NULLS LAST,
+                    REQUEST_ID DESC)
+                AS RN
+                FROM HOSPITAL_UPDATE_REQUEST
+        WHERE REQUEST_TYPE = 'CLOSE'
+            AND STATUS='APPROVED')
+        CLOSE_REQUEST
+        ON CLOSE_REQUEST.HOSPITAL_ID = H.HOSPITAL_ID
+        AND CLOSE_REQUEST.RN = 1
+        WHERE H.STATUS='CLOSED'
+        ORDER BY CLOSE_REQUEST.PROCESSED_AT DESC NULLS LAST,
+        H.HOSPITAL_ID DESC
+    </select>
+
+<select id="countClosedHospitals" resultType="int">
+    SELECT COUNT (*) FROM HOSPITAL WHERE STATUS = 'CLOSED'
+
+</select>
+
+
     <select id="findHospitals" resultType="AdminHospitalManagementDto">
         SELECT H.HOSPITAL_ID AS hospitalId,
         H.NAME AS hospitalName,
@@ -21,11 +248,12 @@
         ON HUR.HOSPITAL_ID = H.HOSPITAL_ID
         AND HUR.STATUS = 'PENDING'
         <where>
+            AND H.STATUS != 'CLOSED'
             <if test="keyword != null and keyword!=''">
                 AND (UPPER(H.NAME) LIKE '%' || UPPER(#{keyword}) || '%'
                 OR
-                    UPPER(NVL(M.NICKNAME, NVL(H.OWNER_NAME, '') ) )
-                    LIKE '%' || UPPER(#{keyword}) || '%'
+                UPPER(NVL(M.NICKNAME, NVL(H.OWNER_NAME, '') ) )
+                LIKE '%' || UPPER(#{keyword}) || '%'
                 )
             </if>
 
@@ -48,7 +276,7 @@
 
             <when test="sortBy == 'ownerName'">
                 NVL( M.NICKNAME,
-                    NVL(H.OWNER_NAME, '병원장 미등록'))
+                NVL(H.OWNER_NAME, '병원장 미등록'))
 
             </when>
 

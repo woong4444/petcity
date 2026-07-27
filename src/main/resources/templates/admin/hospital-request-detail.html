@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>병원 요청 상세</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/sidebar.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/admin/hospital-request-detail.css}">
+
+    <script defer
+            th:src="@{/js/admin/sidebar.js}">
+    </script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <th:block
+            th:replace="~{admin/fragments/sidebar
+                :: sidebar('hospitalManagement')}">
+    </th:block>
+
+
+    <main class="admin-main hospital-request-main">
+
+        <!-- 목록 이동 -->
+        <div class="request-detail-navigation">
+
+            <a th:href="@{/admin/hospitals}"
+               class="request-back-link">
+                ← 병원 관리 목록
+            </a>
+
+        </div>
+
+
+        <!-- 페이지 제목 -->
+        <header class="request-detail-header">
+
+            <div class="request-title-area">
+
+                <p class="page-category">
+                    HOSPITAL REQUEST DETAIL
+                </p>
+
+
+                <div class="request-detail-title-row">
+
+                    <h1>
+                        병원 요청 상세
+                    </h1>
+
+
+                    <th:block th:switch="${requestDetail.requestType}">
+
+                        <span th:case="'UPDATE'"
+                              class="request-type-badge request-update">
+                            정보 수정 신청
+                        </span>
+
+
+                        <span th:case="'TEMP_CLOSE'"
+                              class="request-type-badge request-temp-close">
+                            휴업 신청
+                        </span>
+
+
+                        <span th:case="'CLOSE'"
+                              class="request-type-badge request-close">
+                            폐업 신청
+                        </span>
+
+
+                        <span th:case="*"
+                              class="request-type-badge request-unknown"
+                              th:text="${requestDetail.requestType != null
+                                ? requestDetail.requestType
+                                : '요청 종류 미정'}">
+
+                            요청 종류 미정
+
+                        </span>
+
+                    </th:block>
+
+                </div>
+
+
+                <p class="page-description">
+                    현재 병원 정보와 신청 내용을 확인한 뒤 승인 또는 반려합니다.
+                </p>
+
+            </div>
+
+
+            <div class="request-header-status">
+
+                <span class="request-header-label">
+                    요청 상태
+                </span>
+
+
+                <span th:if="${requestDetail.requestStatus == 'PENDING'}"
+                      class="request-state-badge request-state-pending">
+                    처리 대기
+                </span>
+
+
+                <span th:if="${requestDetail.requestStatus == 'APPROVED'}"
+                      class="request-state-badge request-state-approved">
+                    승인 완료
+                </span>
+
+
+                <span th:if="${requestDetail.requestStatus == 'REJECTED'}"
+                      class="request-state-badge request-state-rejected">
+                    반려 완료
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- 요청 요약 -->
+        <section class="request-summary-grid">
+
+            <article class="request-summary-card">
+
+                <span>
+                    요청 번호
+                </span>
+
+                <strong th:text="${requestDetail.requestId}">
+                    1
+                </strong>
+
+            </article>
+
+
+            <article class="request-summary-card">
+
+                <span>
+                    병원 번호
+                </span>
+
+                <strong th:text="${requestDetail.hospitalId}">
+                    1
+                </strong>
+
+            </article>
+
+
+            <article class="request-summary-card">
+
+                <span>
+                    신청자
+                </span>
+
+                <strong th:text="${requestDetail.applicantName != null
+                    and !#strings.isEmpty(requestDetail.applicantName)
+                    ? requestDetail.applicantName
+                    : requestDetail.ownerName}">
+
+                    김병원
+
+                </strong>
+
+            </article>
+
+
+            <article class="request-summary-card">
+
+                <span>
+                    신청일
+                </span>
+
+                <strong th:text="${requestDetail.createdAt != null
+                    ? #temporals.format(
+                        requestDetail.createdAt,
+                        'yyyy-MM-dd HH:mm'
+                      )
+                    : '-'}">
+
+                    2026-07-27 14:30
+
+                </strong>
+
+            </article>
+
+        </section>
+
+
+        <!-- 상세 콘텐츠 + 우측 처리 카드 -->
+        <div class="request-detail-layout">
+
+            <!-- 왼쪽 콘텐츠 -->
+            <div class="request-detail-content">
+
+                <!-- 현재 병원 정보 -->
+                <section class="request-content-section">
+
+                    <div class="request-section-heading">
+
+                        <div>
+
+                            <p class="section-category">
+                                CURRENT HOSPITAL
+                            </p>
+
+                            <h2>
+                                현재 병원 정보
+                            </h2>
+
+                            <p>
+                                현재 병원 테이블에 저장되어 있는 기본 정보입니다.
+                            </p>
+
+                        </div>
+
+
+                        <th:block th:switch="${requestDetail.currentHospitalStatus}">
+
+                            <span th:case="'OPEN'"
+                                  class="hospital-status-badge status-open">
+
+                                <i class="status-dot"></i>
+
+                                영업중
+
+                            </span>
+
+
+                            <span th:case="'TEMP_CLOSED'"
+                                  class="hospital-status-badge status-temp-closed">
+
+                                <i class="status-dot"></i>
+
+                                휴업
+
+                            </span>
+
+
+                            <span th:case="'CLOSED'"
+                                  class="hospital-status-badge status-closed">
+
+                                <i class="status-dot"></i>
+
+                                폐업
+
+                            </span>
+
+
+                            <span th:case="*"
+                                  class="hospital-status-badge status-unknown">
+
+                                상태 미정
+
+                            </span>
+
+                        </th:block>
+
+                    </div>
+
+
+                    <div class="current-hospital-grid">
+
+                        <div class="detail-field">
+
+                            <span>
+                                병원명
+                            </span>
+
+                            <strong th:text="${requestDetail.currentHospitalName != null
+                                and !#strings.isEmpty(requestDetail.currentHospitalName)
+                                ? requestDetail.currentHospitalName
+                                : '-'}">
+
+                                행복동물병원
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-field">
+
+                            <span>
+                                지역
+                            </span>
+
+                            <strong th:text="${requestDetail.currentHospitalDistrict != null
+                                and !#strings.isEmpty(requestDetail.currentHospitalDistrict)
+                                ? requestDetail.currentHospitalDistrict
+                                : '-'}">
+
+                                강남구
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-field detail-field-wide">
+
+                            <span>
+                                주소
+                            </span>
+
+                            <strong th:text="${requestDetail.currentHospitalAddress != null
+                                and !#strings.isEmpty(requestDetail.currentHospitalAddress)
+                                ? requestDetail.currentHospitalAddress
+                                : '-'}">
+
+                                서울특별시 강남구 테헤란로
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-field detail-field-wide">
+
+                            <span>
+                                상세 주소
+                            </span>
+
+                            <strong th:text="${requestDetail.currentHospitalDetailAddress != null
+                                and !#strings.isEmpty(requestDetail.currentHospitalDetailAddress)
+                                ? requestDetail.currentHospitalDetailAddress
+                                : '-'}">
+
+                                3층
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-field detail-field-wide">
+
+                            <span>
+                                홈페이지
+                            </span>
+
+
+                            <a th:if="${requestDetail.currentHospitalWebsiteUrl != null
+                                and !#strings.isEmpty(requestDetail.currentHospitalWebsiteUrl)}"
+                               th:href="${requestDetail.currentHospitalWebsiteUrl}"
+                               th:text="${requestDetail.currentHospitalWebsiteUrl}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+
+                                https://example.com
+
+                            </a>
+
+
+                            <strong th:if="${requestDetail.currentHospitalWebsiteUrl == null
+                                or #strings.isEmpty(requestDetail.currentHospitalWebsiteUrl)}">
+
+                                -
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- 정보 수정 -->
+                <section th:if="${requestDetail.requestType == 'UPDATE'}"
+                         class="request-content-section">
+
+                    <div class="request-section-heading">
+
+                        <div>
+
+                            <p class="section-category">
+                                UPDATE REQUEST
+                            </p>
+
+                            <h2>
+                                정보 수정 비교
+                            </h2>
+
+                            <p>
+                                현재 저장된 정보와 병원장이 요청한 정보를 비교합니다.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="comparison-table">
+
+                        <div class="comparison-header">
+
+                            <span>
+                                항목
+                            </span>
+
+                            <strong>
+                                현재 저장 정보
+                            </strong>
+
+                            <strong>
+                                요청 정보
+                            </strong>
+
+                        </div>
+
+
+                        <!-- 병원명 -->
+                        <div class="comparison-row"
+                             th:classappend="${requestDetail.currentHospitalName
+                                != requestDetail.requestedHospitalName}
+                                ? ' changed-row'
+                                : ''">
+
+                            <span class="comparison-label">
+                                병원명
+                            </span>
+
+
+                            <div class="current-value"
+                                 th:text="${requestDetail.currentHospitalName != null
+                                    and !#strings.isEmpty(requestDetail.currentHospitalName)
+                                    ? requestDetail.currentHospitalName
+                                    : '-'}">
+
+                                현재 병원명
+
+                            </div>
+
+
+                            <div class="requested-value">
+
+                                <strong th:text="${requestDetail.requestedHospitalName != null
+                                    and !#strings.isEmpty(requestDetail.requestedHospitalName)
+                                    ? requestDetail.requestedHospitalName
+                                    : '-'}">
+
+                                    요청 병원명
+
+                                </strong>
+
+
+                                <span th:if="${requestDetail.currentHospitalName
+                                    == requestDetail.requestedHospitalName}"
+                                      class="change-label unchanged">
+
+                                    변경 없음
+
+                                </span>
+
+
+                                <span th:unless="${requestDetail.currentHospitalName
+                                    == requestDetail.requestedHospitalName}"
+                                      class="change-label changed">
+
+                                    변경됨
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- 홈페이지 -->
+                        <div class="comparison-row"
+                             th:classappend="${requestDetail.currentHospitalWebsiteUrl
+                                != requestDetail.requestedHospitalWebsiteUrl}
+                                ? ' changed-row'
+                                : ''">
+
+                            <span class="comparison-label">
+                                홈페이지
+                            </span>
+
+
+                            <div class="current-value"
+                                 th:text="${requestDetail.currentHospitalWebsiteUrl != null
+                                    and !#strings.isEmpty(requestDetail.currentHospitalWebsiteUrl)
+                                    ? requestDetail.currentHospitalWebsiteUrl
+                                    : '-'}">
+
+                                현재 홈페이지
+
+                            </div>
+
+
+                            <div class="requested-value">
+
+                                <strong th:text="${requestDetail.requestedHospitalWebsiteUrl != null
+                                    and !#strings.isEmpty(requestDetail.requestedHospitalWebsiteUrl)
+                                    ? requestDetail.requestedHospitalWebsiteUrl
+                                    : '-'}">
+
+                                    요청 홈페이지
+
+                                </strong>
+
+
+                                <span th:if="${requestDetail.currentHospitalWebsiteUrl
+                                    == requestDetail.requestedHospitalWebsiteUrl}"
+                                      class="change-label unchanged">
+
+                                    변경 없음
+
+                                </span>
+
+
+                                <span th:unless="${requestDetail.currentHospitalWebsiteUrl
+                                    == requestDetail.requestedHospitalWebsiteUrl}"
+                                      class="change-label changed">
+
+                                    변경됨
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- 주소 -->
+                        <div class="comparison-row"
+                             th:classappend="${requestDetail.currentHospitalAddress
+                                != requestDetail.requestedHospitalAddress}
+                                ? ' changed-row'
+                                : ''">
+
+                            <span class="comparison-label">
+                                주소
+                            </span>
+
+
+                            <div class="current-value"
+                                 th:text="${requestDetail.currentHospitalAddress != null
+                                    and !#strings.isEmpty(requestDetail.currentHospitalAddress)
+                                    ? requestDetail.currentHospitalAddress
+                                    : '-'}">
+
+                                현재 주소
+
+                            </div>
+
+
+                            <div class="requested-value">
+
+                                <strong th:text="${requestDetail.requestedHospitalAddress != null
+                                    and !#strings.isEmpty(requestDetail.requestedHospitalAddress)
+                                    ? requestDetail.requestedHospitalAddress
+                                    : '-'}">
+
+                                    요청 주소
+
+                                </strong>
+
+
+                                <span th:if="${requestDetail.currentHospitalAddress
+                                    == requestDetail.requestedHospitalAddress}"
+                                      class="change-label unchanged">
+
+                                    변경 없음
+
+                                </span>
+
+
+                                <span th:unless="${requestDetail.currentHospitalAddress
+                                    == requestDetail.requestedHospitalAddress}"
+                                      class="change-label changed">
+
+                                    변경됨
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- 상세 주소 -->
+                        <div class="comparison-row"
+                             th:classappend="${requestDetail.currentHospitalDetailAddress
+                                != requestDetail.requestedHospitalDetailAddress}
+                                ? ' changed-row'
+                                : ''">
+
+                            <span class="comparison-label">
+                                상세 주소
+                            </span>
+
+
+                            <div class="current-value"
+                                 th:text="${requestDetail.currentHospitalDetailAddress != null
+                                    and !#strings.isEmpty(requestDetail.currentHospitalDetailAddress)
+                                    ? requestDetail.currentHospitalDetailAddress
+                                    : '-'}">
+
+                                현재 상세 주소
+
+                            </div>
+
+
+                            <div class="requested-value">
+
+                                <strong th:text="${requestDetail.requestedHospitalDetailAddress != null
+                                    and !#strings.isEmpty(requestDetail.requestedHospitalDetailAddress)
+                                    ? requestDetail.requestedHospitalDetailAddress
+                                    : '-'}">
+
+                                    요청 상세 주소
+
+                                </strong>
+
+
+                                <span th:if="${requestDetail.currentHospitalDetailAddress
+                                    == requestDetail.requestedHospitalDetailAddress}"
+                                      class="change-label unchanged">
+
+                                    변경 없음
+
+                                </span>
+
+
+                                <span th:unless="${requestDetail.currentHospitalDetailAddress
+                                    == requestDetail.requestedHospitalDetailAddress}"
+                                      class="change-label changed">
+
+                                    변경됨
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- 지역 -->
+                        <div class="comparison-row"
+                             th:classappend="${requestDetail.currentHospitalDistrict
+                                != requestDetail.requestedHospitalDistrict}
+                                ? ' changed-row'
+                                : ''">
+
+                            <span class="comparison-label">
+                                지역
+                            </span>
+
+
+                            <div class="current-value"
+                                 th:text="${requestDetail.currentHospitalDistrict != null
+                                    and !#strings.isEmpty(requestDetail.currentHospitalDistrict)
+                                    ? requestDetail.currentHospitalDistrict
+                                    : '-'}">
+
+                                현재 지역
+
+                            </div>
+
+
+                            <div class="requested-value">
+
+                                <strong th:text="${requestDetail.requestedHospitalDistrict != null
+                                    and !#strings.isEmpty(requestDetail.requestedHospitalDistrict)
+                                    ? requestDetail.requestedHospitalDistrict
+                                    : '-'}">
+
+                                    요청 지역
+
+                                </strong>
+
+
+                                <span th:if="${requestDetail.currentHospitalDistrict
+                                    == requestDetail.requestedHospitalDistrict}"
+                                      class="change-label unchanged">
+
+                                    변경 없음
+
+                                </span>
+
+
+                                <span th:unless="${requestDetail.currentHospitalDistrict
+                                    == requestDetail.requestedHospitalDistrict}"
+                                      class="change-label changed">
+
+                                    변경됨
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- 대표 이미지 비교 -->
+                    <div class="image-comparison-grid">
+
+                        <article class="image-comparison-card">
+
+                            <div class="image-card-heading">
+
+                                <span>
+                                    현재 대표 이미지
+                                </span>
+
+                            </div>
+
+
+                            <img th:if="${requestDetail.currentHospitalImageUrl != null
+                                and !#strings.isEmpty(requestDetail.currentHospitalImageUrl)}"
+                                 th:src="${requestDetail.currentHospitalImageUrl}"
+                                 alt="현재 병원 대표 이미지">
+
+
+                            <div th:if="${requestDetail.currentHospitalImageUrl == null
+                                or #strings.isEmpty(requestDetail.currentHospitalImageUrl)}"
+                                 class="image-empty">
+
+                                등록된 대표 이미지가 없습니다.
+
+                            </div>
+
+                        </article>
+
+
+                        <article class="image-comparison-card requested-image-card">
+
+                            <div class="image-card-heading">
+
+                                <span>
+                                    요청 대표 이미지
+                                </span>
+
+
+                                <span th:if="${requestDetail.currentHospitalImageUrl
+                                    == requestDetail.requestedHospitalImageUrl}"
+                                      class="change-label unchanged">
+
+                                    변경 없음
+
+                                </span>
+
+
+                                <span th:unless="${requestDetail.currentHospitalImageUrl
+                                    == requestDetail.requestedHospitalImageUrl}"
+                                      class="change-label changed">
+
+                                    변경됨
+
+                                </span>
+
+                            </div>
+
+
+                            <img th:if="${requestDetail.requestedHospitalImageUrl != null
+                                and !#strings.isEmpty(requestDetail.requestedHospitalImageUrl)}"
+                                 th:src="${requestDetail.requestedHospitalImageUrl}"
+                                 alt="요청 병원 대표 이미지">
+
+
+                            <div th:if="${requestDetail.requestedHospitalImageUrl == null
+                                or #strings.isEmpty(requestDetail.requestedHospitalImageUrl)}"
+                                 class="image-empty">
+
+                                요청 대표 이미지가 없습니다.
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                </section>
+
+
+                <!-- 휴업 -->
+                <section th:if="${requestDetail.requestType == 'TEMP_CLOSE'}"
+                         class="request-content-section">
+
+                    <div class="request-section-heading">
+
+                        <div>
+
+                            <p class="section-category">
+                                TEMPORARY CLOSE
+                            </p>
+
+                            <h2>
+                                휴업 신청 정보
+                            </h2>
+
+                            <p>
+                                병원장이 요청한 휴업 기간과 사유입니다.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="temporary-close-period">
+
+                        <div>
+
+                            <span>
+                                휴업 시작일
+                            </span>
+
+                            <strong th:text="${requestDetail.tempCloseStartAt != null
+                                ? #temporals.format(
+                                    requestDetail.tempCloseStartAt,
+                                    'yyyy-MM-dd HH:mm'
+                                  )
+                                : '-'}">
+
+                                2026-07-27
+
+                            </strong>
+
+                        </div>
+
+
+                        <span class="period-arrow">
+                            →
+                        </span>
+
+
+                        <div>
+
+                            <span>
+                                휴업 종료일
+                            </span>
+
+                            <strong th:text="${requestDetail.tempCloseEndAt != null
+                                ? #temporals.format(
+                                    requestDetail.tempCloseEndAt,
+                                    'yyyy-MM-dd HH:mm'
+                                  )
+                                : '-'}">
+
+                                2026-08-27
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="request-reason-box">
+
+                        <span>
+                            휴업 신청 사유
+                        </span>
+
+                        <p th:text="${requestDetail.requestReason != null
+                            and !#strings.isEmpty(requestDetail.requestReason)
+                            ? requestDetail.requestReason
+                            : '등록된 휴업 신청 사유가 없습니다.'}">
+
+                            병원 내부 공사로 인해 휴업을 신청합니다.
+
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <!-- 폐업 -->
+                <section th:if="${requestDetail.requestType == 'CLOSE'}"
+                         class="request-content-section">
+
+                    <div class="request-section-heading">
+
+                        <div>
+
+                            <p class="section-category">
+                                CLOSE REQUEST
+                            </p>
+
+                            <h2>
+                                폐업 신청 정보
+                            </h2>
+
+                            <p>
+                                폐업 승인 후 병원은 폐업 관리 대상으로 이동합니다.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="close-request-warning">
+
+                        <strong>
+                            폐업 승인은 영구 삭제가 아닙니다.
+                        </strong>
+
+                        <p>
+                            승인 시 병원 상태가 CLOSED로 변경되고,
+                            병원 관리 화면의 폐업 관리 모달에서 별도로 영구 삭제합니다.
+                        </p>
+
+                    </div>
+
+
+                    <div class="request-reason-box">
+
+                        <span>
+                            폐업 신청 사유
+                        </span>
+
+                        <p th:text="${requestDetail.requestReason != null
+                            and !#strings.isEmpty(requestDetail.requestReason)
+                            ? requestDetail.requestReason
+                            : '등록된 폐업 신청 사유가 없습니다.'}">
+
+                            병원 운영 종료로 폐업을 신청합니다.
+
+                        </p>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <!-- 오른쪽 고정 영역 -->
+            <aside class="request-side-area">
+
+                <!-- 신청자 -->
+                <section class="request-side-card">
+
+                    <div class="request-side-heading">
+
+                        <p class="section-category">
+                            REQUESTER
+                        </p>
+
+                        <h2>
+                            신청자 및 증빙
+                        </h2>
+
+                    </div>
+
+
+                    <dl class="request-info-list">
+
+                        <div>
+
+                            <dt>
+                                병원장 실명
+                            </dt>
+
+                            <dd th:text="${requestDetail.applicantName != null
+                                and !#strings.isEmpty(requestDetail.applicantName)
+                                ? requestDetail.applicantName
+                                : '-'}">
+
+                                홍길동
+
+                            </dd>
+
+                        </div>
+
+
+                        <div>
+
+                            <dt>
+                                병원장 계정
+                            </dt>
+
+                            <dd th:text="${requestDetail.ownerName != null
+                                and !#strings.isEmpty(requestDetail.ownerName)
+                                ? requestDetail.ownerName
+                                : '병원장 미등록'}">
+
+                                병원장
+
+                            </dd>
+
+                        </div>
+
+
+                        <div>
+
+                            <dt>
+                                이메일
+                            </dt>
+
+                            <dd>
+
+                                <a th:if="${requestDetail.ownerEmail != null
+                                    and !#strings.isEmpty(requestDetail.ownerEmail)}"
+                                   th:href="|mailto:${requestDetail.ownerEmail}|"
+                                   th:text="${requestDetail.ownerEmail}">
+
+                                    owner@petcity.com
+
+                                </a>
+
+
+                                <span th:if="${requestDetail.ownerEmail == null
+                                    or #strings.isEmpty(requestDetail.ownerEmail)}">
+
+                                    -
+
+                                </span>
+
+                            </dd>
+
+                        </div>
+
+
+                        <div>
+
+                            <dt>
+                                사업자번호
+                            </dt>
+
+                            <dd th:text="${requestDetail.businessNumber != null
+                                and !#strings.isEmpty(requestDetail.businessNumber)
+                                ? requestDetail.businessNumber
+                                : '-'}">
+
+                                123-45-67890
+
+                            </dd>
+
+                        </div>
+
+
+                        <div>
+
+                            <dt>
+                                신청일
+                            </dt>
+
+                            <dd th:text="${requestDetail.createdAt != null
+                                ? #temporals.format(
+                                    requestDetail.createdAt,
+                                    'yyyy-MM-dd HH:mm'
+                                  )
+                                : '-'}">
+
+                                2026-07-27 14:30
+
+                            </dd>
+
+                        </div>
+
+                    </dl>
+
+
+                    <a th:if="${requestDetail.documentUrl != null
+                        and !#strings.isEmpty(requestDetail.documentUrl)}"
+                       th:href="${requestDetail.documentUrl}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="request-document-button">
+
+                        증빙서류 확인
+
+                    </a>
+
+
+                    <div th:if="${requestDetail.documentUrl == null
+                        or #strings.isEmpty(requestDetail.documentUrl)}"
+                         class="request-document-empty">
+
+                        등록된 증빙서류가 없습니다.
+
+                    </div>
+
+                </section>
+
+
+                <!-- 요청 사유 -->
+                <section th:if="${requestDetail.requestType == 'UPDATE'}"
+                         class="request-side-card">
+
+                    <div class="request-side-heading">
+
+                        <p class="section-category">
+                            REQUEST REASON
+                        </p>
+
+                        <h2>
+                            정보 수정 사유
+                        </h2>
+
+                    </div>
+
+
+                    <p class="side-request-reason"
+                       th:text="${requestDetail.requestReason != null
+                            and !#strings.isEmpty(requestDetail.requestReason)
+                            ? requestDetail.requestReason
+                            : '등록된 수정 사유가 없습니다.'}">
+
+                        병원 이전으로 정보 수정을 요청합니다.
+
+                    </p>
+
+                </section>
+
+
+                <!-- 처리 카드 -->
+                <section th:if="${requestDetail.requestStatus == 'PENDING'}"
+                         class="request-side-card request-process-card">
+
+                    <div class="request-side-heading">
+
+                        <p class="section-category">
+                            REQUEST PROCESS
+                        </p>
+
+                        <h2>
+                            관리자 처리
+                        </h2>
+
+                        <p>
+                            요청 내용을 확인한 뒤 승인하거나 반려합니다.
+                        </p>
+
+                    </div>
+
+
+                    <!-- 승인 -->
+                    <form th:action="@{/admin/hospitals/requests/{requestId}/approve(
+                            requestId=${requestDetail.requestId}
+                          )}"
+                          method="post"
+                          class="approve-request-form">
+
+                        <th:block th:if="${_csrf != null}">
+
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}">
+
+                        </th:block>
+
+
+                        <button type="submit"
+                                class="request-approve-button">
+
+                            <span th:if="${requestDetail.requestType == 'UPDATE'}">
+                                정보 수정 승인
+                            </span>
+
+
+                            <span th:if="${requestDetail.requestType == 'TEMP_CLOSE'}">
+                                휴업 승인
+                            </span>
+
+
+                            <span th:if="${requestDetail.requestType == 'CLOSE'}">
+                                폐업 승인
+                            </span>
+
+                        </button>
+
+                    </form>
+
+
+                    <div class="process-divider">
+                        또는
+                    </div>
+
+
+                    <!-- 반려 -->
+                    <form th:action="@{/admin/hospitals/requests/{requestId}/reject(
+                            requestId=${requestDetail.requestId}
+                          )}"
+                          method="post"
+                          class="reject-request-form">
+
+                        <th:block th:if="${_csrf != null}">
+
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}">
+
+                        </th:block>
+
+
+                        <label for="rejectReason">
+                            반려 사유
+                        </label>
+
+
+                        <textarea id="rejectReason"
+                                  name="rejectReason"
+                                  maxlength="1000"
+                                  required
+                                  placeholder="병원장에게 전달할 반려 사유를 입력해 주세요."></textarea>
+
+
+                        <button type="submit"
+                                class="request-reject-button">
+
+                            요청 반려
+
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                <!-- 처리 결과 -->
+                <section th:if="${requestDetail.requestStatus != 'PENDING'}"
+                         class="request-side-card processed-request-card">
+
+                    <div class="request-side-heading">
+
+                        <p class="section-category">
+                            PROCESSED RESULT
+                        </p>
+
+                        <h2>
+                            처리 결과
+                        </h2>
+
+                    </div>
+
+
+                    <div class="processed-result">
+
+                        <strong th:if="${requestDetail.requestStatus == 'APPROVED'}"
+                                class="processed-approved">
+
+                            승인 완료
+
+                        </strong>
+
+
+                        <strong th:if="${requestDetail.requestStatus == 'REJECTED'}"
+                                class="processed-rejected">
+
+                            반려 완료
+
+                        </strong>
+
+
+                        <dl class="processed-info-list">
+
+                            <div>
+
+                                <dt>
+                                    처리일
+                                </dt>
+
+                                <dd th:text="${requestDetail.processedAt != null
+                                    ? #temporals.format(
+                                        requestDetail.processedAt,
+                                        'yyyy-MM-dd HH:mm'
+                                      )
+                                    : '-'}">
+
+                                    2026-07-27 15:30
+
+                                </dd>
+
+                            </div>
+
+
+                            <div>
+
+                                <dt>
+                                    처리 관리자
+                                </dt>
+
+                                <dd th:text="${requestDetail.processedBy != null
+                                    ? requestDetail.processedBy
+                                    : '-'}">
+
+                                    1
+
+                                </dd>
+
+                            </div>
+
+                        </dl>
+
+
+                        <div th:if="${requestDetail.requestStatus == 'REJECTED'}"
+                             class="processed-reject-reason">
+
+                            <span>
+                                반려 사유
+                            </span>
+
+
+                            <p th:text="${requestDetail.rejectReason != null
+                                and !#strings.isEmpty(requestDetail.rejectReason)
+                                ? requestDetail.rejectReason
+                                : '-'}">
+
+                                반려 사유
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
