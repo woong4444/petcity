@@ -732,20 +732,13 @@ body {
     display: none !important;
 }
 
-.main-menu {
-    grid-column: 2;
-    width: auto;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+HEAD
+.mini-banner-btn {
+    cursor: pointer;
 }
 
-.right-menu {
-    grid-column: 3;
-    justify-self: end;
-    width: 180px;
-    height: 100%;
+.bottom-nav-flex {
     display: flex;
+    justify-content: space-between;
     align-items: center;
 }
