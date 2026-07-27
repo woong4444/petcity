@@ -18,7 +18,7 @@ public class AdminHospitalManagementService {
         String checkedSortBy = checkSortBy(sortBy);
         String checkedDirection = checkDirection(direction);
         String checkedRequestType = checkedRequestType(requestType);
-        return adminHospitalManagementDao.findHospitals(keyword,animalType,checkedRequestType, checkedSortBy, checkedDirection);
+        return adminHospitalManagementDao.findHospitals(checkKeyword,animalType,checkedRequestType, checkedSortBy, checkedDirection);
     }
 
 
