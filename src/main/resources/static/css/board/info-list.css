@@ -904,3 +904,14 @@ body {
     background: #159ed7;
     color: #ffffff;
 }
+
+.info-card-list,
+.board-pagination {
+    transition: opacity 0.18s ease;
+}
+
+.info-filter-loading .info-card-list,
+.info-filter-loading .board-pagination {
+    opacity: 0.45;
+    pointer-events: none;
+}

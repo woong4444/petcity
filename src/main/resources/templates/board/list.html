@@ -21,6 +21,10 @@
     <script defer
             th:src="@{/js/board/board-list-refresh.js}">
     </script>
+
+    <script defer
+            th:src="@{/js/board/board-list-scroll.js}">
+    </script>
 </head>
 
 <body>
@@ -256,7 +260,7 @@
 
 
                 <!-- 품종·종류 -->
-                <div class="animal-filter-block"
+                <div class="animal-filter-block animal-detail-filter"
                      th:if="${
                          childAnimalList != null
                          and !#lists.isEmpty(childAnimalList)

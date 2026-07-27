@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>400 - 잘못된 요청 | PetCity</title>
+
+    <link rel="stylesheet" th:href="@{/css/error/error.css}">
+</head>
+
+<body class="error-page error-page-400">
+
+<main class="error-container">
+    <section class="error-card">
+
+        <p class="error-eyebrow error-eyebrow-400">BAD REQUEST</p>
+
+        <p class="error-code">400</p>
+
+        <img class="error-image"
+             th:src="@{/images/error/400.png}"
+             alt="요청 내용을 확인하는 강아지와 고양이">
+
+        <h1>요청 내용을 다시 확인해 주세요</h1>
+
+        <p class="error-description">
+            입력한 정보가 올바르지 않거나, 요청 처리에 필요한 값이 누락되었어요.
+        </p>
+
+        <div class="error-reason-box error-reason-box-400">
+            <strong>이런 경우에 발생할 수 있어요</strong>
+
+            <ul>
+                <li>필수 입력 항목을 작성하지 않은 경우</li>
+                <li>전화번호, 날짜, 시간 등의 형식이 올바르지 않은 경우</li>
+                <li>잘못된 주소로 접근했거나 요청 정보가 변경된 경우</li>
+            </ul>
+        </div>
+
+        <div class="error-button-group">
+            <a th:href="@{/}"
+               class="error-button error-button-primary">
+                메인으로 가기
+            </a>
+
+            <button type="button"
+                    class="error-button error-button-outline"
+                    onclick="history.back()">
+                이전 페이지
+            </button>
+        </div>
+
+    </section>
+</main>
+
+</body>
+</html>
