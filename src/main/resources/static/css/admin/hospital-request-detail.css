@@ -3,8 +3,8 @@
     --request-primary-dark: #256fd5;
     --request-primary-light: #eaf3ff;
 
-    --request-page-background: #f3f6fb;
-    --request-card-background: #ffffff;
+    --request-background: #f3f6fb;
+    --request-card: #ffffff;
 
     --request-border: #e3e9f1;
     --request-strong-border: #d4dde8;
@@ -37,7 +37,7 @@ body {
     margin: 0;
 
     color: var(--request-text);
-    background-color: var(--request-page-background);
+    background-color: var(--request-background);
 
     font-family:
             Pretendard,
@@ -64,22 +64,51 @@ textarea {
 
     padding: 38px 40px 60px;
 
-    background-color: var(--request-page-background);
+    background-color: var(--request-background);
 }
 
 
 /* ========================================
-   목록으로 이동
+   메시지
 ======================================== */
 
-.request-detail-navigation {
+.request-alert {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.request-alert-success {
+    color: #157354;
+    background-color: #e5f7ee;
+
+    border: 1px solid #bce7d5;
+}
+
+.request-alert-error {
+    color: #b42318;
+    background-color: #fff0ef;
+
+    border: 1px solid #f0c8c4;
+}
+
+
+/* ========================================
+   목록 이동
+======================================== */
+
+.request-navigation {
     margin-bottom: 20px;
 }
 
 .request-back-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
 
     color: #59677c;
 
@@ -104,7 +133,7 @@ textarea {
    페이지 상단
 ======================================== */
 
-.request-detail-header {
+.request-page-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -128,14 +157,14 @@ textarea {
     letter-spacing: 0.8px;
 }
 
-.request-detail-title-row {
+.request-title-row {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
 }
 
-.request-detail-header h1 {
+.request-page-header h1 {
     margin: 0;
 
     color: var(--request-text);
@@ -160,7 +189,7 @@ textarea {
 
 .request-type-badge {
     display: inline-flex;
-    min-width: 104px;
+    min-width: 100px;
     height: 32px;
     align-items: center;
     justify-content: center;
@@ -198,22 +227,22 @@ textarea {
 
 /* 요청 상태 */
 
-.request-header-status {
+.request-status-area {
     display: flex;
-    min-width: 140px;
+    min-width: 130px;
     align-items: flex-end;
     flex-direction: column;
     gap: 8px;
 }
 
-.request-header-label {
+.request-status-label {
     color: #8792a5;
 
     font-size: 12px;
     font-weight: 700;
 }
 
-.request-state-badge {
+.request-status-badge {
     display: inline-flex;
     min-width: 100px;
     height: 34px;
@@ -228,24 +257,24 @@ textarea {
     font-weight: 850;
 }
 
-.request-state-pending {
+.status-pending {
     color: #95600e;
     background-color: #fff1cf;
 }
 
-.request-state-approved {
+.status-approved {
     color: #137252;
     background-color: #dcf5e9;
 }
 
-.request-state-rejected {
+.status-rejected {
     color: #b42318;
     background-color: #fee4e2;
 }
 
 
 /* ========================================
-   요청 요약
+   요약 카드
 ======================================== */
 
 .request-summary-grid {
@@ -270,7 +299,7 @@ textarea {
             0 4px 14px rgba(39, 55, 82, 0.045);
 }
 
-.request-summary-card span {
+.summary-label {
     display: block;
 
     margin-bottom: 7px;
@@ -297,7 +326,7 @@ textarea {
 
 
 /* ========================================
-   상세 레이아웃
+   전체 상세 레이아웃
 ======================================== */
 
 .request-detail-layout {
@@ -315,7 +344,7 @@ textarea {
 }
 
 
-/* 오른쪽 영역 전체가 스크롤을 따라옴 */
+/* 오른쪽 전체가 스크롤을 따라옴 */
 
 .request-side-area {
     position: sticky;
@@ -333,12 +362,12 @@ textarea {
 
 
 /* ========================================
-   공통 카드
+   카드 공통
 ======================================== */
 
-.request-content-section,
+.request-content-card,
 .request-side-card {
-    background-color: var(--request-card-background);
+    background-color: var(--request-card);
 
     border: 1px solid var(--request-border);
     border-radius: 16px;
@@ -347,7 +376,7 @@ textarea {
             0 7px 22px rgba(37, 52, 79, 0.055);
 }
 
-.request-content-section {
+.request-content-card {
     min-width: 0;
 
     padding: 24px;
@@ -359,7 +388,7 @@ textarea {
     padding: 21px;
 }
 
-.request-section-heading {
+.content-card-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -368,8 +397,8 @@ textarea {
     margin-bottom: 20px;
 }
 
-.request-section-heading h2,
-.request-side-heading h2 {
+.content-card-header h2,
+.side-card-header h2 {
     margin: 0;
 
     color: #202939;
@@ -380,8 +409,8 @@ textarea {
     letter-spacing: -0.5px;
 }
 
-.request-section-heading p:not(.section-category),
-.request-side-heading p:not(.section-category) {
+.content-card-header p:not(.section-category),
+.side-card-header p:not(.section-category) {
     margin: 6px 0 0;
 
     color: #7d899b;
@@ -390,7 +419,7 @@ textarea {
     line-height: 1.5;
 }
 
-.request-side-heading {
+.side-card-header {
     margin-bottom: 17px;
 }
 
@@ -401,7 +430,7 @@ textarea {
 
 .hospital-status-badge {
     display: inline-flex;
-    min-width: 86px;
+    min-width: 91px;
     height: 31px;
     align-items: center;
     justify-content: center;
@@ -417,7 +446,7 @@ textarea {
     white-space: nowrap;
 }
 
-.status-dot {
+.hospital-status-badge i {
     display: inline-block;
 
     width: 7px;
@@ -426,34 +455,34 @@ textarea {
     border-radius: 50%;
 }
 
-.status-open {
+.hospital-open {
     color: var(--request-success);
     background-color: var(--request-success-background);
 }
 
-.status-open .status-dot {
+.hospital-open i {
     background-color: var(--request-success);
 }
 
-.status-temp-closed {
+.hospital-temp-closed {
     color: var(--request-warning);
     background-color: var(--request-warning-background);
 }
 
-.status-temp-closed .status-dot {
+.hospital-temp-closed i {
     background-color: var(--request-warning);
 }
 
-.status-closed {
+.hospital-closed {
     color: var(--request-danger);
     background-color: var(--request-danger-background);
 }
 
-.status-closed .status-dot {
+.hospital-closed i {
     background-color: var(--request-danger);
 }
 
-.status-unknown {
+.hospital-unknown {
     color: #626b79;
     background-color: #e8ebef;
 }
@@ -469,7 +498,7 @@ textarea {
     gap: 12px;
 }
 
-.detail-field {
+.current-field {
     min-width: 0;
 
     padding: 14px 15px;
@@ -480,11 +509,11 @@ textarea {
     border-radius: 10px;
 }
 
-.detail-field-wide {
+.current-field-wide {
     grid-column: 1 / -1;
 }
 
-.detail-field span {
+.current-field span {
     display: block;
 
     margin-bottom: 6px;
@@ -495,8 +524,8 @@ textarea {
     font-weight: 750;
 }
 
-.detail-field strong,
-.detail-field a {
+.current-field strong,
+.current-field a {
     display: block;
 
     overflow-wrap: anywhere;
@@ -508,19 +537,19 @@ textarea {
     line-height: 1.6;
 }
 
-.detail-field a {
+.current-field a {
     color: #3474cd;
 
     text-decoration: none;
 }
 
-.detail-field a:hover {
+.current-field a:hover {
     text-decoration: underline;
 }
 
 
 /* ========================================
-   정보 수정 비교표
+   정보 비교표
 ======================================== */
 
 .comparison-table {
@@ -566,7 +595,7 @@ textarea {
     border-bottom: 0;
 }
 
-.comparison-row.changed-row {
+.comparison-row.comparison-changed {
     background-color: #fbfdff;
 }
 
@@ -585,18 +614,18 @@ textarea {
     border-left: 1px solid #e8edf3;
 }
 
-.comparison-label {
+.comparison-name {
     color: #667085;
     background-color: #fafbfc;
 
     font-weight: 800;
 }
 
-.current-value {
+.comparison-current {
     color: #536176;
 }
 
-.requested-value {
+.comparison-requested {
     display: flex;
     align-items: flex-start;
     flex-direction: column;
@@ -606,7 +635,7 @@ textarea {
     background-color: #f8fbff;
 }
 
-.requested-value strong {
+.comparison-requested strong {
     color: inherit;
 
     font-size: 12px;
@@ -616,7 +645,7 @@ textarea {
 
 /* 변경 여부 */
 
-.change-label {
+.change-badge {
     display: inline-flex;
     min-height: 23px;
     align-items: center;
@@ -630,19 +659,19 @@ textarea {
     font-weight: 800;
 }
 
-.change-label.changed {
+.change-badge.changed {
     color: #2869c7;
     background-color: #e2edff;
 }
 
-.change-label.unchanged {
+.change-badge.unchanged {
     color: #6f7a8c;
     background-color: #e9edf2;
 }
 
 
 /* ========================================
-   대표 이미지 비교
+   이미지 비교
 ======================================== */
 
 .image-comparison-grid {
@@ -663,7 +692,7 @@ textarea {
     border-radius: 12px;
 }
 
-.image-card-heading {
+.image-card-header {
     display: flex;
     min-height: 49px;
     align-items: center;
@@ -695,7 +724,7 @@ textarea {
     border-color: #cfe0f7;
 }
 
-.requested-image-card .image-card-heading {
+.requested-image-card .image-card-header {
     color: #2869c7;
     background-color: #f1f7ff;
 }
@@ -719,16 +748,16 @@ textarea {
 
 
 /* ========================================
-   휴업
+   예약 휴업
 ======================================== */
 
-.temporary-close-period {
+.temp-close-flow {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 16px;
 
-    padding: 18px;
+    padding: 19px;
 
     background-color: #fffaf0;
 
@@ -736,11 +765,11 @@ textarea {
     border-radius: 12px;
 }
 
-.temporary-close-period > div {
+.temp-close-time {
     min-width: 0;
 }
 
-.temporary-close-period span:not(.period-arrow) {
+.temp-close-time span {
     display: block;
 
     margin-bottom: 7px;
@@ -751,20 +780,58 @@ textarea {
     font-weight: 750;
 }
 
-.temporary-close-period strong {
+.temp-close-time strong {
     display: block;
 
-    color: #7c5416;
+    color: #765018;
 
     font-size: 15px;
     font-weight: 850;
 }
 
-.period-arrow {
+.temp-close-time small {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #9b7843;
+
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.temp-close-arrow {
     color: #d39a3e;
 
-    font-size: 22px;
-    font-weight: 800;
+    font-size: 23px;
+    font-weight: 850;
+}
+
+.temp-close-notice {
+    margin-top: 14px;
+    padding: 15px 16px;
+
+    color: #715426;
+    background-color: #fffdf7;
+
+    border: 1px solid #eadfca;
+    border-radius: 10px;
+}
+
+.temp-close-notice strong {
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.temp-close-notice p {
+    margin: 0;
+
+    font-size: 11px;
+    line-height: 1.7;
 }
 
 
@@ -807,10 +874,10 @@ textarea {
 
 
 /* ========================================
-   폐업 경고
+   폐업 안내
 ======================================== */
 
-.close-request-warning {
+.close-warning-box {
     padding: 17px;
 
     color: #8d3030;
@@ -820,7 +887,7 @@ textarea {
     border-radius: 11px;
 }
 
-.close-request-warning strong {
+.close-warning-box strong {
     display: block;
 
     margin-bottom: 7px;
@@ -829,7 +896,7 @@ textarea {
     font-weight: 850;
 }
 
-.close-request-warning p {
+.close-warning-box p {
     margin: 0;
 
     font-size: 12px;
@@ -838,14 +905,14 @@ textarea {
 
 
 /* ========================================
-   신청자 정보
+   신청자 및 증빙
 ======================================== */
 
-.request-info-list {
+.requester-info-list {
     margin: 0;
 }
 
-.request-info-list > div {
+.requester-info-list > div {
     display: grid;
     grid-template-columns: 92px minmax(0, 1fr);
     gap: 10px;
@@ -855,18 +922,18 @@ textarea {
     border-bottom: 1px solid #edf0f4;
 }
 
-.request-info-list > div:last-child {
+.requester-info-list > div:last-child {
     border-bottom: 0;
 }
 
-.request-info-list dt {
+.requester-info-list dt {
     color: #8691a3;
 
     font-size: 11px;
     font-weight: 750;
 }
 
-.request-info-list dd {
+.requester-info-list dd {
     min-width: 0;
     margin: 0;
 
@@ -879,20 +946,17 @@ textarea {
     line-height: 1.55;
 }
 
-.request-info-list dd a {
+.requester-info-list dd a {
     color: #346fbe;
 
     text-decoration: none;
 }
 
-.request-info-list dd a:hover {
+.requester-info-list dd a:hover {
     text-decoration: underline;
 }
 
-
-/* 증빙서류 */
-
-.request-document-button {
+.document-open-button {
     display: flex;
     width: 100%;
     height: 39px;
@@ -913,13 +977,13 @@ textarea {
     text-decoration: none;
 }
 
-.request-document-button:hover {
+.document-open-button:hover {
     color: #ffffff;
     background-color: var(--request-primary);
     border-color: var(--request-primary);
 }
 
-.request-document-empty {
+.document-empty {
     margin-top: 16px;
     padding: 11px;
 
@@ -940,19 +1004,19 @@ textarea {
    관리자 처리
 ======================================== */
 
-.request-process-card {
+.process-side-card {
     border-color: #ccdcf0;
 
     box-shadow:
             0 10px 28px rgba(44, 89, 153, 0.1);
 }
 
-.approve-request-form,
-.reject-request-form {
+.approve-form,
+.reject-form {
     margin: 0;
 }
 
-.request-approve-button {
+.approve-button {
     width: 100%;
     min-height: 44px;
 
@@ -974,7 +1038,7 @@ textarea {
             transform 0.15s ease;
 }
 
-.request-approve-button:hover {
+.approve-button:hover {
     background-color: var(--request-primary-dark);
     border-color: var(--request-primary-dark);
 
@@ -1008,7 +1072,7 @@ textarea {
     background-color: #e4e9ef;
 }
 
-.reject-request-form label {
+.reject-form label {
     display: block;
 
     margin-bottom: 7px;
@@ -1019,7 +1083,7 @@ textarea {
     font-weight: 800;
 }
 
-.reject-request-form textarea {
+.reject-form textarea {
     width: 100%;
     min-height: 105px;
 
@@ -1039,11 +1103,11 @@ textarea {
     outline: none;
 }
 
-.reject-request-form textarea::placeholder {
+.reject-form textarea::placeholder {
     color: #a2abb8;
 }
 
-.reject-request-form textarea:focus {
+.reject-form textarea:focus {
     background-color: #ffffff;
     border-color: #df8585;
 
@@ -1051,7 +1115,7 @@ textarea {
             0 0 0 3px rgba(198, 59, 59, 0.08);
 }
 
-.request-reject-button {
+.reject-button {
     width: 100%;
     min-height: 40px;
 
@@ -1074,7 +1138,7 @@ textarea {
             border-color 0.15s ease;
 }
 
-.request-reject-button:hover {
+.reject-button:hover {
     color: #ffffff;
     background-color: var(--request-danger);
     border-color: var(--request-danger);
@@ -1082,7 +1146,7 @@ textarea {
 
 
 /* ========================================
-   처리 완료
+   처리 결과
 ======================================== */
 
 .processed-approved,
@@ -1110,11 +1174,11 @@ textarea {
     background-color: #fee8e6;
 }
 
-.processed-info-list {
+.processed-info {
     margin: 0;
 }
 
-.processed-info-list > div {
+.processed-info > div {
     display: grid;
     grid-template-columns: 90px minmax(0, 1fr);
     gap: 10px;
@@ -1124,14 +1188,14 @@ textarea {
     border-bottom: 1px solid #edf0f4;
 }
 
-.processed-info-list dt {
+.processed-info dt {
     color: #8993a3;
 
     font-size: 11px;
     font-weight: 750;
 }
 
-.processed-info-list dd {
+.processed-info dd {
     margin: 0;
 
     color: #48566b;
@@ -1174,7 +1238,7 @@ textarea {
 
 
 /* ========================================
-   오른쪽 카드 스크롤바
+   오른쪽 스크롤바
 ======================================== */
 
 .request-side-area::-webkit-scrollbar {
@@ -1214,11 +1278,11 @@ textarea {
 
 @media (max-width: 960px) {
 
-    .request-detail-header {
+    .request-page-header {
         flex-direction: column;
     }
 
-    .request-header-status {
+    .request-status-area {
         align-items: flex-start;
     }
 
@@ -1246,7 +1310,7 @@ textarea {
         padding: 24px 16px 38px;
     }
 
-    .request-detail-header h1 {
+    .request-page-header h1 {
         font-size: 28px;
     }
 
@@ -1254,11 +1318,11 @@ textarea {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .request-content-section {
+    .request-content-card {
         padding: 18px 15px;
     }
 
-    .request-section-heading {
+    .content-card-header {
         align-items: flex-start;
         flex-direction: column;
     }
@@ -1267,7 +1331,7 @@ textarea {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .detail-field-wide {
+    .current-field-wide {
         grid-column: auto;
     }
 
@@ -1284,11 +1348,11 @@ textarea {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .temporary-close-period {
+    .temp-close-flow {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .period-arrow {
+    .temp-close-arrow {
         transform: rotate(90deg);
 
         text-align: center;

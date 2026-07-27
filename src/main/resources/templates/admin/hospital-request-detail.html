@@ -19,33 +19,62 @@
     <script defer
             th:src="@{/js/admin/sidebar.js}">
     </script>
+
+    <script defer
+            th:src="@{/js/admin/hospital-request-detail.js}">
+    </script>
 </head>
 
 <body>
 
 <div class="admin-layout">
 
-    <th:block
-            th:replace="~{admin/fragments/sidebar
+    <th:block th:replace="~{admin/fragments/sidebar
                 :: sidebar('hospitalManagement')}">
     </th:block>
 
 
     <main class="admin-main hospital-request-main">
 
+        <!-- 성공 메시지 -->
+        <div th:if="${successMessage != null}"
+             class="request-alert request-alert-success"
+             th:text="${successMessage}">
+
+            처리가 완료되었습니다.
+
+        </div>
+
+
+        <!-- 오류 메시지 -->
+        <div th:if="${errorMessage != null}"
+             class="request-alert request-alert-error"
+             th:text="${errorMessage}">
+
+            처리 중 오류가 발생했습니다.
+
+        </div>
+
+
         <!-- 목록 이동 -->
-        <div class="request-detail-navigation">
+        <div class="request-navigation">
 
             <a th:href="@{/admin/hospitals}"
                class="request-back-link">
-                ← 병원 관리 목록
+
+                <span aria-hidden="true">
+                    ←
+                </span>
+
+                병원 관리 목록
+
             </a>
 
         </div>
 
 
         <!-- 페이지 제목 -->
-        <header class="request-detail-header">
+        <header class="request-page-header">
 
             <div class="request-title-area">
 
@@ -54,7 +83,7 @@
                 </p>
 
 
-                <div class="request-detail-title-row">
+                <div class="request-title-row">
 
                     <h1>
                         병원 요청 상세
@@ -65,19 +94,25 @@
 
                         <span th:case="'UPDATE'"
                               class="request-type-badge request-update">
+
                             정보 수정 신청
+
                         </span>
 
 
                         <span th:case="'TEMP_CLOSE'"
                               class="request-type-badge request-temp-close">
+
                             휴업 신청
+
                         </span>
 
 
                         <span th:case="'CLOSE'"
                               class="request-type-badge request-close">
+
                             폐업 신청
+
                         </span>
 
 
@@ -97,34 +132,44 @@
 
 
                 <p class="page-description">
-                    현재 병원 정보와 신청 내용을 확인한 뒤 승인 또는 반려합니다.
+
+                    현재 병원 정보와 신청 내용을 확인한 뒤
+                    승인 또는 반려합니다.
+
                 </p>
 
             </div>
 
 
-            <div class="request-header-status">
+            <!-- 요청 상태 -->
+            <div class="request-status-area">
 
-                <span class="request-header-label">
+                <span class="request-status-label">
                     요청 상태
                 </span>
 
 
                 <span th:if="${requestDetail.requestStatus == 'PENDING'}"
-                      class="request-state-badge request-state-pending">
+                      class="request-status-badge status-pending">
+
                     처리 대기
+
                 </span>
 
 
                 <span th:if="${requestDetail.requestStatus == 'APPROVED'}"
-                      class="request-state-badge request-state-approved">
+                      class="request-status-badge status-approved">
+
                     승인 완료
+
                 </span>
 
 
                 <span th:if="${requestDetail.requestStatus == 'REJECTED'}"
-                      class="request-state-badge request-state-rejected">
+                      class="request-status-badge status-rejected">
+
                     반려 완료
+
                 </span>
 
             </div>
@@ -137,7 +182,7 @@
 
             <article class="request-summary-card">
 
-                <span>
+                <span class="summary-label">
                     요청 번호
                 </span>
 
@@ -150,7 +195,7 @@
 
             <article class="request-summary-card">
 
-                <span>
+                <span class="summary-label">
                     병원 번호
                 </span>
 
@@ -163,7 +208,7 @@
 
             <article class="request-summary-card">
 
-                <span>
+                <span class="summary-label">
                     신청자
                 </span>
 
@@ -172,7 +217,7 @@
                     ? requestDetail.applicantName
                     : requestDetail.ownerName}">
 
-                    김병원
+                    신청자
 
                 </strong>
 
@@ -181,7 +226,7 @@
 
             <article class="request-summary-card">
 
-                <span>
+                <span class="summary-label">
                     신청일
                 </span>
 
@@ -201,16 +246,16 @@
         </section>
 
 
-        <!-- 상세 콘텐츠 + 우측 처리 카드 -->
+        <!-- 왼쪽 상세 + 오른쪽 처리 영역 -->
         <div class="request-detail-layout">
 
             <!-- 왼쪽 콘텐츠 -->
             <div class="request-detail-content">
 
                 <!-- 현재 병원 정보 -->
-                <section class="request-content-section">
+                <section class="request-content-card">
 
-                    <div class="request-section-heading">
+                    <header class="content-card-header">
 
                         <div>
 
@@ -232,9 +277,9 @@
                         <th:block th:switch="${requestDetail.currentHospitalStatus}">
 
                             <span th:case="'OPEN'"
-                                  class="hospital-status-badge status-open">
+                                  class="hospital-status-badge hospital-open">
 
-                                <i class="status-dot"></i>
+                                <i></i>
 
                                 영업중
 
@@ -242,9 +287,9 @@
 
 
                             <span th:case="'TEMP_CLOSED'"
-                                  class="hospital-status-badge status-temp-closed">
+                                  class="hospital-status-badge hospital-temp-closed">
 
-                                <i class="status-dot"></i>
+                                <i></i>
 
                                 휴업
 
@@ -252,9 +297,9 @@
 
 
                             <span th:case="'CLOSED'"
-                                  class="hospital-status-badge status-closed">
+                                  class="hospital-status-badge hospital-closed">
 
-                                <i class="status-dot"></i>
+                                <i></i>
 
                                 폐업
 
@@ -262,7 +307,7 @@
 
 
                             <span th:case="*"
-                                  class="hospital-status-badge status-unknown">
+                                  class="hospital-status-badge hospital-unknown">
 
                                 상태 미정
 
@@ -270,12 +315,13 @@
 
                         </th:block>
 
-                    </div>
+                    </header>
 
 
                     <div class="current-hospital-grid">
 
-                        <div class="detail-field">
+                        <!-- 병원명 -->
+                        <div class="current-field">
 
                             <span>
                                 병원명
@@ -293,7 +339,8 @@
                         </div>
 
 
-                        <div class="detail-field">
+                        <!-- 지역 -->
+                        <div class="current-field">
 
                             <span>
                                 지역
@@ -311,7 +358,8 @@
                         </div>
 
 
-                        <div class="detail-field detail-field-wide">
+                        <!-- 주소 -->
+                        <div class="current-field current-field-wide">
 
                             <span>
                                 주소
@@ -329,7 +377,8 @@
                         </div>
 
 
-                        <div class="detail-field detail-field-wide">
+                        <!-- 상세 주소 -->
+                        <div class="current-field current-field-wide">
 
                             <span>
                                 상세 주소
@@ -347,7 +396,8 @@
                         </div>
 
 
-                        <div class="detail-field detail-field-wide">
+                        <!-- 홈페이지 -->
+                        <div class="current-field current-field-wide">
 
                             <span>
                                 홈페이지
@@ -380,11 +430,14 @@
                 </section>
 
 
-                <!-- 정보 수정 -->
-                <section th:if="${requestDetail.requestType == 'UPDATE'}"
-                         class="request-content-section">
+                <!-- ========================================
+                     정보 수정 요청
+                ========================================= -->
 
-                    <div class="request-section-heading">
+                <section th:if="${requestDetail.requestType == 'UPDATE'}"
+                         class="request-content-card">
+
+                    <header class="content-card-header">
 
                         <div>
 
@@ -402,7 +455,7 @@
 
                         </div>
 
-                    </div>
+                    </header>
 
 
                     <div class="comparison-table">
@@ -428,15 +481,15 @@
                         <div class="comparison-row"
                              th:classappend="${requestDetail.currentHospitalName
                                 != requestDetail.requestedHospitalName}
-                                ? ' changed-row'
+                                ? ' comparison-changed'
                                 : ''">
 
-                            <span class="comparison-label">
+                            <span class="comparison-name">
                                 병원명
                             </span>
 
 
-                            <div class="current-value"
+                            <div class="comparison-current"
                                  th:text="${requestDetail.currentHospitalName != null
                                     and !#strings.isEmpty(requestDetail.currentHospitalName)
                                     ? requestDetail.currentHospitalName
@@ -447,7 +500,7 @@
                             </div>
 
 
-                            <div class="requested-value">
+                            <div class="comparison-requested">
 
                                 <strong th:text="${requestDetail.requestedHospitalName != null
                                     and !#strings.isEmpty(requestDetail.requestedHospitalName)
@@ -461,7 +514,7 @@
 
                                 <span th:if="${requestDetail.currentHospitalName
                                     == requestDetail.requestedHospitalName}"
-                                      class="change-label unchanged">
+                                      class="change-badge unchanged">
 
                                     변경 없음
 
@@ -470,7 +523,7 @@
 
                                 <span th:unless="${requestDetail.currentHospitalName
                                     == requestDetail.requestedHospitalName}"
-                                      class="change-label changed">
+                                      class="change-badge changed">
 
                                     변경됨
 
@@ -485,15 +538,15 @@
                         <div class="comparison-row"
                              th:classappend="${requestDetail.currentHospitalWebsiteUrl
                                 != requestDetail.requestedHospitalWebsiteUrl}
-                                ? ' changed-row'
+                                ? ' comparison-changed'
                                 : ''">
 
-                            <span class="comparison-label">
+                            <span class="comparison-name">
                                 홈페이지
                             </span>
 
 
-                            <div class="current-value"
+                            <div class="comparison-current"
                                  th:text="${requestDetail.currentHospitalWebsiteUrl != null
                                     and !#strings.isEmpty(requestDetail.currentHospitalWebsiteUrl)
                                     ? requestDetail.currentHospitalWebsiteUrl
@@ -504,7 +557,7 @@
                             </div>
 
 
-                            <div class="requested-value">
+                            <div class="comparison-requested">
 
                                 <strong th:text="${requestDetail.requestedHospitalWebsiteUrl != null
                                     and !#strings.isEmpty(requestDetail.requestedHospitalWebsiteUrl)
@@ -518,7 +571,7 @@
 
                                 <span th:if="${requestDetail.currentHospitalWebsiteUrl
                                     == requestDetail.requestedHospitalWebsiteUrl}"
-                                      class="change-label unchanged">
+                                      class="change-badge unchanged">
 
                                     변경 없음
 
@@ -527,7 +580,7 @@
 
                                 <span th:unless="${requestDetail.currentHospitalWebsiteUrl
                                     == requestDetail.requestedHospitalWebsiteUrl}"
-                                      class="change-label changed">
+                                      class="change-badge changed">
 
                                     변경됨
 
@@ -542,15 +595,15 @@
                         <div class="comparison-row"
                              th:classappend="${requestDetail.currentHospitalAddress
                                 != requestDetail.requestedHospitalAddress}
-                                ? ' changed-row'
+                                ? ' comparison-changed'
                                 : ''">
 
-                            <span class="comparison-label">
+                            <span class="comparison-name">
                                 주소
                             </span>
 
 
-                            <div class="current-value"
+                            <div class="comparison-current"
                                  th:text="${requestDetail.currentHospitalAddress != null
                                     and !#strings.isEmpty(requestDetail.currentHospitalAddress)
                                     ? requestDetail.currentHospitalAddress
@@ -561,7 +614,7 @@
                             </div>
 
 
-                            <div class="requested-value">
+                            <div class="comparison-requested">
 
                                 <strong th:text="${requestDetail.requestedHospitalAddress != null
                                     and !#strings.isEmpty(requestDetail.requestedHospitalAddress)
@@ -575,7 +628,7 @@
 
                                 <span th:if="${requestDetail.currentHospitalAddress
                                     == requestDetail.requestedHospitalAddress}"
-                                      class="change-label unchanged">
+                                      class="change-badge unchanged">
 
                                     변경 없음
 
@@ -584,7 +637,7 @@
 
                                 <span th:unless="${requestDetail.currentHospitalAddress
                                     == requestDetail.requestedHospitalAddress}"
-                                      class="change-label changed">
+                                      class="change-badge changed">
 
                                     변경됨
 
@@ -599,15 +652,15 @@
                         <div class="comparison-row"
                              th:classappend="${requestDetail.currentHospitalDetailAddress
                                 != requestDetail.requestedHospitalDetailAddress}
-                                ? ' changed-row'
+                                ? ' comparison-changed'
                                 : ''">
 
-                            <span class="comparison-label">
+                            <span class="comparison-name">
                                 상세 주소
                             </span>
 
 
-                            <div class="current-value"
+                            <div class="comparison-current"
                                  th:text="${requestDetail.currentHospitalDetailAddress != null
                                     and !#strings.isEmpty(requestDetail.currentHospitalDetailAddress)
                                     ? requestDetail.currentHospitalDetailAddress
@@ -618,7 +671,7 @@
                             </div>
 
 
-                            <div class="requested-value">
+                            <div class="comparison-requested">
 
                                 <strong th:text="${requestDetail.requestedHospitalDetailAddress != null
                                     and !#strings.isEmpty(requestDetail.requestedHospitalDetailAddress)
@@ -632,7 +685,7 @@
 
                                 <span th:if="${requestDetail.currentHospitalDetailAddress
                                     == requestDetail.requestedHospitalDetailAddress}"
-                                      class="change-label unchanged">
+                                      class="change-badge unchanged">
 
                                     변경 없음
 
@@ -641,7 +694,7 @@
 
                                 <span th:unless="${requestDetail.currentHospitalDetailAddress
                                     == requestDetail.requestedHospitalDetailAddress}"
-                                      class="change-label changed">
+                                      class="change-badge changed">
 
                                     변경됨
 
@@ -656,15 +709,15 @@
                         <div class="comparison-row"
                              th:classappend="${requestDetail.currentHospitalDistrict
                                 != requestDetail.requestedHospitalDistrict}
-                                ? ' changed-row'
+                                ? ' comparison-changed'
                                 : ''">
 
-                            <span class="comparison-label">
+                            <span class="comparison-name">
                                 지역
                             </span>
 
 
-                            <div class="current-value"
+                            <div class="comparison-current"
                                  th:text="${requestDetail.currentHospitalDistrict != null
                                     and !#strings.isEmpty(requestDetail.currentHospitalDistrict)
                                     ? requestDetail.currentHospitalDistrict
@@ -675,7 +728,7 @@
                             </div>
 
 
-                            <div class="requested-value">
+                            <div class="comparison-requested">
 
                                 <strong th:text="${requestDetail.requestedHospitalDistrict != null
                                     and !#strings.isEmpty(requestDetail.requestedHospitalDistrict)
@@ -689,7 +742,7 @@
 
                                 <span th:if="${requestDetail.currentHospitalDistrict
                                     == requestDetail.requestedHospitalDistrict}"
-                                      class="change-label unchanged">
+                                      class="change-badge unchanged">
 
                                     변경 없음
 
@@ -698,7 +751,7 @@
 
                                 <span th:unless="${requestDetail.currentHospitalDistrict
                                     == requestDetail.requestedHospitalDistrict}"
-                                      class="change-label changed">
+                                      class="change-badge changed">
 
                                     변경됨
 
@@ -714,15 +767,16 @@
                     <!-- 대표 이미지 비교 -->
                     <div class="image-comparison-grid">
 
+                        <!-- 현재 대표 이미지 -->
                         <article class="image-comparison-card">
 
-                            <div class="image-card-heading">
+                            <header class="image-card-header">
 
                                 <span>
                                     현재 대표 이미지
                                 </span>
 
-                            </div>
+                            </header>
 
 
                             <img th:if="${requestDetail.currentHospitalImageUrl != null
@@ -742,9 +796,10 @@
                         </article>
 
 
+                        <!-- 요청 대표 이미지 -->
                         <article class="image-comparison-card requested-image-card">
 
-                            <div class="image-card-heading">
+                            <header class="image-card-header">
 
                                 <span>
                                     요청 대표 이미지
@@ -753,7 +808,7 @@
 
                                 <span th:if="${requestDetail.currentHospitalImageUrl
                                     == requestDetail.requestedHospitalImageUrl}"
-                                      class="change-label unchanged">
+                                      class="change-badge unchanged">
 
                                     변경 없음
 
@@ -762,13 +817,13 @@
 
                                 <span th:unless="${requestDetail.currentHospitalImageUrl
                                     == requestDetail.requestedHospitalImageUrl}"
-                                      class="change-label changed">
+                                      class="change-badge changed">
 
                                     변경됨
 
                                 </span>
 
-                            </div>
+                            </header>
 
 
                             <img th:if="${requestDetail.requestedHospitalImageUrl != null
@@ -792,11 +847,14 @@
                 </section>
 
 
-                <!-- 휴업 -->
-                <section th:if="${requestDetail.requestType == 'TEMP_CLOSE'}"
-                         class="request-content-section">
+                <!-- ========================================
+                     휴업 요청
+                ========================================= -->
 
-                    <div class="request-section-heading">
+                <section th:if="${requestDetail.requestType == 'TEMP_CLOSE'}"
+                         class="request-content-card">
+
+                    <header class="content-card-header">
 
                         <div>
 
@@ -805,7 +863,7 @@
                             </p>
 
                             <h2>
-                                휴업 신청 정보
+                                예약 휴업 정보
                             </h2>
 
                             <p>
@@ -814,15 +872,16 @@
 
                         </div>
 
-                    </div>
+                    </header>
 
 
-                    <div class="temporary-close-period">
+                    <div class="temp-close-flow">
 
-                        <div>
+                        <!-- 휴업 시작 -->
+                        <div class="temp-close-time">
 
                             <span>
-                                휴업 시작일
+                                휴업 시작
                             </span>
 
                             <strong th:text="${requestDetail.tempCloseStartAt != null
@@ -832,22 +891,30 @@
                                   )
                                 : '-'}">
 
-                                2026-07-27
+                                2026-07-28 01:00
 
                             </strong>
+
+                            <small>
+                                해당 시간부터 휴업 상태로 변경됩니다.
+                            </small>
 
                         </div>
 
 
-                        <span class="period-arrow">
+                        <div class="temp-close-arrow"
+                             aria-hidden="true">
+
                             →
-                        </span>
+
+                        </div>
 
 
-                        <div>
+                        <!-- 휴업 종료 -->
+                        <div class="temp-close-time">
 
                             <span>
-                                휴업 종료일
+                                휴업 종료
                             </span>
 
                             <strong th:text="${requestDetail.tempCloseEndAt != null
@@ -857,11 +924,30 @@
                                   )
                                 : '-'}">
 
-                                2026-08-27
+                                2026-07-29 01:00
 
                             </strong>
 
+                            <small>
+                                해당 시간이 지나면 정상 영업으로 복귀합니다.
+                            </small>
+
                         </div>
+
+                    </div>
+
+
+                    <div class="temp-close-notice">
+
+                        <strong>
+                            예약 휴업 처리 방식
+                        </strong>
+
+                        <p>
+                            휴업 시작 전에 승인한 경우 병원은 정상 영업 상태를 유지합니다.
+                            휴업 시작 시간이 되면 자동으로 휴업 상태로 변경되고,
+                            종료 시간이 지나면 다시 정상 영업 상태로 복귀합니다.
+                        </p>
 
                     </div>
 
@@ -886,11 +972,14 @@
                 </section>
 
 
-                <!-- 폐업 -->
-                <section th:if="${requestDetail.requestType == 'CLOSE'}"
-                         class="request-content-section">
+                <!-- ========================================
+                     폐업 요청
+                ========================================= -->
 
-                    <div class="request-section-heading">
+                <section th:if="${requestDetail.requestType == 'CLOSE'}"
+                         class="request-content-card">
+
+                    <header class="content-card-header">
 
                         <div>
 
@@ -908,18 +997,19 @@
 
                         </div>
 
-                    </div>
+                    </header>
 
 
-                    <div class="close-request-warning">
+                    <div class="close-warning-box">
 
                         <strong>
                             폐업 승인은 영구 삭제가 아닙니다.
                         </strong>
 
                         <p>
-                            승인 시 병원 상태가 CLOSED로 변경되고,
-                            병원 관리 화면의 폐업 관리 모달에서 별도로 영구 삭제합니다.
+                            승인하면 병원 상태가 CLOSED로 변경되고
+                            일반 병원 목록에서 제외됩니다.
+                            영구 삭제는 병원 관리 화면의 폐업 관리에서 별도로 진행합니다.
                         </p>
 
                     </div>
@@ -947,13 +1037,16 @@
             </div>
 
 
-            <!-- 오른쪽 고정 영역 -->
+            <!-- ========================================
+                 오른쪽 고정 영역
+            ========================================= -->
+
             <aside class="request-side-area">
 
-                <!-- 신청자 -->
+                <!-- 신청자 및 증빙 -->
                 <section class="request-side-card">
 
-                    <div class="request-side-heading">
+                    <header class="side-card-header">
 
                         <p class="section-category">
                             REQUESTER
@@ -963,10 +1056,10 @@
                             신청자 및 증빙
                         </h2>
 
-                    </div>
+                    </header>
 
 
-                    <dl class="request-info-list">
+                    <dl class="requester-info-list">
 
                         <div>
 
@@ -1079,7 +1172,7 @@
                        th:href="${requestDetail.documentUrl}"
                        target="_blank"
                        rel="noopener noreferrer"
-                       class="request-document-button">
+                       class="document-open-button">
 
                         증빙서류 확인
 
@@ -1088,7 +1181,7 @@
 
                     <div th:if="${requestDetail.documentUrl == null
                         or #strings.isEmpty(requestDetail.documentUrl)}"
-                         class="request-document-empty">
+                         class="document-empty">
 
                         등록된 증빙서류가 없습니다.
 
@@ -1097,11 +1190,11 @@
                 </section>
 
 
-                <!-- 요청 사유 -->
+                <!-- 정보 수정 사유 -->
                 <section th:if="${requestDetail.requestType == 'UPDATE'}"
                          class="request-side-card">
 
-                    <div class="request-side-heading">
+                    <header class="side-card-header">
 
                         <p class="section-category">
                             REQUEST REASON
@@ -1111,7 +1204,7 @@
                             정보 수정 사유
                         </h2>
 
-                    </div>
+                    </header>
 
 
                     <p class="side-request-reason"
@@ -1127,11 +1220,11 @@
                 </section>
 
 
-                <!-- 처리 카드 -->
+                <!-- 관리자 처리 -->
                 <section th:if="${requestDetail.requestStatus == 'PENDING'}"
-                         class="request-side-card request-process-card">
+                         class="request-side-card process-side-card">
 
-                    <div class="request-side-heading">
+                    <header class="side-card-header">
 
                         <p class="section-category">
                             REQUEST PROCESS
@@ -1145,15 +1238,17 @@
                             요청 내용을 확인한 뒤 승인하거나 반려합니다.
                         </p>
 
-                    </div>
+                    </header>
 
 
-                    <!-- 승인 -->
+                    <!-- 승인 Form -->
                     <form th:action="@{/admin/hospitals/requests/{requestId}/approve(
                             requestId=${requestDetail.requestId}
                           )}"
                           method="post"
-                          class="approve-request-form">
+                          class="approve-form"
+                          th:attr="data-request-type=${requestDetail.requestType},
+                                   data-hospital-name=${requestDetail.currentHospitalName}">
 
                         <th:block th:if="${_csrf != null}">
 
@@ -1165,7 +1260,7 @@
 
 
                         <button type="submit"
-                                class="request-approve-button">
+                                class="approve-button">
 
                             <span th:if="${requestDetail.requestType == 'UPDATE'}">
                                 정보 수정 승인
@@ -1173,7 +1268,7 @@
 
 
                             <span th:if="${requestDetail.requestType == 'TEMP_CLOSE'}">
-                                휴업 승인
+                                예약 휴업 승인
                             </span>
 
 
@@ -1191,12 +1286,13 @@
                     </div>
 
 
-                    <!-- 반려 -->
+                    <!-- 반려 Form -->
                     <form th:action="@{/admin/hospitals/requests/{requestId}/reject(
                             requestId=${requestDetail.requestId}
                           )}"
                           method="post"
-                          class="reject-request-form">
+                          class="reject-form"
+                          th:attr="data-hospital-name=${requestDetail.currentHospitalName}">
 
                         <th:block th:if="${_csrf != null}">
 
@@ -1220,7 +1316,7 @@
 
 
                         <button type="submit"
-                                class="request-reject-button">
+                                class="reject-button">
 
                             요청 반려
 
@@ -1233,9 +1329,9 @@
 
                 <!-- 처리 결과 -->
                 <section th:if="${requestDetail.requestStatus != 'PENDING'}"
-                         class="request-side-card processed-request-card">
+                         class="request-side-card">
 
-                    <div class="request-side-heading">
+                    <header class="side-card-header">
 
                         <p class="section-category">
                             PROCESSED RESULT
@@ -1245,7 +1341,7 @@
                             처리 결과
                         </h2>
 
-                    </div>
+                    </header>
 
 
                     <div class="processed-result">
@@ -1266,7 +1362,7 @@
                         </strong>
 
 
-                        <dl class="processed-info-list">
+                        <dl class="processed-info">
 
                             <div>
 

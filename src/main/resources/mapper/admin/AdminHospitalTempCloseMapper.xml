@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjang051.petcity.admin.dao.AdminHospitalTempCloseDao">
+
+
+    <update id="synchronizeHospitalStatus">
+        UPDATE HOSPITAL H
+        SET STATUS = CASE
+        WHEN EXISTS ( SELECT 1 FROM HOSPITAL_UPDATE_REQUEST HUR
+            WHERE HUR.HOSPITAL_ID = H.HOSPITAL_ID
+        AND HUR.REQUEST_TYPE  = 'TEMP_CLOSE'
+        AND HUR.STATUS = 'APPROVED'
+        AND HUR.TEMP_CLOSE_START_AT <![CDATA[ <= ]]> LOCALTIMESTAMP
+        AND HUR.TEMP_CLOSE_END_AT <![CDATA[ > ]]> LOCALTIMESTAMP)
+        THEN 'TEMP_CLOSED'
+        ELSE 'OPEN'
+        END
+        WHERE H.HOSPITAL_ID = #{hospitalId}
+        AND H.STATUS IN('OPEN','TEMP_CLOSED')
+
+    </update>
+
+<update id="startScheduledTempClosures">
+    UPDATE HOSPITAL H
+    SET STATUS = 'TEMP_CLOSED'
+    WHERE H.STATUS = 'OPEN'
+    AND EXISTS ( SELECT 1 FROM HOSPITAL_UPDATE_REQUEST HUR
+    WHERE HUR.HOSPITAL_ID = H.HOSPITAL_ID
+    AND HUR.REQUEST_TYPE  = 'TEMP_CLOSE'
+    AND HUR.STATUS = 'APPROVED'
+    AND HUR.TEMP_CLOSE_START_AT <![CDATA[ <= ]]> LOCALTIMESTAMP
+    AND HUR.TEMP_CLOSE_END_AT <![CDATA[ > ]]> LOCALTIMESTAMP)
+</update>
+    <update id="reopenExpiredTempClosures">
+    UPDATE HOSPITAL H
+    SET STATUS = 'OPEN'
+    WHERE H.STATUS = 'TEMP_CLOSED'
+    AND NOT EXISTS ( SELECT 1 FROM HOSPITAL_UPDATE_REQUEST HUR
+    WHERE HUR.HOSPITAL_ID = H.HOSPITAL_ID
+    AND HUR.REQUEST_TYPE  = 'TEMP_CLOSE'
+    AND HUR.STATUS = 'APPROVED'
+    AND HUR.TEMP_CLOSE_START_AT <![CDATA[ <= ]]> LOCALTIMESTAMP
+    AND HUR.TEMP_CLOSE_END_AT <![CDATA[ > ]]> LOCALTIMESTAMP)
+</update>
+
+
+</mapper>

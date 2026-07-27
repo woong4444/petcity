@@ -642,14 +642,13 @@
 
                             <a th:if="${hospital.requestId != null}"
                                th:href="@{/admin/hospitals/requests/{requestId}(
-                                    requestId=${hospital.requestId}
-                               )}"
+            requestId=${hospital.requestId}
+       )}"
                                class="request-process-button">
 
                                 처리 대기
 
                             </a>
-
 
                             <span th:if="${hospital.requestId == null}"
                                   class="request-process-empty">
@@ -657,7 +656,6 @@
                             </span>
 
                         </td>
-
                     </tr>
 
 
