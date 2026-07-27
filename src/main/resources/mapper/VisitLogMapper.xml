@@ -8,21 +8,44 @@
     <update id="mergeVisitLog" parameterType="VisitRedisDto">
         MERGE INTO SITE_VISIT_LOG SVL
         USING (
-                SELECT TO_DATE(#{visitDate},'YYYY-MM-DD') AS VISIT_DATE,
-                #{visitorKey} As VISITOR_KEY FROM DUAL) SOURCE
-        ON ( SVL.VISIT_DATE = SOURCE.VISIT_DATE
-            AND SVL.VISITOR_KEY = SOURCE.VISITOR_KEY)
+        SELECT
+        TO_DATE(
+        #{visitDate},
+        'YYYY-MM-DD'
+        ) AS VISIT_DATE,
+        #{visitorKey} AS VISITOR_KEY
+        FROM DUAL
+        ) SOURCE
+        ON (
+        SVL.VISIT_DATE = SOURCE.VISIT_DATE
+        AND SVL.VISITOR_KEY = SOURCE.VISITOR_KEY
+        )
         WHEN MATCHED THEN
         UPDATE SET
-            SVL.SESSION_ID = #{sessionId},
-            SVL.LAST_VISITED_AT = TO_TIMESTAMP(#{lastVisitedAt},'YYYY-MM-DD HH24:MI:SS'),
-            SVL.UPDATED_AT = SYSTIMESTAMP
+        SVL.VISITOR_TYPE =
+        #{visitorType},
+        SVL.MEMBER_ID =
+        #{memberId, jdbcType=NUMERIC},
+        SVL.SESSION_ID =
+        #{sessionId, jdbcType=VARCHAR},
+        SVL.IP_ADDRESS =
+        #{ipAddress, jdbcType=VARCHAR},
+        SVL.USER_AGENT =
+        #{userAgent, jdbcType=VARCHAR},
+        SVL.VISITED_URL =
+        #{visitedUrl, jdbcType=VARCHAR},
+        SVL.LAST_VISITED_AT =
+        TO_TIMESTAMP(
+        #{lastVisitedAt},
+        'YYYY-MM-DD HH24:MI:SS'
+        ),
+        SVL.UPDATED_AT = SYSTIMESTAMP
         WHEN NOT MATCHED THEN
         INSERT(
                 VISIT_ID,
                 VISIT_DATE,
-                VISIT_TYPE,
-                VISIT_KEY,
+                VISITOR_TYPE,
+                VISITOR_KEY,
                 MEMBER_ID,
                 SESSION_ID,
                 IP_ADDRESS,

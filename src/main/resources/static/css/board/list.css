@@ -1261,3 +1261,14 @@ body {
         object-position: 64% center;
     }
 }
+
+/*
+    품종 필터 AJAX 조회 중에는
+    게시글 영역만 자연스럽게 흐리게 표시합니다.
+*/
+.board-filter-loading .board-table-area,
+.board-filter-loading .board-pagination {
+    opacity: 0.45;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+}
