@@ -191,11 +191,10 @@
 
         <section class="hospital-card-list">
             <article class="hospital-card" th:each="hospital : ${hospitalList}">
-                <!-- 🌟 썸네일 클릭 영역 (수정됨) -->
                 <div class="hospital-image hospital-image-link go-detail-link"
                      th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}"
                      th:data-status="${hospital.currentStatus}"
-                     th:data-notice="${hospital.note}">
+                     th:data-notice="${hospital.tempCloseReason != null and hospital.tempCloseReason != '' ? hospital.tempCloseReason : '등록된 휴업 사유가 없습니다.'}">
                     <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}"
                          alt="병원 이미지">
                     <div th:if="${hospital.imageUrl == null or hospital.imageUrl == ''}" class="no-image">
@@ -220,11 +219,10 @@
                                       class="district-badge badge-status-susp">휴업</span>
                             </div>
 
-                            <!-- 🌟 타이틀 클릭 영역 (수정됨) -->
                             <h2 class="hospital-name hospital-name-text go-detail-link"
                                 th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}"
                                 th:data-status="${hospital.currentStatus}"
-                                th:data-notice="${hospital.note}">
+                                th:data-notice="${hospital.tempCloseReason != null and hospital.tempCloseReason != '' ? hospital.tempCloseReason : '등록된 휴업 사유가 없습니다.'}">
                                 <span th:text="${hospital.name}">병원 이름</span>
                             </h2>
 
@@ -322,15 +320,14 @@
         </div>
     </div>
 
-    <!-- 🚨 휴업 병원 전용 안내 모달 (추가됨) -->
+    <!-- 🚨 휴업 병원 전용 안내 모달 -->
     <div id="suspendModal" class="location-modal">
         <div class="location-modal-content" style="max-width: 400px; text-align: center; padding: 30px 20px;">
             <div style="font-size: 45px; margin-bottom: 15px;">🚨</div>
             <h3 style="font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 10px;">해당 병원은 휴업입니다.</h3>
 
             <div style="background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: left; border: 1px solid #e2e8f0;">
-                <strong style="display: block; font-size: 13px; color: #64748b; margin-bottom: 8px;">[휴업 사유 및
-                    공지사항]</strong>
+                <strong style="display: block; font-size: 13px; color: #64748b; margin-bottom: 8px;">[휴업 사유]</strong>
                 <p id="suspendNoticeText"
                    style="font-size: 14px; color: #334155; margin: 0; line-height: 1.6; white-space: pre-wrap; word-break: keep-all;"></p>
             </div>

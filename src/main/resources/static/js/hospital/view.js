@@ -208,13 +208,25 @@ document.addEventListener("DOMContentLoaded", function () {
                             if (data.isZzim) {
                                 el.classList.add('text-rose-500', 'active');
                                 el.classList.remove('text-slate-300', 'text-rose-400');
-                                if (emptyHeart) { emptyHeart.classList.remove('block'); emptyHeart.classList.add('hidden'); }
-                                if (filledHeart) { filledHeart.classList.remove('hidden'); filledHeart.classList.add('block'); }
+                                if (emptyHeart) {
+                                    emptyHeart.classList.remove('block');
+                                    emptyHeart.classList.add('hidden');
+                                }
+                                if (filledHeart) {
+                                    filledHeart.classList.remove('hidden');
+                                    filledHeart.classList.add('block');
+                                }
                             } else {
                                 el.classList.remove('text-rose-500', 'active');
                                 el.classList.add('text-slate-300');
-                                if (emptyHeart) { emptyHeart.classList.remove('hidden'); emptyHeart.classList.add('block'); }
-                                if (filledHeart) { filledHeart.classList.remove('block'); filledHeart.classList.add('hidden'); }
+                                if (emptyHeart) {
+                                    emptyHeart.classList.remove('hidden');
+                                    emptyHeart.classList.add('block');
+                                }
+                                if (filledHeart) {
+                                    filledHeart.classList.remove('block');
+                                    filledHeart.classList.add('hidden');
+                                }
                             }
                             const countSpan = el.querySelector('.count');
                             if (countSpan) countSpan.textContent = data.zzimCount;
