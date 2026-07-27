@@ -637,7 +637,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const suspendModal = document.getElementById('suspendModal');
 
     if (btnSuspendYes) {
-        btnSuspendYes.addEventListener('click', function() {
+        btnSuspendYes.addEventListener('click', function () {
             if (pendingDetailUrl) {
                 window.location.href = pendingDetailUrl;
             }
@@ -645,7 +645,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (btnSuspendNo) {
-        btnSuspendNo.addEventListener('click', function() {
+        btnSuspendNo.addEventListener('click', function () {
             suspendModal.style.display = 'none';
             pendingDetailUrl = "";
         });
