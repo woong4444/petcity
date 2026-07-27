@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -30,6 +31,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.validation.FieldError;
 import java.util.Locale;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 
@@ -811,7 +817,51 @@ public class MemberController {
     }
 
     // =====================================================
-    // 07-24 상각: 마이페이지 닉네임 사전 중복확인(AJAX)
+    // 07-27 상각: 회원정보 수정 전용 화면
+    // 마이페이지에서는 정보를 조회만 하고, 수정은 이 화면에서만 처리합니다.
+    // =====================================================
+    @GetMapping("/member/mypage/info")
+    public String mypageInfo(
+            HttpSession session,
+            Model model,
+            RedirectAttributes rttr
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
+            return "redirect:/member/login";
+        }
+
+        MemberDto member =
+                memberService.findByMemberId(loginMember.getMemberId());
+
+        if (member == null || !"ACTIVE".equals(member.getStatus())) {
+            session.invalidate();
+            rttr.addFlashAttribute("message", "이용할 수 없는 계정입니다.");
+            return "redirect:/member/login";
+        }
+
+        session.setAttribute("loginMember", member);
+        model.addAttribute("member", member);
+
+        return "member/member-info";
+    }
+
+    // =====================================================
+    // 07-27 상각: 기존 프로필 주소 호환 처리
+    // 이전 링크로 접근해도 새 회원정보 수정 화면으로 이동합니다.
+    // =====================================================
+    @GetMapping("/member/mypage/profile")
+    public String oldMypageProfile() {
+        return "redirect:/member/mypage/info";
+    }
+
+    // =====================================================
+    // 07-24 상각: 회원정보 수정 닉네임 사전 중복확인(AJAX)
     // =====================================================
     @ResponseBody
     @GetMapping("/member/mypage/check-nickname")
@@ -821,14 +871,8 @@ public class MemberController {
     ) {
 
         MemberDto loginMember =
-                (MemberDto) session.getAttribute(
-                        "loginMember"
-                );
+                (MemberDto) session.getAttribute("loginMember");
 
-        /*
-         * 로그인 정보가 없으면 사용 불가(true)로 반환하여
-         * 비로그인 상태에서 중복확인이 통과하지 않도록 합니다.
-         */
         if (loginMember == null
                 || loginMember.getMemberId() == null) {
             return true;
@@ -840,52 +884,165 @@ public class MemberController {
         );
     }
 
-
     // =====================================================
-    // 07-24 상각: 마이페이지 전화번호 사전 중복확인(AJAX)
+    // 07-27 상각: 회원정보 수정 화면에서 닉네임만 변경
+    // 전화번호, 이메일, 아이디는 화면과 서버 모두 수정하지 않습니다.
     // =====================================================
-    @ResponseBody
-    @GetMapping("/member/mypage/check-phone")
-    public boolean checkMypagePhone(
-            @RequestParam String phone,
-            HttpSession session
+    @PostMapping("/member/mypage/info")
+    public String updateMypageInfo(
+            @RequestParam String nickname,
+            HttpSession session,
+            RedirectAttributes rttr
     ) {
 
         MemberDto loginMember =
-                (MemberDto) session.getAttribute(
-                        "loginMember"
-                );
+                (MemberDto) session.getAttribute("loginMember");
 
         if (loginMember == null
                 || loginMember.getMemberId() == null) {
-            return true;
-        }
-
-        return memberService.existsPhoneExceptMember(
-                loginMember.getMemberId(),
-                phone
-        );
-    }
-
-
-    // 07-16 상각: 아이디·이메일을 제외한 내 정보 수정
-    @PostMapping("/member/mypage")
-    public String updateMypage(@RequestParam String nickname,
-                               @RequestParam String phone,
-                               HttpSession session,
-                               RedirectAttributes rttr) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null) {
             return "redirect:/member/login";
         }
 
         try {
-            MemberDto updatedMember = memberService.updateMyPage(loginMember.getMemberId(), nickname, phone);
+            MemberDto updatedMember =
+                    memberService.updateMyPageNickname(
+                            loginMember.getMemberId(),
+                            nickname
+                    );
+
             session.setAttribute("loginMember", updatedMember);
-            rttr.addFlashAttribute("successMessage", "회원 정보가 수정되었습니다.");
+            rttr.addFlashAttribute("successMessage", "닉네임이 변경되었습니다.");
         } catch (IllegalArgumentException e) {
             rttr.addFlashAttribute("message", e.getMessage());
         }
+
+        return "redirect:/member/mypage/info";
+    }
+
+    // =====================================================
+    // 07-27 상각: LOCAL 회원 비밀번호 변경
+    // SNS 회원 요청은 서버에서도 차단합니다.
+    // =====================================================
+    @PostMapping("/member/mypage/info/password")
+    public String changeMypagePassword(
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword,
+            @RequestParam String newPasswordConfirm,
+            HttpSession session,
+            RedirectAttributes rttr
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
+            return "redirect:/member/login";
+        }
+
+        try {
+            memberService.changeMyPagePassword(
+                    loginMember.getMemberId(),
+                    currentPassword,
+                    newPassword,
+                    newPasswordConfirm
+            );
+
+            rttr.addFlashAttribute(
+                    "passwordSuccessMessage",
+                    "비밀번호가 변경되었습니다."
+            );
+        } catch (IllegalArgumentException e) {
+            rttr.addFlashAttribute(
+                    "passwordMessage",
+                    e.getMessage()
+            );
+        }
+
+        return "redirect:/member/mypage/info#password-change";
+    }
+
+    // =====================================================
+    // 07-27 상각: 마이페이지 프로필 사진 업로드
+    // 기본정보는 수정하지 않고 PROFILE_IMAGE 컬럼만 갱신합니다.
+    // member 전용 이미지 폴더만 사용하며 다른 파트 파일은 건드리지 않습니다.
+    // =====================================================
+    @PostMapping("/member/mypage/profile-image")
+    public String updateProfileImage(
+            @RequestParam("profileImageFile") MultipartFile profileImageFile,
+            HttpSession session,
+            RedirectAttributes rttr
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
+            return "redirect:/member/login";
+        }
+
+        if (profileImageFile == null || profileImageFile.isEmpty()) {
+            rttr.addFlashAttribute("message", "업로드할 프로필 사진을 선택해주세요.");
+            return "redirect:/member/mypage";
+        }
+
+        if (profileImageFile.getSize() > 5 * 1024 * 1024) {
+            rttr.addFlashAttribute("message", "프로필 사진은 5MB 이하만 업로드할 수 있습니다.");
+            return "redirect:/member/mypage";
+        }
+
+        String contentType = profileImageFile.getContentType();
+        String extension;
+
+        if ("image/jpeg".equals(contentType)) {
+            extension = ".jpg";
+        } else if ("image/png".equals(contentType)) {
+            extension = ".png";
+        } else if ("image/webp".equals(contentType)) {
+            extension = ".webp";
+        } else {
+            rttr.addFlashAttribute("message", "JPG, PNG, WEBP 이미지 파일만 업로드할 수 있습니다.");
+            return "redirect:/member/mypage";
+        }
+
+        try {
+            Path uploadDirectory = Paths.get(
+                    System.getProperty("user.dir"),
+                    "src", "main", "resources", "static",
+                    "images", "member", "profile"
+            );
+
+            Files.createDirectories(uploadDirectory);
+
+            String savedFileName =
+                    loginMember.getMemberId()
+                            + "_"
+                            + UUID.randomUUID()
+                            + extension;
+
+            Path savedPath = uploadDirectory.resolve(savedFileName);
+            profileImageFile.transferTo(savedPath.toFile());
+
+            String imageUrl = "/images/member/profile/" + savedFileName;
+
+            MemberDto updatedMember =
+                    memberService.updateProfileImage(
+                            loginMember.getMemberId(),
+                            imageUrl
+                    );
+
+            session.setAttribute("loginMember", updatedMember);
+            rttr.addFlashAttribute("successMessage", "프로필 사진이 변경되었습니다.");
+
+        } catch (IOException e) {
+            rttr.addFlashAttribute("message", "프로필 사진 저장 중 오류가 발생했습니다.");
+        } catch (IllegalArgumentException e) {
+            rttr.addFlashAttribute("message", e.getMessage());
+        }
+
         return "redirect:/member/mypage";
     }
 

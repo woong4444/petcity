@@ -219,6 +219,127 @@ public class MemberService {
     }
 
 
+    // =====================================================
+    // 07-27 상각: 프로필 수정에서는 닉네임만 변경
+    // 회원가입과 같은 닉네임 규칙을 서버에서도 다시 검증합니다.
+    // =====================================================
+    @Transactional
+    public MemberDto updateMyPageNickname(
+            Long memberId,
+            String nickname
+    ) {
+
+        MemberDto currentMember = findByMemberId(memberId);
+
+        if (currentMember == null) {
+            throw new IllegalArgumentException("회원 정보를 확인할 수 없습니다.");
+        }
+
+        String normalizedNickname =
+                nickname == null ? "" : nickname.trim();
+
+        String currentNickname =
+                currentMember.getNickname() == null
+                        ? ""
+                        : currentMember.getNickname().trim();
+
+        if (normalizedNickname.equals(currentNickname)) {
+            throw new IllegalArgumentException("변경된 닉네임이 없습니다.");
+        }
+
+        if (!normalizedNickname.matches("^[가-힣a-zA-Z0-9_]{2,20}$")) {
+            throw new IllegalArgumentException(
+                    "닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다."
+            );
+        }
+
+        if (memberMapper.countByNicknameExceptMember(
+                normalizedNickname,
+                memberId
+        ) > 0) {
+            throw new IllegalArgumentException("닉네임이 중복되었습니다.");
+        }
+
+        int updatedRows = memberMapper.updateNickname(
+                memberId,
+                normalizedNickname
+        );
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException("닉네임을 변경할 수 없는 상태입니다.");
+        }
+
+        MemberDto updatedMember = findByMemberId(memberId);
+
+        if (updatedMember == null) {
+            throw new IllegalArgumentException("수정된 회원 정보를 확인할 수 없습니다.");
+        }
+
+        return updatedMember;
+    }
+
+
+    // =====================================================
+    // 07-27 상각: LOCAL 회원 비밀번호 변경
+    // SNS 회원은 비밀번호 변경 대상이 아니며 서버에서도 차단합니다.
+    // 회원가입과 동일한 비밀번호 정책을 적용합니다.
+    // =====================================================
+    @Transactional
+    public void changeMyPagePassword(
+            Long memberId,
+            String currentPassword,
+            String newPassword,
+            String newPasswordConfirm
+    ) {
+
+        MemberDto member = findByMemberId(memberId);
+
+        if (member == null) {
+            throw new IllegalArgumentException("회원 정보를 확인할 수 없습니다.");
+        }
+
+        if (!"LOCAL".equalsIgnoreCase(member.getLoginType())) {
+            throw new IllegalArgumentException("SNS 회원은 비밀번호를 변경할 수 없습니다.");
+        }
+
+        if (currentPassword == null
+                || currentPassword.isBlank()
+                || !passwordEncoder.matches(currentPassword, member.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("새 비밀번호를 입력해주세요.");
+        }
+
+        if (!newPassword.equals(newPasswordConfirm)) {
+            throw new IllegalArgumentException("새 비밀번호 확인이 일치하지 않습니다.");
+        }
+
+        if (passwordEncoder.matches(newPassword, member.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호와 다른 비밀번호를 입력해주세요.");
+        }
+
+        // 회원가입에서 사용하는 동일한 정책 검증 메서드 재사용
+        MemberDto passwordPolicyMember = MemberDto.builder()
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .password(newPassword)
+                .build();
+
+        validatePassword(passwordPolicyMember);
+
+        int updatedRows = memberMapper.updatePassword(
+                memberId,
+                passwordEncoder.encode(newPassword)
+        );
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException("비밀번호를 변경할 수 없는 계정 상태입니다.");
+        }
+    }
+
+
     // 07-16 상각: 마이페이지는 닉네임과 전화번호만 안전하게 변경
     // 07-24 상각: 마이페이지는 실제로 변경된 항목만 최종 검증 후 저장
     @Transactional
@@ -362,6 +483,43 @@ public class MemberService {
     }
 
     // 07-16 상각: 현재 비밀번호를 확인한 회원만 탈퇴 요청 가능
+    // =====================================================
+    // 07-27 상각: 프로필 사진 경로 변경
+    // PROFILE_IMAGE만 수정하고 다른 회원정보는 변경하지 않습니다.
+    // =====================================================
+    @Transactional
+    public MemberDto updateProfileImage(
+            Long memberId,
+            String profileImage
+    ) {
+
+        if (memberId == null) {
+            throw new IllegalArgumentException("회원 정보를 확인할 수 없습니다.");
+        }
+
+        if (profileImage == null
+                || !profileImage.startsWith("/images/member/profile/")) {
+            throw new IllegalArgumentException("프로필 사진 경로가 올바르지 않습니다.");
+        }
+
+        int updatedRows = memberMapper.updateProfileImage(
+                memberId,
+                profileImage
+        );
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException("프로필 사진을 변경할 수 없는 상태입니다.");
+        }
+
+        MemberDto updatedMember = findByMemberId(memberId);
+
+        if (updatedMember == null) {
+            throw new IllegalArgumentException("수정된 회원 정보를 확인할 수 없습니다.");
+        }
+
+        return updatedMember;
+    }
+
     public void requestWithdrawal(Long memberId, String password) {
         MemberDto member = findByMemberId(memberId);
         if (member != null && !"LOCAL".equals(member.getLoginType())) {

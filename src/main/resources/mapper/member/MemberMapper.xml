@@ -191,6 +191,38 @@
 
     </update>
 
+    <!-- 07-27 상각: 프로필 수정은 닉네임만 변경 -->
+    <update id="updateNickname">
+
+        UPDATE APP_MEMBER
+        SET NICKNAME = #{nickname},
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+
+    </update>
+
+    <!-- 07-27 상각: LOCAL 회원 비밀번호 변경 -->
+    <update id="updatePassword">
+
+        UPDATE APP_MEMBER
+        SET PASSWORD = #{password},
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+          AND LOGIN_TYPE = 'LOCAL'
+
+    </update>
+
+    <!-- 07-27 상각: 마이페이지 프로필 사진 경로만 변경 -->
+    <update id="updateProfileImage">
+
+        UPDATE APP_MEMBER
+        SET PROFILE_IMAGE = #{profileImage},
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+          AND STATUS = 'ACTIVE'
+
+    </update>
+
     <!-- 07-16 상각: 즉시 삭제 대신 3일간 DELETE_PENDING 상태로 보관 -->
     <update id="requestWithdrawal">
 

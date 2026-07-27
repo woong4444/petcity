@@ -1,558 +1,780 @@
-/*
-    PetCity 일반회원 마이페이지 전용 스타일
-
-    적용 대상:
-    /member/mypage
-
-    주의:
-    SNS 전용 feature-mypage.css와 분리하여
-    다른 회원 유형 화면에는 영향을 주지 않습니다.
-*/
-
-/* =========================
-   전체 레이아웃
-========================== */
-.mypage-page {
-    width: min(1120px, calc(100% - 40px));
-    margin: 48px auto 90px;
-    display: grid;
-    grid-template-columns: 178px minmax(0, 1fr);
-    gap: 24px;
-    color: #14213d;
+/* =========================================================
+   PetCity 마이페이지 공통
+========================================================= */
+* {
+    box-sizing: border-box;
 }
 
-.mypage-content {
-    min-width: 0;
-}
-
-/* =========================
-   왼쪽 메뉴
-========================== */
-.mypage-sidebar {
-    align-self: start;
-    overflow: hidden;
-    background: #ffffff;
-    border: 1px solid #dce4ef;
-    border-radius: 14px;
-}
-
-.sidebar-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 22px 18px;
-    font-size: 18px;
-}
-
-.sidebar-title-icon {
-    font-size: 18px;
-}
-
-.sidebar-menu {
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 48px;
-    padding: 0 18px;
-    color: #1f2937;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    border-top: 1px solid #edf1f6;
-}
-
-.sidebar-link:hover {
-    background: #f5f8ff;
-}
-
-.sidebar-link.active {
-    color: #ffffff;
-    background: #2864e8;
-}
-
-.sidebar-link.danger-link {
-    color: #e11d48;
-}
-
-/* =========================
-   공통 카드
-========================== */
-.profile-summary-card,
-.mypage-card,
-.withdraw-card {
-    background: #ffffff;
-    border: 1px solid #dce4ef;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(20, 33, 61, 0.05);
-}
-
-.profile-summary-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 28px;
-    min-height: 130px;
-    padding: 26px 30px;
-    margin-bottom: 18px;
-}
-
-.profile-summary-main {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.profile-avatar {
-    position: relative;
-    flex: 0 0 74px;
-    width: 74px;
-    height: 74px;
-    overflow: hidden;
-    border-radius: 50%;
-    background: #eef4ff;
-}
-
-.avatar-head,
-.avatar-body {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #2864e8;
-}
-
-.avatar-head {
-    top: 16px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-}
-
-.avatar-body {
-    bottom: 12px;
-    width: 48px;
-    height: 27px;
-    border-radius: 26px 26px 10px 10px;
-}
-
-.profile-name-row {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-}
-
-.profile-name-row h1 {
+body {
     margin: 0;
-    font-size: 25px;
+    color: #172033;
+    background: #f5f8fc;
 }
 
-.member-badge {
-    padding: 5px 9px;
-    color: #ffffff;
-    background: #2864e8;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.join-type {
-    margin: 8px 0 0;
-    color: #475569;
-    font-size: 14px;
-}
-
-.verified-text {
-    margin: 7px 0 0;
-    color: #059669;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.profile-summary-meta {
+.mypage-shell {
     display: grid;
-    grid-template-columns: repeat(3, minmax(100px, 1fr));
-    min-width: 320px;
-    border-left: 1px solid #e2e8f0;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: stretch;
+    min-height: calc(100vh - 190px);
+    margin-top: 0;
+    border-top: 1px solid #e5eaf2;
+    background: #f5f8fc;
 }
 
-.summary-meta-item {
-    padding: 5px 24px;
+.mypage-sidebar {
+    align-self: stretch;
+    min-height: 100%;
+    padding: 18px 14px 30px;
+    border-right: 1px solid #e2e8f0;
+    background: #fff;
 }
 
-.summary-meta-item span,
-.summary-meta-item strong {
-    display: block;
+.mypage-nav {
+    display: grid;
+    gap: 6px;
 }
 
-.summary-meta-item span {
-    margin-bottom: 10px;
+.sidebar-item,
+.sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 48px;
+    padding: 0 14px;
+    border-radius: 10px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 750;
+    text-decoration: none;
+    transition: .18s ease;
+}
+
+.sidebar-item:hover {
+    background: #f1f6ff;
+    color: #2563eb;
+}
+
+.sidebar-item.active {
+    background: #eaf2ff;
+    color: #2563eb;
+}
+
+.sidebar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    color: inherit;
+}
+
+.sidebar-logout {
+    justify-content: space-between;
+    margin-top: 20px;
+    border: 1px solid #dbe3ef;
+    background: #fff;
+}
+
+.membership-card {
+    position: relative;
+    min-height: 158px;
+    margin-top: 28px;
+    padding: 18px;
+    overflow: hidden;
+    border: 1px solid #dbe7f7;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #eef5ff, #fff);
+}
+
+.membership-card strong {
+    color: #2563eb;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.membership-card p {
+    margin: 12px 0 0;
     color: #64748b;
     font-size: 12px;
+    line-height: 1.6;
 }
 
-.summary-meta-item strong {
-    font-size: 16px;
+.membership-dog {
+    position: absolute;
+    right: 12px;
+    bottom: 9px;
+    font-size: 48px;
 }
 
-/* =========================
-   본문 그리드
-========================== */
-.mypage-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.9fr);
-    gap: 18px;
-    align-items: start;
+.mypage-main {
+    width: 100%;
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 28px 30px 60px;
 }
 
-.mypage-card {
-    padding: 24px;
-}
-
-.card-heading,
-.shortcut-heading {
+.page-heading {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 16px;
     margin-bottom: 20px;
 }
 
-.card-heading h2,
-.shortcut-heading h2 {
+.page-heading > a {
+    margin-top: 7px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.page-heading h1 {
     margin: 0;
+    color: #111827;
+    font-size: 30px;
+    line-height: 1.2;
+}
+
+.page-heading p {
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.mypage-heading {
+    display: block;
+}
+
+.page-alert {
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.page-alert.success {
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.page-alert.error {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* =========================================================
+   마이페이지 첫 화면
+========================================================= */
+.profile-summary-card,
+.quick-menu-section,
+.profile-edit-card {
+    overflow: hidden;
+    border: 1px solid #e1e7ef;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
+}
+
+.profile-summary-top {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 26px;
+    min-height: 230px;
+    padding: 30px 34px;
+    border-bottom: 1px solid #e5eaf2;
+    background:
+        radial-gradient(circle at 85% 25%, rgba(191, 219, 254, .34), transparent 30%),
+        linear-gradient(135deg, #fff 0%, #f5f9ff 100%);
+}
+
+.profile-photo-wrap {
+    position: relative;
+    width: 128px;
+    margin: 0 auto;
+}
+
+.profile-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 128px;
+    height: 128px;
+    overflow: hidden;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    background: #eef2f7;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, .15);
+    font-size: 62px;
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-button {
+    position: absolute;
+    right: 0;
+    bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #475569;
+    color: #fff;
+    cursor: pointer;
+}
+
+.profile-summary-copy h2,
+.hero-title-row h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 28px;
+}
+
+.hero-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 27px;
+    padding: 0 11px;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.profile-summary-copy > p,
+.hero-copy > p {
+    margin: 12px 0 20px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.profile-meta-row,
+.hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.profile-meta-row > div,
+.hero-meta > div {
+    min-width: 145px;
+    padding: 10px 14px;
+    border: 1px solid #dbe5f1;
+    border-radius: 11px;
+    background: rgba(255,255,255,.8);
+}
+
+.profile-meta-row span,
+.profile-meta-row strong,
+.hero-meta span,
+.hero-meta strong {
+    display: block;
+}
+
+.profile-meta-row span,
+.hero-meta span {
+    margin-bottom: 4px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.profile-meta-row strong,
+.hero-meta strong {
+    font-size: 14px;
+}
+
+.profile-scene,
+.hero-illustration {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding-right: 4px;
+    font-size: 52px;
+    white-space: nowrap;
+}
+
+.hospital-icon {
+    font-size: 74px;
+}
+
+.summary-section {
+    padding: 28px 34px 34px;
+}
+
+.section-title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.section-title-row h2 {
+    margin: 0;
+    color: #172033;
     font-size: 21px;
 }
 
-.card-heading p {
-    margin: 0;
+.section-title-row p {
+    margin: 7px 0 0;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.text-link {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.summary-item {
+    padding: 16px 18px;
+    border: 1px solid #e1e7ef;
+    border-radius: 11px;
+    background: #f8fafc;
+}
+
+.summary-item span,
+.summary-item strong {
+    display: block;
+}
+
+.summary-item span {
+    margin-bottom: 8px;
     color: #94a3b8;
     font-size: 12px;
 }
 
-.card-heading b,
+.summary-item strong {
+    overflow: hidden;
+    color: #1e293b;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.quick-menu-section {
+    margin-top: 22px;
+    padding: 28px 34px 34px;
+}
+
+.quick-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.quick-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 96px;
+    padding: 18px;
+    border: 1px solid #e1e7ef;
+    border-radius: 13px;
+    background: #fff;
+    color: #1e293b;
+    text-decoration: none;
+    transition: .18s ease;
+}
+
+.quick-card:hover {
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, .09);
+}
+
+.quick-icon {
+    display: flex;
+    flex: 0 0 48px;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 21px;
+}
+
+.quick-icon.blue { background: #eaf2ff; color: #2563eb; }
+.quick-icon.purple { background: #f1edff; color: #7c3aed; }
+.quick-icon.pink { background: #fff0f6; color: #db2777; }
+.quick-icon.sky { background: #eaf8ff; color: #0284c7; }
+.quick-icon.violet { background: #f3efff; color: #6d28d9; }
+
+.quick-card strong,
+.quick-card small {
+    display: block;
+}
+
+.quick-card strong {
+    margin-bottom: 7px;
+    font-size: 15px;
+}
+
+.quick-card small {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* =========================================================
+   회원정보 수정
+========================================================= */
+.profile-page {
+    padding-top: 24px;
+}
+
+.profile-banner {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 24px;
+    padding: 30px 34px;
+    border-bottom: 1px solid #e1e7ef;
+    background:
+        radial-gradient(circle at 88% 18%, rgba(191,219,254,.35), transparent 28%),
+        linear-gradient(135deg, #fff, #f3f8ff);
+}
+
+.hero-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 104px;
+    height: 104px;
+    overflow: hidden;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    background: #eef2f7;
+    box-shadow: 0 8px 22px rgba(37,99,235,.13);
+    font-size: 52px;
+}
+
+.hero-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-form,
+.password-change-section {
+    padding: 30px 34px 34px;
+}
+
+.password-change-section {
+    border-top: 1px solid #e1e7ef;
+    background: #fbfdff;
+}
+
+.form-title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.form-title h2 {
+    margin: 0;
+    font-size: 21px;
+}
+
+.form-title p,
+.form-title small {
+    margin: 6px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.form-title b,
 .form-field b {
     color: #ef4444;
 }
 
-/* =========================
-   기본 정보 폼
-========================== */
-.form-grid {
+.profile-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 17px 14px;
+    gap: 18px;
 }
 
 .form-field {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #172033;
+    min-width: 0;
+    color: #334155;
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 750;
 }
 
 .form-field input {
     width: 100%;
-    box-sizing: border-box;
-    min-height: 44px;
-    padding: 0 13px;
-    border: 1px solid #d7e0ec;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid #cbd5e1;
     border-radius: 9px;
-    background: #ffffff;
+    outline: 0;
+    background: #fff;
     color: #172033;
     font: inherit;
-    font-weight: 500;
-    outline: none;
 }
 
 .form-field input:focus {
-    border-color: #2864e8;
-    box-shadow: 0 0 0 3px rgba(40, 100, 232, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.12);
 }
 
 .form-field input[readonly] {
+    border-color: #e1e7ef;
+    background: #f8fafc;
     color: #64748b;
-    background: #f4f7fb;
 }
 
 .form-field small {
-    min-height: 16px;
-    color: #7c8aa0;
-    font-size: 11px;
+    color: #94a3b8;
+    font-size: 12px;
     font-weight: 500;
 }
 
-.primary-button,
-.outline-button,
-.danger-button {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-    min-height: 44px;
-    border-radius: 9px;
-    font-size: 14px;
-    font-weight: 800;
-    text-decoration: none;
-    cursor: pointer;
+.form-field small.success,
+#nicknameCheckMessage.success,
+#newPasswordMessage.success,
+#passwordConfirmMessage.success {
+    color: #15803d;
 }
 
-.primary-button {
-    width: 100%;
-    margin-top: 20px;
-    border: 0;
-    color: #ffffff;
-    background: #2864e8;
-}
-
-.primary-button:hover {
-    background: #1f56ce;
-}
-
-/* =========================
-   우측 바로가기 카드
-========================== */
-.side-card-column {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.shortcut-description {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    padding: 16px;
-    margin-bottom: 14px;
-    background: #f5f7fb;
-    border-radius: 11px;
-}
-
-.shortcut-icon {
-    display: flex;
-    flex: 0 0 42px;
-    justify-content: center;
-    align-items: center;
-    width: 42px;
-    height: 42px;
-    background: #ffffff;
-    border: 1px solid #dce4ef;
-    border-radius: 10px;
-    font-size: 20px;
-}
-
-.shortcut-description strong {
-    font-size: 13px;
-}
-
-.shortcut-description p {
-    margin: 5px 0 0;
-    color: #718096;
-    font-size: 11px;
-    line-height: 1.5;
-}
-
-.outline-button {
-    width: 100%;
-    border: 1px solid #2864e8;
-    color: #2864e8;
-    background: #ffffff;
-}
-
-.outline-button:hover {
-    background: #f3f7ff;
-}
-
-/* =========================
-   탈퇴 영역
-========================== */
-.withdraw-card {
-    margin-top: 18px;
-    padding: 26px 30px;
-    border-color: #fecdd3;
-}
-
-.withdraw-card h2 {
-    margin: 0 0 10px;
-    color: #e11d48;
-    font-size: 21px;
-}
-
-.withdraw-card p {
-    margin: 5px 0;
-    color: #718096;
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-.danger-button {
-    margin-top: 18px;
-    padding: 0 18px;
-    border: 1px solid #fecdd3;
-    color: #e11d48;
-    background: #fff5f6;
-}
-
-.danger-button:hover {
-    background: #ffecef;
-}
-
-/* =========================
-   안내 메시지
-========================== */
-.mypage-message {
-    margin-bottom: 14px;
-    padding: 13px 15px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.mypage-message.success {
-    color: #167a40;
-    background: #eafaf0;
-}
-
-.mypage-message.error {
-    color: #c43646;
-    background: #fff0f1;
-}
-
-/* =========================
-   반응형
-========================== */
-@media (max-width: 900px) {
-    .mypage-page {
-        grid-template-columns: 1fr;
-    }
-
-    .mypage-sidebar {
-        position: static;
-    }
-
-    .sidebar-menu {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    .sidebar-link {
-        justify-content: center;
-        padding: 0 8px;
-        text-align: center;
-    }
-
-    .profile-summary-card {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .profile-summary-meta {
-        width: 100%;
-        min-width: 0;
-        padding-top: 18px;
-        border-top: 1px solid #e2e8f0;
-        border-left: 0;
-    }
-
-    .mypage-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 620px) {
-    .mypage-page {
-        width: min(100% - 24px, 1120px);
-        margin-top: 24px;
-    }
-
-    .sidebar-title {
-        display: none;
-    }
-
-    .sidebar-menu {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .profile-summary-card,
-    .mypage-card,
-    .withdraw-card {
-        padding: 20px;
-    }
-
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .profile-summary-meta {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .summary-meta-item {
-        padding: 5px 10px;
-    }
-
-    .card-heading {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-}
-
-
-/* 07-24 상각: 저장 중 중복 제출 방지 표시 */
-.primary-button:disabled {
-    cursor: wait;
-    opacity: 0.7;
-}
-
-
-/* =====================================================
-   07-24 상각: 마이페이지 항목별 사전 중복확인
-===================================================== */
-.duplicate-check-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 92px;
-    gap: 8px;
-}
-
-.duplicate-check-button {
-    min-height: 44px;
-    padding: 0 12px;
-    border: 1px solid #2864e8;
-    border-radius: 9px;
-    color: #2864e8;
-    background: #ffffff;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.duplicate-check-button:hover {
-    background: #f3f7ff;
-}
-
-.duplicate-check-button:disabled {
-    opacity: 0.65;
-    cursor: wait;
-}
-
-.duplicate-check-message.success {
-    color: #059669;
-}
-
-.duplicate-check-message.error {
+.form-field small.error,
+#nicknameCheckMessage.error,
+#newPasswordMessage.error,
+#passwordConfirmMessage.error {
     color: #dc2626;
 }
 
-.duplicate-check-message.pending {
-    color: #b45309;
+.nickname-field {
+    grid-column: 1 / 2;
 }
 
-@media (max-width: 560px) {
-    .duplicate-check-row {
+.right-fields {
+    display: grid;
+    grid-column: 2 / 3;
+    grid-row: 2 / span 2;
+    gap: 16px;
+    align-content: start;
+}
+
+.duplicate-row,
+.password-input-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+}
+
+.duplicate-row button,
+.password-toggle {
+    min-width: 88px;
+    height: 46px;
+    padding: 0 15px;
+    border: 1px solid #2563eb;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.nickname-rules,
+.password-rules {
+    margin-top: 5px;
+    padding: 14px 16px;
+    border: 1px solid #bfdbfe;
+    border-radius: 11px;
+    background: #f7fbff;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.nickname-rules strong,
+.password-rules strong {
+    color: #1e3a8a;
+}
+
+.nickname-rules ul,
+.password-rules ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    line-height: 1.7;
+}
+
+.form-actions {
+    margin-top: 22px;
+}
+
+.save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 150px;
+    height: 48px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: 9px;
+    background: #1669f7;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(22,105,247,.18);
+}
+
+.required-note {
+    margin: 10px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.password-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.password-rules {
+    margin-top: 18px;
+}
+
+/* =========================================================
+   반응형
+========================================================= */
+@media (max-width: 1050px) {
+    .mypage-shell {
+        grid-template-columns: 190px minmax(0, 1fr);
+    }
+
+    .profile-summary-top,
+    .profile-banner {
+        grid-template-columns: 120px minmax(0, 1fr);
+    }
+
+    .profile-scene,
+    .hero-illustration {
+        display: none;
+    }
+
+    .quick-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .password-form-grid {
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 760px) {
+    .mypage-shell {
+        display: block;
+    }
+
+    .mypage-sidebar {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 12px;
+        border-right: 0;
+        border-bottom: 1px solid #e1e7ef;
+    }
+
+    .mypage-nav {
+        display: flex;
+        gap: 8px;
+    }
+
+    .sidebar-item,
+    .sidebar-logout {
+        flex: 0 0 auto;
+        margin: 0;
+    }
+
+    .membership-card {
+        display: none;
+    }
+
+    .mypage-main {
+        padding: 20px 16px 40px;
+    }
+
+    .profile-summary-top,
+    .profile-banner {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding: 24px 20px;
+        text-align: center;
+    }
+
+    .profile-meta-row,
+    .hero-meta,
+    .hero-title-row {
+        justify-content: center;
+    }
+
+    .summary-grid,
+    .quick-card-grid,
+    .profile-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nickname-field,
+    .right-fields {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    .duplicate-row,
+    .password-input-row {
+        grid-template-columns: 1fr;
+    }
+
+    .duplicate-row button,
+    .password-toggle,
+    .save-button {
+        width: 100%;
+    }
+
+    .profile-form,
+    .password-change-section,
+    .summary-section,
+    .quick-menu-section {
+        padding: 24px 20px;
+    }
+}
+
+
+/* 최종 마이페이지: 빠른 메뉴 3개, SNS 안내 */
+.quick-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sns-security-notice { margin: 0 34px 34px; padding: 20px; border: 1px solid #bfdbfe; border-radius: 12px; background: #f3f8ff; color: #1d4ed8; }
+.sns-security-notice p { margin: 8px 0 0; color: #64748b; font-size: 13px; }
+@media (max-width: 900px) { .quick-card-grid { grid-template-columns: 1fr; } }

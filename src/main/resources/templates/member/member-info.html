@@ -15,8 +15,10 @@
         <nav class="mypage-nav">
             <a class="sidebar-item" th:href="@{/member/mypage}"><span class="sidebar-icon">♙</span><span>마이페이지</span></a>
             <a class="sidebar-item" th:href="@{/member/mypage/pets}"><span class="sidebar-icon">🐾</span><span>내 반려동물</span></a>
+            <a class="sidebar-item" href="#"><span class="sidebar-icon">▣</span><span>예약내역</span></a>
+            <a class="sidebar-item" href="#"><span class="sidebar-icon">♡</span><span>찜한 병원</span></a>
             <a class="sidebar-item" th:href="@{/owner/status}"><span class="sidebar-icon">☏</span><span>병원장 문의</span></a>
-            <a class="sidebar-item active" th:href="@{/member/feature/mypage}"><span class="sidebar-icon">↗</span><span>회원정보 수정</span></a>
+            <a class="sidebar-item active" th:href="@{/member/mypage/info}"><span class="sidebar-icon">↗</span><span>회원정보 수정</span></a>
         </nav>
 
         <a class="sidebar-logout" th:href="@{/member/logout}">
@@ -45,7 +47,9 @@
         <section class="profile-edit-card">
             <div class="profile-banner">
                 <div class="hero-avatar profile-avatar-readonly">
-                    <span>🐶</span>
+                    <img th:if="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
+                         th:src="${member.profileImage}" alt="프로필 사진">
+                    <span th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">🐶</span>
                 </div>
 
                 <div class="hero-copy">
@@ -58,7 +62,7 @@
                     </div>
                     <p>우리 아이들이 건강하고 행복하길 바라요! 🐶</p>
                     <div class="hero-meta compact">
-                        <div><span>최근 로그인</span><strong th:text="${member.lastLoginText != null and !#strings.isEmpty(member.lastLoginText) ? member.lastLoginText : '기록 없음'}">기록 없음</strong></div>
+                        <div><span>가입일</span><strong th:text="${member.createdAt != null ? #temporals.format(member.createdAt, 'yyyy.MM.dd') : '-'}">-</strong></div>
                         <div><span>로그인 방식</span><strong th:text="${member.loginType != null and member.loginType != 'LOCAL' ? 'SNS (' + member.loginType + ')' : 'LOCAL'}">LOCAL</strong></div>
                     </div>
                 </div>
@@ -66,7 +70,7 @@
                 <div class="hero-illustration" aria-hidden="true">🏥 🐕 🐈</div>
             </div>
 
-            <form id="profileForm" class="profile-form" method="post" th:action="@{/member/feature/mypage}">
+            <form id="profileForm" class="profile-form" method="post" th:action="@{/member/mypage/info}">
                 <div class="form-title">
                     <div><h2>기본 정보</h2><p>닉네임만 변경할 수 있습니다.</p></div>
                     <small><b>*</b> 필수 입력 항목</small>
@@ -114,7 +118,7 @@
                         <label class="form-field">
                             <span>전화번호</span>
                             <input type="text"
-                                   value="SNS 계정으로 가입한 회원입니다."
+                                   th:value="${member.loginType != null and member.loginType != 'LOCAL' ? 'SNS' : (member.phone != null and !#strings.isEmpty(member.phone) ? member.phone : '-')}"
                                    readonly>
                             <small>🔒 전화번호는 변경할 수 없습니다.</small>
                         </label>
@@ -140,10 +144,66 @@
                     <p class="required-note">닉네임을 변경한 경우 중복확인 후 저장해주세요.</p>
                 </div>
             </form>
-            <div class="sns-security-notice">
-                <strong>🛡 SNS 계정으로 가입한 회원은 비밀번호 변경이 필요하지 않아요!</strong>
-                <p th:text="${'계정 보안은 연결된 SNS (' + member.loginType + ')에서 안전하게 관리됩니다.'}">계정 보안은 연결된 SNS에서 관리됩니다.</p>
-            </div>
+
+            <section id="password-change"
+                     class="password-change-section"
+                     th:if="${member.loginType == null or member.loginType == 'LOCAL'}">
+                <div class="form-title">
+                    <div>
+                        <h2>비밀번호 변경</h2>
+                        <p>현재 비밀번호 확인 후 새 비밀번호로 변경합니다.</p>
+                    </div>
+                </div>
+
+                <div th:if="${passwordSuccessMessage}" class="page-alert success" th:text="${passwordSuccessMessage}"></div>
+                <div th:if="${passwordMessage}" class="page-alert error" th:text="${passwordMessage}"></div>
+
+                <form id="passwordChangeForm"
+                      class="password-change-form"
+                      method="post"
+                      th:action="@{/member/mypage/info/password}">
+                    <div class="password-form-grid">
+                        <label class="form-field">
+                            <span>현재 비밀번호 <b>*</b></span>
+                            <div class="password-input-row">
+                                <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
+                                <button class="password-toggle" type="button" data-target="currentPassword">보기</button>
+                            </div>
+                        </label>
+
+                        <label class="form-field">
+                            <span>새 비밀번호 <b>*</b></span>
+                            <div class="password-input-row">
+                                <input id="newPassword" name="newPassword" type="password" minlength="8" maxlength="64" autocomplete="new-password" required>
+                                <button class="password-toggle" type="button" data-target="newPassword">보기</button>
+                            </div>
+                            <small id="newPasswordMessage">영문, 숫자, 특수문자를 포함한 8~64자로 입력해주세요.</small>
+                        </label>
+
+                        <label class="form-field">
+                            <span>새 비밀번호 확인 <b>*</b></span>
+                            <div class="password-input-row">
+                                <input id="newPasswordConfirm" name="newPasswordConfirm" type="password" minlength="8" maxlength="64" autocomplete="new-password" required>
+                                <button class="password-toggle" type="button" data-target="newPasswordConfirm">보기</button>
+                            </div>
+                            <small id="passwordConfirmMessage"></small>
+                        </label>
+                    </div>
+
+                    <div class="password-rules">
+                        <strong>🔒 비밀번호 규칙</strong>
+                        <ul>
+                            <li>8~64자로 입력해주세요.</li>
+                            <li>영문, 숫자, 특수문자를 모두 포함해야 합니다.</li>
+                            <li>공백은 사용할 수 없습니다.</li>
+                            <li>아이디와 이메일 아이디를 포함할 수 없습니다.</li>
+                            <li>쉽게 추측할 수 있는 공용 비밀번호는 사용할 수 없습니다.</li>
+                        </ul>
+                    </div>
+
+                    <button id="passwordChangeButton" class="save-button" type="submit">비밀번호 변경</button>
+                </form>
+            </section>
         </section>
     </section>
 </main>

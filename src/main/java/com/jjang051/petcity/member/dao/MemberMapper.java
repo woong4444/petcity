@@ -64,6 +64,18 @@ public interface MemberMapper {
     // MemberService에서 1행이 정상 수정되었는지 확인할 때 사용합니다.
     int updateMyPage(MemberDto memberDto);
 
+    // 07-27 상각: 전화번호 등 다른 컬럼은 건드리지 않고 닉네임만 변경
+    int updateNickname(@Param("memberId") Long memberId,
+                       @Param("nickname") String nickname);
+
+    // 07-27 상각: LOCAL 회원의 암호화된 비밀번호만 변경
+    int updatePassword(@Param("memberId") Long memberId,
+                       @Param("password") String password);
+
+    // 07-27 상각: 마이페이지 프로필 사진 경로만 변경
+    int updateProfileImage(@Param("memberId") Long memberId,
+                           @Param("profileImage") String profileImage);
+
     void requestWithdrawal(Long memberId);
 
 }
