@@ -16,7 +16,6 @@
 
 <div th:replace="~{common/head :: head}"></div>
 
-<!-- 🌟 수정된 부분: 이미지를 화면 전체가 아닌, 1024px 컨테이너 안으로 넣고 가운데 정렬 적용 -->
 <div class="max-w-[1024px] w-full mx-auto px-4 mt-8">
     <section class="w-full h-[280px] sm:h-[340px] relative overflow-hidden bg-slate-900 shadow-md rounded-[2rem]">
         <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}"
@@ -30,7 +29,6 @@
     </section>
 </div>
 
-<!-- 🌟 수정된 부분: 이미지가 작아졌으므로 카드가 위로 덮는 여백(-mt-28)을 -mt-16 정도로 자연스럽게 줄임 -->
 <main class="view-wrap max-w-[1024px] w-full mx-auto -mt-16 sm:-mt-20 relative z-10 px-4 mb-20">
     <div class="bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl space-y-10">
         <section class="info-card relative bg-white border border-slate-100 p-6 sm:p-8 rounded-[2rem] shadow-sm">
@@ -59,50 +57,36 @@
             <div class="flex justify-between items-start mb-6">
                 <h1 class="h-name text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight"
                     th:text="${hospital.name}">병원 이름</h1>
-                <div class="flex items-center gap-1 mt-1">
+
+                <!-- 🌟 수정됨: '찜' 텍스트 제거 및 하트+숫자 디자인 적용 -->
+                <div class="flex items-center mt-1">
                     <button th:if="${session.loginMember == null}" type="button"
-                            class="is-anonymous text-slate-300 hover:text-rose-400 font-bold transition flex items-center gap-1.5"
+                            class="is-anonymous bg-white border border-slate-200 px-5 py-2.5 rounded-2xl shadow-sm text-slate-300 hover:text-rose-400 font-bold transition flex items-center justify-center gap-2"
                             onclick="alert('로그인 후 이용 가능합니다.'); location.href='/member/login';">
-                        <svg class="w-8 h-8 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        <svg class="w-7 h-7 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none"
                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597
-                                  1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3
-                                  8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
                         </svg>
-                        <span class="text-base text-slate-500">찜</span> <span class="count text-slate-700"
-                                                                              th:text="${hospital.zzimCount}">0</span>
+                        <span class="count text-lg font-extrabold text-slate-700" th:text="${hospital.zzimCount}">0</span>
                     </button>
                     <button th:unless="${session.loginMember == null}" type="button"
-                            class="btn-zzim-toggle font-bold transition flex items-center gap-1.5"
-                            th:classappend="${isZzim} ? 'text-rose-500 active' :
-                             'text-slate-300 hover:text-rose-400'"
+                            class="btn-zzim-toggle font-bold transition flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl border border-slate-200 bg-white shadow-sm hover:bg-slate-50"
+                            th:classappend="${isZzim} ? 'text-rose-500 active border-rose-100 bg-rose-50' : 'text-slate-300 hover:text-rose-400'"
                             th:data-id="${hospital.hospitalId}">
                         <svg th:classappend="${isZzim} ? 'hidden' : 'block'"
-                             class="w-8 h-8 icon-heart-empty transition-transform active:scale-125 drop-shadow-sm"
+                             class="w-7 h-7 icon-heart-empty transition-transform active:scale-125 drop-shadow-sm"
                              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                              stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M21 8.25c0-2.485-2.099-4.5-
-                                  4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-
-                                  .715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
                         </svg>
                         <svg th:classappend="${isZzim} ? 'block' : 'hidden'"
-                             class="w-8 h-8 icon-heart-filled transition-transform active:scale-125 drop-shadow-md"
+                             class="w-7 h-7 icon-heart-filled transition-transform active:scale-125 drop-shadow-md text-rose-500"
                              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M11.645 20.91l-.007-.003-.022-
-                            .012a15.247 15.247 0 01-.383-
-                            .218 25.18 25.18 0 01-4.244-3.
-                            17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322
-                            4.714 3 7.688 3A5.5 5.5 0 0112
-                            5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437
-                            2.322 5.437 5.25 0 3.925-2.438 7.111-
-                            4.739 9.256a25.175 25.175 0 01-
-                            4.244 3.17 15.247 15.247 0 01-.383.219l-
-                            .022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
+                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
                         </svg>
-                        <span class="text-base text-slate-500">찜</span> <span class="count text-slate-700"
-                                                                              th:text="${hospital.zzimCount}">0</span>
+                        <span class="count text-lg font-extrabold text-slate-700" th:text="${hospital.zzimCount}">0</span>
                     </button>
                 </div>
             </div>

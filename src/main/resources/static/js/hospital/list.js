@@ -1,4 +1,26 @@
 document.addEventListener("DOMContentLoaded", function () {
+
+    // 🌟 추가됨: URL 파라미터(sort, openStatus) 비정상 값 방지 및 자동 복구 로직
+    const urlParams = new URLSearchParams(window.location.search);
+    let urlChanged = false;
+
+    const validSorts = ['recommend', 'distance', 'name', 'review', 'rating'];
+    if (urlParams.has('sort') && !validSorts.includes(urlParams.get('sort'))) {
+        urlParams.set('sort', 'recommend');
+        urlChanged = true;
+    }
+
+    const validStatuses = ['ALL', 'OPEN', 'HOLIDAY', 'CLOSED', 'SUSPENDED'];
+    if (urlParams.has('openStatus') && !validStatuses.includes(urlParams.get('openStatus'))) {
+        urlParams.set('openStatus', 'ALL');
+        urlChanged = true;
+    }
+
+    if (urlChanged) {
+        // 뒤로가기 기록을 남기지 않고 주소창만 깔끔하게 올바른 값으로 즉시 교체
+        window.history.replaceState(null, '', window.location.pathname + '?' + urlParams.toString());
+    }
+
     const form = document.getElementById("hospitalFilterForm");
     if (!form) return;
 
@@ -344,9 +366,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
 
-        // 🌟 수정된 찜하기 즉시 적용 AJAX 로직
         document.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
-            // 이벤트 중복 방지를 위한 노드 교체
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
 
@@ -355,7 +375,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const hospitalId = this.dataset.id;
                 const btnElement = this;
 
-                // 서버에서 요구하는 CSRF 토큰을 동적으로 가져와서 헤더에 삽입
                 const csrfMeta = document.querySelector('meta[name="_csrf"]');
                 const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
                 const headers = {'Content-Type': 'application/x-www-form-urlencoded'};
@@ -372,7 +391,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSuccess) {
-                            // 🌟 서버 응답 직후 상태에 맞춰 SVG(하트 모양)와 색상 실시간 변경
                             const emptyHeart = btnElement.querySelector('.icon-heart-empty');
                             const filledHeart = btnElement.querySelector('.icon-heart-filled');
 
@@ -388,7 +406,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 if (filledHeart) { filledHeart.classList.remove('block'); filledHeart.classList.add('hidden'); }
                             }
 
-                            // 숫자 실시간 변경
                             const countSpan = btnElement.querySelector('.count');
                             if (countSpan) countSpan.textContent = data.zzimCount;
                         } else {

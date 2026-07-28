@@ -305,6 +305,7 @@
     const petCount = /*[[${petList.size()}]]*/ 0;
     const maxPetCount = 4;
     const editPetId = /*[[${param.editPetId != null ? param.editPetId[0] : ''}]]*/ '';
+    const returnTo = /*[[${param.returnTo != null ? param.returnTo[0] : ''}]]*/ '';
 
     function fillBreeds(selectedBreed) {
         const animalId = document.getElementById('animalId').value;
@@ -328,7 +329,7 @@
         document.getElementById('birthDate').value = button.dataset.birth;
         document.getElementById('weight').value = button.dataset.weight;
         document.getElementById('registrationNo').value = button.dataset.reg || '';
-        document.getElementById('formTitle').textContent = 'Edit Pet';
+        document.getElementById('formTitle').textContent = '반려동물 수정';
         document.getElementById('saveBtn').disabled = false;
         document.getElementById('saveMessage').textContent = '';
         document.getElementById('petFormCard').scrollIntoView({behavior: 'smooth'});
@@ -358,7 +359,7 @@
         message.textContent = '';
 
         if ((petId === '' || petId === '0')
-                && petCount >= maxPetCount) {
+            && petCount >= maxPetCount) {
             message.textContent = '반려동물은 최대 4마리까지 등록할 수 있습니다.';
             return;
         }
@@ -366,6 +367,11 @@
         const response = await fetch('/pet/api/save', {method: 'POST', body: new FormData(event.target)});
         const result = await response.json();
         if (result.isSuccess) {
+            if (returnTo === 'hospitalSearch') {
+                location.href = '/hospital/search';
+                return;
+            }
+
             location.reload();
             return;
         }
@@ -381,11 +387,11 @@
             }
 
             const response = await fetch(
-                    '/pet/api/delete',
-                    {
-                        method: 'POST',
-                        body: new FormData(form)
-                    }
+                '/pet/api/delete',
+                {
+                    method: 'POST',
+                    body: new FormData(form)
+                }
             );
 
             const result = await response.json();
@@ -402,12 +408,12 @@
     if (petCount >= maxPetCount) {
         document.getElementById('saveBtn').disabled = true;
         document.getElementById('saveMessage').textContent =
-                '현재 4마리가 등록되어 있습니다. 새로 등록하려면 기존 반려동물을 삭제해 주세요.';
+            '현재 4마리가 등록되어 있습니다. 새로 등록하려면 기존 반려동물을 삭제해 주세요.';
     }
 
     if (editPetId) {
         const editButton = Array.from(
-                document.querySelectorAll('.edit-btn')
+            document.querySelectorAll('.edit-btn')
         ).find(button => button.dataset.id === String(editPetId));
 
         if (editButton) {
