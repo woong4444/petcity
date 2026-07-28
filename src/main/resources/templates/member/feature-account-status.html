@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ======================================= -->
+    <!-- 07-22 상각 : 공통 헤더 CSS 적용 -->
+    <!-- ======================================= -->
+    <header th:replace="~{common/head :: head}"></header>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f6f8fb;
+            color: #172033
+        }
+
+        .card {
+            max-width: 620px;
+            margin: 90px auto;
+            padding: 40px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px #1f35521a
+        }
+
+        .notice {
+            padding: 18px;
+            background: #fff1f2;
+            color: #b42338;
+            border-radius: 12px;
+            line-height: 1.7
+        }
+
+        .reason {
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-top: 18px
+        }
+
+        .guide {
+            color: #667085;
+            line-height: 1.7
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px
+        }
+
+        .buttons a {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #fff
+        }
+
+        .buttons .home {
+            background: #eef2f6;
+            color: #344054
+        }
+    </style>
+</head>
+<body>
+<!-- 상각_07-19: 탈퇴 대기 SNS 로그인 차단 후 3초 안내 -->
+<main class="card">
+    <h1>계정 상태 안내</h1>
+    <p class="notice" th:if="${pending}">
+        탈퇴 처리 중인 계정입니다. 탈퇴 요청일로부터 3일 후 완전히 삭제되며,
+        삭제 전까지 복구를 신청할 수 있습니다.
+    </p>
+    <p class="notice" th:unless="${pending}">
+        관리자에 의해 사용이 중지되었거나 삭제된 계정입니다.
+    </p>
+    <section class="reason">
+        <strong>탈퇴·처리 사유</strong>
+        <p th:text="${deleteReason != null && !#strings.isEmpty(deleteReason) ? deleteReason : '등록된 사유가 없습니다.'}"></p>
+    </section>
+    <p class="guide">로그인은 해제되었습니다. <b>10초 후 메인 화면으로 이동합니다.</b></p>
+    <div class="buttons">
+        <a th:href="${snsMember} ? '/member/recovery?type=sns' : '/member/recovery?type=local'">계정 복구</a>
+        <a class="home" href="/">메인으로</a>
+    </div>
+</main>
+</body>
+</html>

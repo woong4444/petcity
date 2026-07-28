@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 | PetCity</title>
+
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/member/mypage.css}">
+</head>
+
+<body>
+<header th:replace="~{common/head :: head}"></header>
+
+<main class="mypage-shell">
+    <aside class="mypage-sidebar">
+        <nav class="mypage-nav">
+            <a class="sidebar-item active"
+               th:href="@{/member/feature/mypage}">
+                <span class="sidebar-icon">♙</span>
+                <span>마이페이지</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/member/mypage/pets}">
+                <span class="sidebar-icon">🐾</span>
+                <span>내 반려동물</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/owner/status}">
+                <span class="sidebar-icon">☏</span>
+                <span>병원장 문의</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/member/feature/mypage/info}">
+                <span class="sidebar-icon">↗</span>
+                <span>회원정보 수정</span>
+            </a>
+        </nav>
+
+        <a class="sidebar-logout"
+           th:href="@{/member/logout}">
+            <span>로그아웃</span>
+            <span>↪</span>
+        </a>
+
+        <div class="membership-card">
+            <strong>PetCity<br>멤버십 혜택</strong>
+            <p>더 많은 혜택을<br>만나보세요!</p>
+            <span class="membership-dog">🐕</span>
+        </div>
+    </aside>
+
+    <section class="mypage-main">
+        <div th:if="${successMessage}"
+             class="page-alert success"
+             th:text="${successMessage}">
+        </div>
+
+        <div th:if="${message}"
+             class="page-alert error"
+             th:text="${message}">
+        </div>
+
+        <div class="page-heading mypage-heading">
+            <div>
+                <h1>마이페이지</h1>
+                <p>우리 아이를 위한 모든 활동을 한 곳에서 관리하세요.</p>
+            </div>
+        </div>
+
+        <section class="profile-summary-card">
+            <div class="profile-summary-top">
+                <div class="profile-photo-wrap">
+                    <div class="profile-photo">
+                        <img th:if="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
+                             th:src="${member.profileImage}"
+                             alt="프로필 사진">
+
+                        <span th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">
+                            🐶
+                        </span>
+                    </div>
+                </div>
+
+                <div class="profile-summary-copy">
+                    <div class="hero-title-row">
+                        <h2 th:text="${member.nickname != null ? member.nickname + '님' : '회원님'}">
+                            회원님
+                        </h2>
+
+                        <span class="role-badge">SNS 회원</span>
+                    </div>
+
+                    <div class="profile-meta-row">
+                        <div>
+                            <span>가입일</span>
+                            <strong th:text="${member.createdAt != null
+                                ? #temporals.format(member.createdAt, 'yyyy.MM.dd')
+                                : '-'}">
+                                -
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>로그인 방식</span>
+                            <strong th:text="${member.loginType != null
+                                ? 'SNS (' + member.loginType + ')'
+                                : 'SNS'}">
+                                SNS
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="member-pet-scene"
+                   th:href="@{/member/mypage/pets}"
+                   aria-label="내 반려동물 관리">
+                    <th:block th:if="${petList != null and !#lists.isEmpty(petList)}">
+                        <span class="member-pet-photo"
+                              th:each="pet, status : ${petList}"
+                              th:if="${status.index < 3}">
+                            <img th:if="${pet.photoUrl != null and !#strings.isEmpty(pet.photoUrl)}"
+                                 th:src="${pet.photoUrl}"
+                                 th:alt="${pet.petName + ' 사진'}">
+                            <span th:unless="${pet.photoUrl != null and !#strings.isEmpty(pet.photoUrl)}">
+                                🐾
+                            </span>
+                        </span>
+                    </th:block>
+
+                    <span class="member-pet-empty"
+                          th:if="${petList == null or #lists.isEmpty(petList)}">
+                        반려동물 등록
+                    </span>
+                </a>
+            </div>
+
+            <div class="summary-section">
+                <div class="section-title-row">
+                    <div>
+                        <h2>내 정보 요약</h2>
+                        <p>상세 정보 변경은 회원정보 수정 메뉴에서 가능합니다.</p>
+                    </div>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span>아이디</span>
+                        <strong th:text="${member.loginId}">sns@email.com</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>전화번호</span>
+                        <strong>-</strong>
+                        <small>SNS 계정으로 가입</small>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>가입 방식</span>
+                        <strong th:text="${member.loginType != null
+                            ? 'SNS (' + member.loginType + ')'
+                            : 'SNS'}">
+                            SNS
+                        </strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>가입일</span>
+                        <strong th:text="${member.createdAt != null
+                            ? #temporals.format(member.createdAt, 'yyyy.MM.dd')
+                            : '-'}">
+                            -
+                        </strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>이메일</span>
+                        <strong th:text="${member.email}">sns@email.com</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>최근 정보 수정</span>
+                        <strong th:text="${member.updatedAt != null
+                            ? #temporals.format(member.updatedAt, 'yyyy.MM.dd HH:mm')
+                            : '수정 기록 없음'}">
+                            수정 기록 없음
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-menu-section">
+            <div class="section-title-row">
+                <div>
+                    <h2>빠른 메뉴</h2>
+                    <p>자주 사용하는 기능으로 바로 이동하세요.</p>
+                </div>
+            </div>
+
+            <div class="quick-card-grid">
+                <a class="quick-card"
+                   th:href="@{/member/mypage/pets}">
+                    <span class="quick-icon blue">🐾</span>
+                    <div>
+                        <strong>내 반려동물</strong>
+                        <small>반려동물 정보 관리</small>
+                    </div>
+                </a>
+
+                <a class="quick-card"
+                   th:href="@{/owner/status}">
+                    <span class="quick-icon sky">☏</span>
+                    <div>
+                        <strong>병원장 문의</strong>
+                        <small>신청 현황 확인</small>
+                    </div>
+                </a>
+
+                <a class="quick-card"
+                   th:href="@{/member/feature/mypage/info}">
+                    <span class="quick-icon violet">↗</span>
+                    <div>
+                        <strong>회원정보 수정</strong>
+                        <small>닉네임 변경</small>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script th:src="@{/js/common/head.js}"></script>
+</body>
+</html>

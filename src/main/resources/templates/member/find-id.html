@@ -1,0 +1,91 @@
+<!-- 상각_07-19: 8080 기능 추가 및 수정 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>아이디 찾기 | PetCity</title>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <style>body {
+        background: #f6f8fb
+    }
+
+    .box {
+        max-width: 520px;
+        margin: 70px auto;
+        padding: 34px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 12px 35px #1f35521a
+    }
+
+    .box h1 {
+        margin-top: 0
+    }
+
+    .box p {
+        color: #667085;
+        line-height: 1.6
+    }
+
+    .box label {
+        display: block;
+        font-weight: 700;
+        margin: 18px 0 7px
+    }
+
+    .box input {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #d4dce8;
+        border-radius: 10px
+    }
+
+    .box button {
+        width: 100%;
+        margin-top: 24px;
+        padding: 14px;
+        border: 0;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        font-weight: 800
+    }
+
+    .msg {
+        padding: 14px;
+        margin: 18px 0;
+        border-radius: 10px;
+        background: #fff1f2;
+        color: #b42338
+    }
+
+    .result {
+        background: #ecfdf3;
+        color: #067647
+    }
+
+    .links {
+        margin-top: 22px;
+        text-align: center
+    }
+
+    .links a {
+        color: #2563eb;
+        text-decoration: none
+    }</style>
+</head>
+<body>
+<header th:replace="~{common/head :: head}"></header>
+<main class="box"><h1>아이디 찾기</h1>
+    <p>일반 회원가입 때 등록한 이메일을 입력해주세요.<br>SNS 회원의 아이디는 해당 SNS 이메일 계정입니다.</p>
+    <div th:if="${message}" class="msg" th:text="${message}"></div>
+    <div th:if="${foundLoginId}" class="msg result">회원님의 아이디는 <strong th:text="${foundLoginId}"></strong> 입니다.</div>
+    <form method="post" action="/member/find-id"><label>가입 이메일</label><input type="email" name="email" required>
+        <button>아이디 찾기</button>
+    </form>
+    <div class="links"><a href="/member/login">로그인으로 돌아가기</a></div>
+</main>
+</body>
+</html>

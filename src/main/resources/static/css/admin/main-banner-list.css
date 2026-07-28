@@ -853,23 +853,3 @@ body.modal-open {
         border-radius: 15px;
     }
 }
-
-.banner-empty {
-    padding: 70px 20px;
-    color: #7b8798;
-    background-color: #f8fafc;
-    border: 1px dashed #d5deea;
-    border-radius: 14px;
-    text-align: center;
-}
-
-.banner-empty strong {
-    display: block;
-    color: #3d4b60;
-    font-size: 16px;
-}
-
-.banner-empty p {
-    margin: 8px 0 0;
-    font-size: 13px;
-}
