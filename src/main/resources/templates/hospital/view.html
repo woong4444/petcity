@@ -113,16 +113,19 @@
                                  th:text="${reviewList != null ? reviewList.size() : 0}">0</strong></span>
             </div>
 
+            <!-- 🌟 핵심 3: 해시태그를 클릭 가능한 링크(a 태그)로 변경 -->
             <div class="h-tags flex flex-wrap gap-2 mb-8">
                 <th:block th:if="${hospital.animalNames != null and !#strings.isEmpty(hospital.animalNames)}">
-                    <span class="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm"
-                          th:each="animal : ${hospital.animalNames.split(',')}"
-                          th:text="|#${animal.trim()}|"></span>
+                    <a th:href="@{/hospital/list(keyword=${animal.trim()})}"
+                       class="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm hover:bg-sky-100 hover:text-sky-600 transition"
+                       th:each="animal : ${hospital.animalNames.split(',')}"
+                       th:text="|#${animal.trim()}|"></a>
                 </th:block>
                 <th:block th:if="${hospital.serviceNames != null and !#strings.isEmpty(hospital.serviceNames)}">
-                    <span class="bg-indigo-50 text-indigo-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm"
-                          th:each="service : ${hospital.serviceNames.split(',')}"
-                          th:text="|#${service.trim()}|"></span>
+                    <a th:href="@{/hospital/list(keyword=${service.trim()})}"
+                       class="bg-indigo-50 text-indigo-600 px-3.5 py-1.5 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-100 hover:text-indigo-800 transition"
+                       th:each="service : ${hospital.serviceNames.split(',')}"
+                       th:text="|#${service.trim()}|"></a>
                 </th:block>
             </div>
         </section>

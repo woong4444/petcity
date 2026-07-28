@@ -16,8 +16,9 @@
         <p class="page-badge">PetCity Hospital Finder</p>
         <h1>어떤 동물병원을 찾으시나요?</h1>
         <div class="hospital-search-form">
+            <!-- 🌟 수정: '등 검색어' 글자 제거 -->
             <input type="text" form="hospitalFilterForm" name="keyword" id="mainKeywordInput" th:value="${keyword}"
-                   placeholder="병원명, 지역, 동물 종류 등 검색어 입력">
+                   placeholder="병원명, 지역, 동물 종류 입력">
             <button type="submit" form="hospitalFilterForm">검색</button>
         </div>
     </section>
@@ -194,15 +195,13 @@
                 <div class="hospital-image hospital-image-link go-detail-link"
                      th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}"
                      th:data-status="${hospital.currentStatus}"
-                     th:data-notice="${hospital.tempCloseReason != null and hospital.tempCloseReason != ''
-                     ? hospital.tempCloseReason : '등록된 휴업 사유가 없습니다.'}">
+                     th:data-notice="${hospital.tempCloseReason != null and hospital.tempCloseReason != '' ? hospital.tempCloseReason : '등록된 휴업 사유가 없습니다.'}">
                     <img th:if="${hospital.imageUrl != null and hospital.imageUrl != ''}" th:src="${hospital.imageUrl}"
                          alt="병원 이미지">
                     <div th:if="${hospital.imageUrl == null or hospital.imageUrl == ''}" class="no-image">
                         <span>No Image</span></div>
                     <div class="hover-overlay"><p
-                            th:text="${hospital.description != null and hospital.description != ''
-                            ? hospital.description : '상세 소개가 없습니다.'}"></p>
+                            th:text="${hospital.description != null and hospital.description != '' ? hospital.description : '상세 소개가 없습니다.'}"></p>
                     </div>
                 </div>
 
@@ -224,18 +223,15 @@
                             <h2 class="hospital-name hospital-name-text go-detail-link"
                                 th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}"
                                 th:data-status="${hospital.currentStatus}"
-                                th:data-notice="${hospital.tempCloseReason != null and hospital.tempCloseReason != ''
-                                ? hospital.tempCloseReason : '등록된 휴업 사유가 없습니다.'}">
+                                th:data-notice="${hospital.tempCloseReason != null and hospital.tempCloseReason != '' ? hospital.tempCloseReason : '등록된 휴업 사유가 없습니다.'}">
                                 <span th:text="${hospital.name}">병원 이름</span>
                             </h2>
 
                             <div class="rating-wrap">
-                                <!-- 🌟 500km 이내의 정상 거리일 때만 출력 -->
                                 <p class="h-distance rating-dist-margin"
                                    th:if="${hospital.distance != null and hospital.distance > 0 and hospital.distance < 500}">
                                     <strong th:text="${#numbers.formatDecimal(hospital.distance, 1, 1)}"></strong>km
                                 </p>
-                                <!-- 🌟 거리가 비정상적이거나 없는 경우 주소 기반으로 카카오맵 API 동적 계산 렌더링 -->
                                 <p class="h-distance rating-dist-margin async-distance"
                                    th:if="${hospital.distance == null or hospital.distance == 0 or hospital.distance >= 500}"
                                    th:data-address="${hospital.address}"
@@ -254,45 +250,30 @@
 
                         <div class="title-right shrink-0 pt-1">
                             <button th:if="${session.loginMember == null}" type="button"
-                                    class="btn-list-zzim is-anonymous flex items-center gap-1.5 text-slate-300
-                                    hover:text-rose-400 transition-colors"
+                                    class="btn-list-zzim is-anonymous flex items-center gap-1.5 text-slate-300 hover:text-rose-400 transition-colors"
                                     onclick="alert('로그인 후 이용 가능합니다.'); location.href='/member/login';">
                                 <svg class="w-7 h-7 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg" fill="none"
                                      viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597
-                                          1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765
-                                          3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
                                 </svg>
                                 <span class="count text-sm font-bold" th:text="${hospital.zzimCount}">0</span>
                             </button>
                             <button th:unless="${session.loginMember == null}" type="button"
                                     class="btn-list-zzim btn-zzim-toggle flex items-center gap-1.5 transition-colors"
-                                    th:classappend="${myZzimList != null and myZzimList.contains(hospital.hospitalId)}
-                                    ? 'text-rose-500 active' : 'text-slate-300 hover:text-rose-400'"
+                                    th:classappend="${myZzimList != null and myZzimList.contains(hospital.hospitalId)} ? 'text-rose-500 active' : 'text-slate-300 hover:text-rose-400'"
                                     th:data-id="${hospital.hospitalId}">
-                                <svg th:classappend="${myZzimList != null and myZzimList.contains(hospital.hospitalId)}
-                                ? 'hidden' : 'block'"
+                                <svg th:classappend="${myZzimList != null and myZzimList.contains(hospital.hospitalId)} ? 'hidden' : 'block'"
                                      class="w-7 h-7 icon-heart-empty transition-transform active:scale-125 drop-shadow-sm"
                                      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                                      stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597
-                                          1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1
-                                          3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
                                 </svg>
-                                <svg th:classappend="${myZzimList != null and myZzimList.contains(hospital.hospitalId)}
-                                ? 'block' : 'hidden'"
+                                <svg th:classappend="${myZzimList != null and myZzimList.contains(hospital.hospitalId)} ? 'block' : 'hidden'"
                                      class="w-7 h-7 icon-heart-filled transition-transform active:scale-125 drop-shadow-md"
                                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M11.645 20.91l-.007-.003-
-                                    .022-.012a15.247 15.247 0 01-
-                                    .383-.218 25.18 25.18 0 01-4.244-
-                                    3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714
-                                    3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313
-                                    3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438
-                                    7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247
-                                    0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
+                                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
                                 </svg>
                                 <span class="count text-sm font-bold" th:text="${hospital.zzimCount}">0</span>
                             </button>
@@ -301,29 +282,22 @@
 
                     <div class="hospital-detail-list mt-3 border-t border-slate-100 pt-3">
                         <p><span class="detail-label">진료과목</span><span class="txt-ellipsis"
-                                                                       th:text="${hospital.medicalSubjects
-                                                                       != null and !hospital.medicalSubjects.matches('^[0-9]+$')
-                                                                       ? hospital.medicalSubjects.replaceAll('/', ', ') : '정보 없음'}"></span>
+                                                                       th:text="${hospital.medicalSubjects != null and !hospital.medicalSubjects.matches('^[0-9]+$') ? hospital.medicalSubjects.replaceAll('/', ', ') : '정보 없음'}"></span>
                         </p>
                         <p><span class="detail-label">진료동물</span><span class="txt-ellipsis"
-                                                                       th:text="${hospital.animalNames != null
-                                                                       ? hospital.animalNames : '정보 없음'}"></span>
+                                                                       th:text="${hospital.animalNames != null ? hospital.animalNames : '정보 없음'}"></span>
                         </p>
                         <p><span class="detail-label">제공옵션</span><span class="txt-ellipsis"
-                                                                       th:text="${hospital.serviceNames != null
-                                                                       ? hospital.serviceNames : '정보 없음'}"></span>
+                                                                       th:text="${hospital.serviceNames != null ? hospital.serviceNames : '정보 없음'}"></span>
                         </p>
                         <p><span class="detail-label">진료시간</span><span class="txt-ellipsis"
-                                                                       th:text="${hospital.openTime != null and hospital.openTime != ''
-                                                                       ? hospital.openTime + ' ~ ' + hospital.closeTime : '정보 없음'}"></span>
+                                                                       th:text="${hospital.openTime != null and hospital.openTime != '' ? hospital.openTime + ' ~ ' + hospital.closeTime : '정보 없음'}"></span>
                         </p>
                         <p><span class="detail-label">휴게시간</span><span class="txt-ellipsis detail-info-break"
-                                                                       th:text="${hospital.breakTime != null and hospital.breakTime != ''
-                                                                       ? hospital.breakTime : '휴게시간 없음'}"></span>
+                                                                       th:text="${hospital.breakTime != null and hospital.breakTime != '' ? hospital.breakTime : '휴게시간 없음'}"></span>
                         </p>
                         <p><span class="detail-label">정기휴무</span><span class="txt-ellipsis detail-info-holi"
-                                                                       th:text="${hospital.holiday != null and hospital.holiday != ''
-                                                                       ? hospital.holiday : '연중무휴'}"></span>
+                                                                       th:text="${hospital.holiday != null and hospital.holiday != '' ? hospital.holiday : '연중무휴'}"></span>
                         </p>
                         <p><span class="detail-label">병원주소</span><span class="txt-ellipsis"
                                                                        th:text="${hospital.address}"></span></p>
@@ -332,16 +306,15 @@
             </article>
         </section>
 
+        <!-- 페이징 래퍼 -->
         <div class="pagination-wrap" th:if="${pageDto != null and pageDto.totalPages > 1}">
             <ul class="pagination">
                 <li th:class="${pageDto.page == 1} ? 'page-item disabled' : 'page-item'"><a class="page-link" href="#"
                                                                                             data-page="1">&lt;&lt;</a>
                 </li>
-                <li th:class="${pageDto.startPage == 1} ? 'page-item disabled' : 'page-item'"
-                ><a class="page-link"
-
-                    href="#"
-                    th:data-page="${pageDto.startPage - 1}">&lt;</a>
+                <li th:class="${pageDto.startPage == 1} ? 'page-item disabled' : 'page-item'"><a class="page-link"
+                                                                                                 href="#"
+                                                                                                 th:data-page="${pageDto.startPage - 1}">&lt;</a>
                 </li>
                 <li th:each="p : ${#numbers.sequence(pageDto.startPage, pageDto.endPage)}"
                     th:class="${p == pageDto.page} ? 'page-item active' : 'page-item'"><a class="page-link" href="#"
@@ -355,6 +328,7 @@
         </div>
     </div>
 
+    <!-- 🚨 휴업 병원 전용 안내 모달 -->
     <div id="suspendModal" class="location-modal">
         <div class="location-modal-content suspend-modal-content">
             <div class="suspend-icon">🚨</div>
@@ -373,7 +347,6 @@
             </div>
         </div>
     </div>
-
 </main>
 
 <div id="locationModal" class="location-modal">
@@ -398,7 +371,7 @@
 
 <script type="text/javascript"
         src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
-<script th:src="@{/js/hospital/list.js?v=35}"></script>
+<script th:src="@{/js/hospital/list.js?v=37}"></script>
 
 <div th:replace="~{common/footer :: footer}"></div>
 </body>
