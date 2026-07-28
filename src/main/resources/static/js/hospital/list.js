@@ -344,21 +344,52 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
 
+        // 🌟 수정된 찜하기 즉시 적용 AJAX 로직
         document.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
-            btn.addEventListener('click', function (e) {
+            // 이벤트 중복 방지를 위한 노드 교체
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const hospitalId = this.dataset.id;
+                const btnElement = this;
+
+                // 서버에서 요구하는 CSRF 토큰을 동적으로 가져와서 헤더에 삽입
+                const csrfMeta = document.querySelector('meta[name="_csrf"]');
+                const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+                const headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+
+                if (csrfMeta && csrfHeaderMeta) {
+                    headers[csrfHeaderMeta.content] = csrfMeta.content;
+                }
 
                 fetch('/hospital/api/zzim', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    headers: headers,
                     body: new URLSearchParams({hospitalId: hospitalId})
                 })
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSuccess) {
-                            this.classList.toggle('active', data.isZzim);
-                            const countSpan = this.querySelector('.count');
+                            // 🌟 서버 응답 직후 상태에 맞춰 SVG(하트 모양)와 색상 실시간 변경
+                            const emptyHeart = btnElement.querySelector('.icon-heart-empty');
+                            const filledHeart = btnElement.querySelector('.icon-heart-filled');
+
+                            if (data.isZzim) {
+                                btnElement.classList.add('text-rose-500', 'active');
+                                btnElement.classList.remove('text-slate-300', 'hover:text-rose-400');
+                                if (emptyHeart) { emptyHeart.classList.remove('block'); emptyHeart.classList.add('hidden'); }
+                                if (filledHeart) { filledHeart.classList.remove('hidden'); filledHeart.classList.add('block'); }
+                            } else {
+                                btnElement.classList.remove('text-rose-500', 'active');
+                                btnElement.classList.add('text-slate-300', 'hover:text-rose-400');
+                                if (emptyHeart) { emptyHeart.classList.remove('hidden'); emptyHeart.classList.add('block'); }
+                                if (filledHeart) { filledHeart.classList.remove('block'); filledHeart.classList.add('hidden'); }
+                            }
+
+                            // 숫자 실시간 변경
+                            const countSpan = btnElement.querySelector('.count');
                             if (countSpan) countSpan.textContent = data.zzimCount;
                         } else {
                             alert("세션이 만료되었습니다. 다시 로그인해주세요.");

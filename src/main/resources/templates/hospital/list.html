@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>동물병원 찾기 - PetCity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 🌟 수정된 부분: AJAX POST 요청(찜 기능)을 위한 CSRF 토큰 추가 -->
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" th:href="@{/css/common/head.css?v=2}">
     <link rel="stylesheet" th:href="@{/css/hospital/list.css}">
