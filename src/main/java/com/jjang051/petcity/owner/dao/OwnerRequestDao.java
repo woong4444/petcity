@@ -167,4 +167,9 @@ public interface OwnerRequestDao {
 
     void deleteOwnerRequestSubjects(@Param("requestId")int requestId);
 
+    int deletePendingOwnerRequest(
+            @Param("memberId") Long memberId,
+            @Param("requestId") int requestId
+    );
+
 }

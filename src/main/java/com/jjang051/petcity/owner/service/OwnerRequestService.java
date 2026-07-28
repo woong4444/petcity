@@ -1519,6 +1519,38 @@ public class OwnerRequestService {
 
     }
 
+    @Transactional
+    public void deletePendingOwnerRequest(
+            Long memberId,
+            int requestId
+    ) {
+        OwnerRequestDto requestDto =
+                ownerRequestDao.findPendingOwnerRequestForEdit(
+                        memberId,
+                        requestId
+                );
+        if(requestDto == null) {
+            throw new RuntimeException(
+                    "심사 대기 중인 본인 신청만 삭제할 수 있습니다."
+            );
+        }
+        ownerRequestDao.deleteOwnerRequestAnimals(requestId);
+        ownerRequestDao.deleteOwnerRequestServices(requestId);
+        ownerRequestDao.deleteOwnerRequestSubjects(requestId);
+
+        int deletedCount =
+                ownerRequestDao.deletePendingOwnerRequest(
+                        memberId,
+                        requestId
+                );
+
+        if(deletedCount != 1) {
+            throw new RuntimeException("신청 삭제에 실패했습니다.");
+        }
+        deleteSavedFile(requestDto.getDocumentUrl());
+        deleteSavedFile(requestDto.getHospitalImageUrl());
+    }
+
     private void validateOwnerRequestForUpdate(
             OwnerRequestDto dto,
             MultipartFile documentFile,

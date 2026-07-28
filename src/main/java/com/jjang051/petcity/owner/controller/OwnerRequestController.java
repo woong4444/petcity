@@ -469,4 +469,36 @@ public class OwnerRequestController {
         }
 
     }
+
+    @PostMapping("/delete/{requestId}")
+    public String deletePendingOwnerRequest(
+            @PathVariable int requestId,
+            HttpSession httpSession,
+            RedirectAttributes redirectAttributes
+    ) {
+        MemberDto loginMember =
+                (MemberDto) httpSession.getAttribute("loginMember");
+
+        if(loginMember == null || loginMember.getMemberId() == null) {
+            return "redirect:/member/login";
+        }
+        try {
+            ownerRequestService.deletePendingOwnerRequest(
+                    loginMember.getMemberId(),
+                    requestId
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "message",
+                    "심사 대기 중인 신청을 삭제했습니다."
+            );
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+     return "redirect:/owner/status";
+    }
+
 }

@@ -1375,3 +1375,38 @@ button.animal-category-header {
     background: #0284c7;
     transform: translateY(-2px);
 }
+
+.owner-status-actions {
+    align-items: center;
+    gap: 10px;
+}
+
+.owner-status-delete-form {
+    margin: 0;
+}
+
+.owner-status-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 104px;
+    height: 42px;
+    padding: 0 18px;
+
+    border: 1px solid #f87171;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #dc2626;
+
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.owner-status-delete-button:hover {
+    background: #fff1f2;
+    transform: translateY(-2px);
+}

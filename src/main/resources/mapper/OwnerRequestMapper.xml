@@ -493,6 +493,13 @@
         WHERE REQUEST_ID =#{requestId}
     </delete>
 
+    <delete id="deletePendingOwnerRequest">
+        DELETE FROM HOSPITAL_OWNER_REQUEST
+        WHERE REQUEST_ID = #{requestId}
+            AND MEMBER_ID = #{memberId}
+            AND STATUS = 'PENDING'
+    </delete>
+
 
 
     <!-- =================================================
