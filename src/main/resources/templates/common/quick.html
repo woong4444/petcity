@@ -1,17 +1,48 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
 <body>
-<aside th:fragment="quick" class="quick-menu">
-    <div class="quick-title">Quick Menu</div>
-    <ul class="quick-list">
-        <li><a href="/member/mypage">내 정보(반려동물)</a></li>
-        <li><a href="/board/list?type=FAQ">자주 묻는 질문(FAQ)</a></li>
-    </ul>
-    <div class="quick-recent-box">
-        <div class="quick-recent-title">최근 본 병원</div>
-        <ul id="quickRecentList" class="quick-list recent-list"></ul>
+
+<aside th:fragment="quick"
+       class="quick-menu">
+
+    <div class="quick-title">
+        Quick Menu
     </div>
-    <button class="btn-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">맨위로 TOP</button>
+
+    <ul class="quick-list">
+        <li>
+            <a href="/member/mypage">
+                내 정보(반려동물)
+            </a>
+        </li>
+
+        <li>
+            <a href="/board/list?type=FAQ">
+                자주 묻는 질문(FAQ)
+            </a>
+        </li>
+    </ul>
+
+    <div class="quick-recent-box">
+        <div class="quick-recent-title">
+            최근 본 병원
+        </div>
+
+        <ul id="quickRecentList"
+            class="quick-list recent-list">
+        </ul>
+    </div>
+
+    <button type="button"
+            class="btn-top"
+            onclick="window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })">
+        맨위로 TOP
+    </button>
 </aside>
+
 </body>
 </html>
