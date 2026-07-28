@@ -28,10 +28,16 @@
                         th:attr="data-id=${pet.petId},data-name=${pet.petName},data-animal=${pet.animalId},data-breed=${pet.breedName},data-gender=${pet.gender},data-birth=${pet.birthDate},data-weight=${pet.weight},data-reg=${pet.registrationNo}"
                         onclick="loadPet(this)">수정
                 </button>
-                <form th:action="@{/pet/delete}" method="post" style="flex: 1;"
-                      onsubmit="return confirm('정말 이 반려동물을 삭제하시겠습니까?');">
-                    <input type="hidden" name="petId" th:value="${pet.petId}">
-                    <button type="submit" class="delete-btn" style="width:100%;">삭제</button>
+                <form class="pet-delete-form"
+                      style="flex: 1;">
+                    <input type="hidden"
+                           name="petId"
+                           th:value="${pet.petId}">
+                    <button type="submit"
+                            class="delete-btn"
+                            style="width: 100%;">
+                        삭제
+                    </button>
                 </form>
             </div>
         </article>
@@ -363,6 +369,33 @@
             return;
         }
         message.textContent = 'Unable to save. Please check the input.';
+    });
+
+    document.querySelectorAll('.pet-delete-form').forEach(form => {
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            if (!confirm('정말 이 반려동물을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            const response = await fetch(
+                    '/pet/api/delete',
+                    {
+                        method: 'POST',
+                        body: new FormData(form)
+                    }
+            );
+
+            const result = await response.json();
+
+            if (result.isSuccess) {
+                location.reload();
+                return;
+            }
+
+            alert('반려동물을 삭제하지 못했습니다. 다시 시도해 주세요.');
+        });
     });
 
     if (petCount >= maxPetCount) {
