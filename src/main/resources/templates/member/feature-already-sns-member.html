@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>이미 가입된 계정 | PetCity</title>
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
     <style>
         * {
             box-sizing: border-box
@@ -16,9 +18,13 @@
             color: #111827
         }
 
+        .already-sns-page {
+            padding: 55px 20px 70px;
+        }
+
         .card {
             width: min(560px, calc(100% - 32px));
-            margin: 12vh auto;
+            margin: 0 auto;
             padding: 44px;
             background: #fff;
             border-radius: 22px;
@@ -46,12 +52,6 @@
             line-height: 1.7
         }
 
-        .redirect {
-            margin-top: -8px;
-            font-weight: 700;
-            color: #475467
-        }
-
         .actions {
             display: flex;
             gap: 12px;
@@ -77,20 +77,28 @@
     </style>
 </head>
 <body>
-<main class="card">
-    <!-- 상각_07-19: 기존 SNS 회원의 중복 회원가입 방지 안내 -->
-    <h1>이미 가입된 SNS 계정입니다</h1>
-    <div class="notice">해당 SNS 계정은 이미 PetCity 회원으로 등록되어 있습니다.</div>
-    <p>새로 가입할 필요 없이 로그인 페이지에서 같은 SNS 계정으로 로그인해 주세요.</p>
-    <p class="redirect">10초 후 메인 화면으로 이동합니다.</p>
-    <div class="actions">
+<header th:replace="~{common/head :: head}"></header>
 
-        <!-- 07-22 상각 : 공통 헤더에서 메인 이동이 가능하므로 메인 버튼 제거 -->
-        <a class="login" th:href="@{/member/login}">
-            로그인 페이지로
-        </a>
+<div class="already-sns-page">
+    <main class="card">
+        <!-- 상각_07-19: 기존 SNS 회원의 중복 회원가입 방지 안내 -->
+        <h1>이미 가입된 SNS 계정입니다</h1>
 
-    </div>
-</main>
+        <div class="notice">
+            해당 SNS 계정은 이미 PetCity 회원으로 등록되어 있습니다.
+        </div>
+
+        <p>
+            새로 가입할 필요 없이 로그인 페이지에서 같은 SNS 계정으로 로그인해 주세요.
+        </p>
+
+        <div class="actions">
+            <a class="login"
+               th:href="@{/member/login}">
+                로그인 페이지로
+            </a>
+        </div>
+    </main>
+</div>
 </body>
 </html>

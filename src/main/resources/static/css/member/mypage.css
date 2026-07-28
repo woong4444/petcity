@@ -1531,3 +1531,217 @@ body {
         width: 100%;
     }
 }
+
+/* =========================================================
+   07-28 회원정보 수정 화면 카드형 레이아웃 정리
+========================================================= */
+
+.profile-page .page-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.profile-page .page-heading > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    margin-top: 2px;
+    padding: 0 11px;
+    border: 1px solid #dbe4f0;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #64748b;
+    font-size: 11px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.profile-page .page-heading > a:hover {
+    border-color: #93c5fd;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.profile-page .page-heading h1 {
+    font-size: 28px;
+    letter-spacing: -0.04em;
+}
+
+.profile-page .profile-edit-card {
+    display: grid;
+    gap: 18px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.profile-page .profile-banner {
+    overflow: hidden;
+    border: 1px solid #d9e5f5;
+    border-radius: 18px;
+    background:
+            radial-gradient(
+                    circle at 88% 20%,
+                    rgba(96, 165, 250, 0.18),
+                    transparent 28%
+            ),
+            linear-gradient(135deg, #ffffff 0%, #edf5ff 100%);
+    box-shadow: 0 12px 30px rgba(30, 64, 175, 0.08);
+}
+
+.profile-page .profile-media-row {
+    gap: 18px;
+    padding: 0;
+}
+
+.profile-page .profile-upload-panel.compact,
+.profile-page .pet-preview-panel {
+    min-height: 178px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.profile-page .profile-upload-panel.compact {
+    border-color: #d8e6f8;
+    background:
+            linear-gradient(145deg, #f8fbff 0%, #eef5ff 100%);
+}
+
+.profile-page .pet-preview-panel {
+    border-color: #e0e7f0;
+}
+
+.profile-page .pet-preview-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.11);
+}
+
+.profile-page .profile-form,
+.profile-page .password-change-section {
+    padding: 28px;
+    border: 1px solid #e0e7f0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.profile-page .profile-form .form-title,
+.profile-page .password-change-section .form-title {
+    margin-bottom: 22px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid #edf1f6;
+}
+
+.profile-page .form-title h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 18px;
+    letter-spacing: -0.025em;
+}
+
+.profile-page .profile-meta-row > div {
+    min-width: 145px;
+    padding: 10px 13px;
+    border: 1px solid #dbe7f7;
+    border-radius: 10px;
+    background: #f8fbff;
+}
+
+.profile-page .profile-meta-row span,
+.profile-page .profile-meta-row strong {
+    display: block;
+}
+
+.profile-page .profile-meta-row span {
+    margin-bottom: 4px;
+    color: #94a3b8;
+    font-size: 9px;
+}
+
+.profile-page .profile-meta-row strong {
+    color: #334155;
+    font-size: 11px;
+}
+
+.profile-page .form-field input {
+    height: 43px;
+    padding: 0 13px;
+    border-radius: 10px;
+}
+
+.profile-page .duplicate-row button,
+.profile-page .password-toggle {
+    height: 43px;
+    border-radius: 10px;
+}
+
+.profile-page .nickname-rules,
+.profile-page .password-rules,
+.profile-page .sns-password-notice {
+    border-radius: 12px;
+    background: #f6faff;
+}
+
+.profile-page .form-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 22px;
+}
+
+.profile-page .form-actions .required-note {
+    margin: 0;
+}
+
+.profile-page .save-button {
+    min-height: 42px;
+    border-radius: 10px;
+}
+
+.profile-page .password-change-section {
+    border-top: 1px solid #e0e7f0;
+    background: #fbfdff;
+}
+
+.profile-page .withdraw-section {
+    margin: 0;
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(127, 29, 29, 0.04);
+}
+
+@media (max-width: 760px) {
+    .profile-page .page-heading {
+        display: block;
+    }
+
+    .profile-page .page-heading > a {
+        margin-bottom: 10px;
+    }
+
+    .profile-page .profile-banner {
+        border-radius: 15px;
+    }
+
+    .profile-page .profile-media-row {
+        padding: 0;
+    }
+
+    .profile-page .profile-form,
+    .profile-page .password-change-section {
+        padding: 21px 17px;
+        border-radius: 14px;
+    }
+
+    .profile-page .profile-form .form-title,
+    .profile-page .password-change-section .form-title {
+        padding-bottom: 14px;
+    }
+
+    .profile-page .form-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
