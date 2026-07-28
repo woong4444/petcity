@@ -55,8 +55,6 @@ public class MemberDto {
     private LocalDateTime updatedAt;
 
     private String profileImage;
-
-
     private String emailVerified;
 
     private String status;

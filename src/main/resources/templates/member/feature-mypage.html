@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원정보 수정 | PetCity</title>
+    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+    <link rel="stylesheet" th:href="@{/css/member/mypage.css}">
+
+    <style>
+        /*
+         * SNS 회원 회원정보 수정 화면 전용
+         * 최근 정보 수정 박스를 아래 입력 폼의 오른쪽 열 시작선에 맞춥니다.
+         */
+        .profile-form .form-title {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            column-gap: 16px;
+            align-items: start;
+        }
+
+        .profile-form .form-title > div:first-child {
+            grid-column: 1;
+        }
+
+        .profile-form .form-title .profile-meta-row {
+            grid-column: 2;
+            justify-self: start;
+            margin: 0;
+        }
+
+        .profile-form .form-title > small {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        @media (max-width: 760px) {
+            .profile-form .form-title {
+                grid-template-columns: 1fr;
+                row-gap: 12px;
+            }
+
+            .profile-form .form-title .profile-meta-row {
+                grid-column: 1;
+            }
+
+            .profile-form .form-title > small {
+                position: static;
+            }
+        }
+        .sns-password-notice {
+            margin: 22px 0 0;
+            padding: 16px 18px;
+            border: 1px solid #9ec5ff;
+            border-radius: 10px;
+            background: #f4f8ff;
+            color: #2459a9;
+        }
+
+        .sns-password-notice strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .sns-password-notice p {
+            margin: 0;
+            color: #6b7a90;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<header th:replace="~{common/head :: head}"></header>
+
+<main class="mypage-shell">
+    <aside class="mypage-sidebar">
+        <nav class="mypage-nav">
+            <a class="sidebar-item"
+               th:href="@{/member/feature/mypage}">
+                <span class="sidebar-icon">♙</span>
+                <span>마이페이지</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/member/mypage/pets}">
+                <span class="sidebar-icon">🐾</span>
+                <span>내 반려동물</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/owner/status}">
+                <span class="sidebar-icon">☏</span>
+                <span>병원장 문의</span>
+            </a>
+
+            <a class="sidebar-item active"
+               th:href="@{/member/feature/mypage/info}">
+                <span class="sidebar-icon">↗</span>
+                <span>회원정보 수정</span>
+            </a>
+        </nav>
+
+        <a class="sidebar-logout"
+           th:href="@{/member/logout}">
+            <span>로그아웃</span>
+            <span>↪</span>
+        </a>
+
+        <div class="membership-card">
+            <strong>PetCity<br>멤버십 혜택</strong>
+            <p>더 많은 혜택을<br>만나보세요!</p>
+            <span class="membership-dog">🐕</span>
+        </div>
+    </aside>
+
+    <section class="mypage-main profile-page">
+        <div class="page-heading">
+            <a th:href="@{/member/feature/mypage}">‹ 마이페이지</a>
+            <div>
+                <h1>회원정보 수정</h1>
+                <p>기본 정보를 안전하게 수정해주세요.</p>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="page-alert success" th:text="${successMessage}"></div>
+        <div th:if="${message}" class="page-alert error" th:text="${message}"></div>
+
+        <section class="profile-edit-card">
+            <div class="profile-banner">
+                <div class="hero-avatar profile-avatar-readonly">
+                    <img th:if="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
+                         th:src="${member.profileImage}" alt="프로필 사진">
+                    <span th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">🐶</span>
+                </div>
+
+                <div class="hero-copy">
+                    <div class="hero-title-row">
+                        <h2 th:text="${member.nickname != null ? member.nickname + '님' : '회원님'}">회원님</h2>
+                        <span class="role-badge">SNS 회원</span>
+                    </div>
+                    <div class="hero-meta compact">
+                        <div>
+                            <span>가입일</span>
+                            <strong th:text="${member.createdAt != null ? #temporals.format(member.createdAt, 'yyyy.MM.dd') : '-'}">-</strong>
+                        </div>
+                        <div>
+                            <span>로그인 방식</span>
+                            <strong th:text="${member.loginType != null ? 'SNS (' + member.loginType + ')' : 'SNS'}">SNS</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="member-pet-scene"
+                   th:href="@{/member/mypage/pets}"
+                   aria-label="내 반려동물 관리">
+                    <th:block th:if="${petList != null and !#lists.isEmpty(petList)}">
+                        <span class="member-pet-photo"
+                              th:each="pet, status : ${petList}"
+                              th:if="${status.index < 3}">
+                            <img th:if="${pet.photoUrl != null and !#strings.isEmpty(pet.photoUrl)}"
+                                 th:src="${pet.photoUrl}"
+                                 th:alt="${pet.petName + ' 사진'}">
+                            <span th:unless="${pet.photoUrl != null and !#strings.isEmpty(pet.photoUrl)}">
+                                🐾
+                            </span>
+                        </span>
+                    </th:block>
+
+                    <span class="member-pet-empty"
+                          th:if="${petList == null or #lists.isEmpty(petList)}">
+                        반려동물 등록
+                    </span>
+                </a>
+            </div>
+
+            <div class="profile-media-row">
+                <form id="profileDetailsForm"
+                      class="profile-details-form"
+                      method="post"
+                      enctype="multipart/form-data"
+                      th:action="@{/member/feature/mypage/info/profile}">
+                    <div class="profile-upload-panel compact">
+                        <div class="profile-preview-wrap">
+                            <div class="profile-preview">
+                                <img id="profilePreviewImage"
+                                     th:if="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
+                                     th:src="${member.profileImage}"
+                                     alt="프로필 사진 미리보기">
+                                <span id="profilePreviewFallback"
+                                      th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">
+                                    🐶
+                                </span>
+                            </div>
+
+                            <div class="profile-upload-actions">
+                                <label class="profile-upload-button"
+                                       for="profileImageFile">
+                                    사진 선택
+                                </label>
+                                <button class="save-button profile-details-save"
+                                        type="submit">
+                                    저장
+                                </button>
+                            </div>
+
+                            <input id="profileImageFile"
+                                   name="profileImageFile"
+                                   type="file"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   hidden>
+                            <small>JPG, PNG, WEBP / 최대 5MB</small>
+                        </div>
+                    </div>
+                </form>
+
+                <a class="pet-preview-panel"
+                   th:href="@{/member/mypage/pets}">
+                    <div class="pet-preview-heading">
+                        <div>
+                            <strong>내 반려동물</strong>
+                            <small>최대 4마리까지 등록할 수 있습니다.</small>
+                        </div>
+                        <span>관리하기 →</span>
+                    </div>
+
+                    <div class="pet-preview-list"
+                         th:if="${petList != null and !#lists.isEmpty(petList)}">
+                        <div class="pet-preview-item"
+                             th:each="pet, status : ${petList}"
+                             th:if="${status.index < 4}">
+                            <span class="pet-preview-photo">
+                                <img th:if="${pet.photoUrl != null and !#strings.isEmpty(pet.photoUrl)}"
+                                     th:src="${pet.photoUrl}"
+                                     th:alt="${pet.petName + ' 사진'}">
+                                <span th:unless="${pet.photoUrl != null and !#strings.isEmpty(pet.photoUrl)}">
+                                    🐾
+                                </span>
+                            </span>
+                            <small th:text="${pet.petName}">반려동물</small>
+                        </div>
+                    </div>
+
+                    <div class="pet-preview-empty"
+                         th:if="${petList == null or #lists.isEmpty(petList)}">
+                        <span>🐾</span>
+                        <small>등록된 반려동물이 없습니다.</small>
+                    </div>
+                </a>
+            </div>
+
+            <form id="profileForm" class="profile-form" method="post" th:action="@{/member/feature/mypage/info}">
+                <div class="form-title">
+                    <div>
+                        <h2>기본 정보</h2>
+                        <p>닉네임만 변경할 수 있습니다.</p>
+                    </div>
+
+                    <div class="profile-meta-row">
+                        <div>
+                            <span>최근 정보 수정</span>
+                            <strong th:text="${featureAccount != null and featureAccount.updatedAt != null
+                                ? #temporals.format(featureAccount.updatedAt, 'yyyy.MM.dd HH:mm')
+                                : '수정 기록 없음'}">
+                                수정 기록 없음
+                            </strong>
+                        </div>
+                    </div>
+
+                    <small><b>*</b> 필수 입력 항목</small>
+                </div>
+
+                <div class="profile-form-grid">
+                    <label class="form-field">
+                        <span>아이디</span>
+                        <input type="text" th:value="${member.loginId}" readonly>
+                    </label>
+
+                    <label class="form-field">
+                        <span>이메일</span>
+                        <input type="email" th:value="${member.email}" readonly>
+                    </label>
+
+                    <label class="form-field nickname-field">
+                        <span>닉네임 <b>*</b></span>
+                        <div class="duplicate-row">
+                            <input id="profileNickname"
+                                   name="nickname"
+                                   type="text"
+                                   th:value="${member.nickname}"
+                                   th:attr="data-original=${member.nickname}"
+                                   minlength="2"
+                                   maxlength="20"
+                                   pattern="[가-힣a-zA-Z0-9_]+"
+                                   required>
+                            <button id="nicknameCheckButton" type="button">중복확인</button>
+                        </div>
+                        <small id="nicknameCheckMessage">닉네임을 변경하면 중복확인이 필요합니다.</small>
+
+                        <div class="nickname-rules">
+                            <strong>닉네임 규칙</strong>
+                            <ul>
+                                <li>2~20자로 입력해주세요.</li>
+                                <li>한글, 영문, 숫자, 밑줄만 사용할 수 있습니다.</li>
+                                <li>공백과 기타 특수문자는 사용할 수 없습니다.</li>
+                                <li>다른 회원과 중복된 닉네임은 사용할 수 없습니다.</li>
+                            </ul>
+                        </div>
+                    </label>
+
+                    <div class="right-fields">
+                        <label class="form-field">
+                            <span>전화번호</span>
+                            <input type="text" value="-" readonly>
+                            <small>🔒 SNS 계정으로 가입한 회원입니다. 전화번호는 변경할 수 없습니다.</small>
+                        </label>
+
+                        <label class="form-field">
+                            <span>가입 방식</span>
+                            <input type="text"
+                                   th:value="${member.loginType != null ? 'SNS (' + member.loginType + ')' : 'SNS'}"
+                                   readonly>
+                        </label>
+
+                        <label class="form-field">
+                            <span>회원 구분</span>
+                            <input type="text" value="SNS 회원" readonly>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="profileSaveButton" class="save-button" type="submit">변경사항 저장</button>
+                    <p class="required-note">닉네임을 변경한 경우 중복확인 후 저장해주세요.</p>
+                </div>
+                <div class="sns-password-notice">
+                    <strong>ⓘ 비밀번호는 SNS 계정에서 관리됩니다.</strong>
+                    <p th:text="${member.loginType != null
+                        ? '비밀번호 변경이 필요하시면 ' + member.loginType + ' 계정 설정에서 변경해주세요.'
+                        : '비밀번호 변경이 필요하시면 가입한 SNS 계정 설정에서 변경해주세요.'}">
+                        비밀번호 변경이 필요하시면 가입한 SNS 계정 설정에서 변경해주세요.
+                    </p>
+                </div>
+
+            </form>
+
+            <section class="withdraw-section">
+                <div class="withdraw-copy">
+                    <h2>회원탈퇴</h2>
+                    <p>탈퇴 전용 화면에서 안내를 확인한 후 진행합니다.</p>
+                </div>
+
+                <a class="withdraw-link"
+                   th:href="@{/member/feature/withdraw}">
+                    회원탈퇴 화면으로 이동
+                </a>
+            </section>
+        </section>
+    </section>
+</main>
+
+<script th:src="@{/js/common/head.js}"></script>
+<script th:src="@{/js/member/mypage.js}"></script>
+</body>
+</html>

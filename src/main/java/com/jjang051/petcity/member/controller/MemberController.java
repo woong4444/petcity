@@ -2,6 +2,8 @@ package com.jjang051.petcity.member.controller;
 
 import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberService;
+import com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto;
+import com.jjang051.petcity.memberfeature.service.MemberFeatureService;
 import com.jjang051.petcity.mail.service.EmailVerificationService;
 import com.jjang051.petcity.config.CustomUserDetails;
 import com.jjang051.petcity.visit.service.ActiveLoginRedisService;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -28,6 +31,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.validation.FieldError;
 import java.util.Locale;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 
@@ -42,6 +50,10 @@ public class MemberController {
     // MemberService
     // ===========================
     private final MemberService memberService;
+
+    // 07-24 상각: 기존 memberfeature 조회 기능을 재사용해 최근 로그인만 표시
+    // DB를 수정하지 않고 APP_MEMBER.LAST_LOGIN_AT 조회 결과만 사용합니다.
+    private final MemberFeatureService memberFeatureService;
     private final EmailVerificationService emailVerificationService;
 
     private final LoginHistoryRedisService loginHistoryRedisService;
@@ -782,28 +794,240 @@ public class MemberController {
                 member
         );
 
+        model.addAttribute(
+                "petList",
+                petDao.findPetsByMemberId(
+                        member.getMemberId().intValue()
+                )
+        );
+
+        /*
+         * 07-24 상각: 일반회원 마이페이지 최근 로그인 표시
+         *
+         * - 기존 MemberFeatureAccountDto의 NULL 안전 포맷터를 재사용합니다.
+         * - LAST_LOGIN_AT이 NULL이면 빈 문자열을 전달하고 화면에서 영역을 숨깁니다.
+         * - 이 조회는 회원정보를 UPDATE하지 않습니다.
+         */
+        MemberFeatureAccountDto featureAccount =
+                memberFeatureService.findByMemberId(
+                        member.getMemberId()
+                );
+
+        model.addAttribute(
+                "lastLoginText",
+                featureAccount == null
+                        ? ""
+                        : featureAccount.getLastLoginText()
+        );
+
         return "member/mypage";
     }
 
-    // 07-16 상각: 아이디·이메일을 제외한 내 정보 수정
-    @PostMapping("/member/mypage")
-    public String updateMypage(@RequestParam String nickname,
-                               @RequestParam String phone,
-                               HttpSession session,
-                               RedirectAttributes rttr) {
-        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if (loginMember == null) {
+    // =====================================================
+    // 07-27 상각: 회원정보 수정 전용 화면
+    // 마이페이지에서는 정보를 조회만 하고, 수정은 이 화면에서만 처리합니다.
+    // =====================================================
+    @GetMapping("/member/mypage/info")
+    public String mypageInfo(
+            HttpSession session,
+            Model model,
+            RedirectAttributes rttr
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
+            return "redirect:/member/login";
+        }
+
+        MemberDto member =
+                memberService.findByMemberId(loginMember.getMemberId());
+
+        if (member == null || !"ACTIVE".equals(member.getStatus())) {
+            session.invalidate();
+            rttr.addFlashAttribute("message", "이용할 수 없는 계정입니다.");
+            return "redirect:/member/login";
+        }
+
+        session.setAttribute("loginMember", member);
+        model.addAttribute("member", member);
+        model.addAttribute(
+                "petList",
+                petDao.findPetsByMemberId(
+                        member.getMemberId().intValue()
+                )
+        );
+
+        return "member/member-info";
+    }
+
+    // =====================================================
+    // 07-27 상각: 기존 프로필 주소 호환 처리
+    // 이전 링크로 접근해도 새 회원정보 수정 화면으로 이동합니다.
+    // =====================================================
+    @GetMapping("/member/mypage/profile")
+    public String oldMypageProfile() {
+        return "redirect:/member/mypage/info";
+    }
+
+    // =====================================================
+    // 07-24 상각: 회원정보 수정 닉네임 사전 중복확인(AJAX)
+    // =====================================================
+    @ResponseBody
+    @GetMapping("/member/mypage/check-nickname")
+    public boolean checkMypageNickname(
+            @RequestParam String nickname,
+            HttpSession session
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            return true;
+        }
+
+        return memberService.existsNicknameExceptMember(
+                loginMember.getMemberId(),
+                nickname
+        );
+    }
+
+    // =====================================================
+    // 07-27 상각: 회원정보 수정 화면에서 닉네임만 변경
+    // 전화번호, 이메일, 아이디는 화면과 서버 모두 수정하지 않습니다.
+    // =====================================================
+    @PostMapping("/member/mypage/info")
+    public String updateMypageInfo(
+            @RequestParam String nickname,
+            HttpSession session,
+            RedirectAttributes rttr
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
             return "redirect:/member/login";
         }
 
         try {
-            MemberDto updatedMember = memberService.updateMyPage(loginMember.getMemberId(), nickname, phone);
+            MemberDto updatedMember =
+                    memberService.updateMyPageNickname(
+                            loginMember.getMemberId(),
+                            nickname
+                    );
+
             session.setAttribute("loginMember", updatedMember);
-            rttr.addFlashAttribute("successMessage", "회원 정보가 수정되었습니다.");
+            rttr.addFlashAttribute("successMessage", "닉네임이 변경되었습니다.");
         } catch (IllegalArgumentException e) {
             rttr.addFlashAttribute("message", e.getMessage());
         }
-        return "redirect:/member/mypage";
+
+        return "redirect:/member/mypage/info";
+    }
+
+    // =====================================================
+    // 07-27 상각: LOCAL 회원 비밀번호 변경
+    // SNS 회원 요청은 서버에서도 차단합니다.
+    // =====================================================
+    @PostMapping("/member/mypage/info/password")
+    public String changeMypagePassword(
+            @RequestParam String newPassword,
+            @RequestParam String newPasswordConfirm,
+            HttpSession session,
+            RedirectAttributes rttr
+    ) {
+
+        MemberDto loginMember =
+                (MemberDto) session.getAttribute("loginMember");
+
+        if (loginMember == null
+                || loginMember.getMemberId() == null) {
+            rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
+            return "redirect:/member/login";
+        }
+
+        try {
+            memberService.changeMyPagePassword(
+                    loginMember.getMemberId(),
+                    newPassword,
+                    newPasswordConfirm
+            );
+
+            rttr.addFlashAttribute(
+                    "passwordSuccessMessage",
+                    "비밀번호가 변경되었습니다."
+            );
+        } catch (IllegalArgumentException e) {
+            rttr.addFlashAttribute(
+                    "passwordMessage",
+                    e.getMessage()
+            );
+        }
+
+        return "redirect:/member/mypage/info#password-change";
+    }
+
+    // =====================================================
+    // 07-27 상각: 마이페이지 프로필 사진 업로드
+    // 기본정보는 수정하지 않고 PROFILE_IMAGE 컬럼만 갱신합니다.
+    // member 전용 이미지 폴더만 사용하며 다른 파트 파일은 건드리지 않습니다.
+    // =====================================================
+    @PostMapping("/member/mypage/info/profile")
+    public String updateProfileDetails(
+            @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
+            HttpSession session,
+            RedirectAttributes rttr
+    ) {
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        if (loginMember == null || loginMember.getMemberId() == null) {
+            return "redirect:/member/login";
+        }
+
+        try {
+            String imageUrl = loginMember.getProfileImage();
+
+            if (profileImageFile != null && !profileImageFile.isEmpty()) {
+                if (profileImageFile.getSize() > 5 * 1024 * 1024) {
+                    throw new IllegalArgumentException("프로필 사진은 5MB 이하만 업로드할 수 있습니다.");
+                }
+
+                String contentType = profileImageFile.getContentType();
+                String extension;
+                if ("image/jpeg".equals(contentType)) extension = ".jpg";
+                else if ("image/png".equals(contentType)) extension = ".png";
+                else if ("image/webp".equals(contentType)) extension = ".webp";
+                else throw new IllegalArgumentException("JPG, PNG, WEBP 이미지만 업로드할 수 있습니다.");
+
+                Path uploadDirectory = Paths.get(
+                        System.getProperty("user.dir"),
+                        "uploads", "member", "profile"
+                );
+                Files.createDirectories(uploadDirectory);
+
+                String savedFileName = loginMember.getMemberId() + "_" + UUID.randomUUID() + extension;
+                profileImageFile.transferTo(uploadDirectory.resolve(savedFileName).toFile());
+                imageUrl = "/images/member/profile/" + savedFileName;
+            }
+
+            MemberDto updated = memberService.updateProfileDetails(
+                    loginMember.getMemberId(), imageUrl
+            );
+            session.setAttribute("loginMember", updated);
+            rttr.addFlashAttribute("successMessage", "프로필 정보가 수정되었습니다.");
+        } catch (IOException e) {
+            rttr.addFlashAttribute("message", "프로필 사진 저장 중 오류가 발생했습니다.");
+        } catch (IllegalArgumentException e) {
+            rttr.addFlashAttribute("message", e.getMessage());
+        }
+
+        return "redirect:/member/mypage/info";
     }
 
     // 07-16 상각: 기존 pet API를 재사용하는 회원별 반려동물 관리 화면

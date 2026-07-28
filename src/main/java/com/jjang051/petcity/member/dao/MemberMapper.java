@@ -39,6 +39,15 @@ public interface MemberMapper {
     int countByEmail(String email);
 
     // =====================================================
+    // 회원가입 - 전화번호 중복 확인
+    // =====================================================
+    int countByPhone(String phone);
+
+    // 07-24 상각: 마이페이지 전화번호 변경 시 본인 계정은 중복 대상에서 제외
+    int countByPhoneExceptMember(@Param("phone") String phone,
+                                 @Param("memberId") Long memberId);
+
+    // =====================================================
     // 회원가입
     // =====================================================
     void insert(MemberDto memberDto);
@@ -50,7 +59,25 @@ public interface MemberMapper {
     void updateEmailVerified(String email);
 
     // 07-16 상각: 본인 정보 수정과 탈퇴 대기 상태 처리
-    void updateMyPage(MemberDto memberDto);
+    // 07-24 상각:
+    // MyBatis UPDATE가 실제로 수정한 행 개수를 반환하도록 int로 선언합니다.
+    // MemberService에서 1행이 정상 수정되었는지 확인할 때 사용합니다.
+    int updateMyPage(MemberDto memberDto);
+
+    // 07-27 상각: 전화번호 등 다른 컬럼은 건드리지 않고 닉네임만 변경
+    int updateNickname(@Param("memberId") Long memberId,
+                       @Param("nickname") String nickname);
+
+    // 07-27 상각: LOCAL 회원의 암호화된 비밀번호만 변경
+    int updatePassword(@Param("memberId") Long memberId,
+                       @Param("password") String password);
+
+    // 07-27 상각: 마이페이지 프로필 사진 경로만 변경
+    int updateProfileImage(@Param("memberId") Long memberId,
+                           @Param("profileImage") String profileImage);
+
+    int updateProfileDetails(@Param("memberId") Long memberId,
+                             @Param("profileImage") String profileImage);
 
     void requestWithdrawal(Long memberId);
 

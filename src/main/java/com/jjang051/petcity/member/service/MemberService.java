@@ -5,6 +5,7 @@ import com.jjang051.petcity.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
 import java.util.Set;
@@ -79,6 +80,17 @@ public class MemberService {
     }
 
     // =====================================================
+    // 회원가입 - 전화번호 중복 확인
+    // =====================================================
+    public boolean existsPhone(String phone) {
+
+        String normalizedPhone = normalizePhone(phone);
+
+        return memberMapper.countByPhone(normalizedPhone) > 0;
+    }
+
+
+    // =====================================================
     // 회원가입
     // =====================================================
     public void insert(MemberDto memberDto) {
@@ -119,6 +131,16 @@ public class MemberService {
         }
 
         // ============================
+        // 전화번호 중복 검사
+        // ============================
+        if (existsPhone(memberDto.getPhone())) {
+
+            throw new IllegalArgumentException(
+                    "이미 사용 중인 전화번호입니다."
+            );
+        }
+
+        // ============================
         // 비밀번호 BCrypt 암호화
         // ============================
         memberDto.setPassword(
@@ -138,30 +160,360 @@ public class MemberService {
         memberMapper.updateEmailVerified(email.trim().toLowerCase(Locale.ROOT));
     }
 
-    // 07-16 상각: 마이페이지는 닉네임과 전화번호만 안전하게 변경
-    public MemberDto updateMyPage(Long memberId, String nickname, String phone) {
-        String normalizedNickname = nickname == null ? "" : nickname.trim();
-        String normalizedPhone = normalizePhone(phone);
+    // =====================================================
+    // 07-24 상각: 마이페이지 닉네임 사전 중복확인
+    // =====================================================
+    public boolean existsNicknameExceptMember(
+            Long memberId,
+            String nickname
+    ) {
+
+        String normalizedNickname =
+                nickname == null
+                        ? ""
+                        : nickname.trim();
+
+        /*
+         * 형식이 올바르지 않은 값은 사용 가능으로 판단하지 않습니다.
+         * 화면에서도 같은 정규식으로 먼저 형식을 안내합니다.
+         */
+        if (!normalizedNickname.matches(
+                "^[가-힣a-zA-Z0-9_]{2,20}$"
+        )) {
+            return true;
+        }
+
+        return memberMapper.countByNicknameExceptMember(
+                normalizedNickname,
+                memberId
+        ) > 0;
+    }
+
+
+    // =====================================================
+    // 07-24 상각: 마이페이지 전화번호 사전 중복확인
+    // =====================================================
+    public boolean existsPhoneExceptMember(
+            Long memberId,
+            String phone
+    ) {
+
+        String normalizedPhone =
+                normalizePhone(phone);
+
+        /*
+         * 전화번호는 회원의 참고 연락처로 사용합니다.
+         * 현재 APP_MEMBER에 같은 번호를 사용하는 다른 회원이 있는지만 확인합니다.
+         * 과거 사용 이력은 검사하거나 영구 점유하지 않습니다.
+         */
+        if (!normalizedPhone.matches(
+                "^01[016789]-\\d{3,4}-\\d{4}$"
+        )) {
+            return true;
+        }
+
+        return memberMapper.countByPhoneExceptMember(
+                normalizedPhone,
+                memberId
+        ) > 0;
+    }
+
+
+    // =====================================================
+    // 07-27 상각: 프로필 수정에서는 닉네임만 변경
+    // 회원가입과 같은 닉네임 규칙을 서버에서도 다시 검증합니다.
+    // =====================================================
+    @Transactional
+    public MemberDto updateMyPageNickname(
+            Long memberId,
+            String nickname
+    ) {
+
+        MemberDto currentMember = findByMemberId(memberId);
+
+        if (currentMember == null) {
+            throw new IllegalArgumentException("회원 정보를 확인할 수 없습니다.");
+        }
+
+        String normalizedNickname =
+                nickname == null ? "" : nickname.trim();
+
+        String currentNickname =
+                currentMember.getNickname() == null
+                        ? ""
+                        : currentMember.getNickname().trim();
+
+        if (normalizedNickname.equals(currentNickname)) {
+            throw new IllegalArgumentException("변경된 닉네임이 없습니다.");
+        }
 
         if (!normalizedNickname.matches("^[가-힣a-zA-Z0-9_]{2,20}$")) {
-            throw new IllegalArgumentException("닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다.");
-        }
-        if (!normalizedPhone.matches("^01[016789]-\\d{3,4}-\\d{4}$")) {
-            throw new IllegalArgumentException("휴대전화 번호 형식을 확인해주세요.");
-        }
-        if (memberMapper.countByNicknameExceptMember(normalizedNickname, memberId) > 0) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new IllegalArgumentException(
+                    "닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다."
+            );
         }
 
-        memberMapper.updateMyPage(MemberDto.builder()
-                .memberId(memberId)
-                .nickname(normalizedNickname)
-                .phone(normalizedPhone)
-                .build());
-        return findByMemberId(memberId);
+        if (memberMapper.countByNicknameExceptMember(
+                normalizedNickname,
+                memberId
+        ) > 0) {
+            throw new IllegalArgumentException("닉네임이 중복되었습니다.");
+        }
+
+        int updatedRows = memberMapper.updateNickname(
+                memberId,
+                normalizedNickname
+        );
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException("닉네임을 변경할 수 없는 상태입니다.");
+        }
+
+        MemberDto updatedMember = findByMemberId(memberId);
+
+        if (updatedMember == null) {
+            throw new IllegalArgumentException("수정된 회원 정보를 확인할 수 없습니다.");
+        }
+
+        return updatedMember;
+    }
+
+
+    // =====================================================
+    // 07-27 상각: LOCAL 회원 비밀번호 변경
+    // SNS 회원은 비밀번호 변경 대상이 아니며 서버에서도 차단합니다.
+    // 현재 비밀번호 입력 없이 새 비밀번호와 확인값만 검증합니다.
+    // 회원가입과 동일한 비밀번호 정책을 적용합니다.
+    // =====================================================
+    @Transactional
+    public void changeMyPagePassword(
+            Long memberId,
+            String newPassword,
+            String newPasswordConfirm
+    ) {
+
+        MemberDto member = findByMemberId(memberId);
+
+        if (member == null) {
+            throw new IllegalArgumentException("회원 정보를 확인할 수 없습니다.");
+        }
+
+        if (!"LOCAL".equalsIgnoreCase(member.getLoginType())) {
+            throw new IllegalArgumentException("SNS 회원은 비밀번호를 변경할 수 없습니다.");
+        }
+
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("새 비밀번호를 입력해주세요.");
+        }
+
+        if (!newPassword.equals(newPasswordConfirm)) {
+            throw new IllegalArgumentException("새 비밀번호 확인이 일치하지 않습니다.");
+        }
+
+        if (passwordEncoder.matches(newPassword, member.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호와 다른 비밀번호를 입력해주세요.");
+        }
+
+        // 회원가입에서 사용하는 동일한 정책 검증 메서드 재사용
+        MemberDto passwordPolicyMember = MemberDto.builder()
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .password(newPassword)
+                .build();
+
+        validatePassword(passwordPolicyMember);
+
+        int updatedRows = memberMapper.updatePassword(
+                memberId,
+                passwordEncoder.encode(newPassword)
+        );
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException("비밀번호를 변경할 수 없는 계정 상태입니다.");
+        }
+    }
+
+
+    // 07-16 상각: 마이페이지는 닉네임과 전화번호만 안전하게 변경
+    // 07-24 상각: 마이페이지는 실제로 변경된 항목만 최종 검증 후 저장
+    @Transactional
+    public MemberDto updateMyPage(
+            Long memberId,
+            String nickname,
+            String phone
+    ) {
+
+        MemberDto currentMember =
+                findByMemberId(memberId);
+
+        if (currentMember == null) {
+            throw new IllegalArgumentException(
+                    "회원 정보를 확인할 수 없습니다."
+            );
+        }
+
+        String normalizedNickname =
+                nickname == null
+                        ? ""
+                        : nickname.trim();
+
+        String normalizedPhone =
+                normalizePhone(phone);
+
+        String currentNickname =
+                currentMember.getNickname() == null
+                        ? ""
+                        : currentMember.getNickname().trim();
+
+        String currentPhone =
+                normalizePhone(
+                        currentMember.getPhone()
+                );
+
+        boolean nicknameChanged =
+                !normalizedNickname.equals(
+                        currentNickname
+                );
+
+        boolean phoneChanged =
+                !normalizedPhone.equals(
+                        currentPhone
+                );
+
+        if (!nicknameChanged && !phoneChanged) {
+            throw new IllegalArgumentException(
+                    "변경된 회원 정보가 없습니다."
+            );
+        }
+
+        /*
+         * 닉네임을 변경한 경우에만
+         * 닉네임 형식과 현재 다른 회원의 사용 여부를 검사합니다.
+         */
+        if (nicknameChanged) {
+
+            if (!normalizedNickname.matches(
+                    "^[가-힣a-zA-Z0-9_]{2,20}$"
+            )) {
+                throw new IllegalArgumentException(
+                        "닉네임은 2~20자의 한글, 영문, 숫자, 밑줄만 사용할 수 있습니다."
+                );
+            }
+
+            if (memberMapper.countByNicknameExceptMember(
+                    normalizedNickname,
+                    memberId
+            ) > 0) {
+                throw new IllegalArgumentException(
+                        "이미 사용 중인 닉네임입니다."
+                );
+            }
+        }
+
+        /*
+         * 전화번호를 변경한 경우에만
+         * 형식과 현재 다른 회원의 사용 여부를 검사합니다.
+         *
+         * 이전에 본인이 사용했던 번호라도
+         * 현재 다른 회원이 사용하지 않으면 다시 사용할 수 있습니다.
+         */
+        if (phoneChanged) {
+
+            if (!normalizedPhone.matches(
+                    "^01[016789]-\\d{3,4}-\\d{4}$"
+            )) {
+                throw new IllegalArgumentException(
+                        "휴대전화 번호 형식을 확인해주세요."
+                );
+            }
+
+            if (memberMapper.countByPhoneExceptMember(
+                    normalizedPhone,
+                    memberId
+            ) > 0) {
+                throw new IllegalArgumentException(
+                        "이미 사용 중인 전화번호입니다."
+                );
+            }
+        }
+
+        /*
+         * Mapper SQL은 NICKNAME, PHONE, UPDATED_AT만 수정합니다.
+         * 아이디, 이메일, 권한, 로그인 방식 등은 변경하지 않습니다.
+         */
+        int updatedRows =
+                memberMapper.updateMyPage(
+                        MemberDto.builder()
+                                .memberId(memberId)
+                                .nickname(
+                                        nicknameChanged
+                                                ? normalizedNickname
+                                                : currentNickname
+                                )
+                                .phone(
+                                        phoneChanged
+                                                ? normalizedPhone
+                                                : currentPhone
+                                )
+                                .build()
+                );
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException(
+                    "회원 정보를 수정할 수 없는 상태입니다."
+            );
+        }
+
+        MemberDto updatedMember =
+                findByMemberId(memberId);
+
+        if (updatedMember == null) {
+            throw new IllegalArgumentException(
+                    "수정된 회원 정보를 확인할 수 없습니다."
+            );
+        }
+
+        return updatedMember;
     }
 
     // 07-16 상각: 현재 비밀번호를 확인한 회원만 탈퇴 요청 가능
+    // =====================================================
+    // 07-27 상각: 프로필 사진 경로 변경
+    // PROFILE_IMAGE만 수정하고 다른 회원정보는 변경하지 않습니다.
+    // =====================================================
+    @Transactional
+    public MemberDto updateProfileImage(
+            Long memberId,
+            String profileImage
+    ) {
+
+        if (memberId == null) {
+            throw new IllegalArgumentException("회원 정보를 확인할 수 없습니다.");
+        }
+
+        if (profileImage == null
+                || !profileImage.startsWith("/images/member/profile/")) {
+            throw new IllegalArgumentException("프로필 사진 경로가 올바르지 않습니다.");
+        }
+
+        int updatedRows = memberMapper.updateProfileImage(
+                memberId,
+                profileImage
+        );
+
+        if (updatedRows != 1) {
+            throw new IllegalArgumentException("프로필 사진을 변경할 수 없는 상태입니다.");
+        }
+
+        MemberDto updatedMember = findByMemberId(memberId);
+
+        if (updatedMember == null) {
+            throw new IllegalArgumentException("수정된 회원 정보를 확인할 수 없습니다.");
+        }
+
+        return updatedMember;
+    }
+
     public void requestWithdrawal(Long memberId, String password) {
         MemberDto member = findByMemberId(memberId);
         if (member != null && !"LOCAL".equals(member.getLoginType())) {
@@ -310,6 +662,29 @@ public class MemberService {
                 || loginId.contains("abcde")) {
             throw new IllegalArgumentException("보안에 취약하거나 쉽게 추측되는 아이디는 사용할 수 없습니다.");
         }
+    }
+
+    // 07-28 상각: 일반회원 프로필 사진 변경
+    @Transactional
+    public MemberDto updateProfileDetails(
+            Long memberId,
+            String profileImage
+    ) {
+        MemberDto current = findByMemberId(memberId);
+
+        if (current == null || !"ACTIVE".equals(current.getStatus())) {
+            throw new IllegalArgumentException("회원 정보를 확인할 수 없습니다.");
+        }
+
+        if (profileImage == null || profileImage.isBlank()) {
+            throw new IllegalArgumentException("변경할 프로필 사진을 선택해주세요.");
+        }
+
+        if (memberMapper.updateProfileDetails(memberId, profileImage) != 1) {
+            throw new IllegalArgumentException("프로필 사진을 수정할 수 없습니다.");
+        }
+
+        return findByMemberId(memberId);
     }
 
 }
