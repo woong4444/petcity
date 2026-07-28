@@ -39,14 +39,25 @@
                 <td class="p-4 font-bold text-slate-500" th:text="${'#' + h.hospitalId}">#1</td>
                 <td class="p-4 font-bold text-slate-900" th:text="${h.name}">동물병원 이름</td>
                 <td class="p-4">
-                    <span th:if="${h.status == 'OPEN'}" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">🟢 정상 운영중</span>
-                    <span th:if="${h.status == 'CLOSED'}" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">🔴 폐업/삭제 대기중</span>
+                    <span th:if="${h.status == 'OPEN'}"
+                          class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
+                        🟢 정상 운영중
+                    </span>
+
+                    <span th:if="${h.status == 'TEMP_CLOSED'}"
+                          class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">
+                        🟠 휴업 중
+                    </span>
+                    <span th:if="${h.status == 'CLOSED'}"
+                          class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
+                        🔴 폐업/삭제 대기중
+                    </span>
                 </td>
                 <td class="p-4 text-center">
                     <a th:href="@{/owner/hospital/update(hospitalId=${h.hospitalId})}"
-                       class="group inline-flex min-w-[132px] items-center justify-center gap-2 rounded-xl border border-sky-200 bg-gradient-to-b from-white to-sky-50 px-4 py-2.5 text-sm font-bold text-sky-700 shadow-[0_5px_14px_rgba(14,165,233,0.10)] transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-500 hover:bg-sky-500 hover:text-white hover:shadow-[0_9px_20px_rgba(14,165,233,0.25)]">
+                       class="inline-flex min-w-[132px] items-center justify-center gap-2 rounded-xl border border-sky-200 bg-gradient-to-b from-white to-sky-50 px-4 py-2.5 text-sm font-bold text-sky-700 shadow-[0_5px_14px_rgba(14,165,233,0.10)]">
 
-    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-500 transition-colors duration-200 group-hover:bg-white/20 group-hover:text-white">
+    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-500">
         <svg xmlns="http://www.w3.org/2000/svg"
              class="h-[17px] w-[17px]"
              viewBox="0 0 24 24"
