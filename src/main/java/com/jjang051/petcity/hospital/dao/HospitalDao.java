@@ -86,4 +86,6 @@ public interface HospitalDao {
     void updateReview(HospitalReviewDto dto);
 
     void deleteReview(@Param("reviewId") int reviewId);
+
+    List<HospitalDto> findTopPopularHospitals();
 }

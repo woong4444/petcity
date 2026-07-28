@@ -418,4 +418,27 @@
     </update>
     <delete id="deleteReview" parameterType="int">DELETE FROM HOSPITAL_REVIEW WHERE REVIEW_ID = #{reviewId}</delete>
 
+    <select id="findTopPopularHospitals"
+            resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
+
+        SELECT
+        H.HOSPITAL_ID AS hospitalId,
+        H.NAME AS name,
+        H.DISTRICT AS district,
+        COUNT(F.HOSPITAL_ID) AS zzimCount
+        FROM HOSPITAL H
+        LEFT JOIN FAVORITE_HOSPITAL F
+        ON F.HOSPITAL_ID = H.HOSPITAL_ID
+        WHERE H.STATUS = 'OPEN'
+        GROUP BY
+        H.HOSPITAL_ID,
+        H.NAME,
+        H.DISTRICT
+        ORDER BY
+        COUNT(F.HOSPITAL_ID) DESC,
+        H.HOSPITAL_ID DESC
+        FETCH FIRST 3 ROWS ONLY
+
+    </select>
+
 </mapper>
