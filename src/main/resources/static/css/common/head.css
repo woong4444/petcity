@@ -1229,3 +1229,66 @@ body {
         width: 240px !important;
     }
 }
+
+/* 가까운 동물병원 찾기: 마우스 호버 시 버튼 안내 표시 */
+.site-header .hospital-map-banner {
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.site-header .hospital-map-banner:hover,
+.site-header .hospital-map-banner:focus-visible {
+    border-color: #38a7ec;
+    box-shadow: 0 8px 18px rgba(56, 167, 236, 0.16);
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.site-header .hospital-map-banner .mini-banner-content {
+    position: relative;
+    flex: 1;
+    height: 38px;
+}
+
+.site-header .hospital-map-banner .mini-banner-desc,
+.site-header .hospital-map-banner .hospital-map-cta {
+    position: absolute;
+    left: 0;
+    top: 21px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.site-header .hospital-map-banner .mini-banner-desc {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.site-header .hospital-map-banner .hospital-map-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #159fe1;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    opacity: 0;
+    transform: translateY(7px);
+}
+
+.site-header .hospital-map-banner:hover .mini-banner-desc,
+.site-header .hospital-map-banner:focus-visible .mini-banner-desc {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+.site-header .hospital-map-banner:hover .hospital-map-cta,
+.site-header .hospital-map-banner:focus-visible .hospital-map-cta {
+    opacity: 1;
+    transform: translateY(0);
+}
