@@ -293,4 +293,9 @@ public class HospitalService {
     public void deleteReview(int reviewId) {
         hospitalDao.deleteReview(reviewId);
     }
+
+    public List<HospitalDto> getTopPopularHospitals() {
+        return hospitalDao.findTopPopularHospitals();
+    }
+
 }

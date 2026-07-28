@@ -1,97 +1,86 @@
+/* =========================
+   메인 배너
+========================= */
 .main-banner-section {
     width: 100%;
-    background-color: #ffffff;
+    padding: 24px 0 0;
+    background: #f6f9fd;
 }
 
 .main-banner-swiper {
-    width: 100%;
-    height: 520px;
+    width: min(1280px, calc(100% - 48px));
+    height: 390px;
+    overflow: hidden;
+    border-radius: 24px;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.1);
 }
 
 .main-banner-link {
     position: relative;
-
     display: block;
-
     width: 100%;
     height: 100%;
-
     overflow: hidden;
 }
 
 .main-banner-link-disabled {
-    cursor: default;
     pointer-events: none;
+    cursor: default;
 }
 
 .main-banner-image {
     position: absolute;
     inset: 0;
-
     width: 100%;
     height: 100%;
-
     object-fit: cover;
 }
 
 .main-banner-overlay {
     position: absolute;
     inset: 0;
-
-    background:
-            linear-gradient(
-                    90deg,
-                    rgba(15, 23, 42, 0.82) 0%,
-                    rgba(15, 23, 42, 0.52) 42%,
-                    rgba(15, 23, 42, 0.08) 100%
-            );
+    background: linear-gradient(
+            90deg,
+            rgba(15, 23, 42, 0.82) 0%,
+            rgba(15, 23, 42, 0.52) 42%,
+            rgba(15, 23, 42, 0.08) 100%
+    );
 }
 
 .main-banner-container {
     position: relative;
     z-index: 2;
-
     display: flex;
     align-items: center;
-
     width: min(1280px, 100%);
     height: 100%;
-
     margin: 0 auto;
-    padding: 0 72px;
+    padding: 0 70px;
 }
 
 .main-banner-content {
     width: min(680px, 100%);
-
     color: #ffffff;
 }
 
 .main-banner-label {
     display: inline-flex;
     align-items: center;
-
     padding: 8px 15px;
-
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.14);
-
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 999px;
-
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.14);
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 0.08em;
-
     backdrop-filter: blur(8px);
 }
 
 .main-banner-title {
     margin-top: 22px;
-
     color: #ffffff;
-
-    font-size: clamp(38px, 5vw, 64px);
+    font-size: clamp(36px, 4vw, 58px);
     font-weight: 800;
     line-height: 1.15;
     word-break: keep-all;
@@ -99,11 +88,8 @@
 
 .main-banner-subtitle {
     max-width: 620px;
-
     margin-top: 20px;
-
     color: rgba(255, 255, 255, 0.9);
-
     font-size: 19px;
     line-height: 1.7;
     word-break: keep-all;
@@ -113,40 +99,29 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-
     margin-top: 30px;
     padding: 13px 22px;
-
-    color: #ffffff;
-    background-color: #0d9488;
-
     border-radius: 12px;
-
+    color: #ffffff;
+    background: #0d9488;
     font-size: 15px;
     font-weight: 800;
-
     box-shadow: 0 12px 26px rgba(13, 148, 136, 0.28);
-
-    transition:
-            background-color 0.2s ease,
-            transform 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .main-banner-link:hover .main-banner-action {
-    background-color: #0f766e;
+    background: #0f766e;
     transform: translateY(-2px);
 }
 
 .main-banner-navigation {
     width: 46px !important;
     height: 46px !important;
-
-    color: #ffffff !important;
-    background-color: rgba(15, 23, 42, 0.34);
-
     border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 50%;
-
+    color: #ffffff !important;
+    background: rgba(15, 23, 42, 0.34);
     backdrop-filter: blur(8px);
 }
 
@@ -170,18 +145,14 @@
 .main-banner-swiper .swiper-pagination-bullet {
     width: 9px;
     height: 9px;
-
-    background-color: rgba(255, 255, 255, 0.65);
-
+    background: rgba(255, 255, 255, 0.65);
     opacity: 1;
 }
 
 .main-banner-swiper .swiper-pagination-bullet-active {
     width: 28px;
-
-    background-color: #ffffff;
-
     border-radius: 999px;
+    background: #ffffff;
 }
 
 .main-banner-swiper.single-slide .swiper-pagination,
@@ -192,722 +163,460 @@
 .default-hero-section {
     display: flex;
     align-items: center;
-
-    min-height: 520px;
-
-    background:
-            linear-gradient(
-                    135deg,
-                    #f0fdfa 0%,
-                    #ffffff 50%,
-                    #fffbeb 100%
-            );
+    min-height: 390px;
+    background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #fffbeb 100%);
 }
 
-.hospital-search-section {
-    position: relative;
-    z-index: 5;
-
-}
-
-.hospital-search-card {
-    display: grid;
-    grid-template-columns: minmax(250px, 0.85fr) minmax(320px, 1.3fr);
-    gap: 24px;
-    align-items: center;
-
-    padding: 28px 32px;
-
-    background-color: #ffffff;
-
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.1);
-}
-
-.hospital-search-text {
-    min-width: 0;
-}
-
-.hospital-search-label {
-    color: #0d9488;
-
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-}
-
-.hospital-search-title {
-    margin-top: 6px;
-
-    color: #0f172a;
-
-    font-size: 24px;
-    font-weight: 800;
-    line-height: 1.35;
-    word-break: keep-all;
-}
-
-.hospital-search-description {
-    margin-top: 7px;
-
-    color: #64748b;
-
-    font-size: 14px;
-    line-height: 1.6;
-    word-break: keep-all;
-}
-
-.hospital-search-form {
-    display: flex;
-    gap: 10px;
-}
-
-.hospital-search-input {
-    flex: 1;
-}
-
-.hospital-search-button {
-    min-width: 92px;
-}
-
-.hospital-search-links {
-    grid-column: 2;
-
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.section-heading {
-    margin-bottom: 38px;
-
-    text-align: center;
-}
-
-.section-label {
-    color: #0d9488;
-
-    font-size: 13px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-}
-
-.section-title {
-    margin-top: 7px;
-
-    color: #0f172a;
-
-    font-size: 32px;
-    font-weight: 800;
-}
-
-.section-description {
-    margin-top: 10px;
-
-    color: #64748b;
-
-    font-size: 16px;
-}
-
-.service-card {
-    display: flex;
-    flex-direction: column;
-
-    min-height: 260px;
-    padding: 28px;
-
-    background-color: #ffffff;
-
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-
-    transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease,
-            border-color 0.2s ease;
-}
-
-.service-card:hover {
-    border-color: #99f6e4;
-
-    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.09);
-
-    transform: translateY(-5px);
-}
-
-.service-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 54px;
-    height: 54px;
-
-    background-color: #f0fdfa;
-
-    border-radius: 15px;
-
-    font-size: 27px;
-}
-
-.service-title {
-    margin-top: 20px;
-
-    color: #0f766e;
-
-    font-size: 20px;
-    font-weight: 800;
-}
-
-.service-description {
-    flex: 1;
-
-    margin-top: 12px;
-
-    color: #64748b;
-
-    font-size: 15px;
-    line-height: 1.7;
-    word-break: keep-all;
-}
-
-.service-link {
-    display: inline-flex;
-    align-items: center;
-
-    margin-top: 22px;
-
-    color: #0d9488;
-
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.service-link:hover {
-    color: #0f766e;
-    text-decoration: underline;
-}
-
-@media (max-width: 1024px) {
-    .main-banner-container {
-        padding: 0 54px;
-    }
-
-    .hospital-search-card {
-        grid-template-columns: 1fr;
-    }
-
-    .hospital-search-links {
-        grid-column: auto;
-    }
-}
-
-@media (max-width: 768px) {
-    .main-banner-swiper {
-        height: 460px;
-    }
-
-    .main-banner-container {
-        padding: 0 28px;
-    }
-
-    .main-banner-overlay {
-        background:
-                linear-gradient(
-                        90deg,
-                        rgba(15, 23, 42, 0.82) 0%,
-                        rgba(15, 23, 42, 0.62) 70%,
-                        rgba(15, 23, 42, 0.36) 100%
-                );
-    }
-
-    .main-banner-title {
-        font-size: 38px;
-    }
-
-    .main-banner-subtitle {
-        font-size: 16px;
-    }
-
-    .main-banner-navigation {
-        display: none;
-    }
-
-    .hospital-search-section {
-        margin-top: 0;
-        padding-top: 24px;
-    }
-
-    .hospital-search-card {
-        padding: 24px;
-    }
-
-    .hospital-search-form {
-        flex-direction: column;
-    }
-
-    .hospital-search-button {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    .main-banner-swiper {
-        height: 420px;
-    }
-
-    .main-banner-container {
-        padding: 0 20px;
-    }
-
-    .main-banner-title {
-        font-size: 32px;
-    }
-
-    .main-banner-action {
-        margin-top: 24px;
-    }
-
-    .hospital-search-card {
-        padding: 20px;
-
-        border-radius: 16px;
-    }
-
-    .hospital-search-title {
-        font-size: 21px;
-    }
-
-    .hospital-search-links {
-        flex-direction: column;
-    }
-
-    .hospital-search-links .btn {
-        width: 100%;
-    }
-}
-
-/* 메인 배너는 유지하고 카드 형태만 정리 */
-.main-banner-section {
-    padding: 24px 0 0;
+/* =========================
+   메인 콘텐츠
+========================= */
+.petcity-home {
+    padding: 18px 24px 42px;
     background: #f6f9fd;
 }
 
-.main-banner-swiper {
+.petcity-home * {
+    box-sizing: border-box;
+}
+
+.petcity-home__inner {
     width: min(1280px, calc(100% - 48px));
-    height: 390px;
-    overflow: hidden;
-    border-radius: 24px;
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.1);
-}
-
-.main-banner-container {
-    width: min(1280px, 100%);
-    padding: 0 70px;
-}
-
-.main-banner-title {
-    font-size: clamp(36px, 4vw, 58px);
-}
-
-.home-main-content {
-    padding: 22px 24px 80px;
-    background: #f6f9fd;
-}
-
-.home-main-inner {
-    width: min(1280px, 100%);
     margin: 0 auto;
 }
 
-.home-quick-section {
+/* 빠른 메뉴 */
+.petcity-finder {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    overflow: hidden;
-    margin-bottom: 54px;
-    background: #ffffff;
-    border: 1px solid #dce7f3;
-    border-radius: 18px;
-    box-shadow: 0 10px 25px rgba(44, 65, 91, 0.06);
-}
-
-.home-quick-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-height: 96px;
-    padding: 20px 26px;
-    color: #1b2b45;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-}
-
-.home-quick-item:not(:last-child) {
-    border-right: 1px solid #e5edf6;
-}
-
-.home-quick-item:hover {
-    background: #f0fbff;
-}
-
-.home-quick-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: #e6f9fc;
-    font-size: 23px;
-}
-
-.home-quick-item span:nth-child(2) {
-    display: grid;
-    gap: 5px;
-}
-
-.home-quick-item strong {
-    font-size: 16px;
-}
-
-.home-quick-item small {
-    color: #71809a;
-    font-size: 13px;
-}
-
-.home-quick-item > b,
-.home-community-link > b {
-    margin-left: auto;
-    color: #0ea5c6;
-    font-size: 26px;
-    font-weight: 400;
-}
-
-.home-owner-request {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 52px;
-    padding: 20px 24px;
-    border: 1px solid #bae6fd;
-    border-radius: 18px;
-    background: #ffffff;
-}
-
-.home-owner-request__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: #e0f2fe;
-    font-size: 24px;
-}
-
-.home-owner-request__text {
-    display: grid;
-    gap: 4px;
-}
-
-.home-owner-request__text span,
-.home-panel-title span {
-    color: #0aa3c4;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-}
-
-.home-owner-request__text strong {
-    color: #10233f;
-    font-size: 18px;
-}
-
-.home-owner-request__text p {
-    margin: 0;
-    color: #71809a;
-    font-size: 13px;
-}
-
-.home-owner-request__button {
-    margin-left: auto;
-    padding: 11px 18px;
-    border-radius: 10px;
-    background: #0ea5c6;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.home-service-section {
-    margin-bottom: 52px;
-}
-
-.home-section-heading {
-    margin-bottom: 25px;
-    text-align: center;
-}
-
-.home-section-heading span {
-    color: #0aa3c4;
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-}
-
-.home-section-heading h2 {
-    margin: 7px 0 8px;
-    color: #10233f;
-    font-size: 30px;
-    font-weight: 800;
-}
-
-.home-section-heading p {
-    margin: 0;
-    color: #72819a;
-    font-size: 15px;
-}
-
-.home-service-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-.home-service-card {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    min-height: 136px;
-    padding: 24px;
-    border: 1px solid #dce7f3;
-    border-radius: 18px;
-    background: #ffffff;
-    color: inherit;
-    text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.home-service-card:hover {
-    box-shadow: 0 14px 28px rgba(44, 65, 91, 0.1);
-    transform: translateY(-4px);
-}
-
-.home-service-card__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: #e6f9fc;
-    font-size: 27px;
-}
-
-.home-service-card__icon--orange {
-    background: #fff3e2;
-}
-
-.home-service-card h3 {
-    margin: 0 0 8px;
-    color: #1a2c49;
-    font-size: 18px;
-}
-
-.home-service-card p {
-    margin: 0;
-    color: #71809a;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.home-bottom-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(310px, 0.8fr);
-    gap: 20px;
-}
-
-.home-popular-hospital,
-.home-community {
-    padding: 24px;
-    border: 1px solid #dce7f3;
-    border-radius: 18px;
-    background: #ffffff;
-}
-
-.home-panel-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
     margin-bottom: 18px;
 }
 
-.home-panel-title h2 {
-    margin: 4px 0 0;
-    color: #142640;
-    font-size: 22px;
-    font-weight: 800;
-}
-
-.home-panel-title > a {
-    color: #0aa3c4;
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.home-hospital-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-}
-
-.home-hospital-card {
-    overflow: hidden;
-    border: 1px solid #e2eaf3;
-    border-radius: 14px;
-    color: inherit;
+.petcity-finder__item {
+    display: flex;
+    align-items: center;
+    min-height: 108px;
+    padding: 16px 22px;
+    border: 1px solid #dfe7f0;
+    border-radius: 15px;
+    color: #102e5d;
+    background: #ffffff;
+    box-shadow: 0 3px 9px rgba(30, 58, 95, 0.05);
     text-decoration: none;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.home-hospital-card:hover {
-    box-shadow: 0 10px 22px rgba(44, 65, 91, 0.12);
-    transform: translateY(-3px);
+.petcity-finder__item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(30, 58, 95, 0.1);
 }
 
-.home-hospital-image {
-    height: 118px;
-    background: #edf4fa;
-}
-
-.home-hospital-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.home-hospital-no-image {
+.petcity-finder__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
-    font-size: 38px;
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    margin-right: 17px;
+    border-radius: 50%;
 }
 
-.home-hospital-info {
-    display: grid;
-    gap: 7px;
-    padding: 14px;
+.petcity-finder__icon--blue {
+    color: #0877df;
+    background: #eaf8ff;
 }
 
-.home-hospital-info > span {
-    color: #0aa3c4;
-    font-size: 12px;
+.petcity-finder__icon svg {
+    width: 38px;
+    height: 38px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.9;
+}
+
+.petcity-finder__text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.petcity-finder__text strong {
+    color: #102e5d;
+    font-size: 22px;
     font-weight: 800;
+    line-height: 1.2;
+    word-break: keep-all;
 }
 
-.home-hospital-info strong {
+.petcity-finder__text small {
+    color: #5f6673;
+    font-size: 14px;
+    line-height: 1.45;
+    word-break: keep-all;
+}
+
+.petcity-arrow {
+    flex: 0 0 auto;
+    width: 23px;
+    height: 23px;
+    margin-left: auto;
+    fill: none;
+    stroke: #677386;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+/* 인기 병원 / 커뮤니티 */
+.petcity-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(350px, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.petcity-panel {
     overflow: hidden;
-    color: #1a2c49;
-    font-size: 15px;
+    border: 1px solid #dfe7f0;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 3px 9px rgba(30, 58, 95, 0.04);
+}
+
+.petcity-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 28px 16px;
+}
+
+.petcity-panel__header h2 {
+    margin: 0;
+    color: #102e5d;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.petcity-panel__header p {
+    margin: 5px 0 0;
+    color: #606875;
+    font-size: 14px;
+}
+
+/* 인기 병원 */
+.petcity-popular {
+    padding-bottom: 10px;
+}
+
+.petcity-popular__list {
+    padding: 0 20px;
+}
+
+.petcity-hospital-row {
+    display: grid;
+    grid-template-columns: 40px 64px minmax(145px, 1fr) auto auto auto;
+    align-items: center;
+    gap: 9px;
+    min-height: 88px;
+    padding: 10px 4px;
+    border-top: 1px solid #e4eaf1;
+}
+
+.petcity-hospital-row__rank {
+    color: #08aae4;
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+}
+
+.petcity-hospital-row__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    border: 1px solid #dce7f2;
+    border-radius: 9px;
+    color: #1687db;
+}
+
+.petcity-hospital-row__icon svg {
+    width: 43px;
+    height: 43px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+}
+
+.petcity-hospital-row__name {
+    overflow: hidden;
+    color: #102e5d;
+    font-size: 17px;
+    font-weight: 800;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.home-hospital-info p {
-    display: flex;
+.petcity-hospital-row__location,
+.petcity-hospital-row__zzim {
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
-    margin: 0;
-}
-
-.home-hospital-info p b {
-    color: #f5a623;
-}
-
-.home-hospital-info p em {
-    color: #455874;
+    gap: 5px;
+    color: #5d6571;
     font-size: 13px;
-    font-style: normal;
-    font-weight: 800;
+    white-space: nowrap;
 }
 
-.home-hospital-info p small {
-    margin-left: 3px;
-    color: #8a97ab;
-    font-size: 12px;
+.petcity-hospital-row__location svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: #68717d;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
 }
 
-.home-empty-message {
-    grid-column: 1 / -1;
-    margin: 24px 0;
-    color: #8491a5;
+.petcity-hospital-row__zzim svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #ff4d4f;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.petcity-detail-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 1px solid #5c87ca;
+    border-radius: 9px;
+    color: #254f89;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.petcity-detail-button:hover {
+    color: #ffffff;
+    background: #254f89;
+}
+
+.petcity-detail-button svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.petcity-empty-message {
+    padding: 35px 20px;
+    color: #717b89;
     text-align: center;
 }
 
-.home-community-link {
+/* 커뮤니티 */
+.petcity-community {
+    padding: 0 18px 8px;
+}
+
+.petcity-community .petcity-panel__header {
+    padding: 22px 10px 14px;
+}
+
+.petcity-community__item {
     display: flex;
     align-items: center;
     gap: 13px;
-    padding: 14px 0;
-    color: inherit;
+    min-height: 74px;
+    padding: 9px 7px;
+    border-top: 1px solid #e4eaf1;
+    color: #173662;
     text-decoration: none;
 }
 
-.home-community-link:not(:last-child) {
-    border-bottom: 1px solid #e5edf6;
+.petcity-community__item:hover {
+    background: #f8fcff;
 }
 
-.home-community-link__icon {
+.petcity-community__icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 49px;
+    height: 49px;
+    border-radius: 50%;
+}
+
+.petcity-community__icon svg {
+    width: 27px;
+    height: 27px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.petcity-community__icon--blue {
+    color: #078ee3;
+    background: #e4f6ff;
+}
+
+.petcity-community__icon--green {
+    color: #16a534;
+    background: #e9faea;
+}
+
+.petcity-community__icon--purple {
+    color: #7b36bd;
+    background: #f3eaff;
+}
+
+.petcity-community__icon--orange {
+    color: #ef8b00;
+    background: #fff2d9;
+}
+
+.petcity-community__item strong {
+    color: #173662;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* 병원장 신청 */
+.petcity-owner-banner {
+    display: flex;
+    align-items: center;
+    min-height: 98px;
+    padding: 16px 26px;
+    border: 1.5px solid #00aeef;
+    border-radius: 12px;
+    color: #153862;
+    background: linear-gradient(100deg, #ffffff 0%, #f1fbff 100%);
+    text-decoration: none;
+}
+
+.petcity-owner-banner__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    margin-right: 15px;
+    color: #048bd4;
+}
+
+.petcity-owner-banner__icon svg {
     width: 42px;
     height: 42px;
-    border-radius: 12px;
-    background: #e6f9fc;
-    font-size: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6;
 }
 
-.home-community-link__icon--free {
-    background: #fff1e3;
+.petcity-owner-banner p {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.45;
 }
 
-.home-community-link__icon--info {
-    background: #e9f7ea;
+.petcity-owner-banner p strong {
+    font-weight: 800;
 }
 
-.home-community-link span:nth-child(2) {
-    display: grid;
-    gap: 4px;
+.petcity-owner-banner p em {
+    color: #00a9e8;
+    font-style: normal;
 }
 
-.home-community-link strong {
-    color: #1a2c49;
-    font-size: 15px;
+.petcity-owner-banner__button {
+    min-width: 190px;
+    margin-left: auto;
+    padding: 14px 20px;
+    border-radius: 10px;
+    color: #ffffff;
+    background: #08aee6;
+    font-size: 18px;
+    font-weight: 800;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0, 174, 230, 0.2);
 }
 
-.home-community-link small {
-    color: #7b89a0;
-    font-size: 12px;
-}
-
-@media (max-width: 1024px) {
-    .home-bottom-grid {
-        grid-template-columns: 1fr;
+/* =========================
+   반응형
+========================= */
+@media (max-width: 1050px) {
+    .petcity-home__inner {
+        width: 100%;
     }
 
-    .home-hospital-image {
-        height: 150px;
+    .petcity-finder__item {
+        padding: 14px;
+    }
+
+    .petcity-finder__icon {
+        width: 54px;
+        height: 54px;
+        margin-right: 12px;
+    }
+
+    .petcity-finder__icon svg {
+        width: 33px;
+        height: 33px;
+    }
+
+    .petcity-finder__text strong {
+        font-size: 18px;
+    }
+
+    .petcity-finder__text small {
+        font-size: 12px;
+    }
+
+    .petcity-content-grid {
+        grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr);
+    }
+
+    .petcity-hospital-row {
+        grid-template-columns: 34px 54px minmax(120px, 1fr) auto auto;
+        gap: 7px;
+    }
+
+    .petcity-hospital-row__icon {
+        width: 54px;
+        height: 54px;
+    }
+
+    .petcity-hospital-row__zzim {
+        display: none;
+    }
+
+    .petcity-owner-banner p {
+        font-size: 16px;
+    }
+
+    .petcity-owner-banner__button {
+        min-width: 155px;
+        font-size: 16px;
     }
 }
 
@@ -922,37 +631,144 @@
         border-radius: 0;
     }
 
-    .home-main-content {
-        padding: 18px 16px 56px;
+    .main-banner-container {
+        padding: 0 28px;
     }
 
-    .home-quick-section,
-    .home-service-grid,
-    .home-hospital-grid {
+    .main-banner-overlay {
+        background: linear-gradient(
+                90deg,
+                rgba(15, 23, 42, 0.82) 0%,
+                rgba(15, 23, 42, 0.62) 70%,
+                rgba(15, 23, 42, 0.36) 100%
+        );
+    }
+
+    .main-banner-title {
+        font-size: 38px;
+    }
+
+    .main-banner-subtitle {
+        font-size: 16px;
+    }
+
+    .main-banner-navigation {
+        display: none;
+    }
+
+    .petcity-home {
+        padding: 16px;
+    }
+
+    .petcity-finder,
+    .petcity-content-grid {
         grid-template-columns: 1fr;
     }
 
-    .home-quick-item:not(:last-child) {
-        border-right: 0;
-        border-bottom: 1px solid #e5edf6;
+    .petcity-finder__item {
+        min-height: 94px;
     }
 
-    .home-owner-request {
-        align-items: flex-start;
+    .petcity-community {
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-banner-swiper {
+        height: 380px;
+    }
+
+    .main-banner-container {
+        padding: 0 20px;
+    }
+
+    .main-banner-title {
+        font-size: 31px;
+    }
+
+    .main-banner-action {
+        margin-top: 24px;
+    }
+
+    .petcity-home {
+        padding: 12px;
+    }
+
+    .petcity-panel__header {
+        padding: 20px 16px 14px;
+    }
+
+    .petcity-panel__header h2 {
+        font-size: 21px;
+    }
+
+    .petcity-popular__list {
+        padding: 0 14px;
+    }
+
+    .petcity-hospital-row {
+        grid-template-columns: 32px 52px minmax(0, 1fr);
+        min-height: 78px;
+        padding: 8px 0;
+    }
+
+    .petcity-hospital-row__rank {
+        font-size: 20px;
+    }
+
+    .petcity-hospital-row__icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .petcity-hospital-row__icon svg {
+        width: 36px;
+        height: 36px;
+    }
+
+    .petcity-hospital-row__name {
+        font-size: 15px;
+    }
+
+    .petcity-hospital-row__location,
+    .petcity-hospital-row__zzim,
+    .petcity-detail-button {
+        display: none;
+    }
+
+    .petcity-community {
+        padding: 0 14px;
+    }
+
+    .petcity-community__item strong {
+        font-size: 16px;
+    }
+
+    .petcity-owner-banner {
         flex-wrap: wrap;
+        padding: 18px;
     }
 
-    .home-owner-request__button {
+    .petcity-owner-banner__icon {
+        width: 42px;
+        height: 42px;
+        margin-right: 8px;
+    }
+
+    .petcity-owner-banner__icon svg {
+        width: 34px;
+        height: 34px;
+    }
+
+    .petcity-owner-banner p {
+        width: calc(100% - 52px);
+        font-size: 15px;
+    }
+
+    .petcity-owner-banner__button {
         width: 100%;
-        margin-left: 0;
-        text-align: center;
-    }
-
-    .home-service-card {
-        min-height: auto;
-    }
-
-    .home-hospital-image {
-        height: 190px;
+        min-width: 0;
+        margin-top: 14px;
     }
 }

@@ -41,7 +41,7 @@ public class MainController {
 
         model.addAttribute(
                 "popularHospitals",
-                popularPageDto.getHospitalList()
+                hospitalService.getTopPopularHospitals()
         );
 
         return "main";
