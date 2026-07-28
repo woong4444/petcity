@@ -7,39 +7,79 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 function initRequestPanels() {
+    const container = document.querySelector(".owner-apply-container");
     const panels = document.querySelectorAll(".request-panel");
+    const openPanelId = new URLSearchParams(window.location.search)
+        .get("openPanel");
 
-    document.querySelectorAll("[data-panel-target]").forEach(
-        function (button) {
-            button.addEventListener("click", function () {
-                const targetPanel = document.getElementById(
-                    button.dataset.panelTarget
-                );
+    if (openPanelId) {
+        const targetPanel = document.getElementById(openPanelId);
 
-                panels.forEach(function (panel) {
-                    panel.classList.remove("active");
-                });
+        if (targetPanel) {
+            panels.forEach(function (panel) {
+                panel.classList.remove("active");
+            });
 
-                targetPanel.classList.add("active");
+            container.classList.add("request-form-only");
+            targetPanel.classList.add("active");
 
+            setTimeout(function () {
                 targetPanel.scrollIntoView({
                     behavior: "smooth",
                     block: "start"
                 });
-            });
+            }, 100);
         }
-    );
+    }
 
-    document.querySelectorAll("[data-panel-close]").forEach(
-        function (button) {
-            button.addEventListener("click", function () {
-                button.closest(".request-panel")
-                    .classList.remove("active");
+    if (!container) {
+        return;
+    }
+
+    document.querySelectorAll("[data-panel-target]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const targetPanel = document.getElementById(
+                button.dataset.panelTarget
+            );
+
+            if (!targetPanel) {
+                return;
+            }
+
+            panels.forEach(function (panel) {
+                panel.classList.remove("active");
             });
-        }
-    );
+
+            /*
+                휴업/폐업 요청을 선택하면
+                병원정보 수정 카드, 직접 수정 폼, 요청 이력은 숨긴다.
+            */
+            container.classList.add("request-form-only");
+
+            targetPanel.classList.add("active");
+
+            targetPanel.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
+    });
+
+    document.querySelectorAll("[data-panel-close]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const panel = button.closest(".request-panel");
+
+            if (panel) {
+                panel.classList.remove("active");
+            }
+
+            /*
+                닫기를 누르면 원래 병원 관리 화면으로 돌아간다.
+            */
+            container.classList.remove("request-form-only");
+        });
+    });
 }
-
 
 function initAnimalSelection() {
     const categoryElements =

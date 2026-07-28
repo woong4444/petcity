@@ -14,7 +14,12 @@
           th:href="@{/css/owner/apply.css}">
 
     <link rel="stylesheet"
+          th:href="@{/css/owner/hospital-update.css?v=3}">
+
+    <link rel="stylesheet"
           th:href="@{/css/common/head.css}">
+
+
 
     <!-- 카카오 주소 검색 -->
     <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -44,6 +49,55 @@
             <p>
                 병원 기본 정보와 증빙서류 변경은 관리자 승인 후 반영됩니다.
             </p>
+        </section>
+
+        <!-- 요청 종류 선택 -->
+        <section class="request-action-grid">
+            <!-- 현재 페이지: 병원정보 수정 요청 -->
+            <a class="request-action-card request-update-card active"
+               th:href="@{/owner/hospital/request/update(hospitalId=${hospital.hospitalId})}">
+                <span class="request-action-icon">📝</span>
+                <strong>병원정보 수정 요청</strong>
+                <p>병원명, 주소, 홈페이지, 대표 이미지, 증빙서류 변경은 관리자 승인이 필요합니다.</p>
+                <span class="request-action-link">수정 요청 작성 중</span>
+            </a>
+
+            <!-- 휴업 요청 -->
+            <a class="request-action-card request-temp-close-card"
+               th:href="@{/owner/hospital/update(hospitalId=${hospital.hospitalId}, openPanel='temp-close-panel')}">
+                <span class="request-action-icon">🌙</span>
+                <strong>휴업 요청</strong>
+                <p>공사·리모델링 등으로 일정 기간 운영하지 못할 때 관리자에게 요청합니다.</p>
+                <span class="request-action-link">휴업 요청하기</span>
+            </a>
+
+            <!-- 폐업 요청 -->
+            <a class="request-action-card request-close-card"
+               th:href="@{/owner/hospital/update(hospitalId=${hospital.hospitalId}, openPanel='close-panel')}">
+                <span class="request-action-icon">⚠️</span>
+                <strong>폐업 요청</strong>
+                <p>폐업은 관리자 승인 후 처리됩니다. 승인 전에는 요청을 취소할 수 있습니다.</p>
+                <span class="request-action-link">폐업 요청하기</span>
+            </a>
+        </section>
+
+        <!-- 직접 수정 안내 -->
+        <section class="direct-update-guide">
+            <div>
+                <span class="direct-update-guide-icon">!</span>
+                <div>
+                    <h2>직접 수정 가능한 정보</h2>
+                    <p>
+                        병원 대표전화, 운영시간, 진료 가능 동물, 제공 서비스,
+                        진료 상세 정보, 병원 소개, 추가 안내사항은 바로 수정할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+
+            <a class="direct-update-link"
+               th:href="@{/owner/hospital/update(hospitalId=${hospital.hospitalId})}">
+                직접 수정하러 가기 →
+            </a>
         </section>
 
         <div class="alert error"
@@ -348,24 +402,6 @@
                     </div>
 
                 </div>
-            </section>
-
-            <section class="form-section">
-
-                <div class="section-header">
-                    <span class="section-number">!</span>
-
-                    <div>
-                        <h2>직접 수정 가능한 정보</h2>
-
-                        <p>
-                            병원 대표전화, 운영시간, 진료 가능 동물, 제공 서비스,
-                            진료 상세 정보, 병원 소개, 추가 안내사항은
-                            병원 관리 화면에서 바로 수정할 수 있습니다.
-                        </p>
-                    </div>
-                </div>
-
             </section>
 
             <div class="submit-buttons">

@@ -28,7 +28,7 @@
 
 <div th:replace="~{common/head :: head}"></div>
 
-<main class="owner-apply-page">
+<main class="owner-apply-page hospital-manage-page">
 
     <div class="owner-apply-container">
 
@@ -276,7 +276,8 @@
 
         <!-- 직접 수정 폼 -->
         <form th:action="@{/owner/hospital/direct-update}"
-              method="post">
+              method="post"
+              class="direct-update-form">
 
             <input type="hidden"
                    th:if="${_csrf != null}"

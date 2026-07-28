@@ -1170,37 +1170,62 @@ body {
     }
 }
 
-/* 헤더 로고 크기 */
-/* 헤더 로고: 원본 이미지의 흰 여백은 잘라내고 로고만 크게 표시 */
+/* =========================================================
+   PetCity 공통 로고 크기·위치 고정
+   ========================================================= */
+
 .site-header .logo-area {
+    width: 270px !important;
+    min-width: 270px !important;
     height: 74px !important;
+    margin: 0 !important;
     display: flex !important;
     align-items: center !important;
+    justify-content: flex-start !important;
 }
 
 .site-header .logo-link {
+    position: relative !important;
     display: block !important;
-    width: 270px !important;
+    width: 250px !important;
     height: 72px !important;
+    margin: 0 !important;
     overflow: hidden !important;
 }
 
+/*
+    로고 원본 PNG 안의 흰 여백을 잘라내고
+    실제 로고가 항상 같은 크기로 보이게 설정
+*/
 .site-header .logo-image {
+    position: absolute !important;
+    top: -39px !important;    /* -46px → -39px */
+    left: -33px !important;   /* -40px → -33px */
+
     display: block !important;
-    width: 270px !important;
-    height: 72px !important;
-    object-fit: cover !important;
-    object-position: center center !important;
+    width: 290px !important;  /* 340px → 290px */
+    max-width: none !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    transform: none !important;
 }
 
 @media (max-width: 768px) {
     .site-header .logo-area {
+        width: 210px !important;
+        min-width: 210px !important;
+        height: 58px !important;
+    }
+
+    .site-header .logo-link {
+        width: 200px !important;
         height: 56px !important;
     }
 
-    .site-header .logo-link,
     .site-header .logo-image {
-        width: 200px !important;
-        height: 54px !important;
+        top: -33px !important;
+        left: -28px !important;
+        width: 240px !important;
     }
 }

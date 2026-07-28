@@ -266,7 +266,9 @@ public class HospitalUpdateService {
                 }
             }
 
+        if("UPDATE".equals(requestType)) {
             fillRequestSnapshot(requestDto);
+        }
 
             hospitalUpdateDao.insertRequest(requestDto);
 

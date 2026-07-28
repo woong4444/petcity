@@ -132,6 +132,18 @@
 .request-panel.active {
     display: block;
 }
+/*
+    휴업·폐업 요청 화면에서는 해당 요청 폼만 보이게 처리
+*/
+.owner-apply-container.request-form-only .direct-update-form,
+.owner-apply-container.request-form-only .request-history {
+    display: none;
+}
+
+/* 요청 폼이 위쪽에서 자연스럽게 시작되도록 여백 조정 */
+.owner-apply-container.request-form-only .request-panel.active {
+    margin-top: 0;
+}
 
 .selection-box {
     max-height: 300px;
@@ -514,5 +526,212 @@
 .direct-character-count.limit-reached {
     color: #ef4444;
 }
+
+/* 수정 요청·휴업·폐업 선택 카드 */
+.request-action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 28px 0 20px;
+}
+
+.request-action-card {
+    display: flex;
+    min-height: 190px;
+    flex-direction: column;
+    padding: 24px;
+    border: 1px solid #dce7f3;
+    border-radius: 18px;
+    background: #ffffff;
+    color: #102b4e;
+    text-decoration: none;
+    box-shadow: 0 10px 25px rgba(35, 72, 111, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.request-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 30px rgba(35, 72, 111, 0.12);
+}
+
+.request-action-card.active {
+    border-color: #159fe0;
+    box-shadow: 0 12px 28px rgba(21, 159, 224, 0.16);
+}
+
+.request-action-icon {
+    margin-bottom: 12px;
+    font-size: 28px;
+}
+
+.request-action-card strong {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.request-action-card p {
+    flex: 1;
+    margin: 0;
+    color: #6680a0;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.request-action-link {
+    margin-top: 18px;
+    color: #159fe0;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.request-temp-close-card .request-action-link {
+    color: #f58b20;
+}
+
+.request-close-card .request-action-link {
+    color: #ef5350;
+}
+
+/* 직접 수정 안내 */
+.direct-update-guide {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 0 0 26px;
+    padding: 24px 28px;
+    border: 1px solid #d7e8fa;
+    border-radius: 18px;
+    background: #f4faff;
+}
+
+.direct-update-guide > div {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.direct-update-guide-icon {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #159fe0;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.direct-update-guide h2 {
+    margin: 0 0 6px;
+    color: #102b4e;
+    font-size: 19px;
+}
+
+.direct-update-guide p {
+    margin: 0;
+    color: #6680a0;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.direct-update-link {
+    flex: 0 0 auto;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: #159fe0;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+/* 병원정보 수정 요청 페이지: 요청 카드 디자인을 병원관리 화면과 통일 */
+.request-action-card .request-action-icon {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    font-size: 19px;
+}
+
+.request-update-card .request-action-icon {
+    background: #e1f2ff;
+}
+
+.request-temp-close-card .request-action-icon {
+    background: #fff0dc;
+}
+
+.request-close-card .request-action-icon {
+    background: #ffe4e2;
+}
+
+/* 카드 하단 요청 링크를 병원관리 화면의 버튼처럼 표시 */
+.request-action-card .request-action-link {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 10px;
+    color: #ffffff !important;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+}
+
+.request-update-card .request-action-link {
+    background: #1688e8;
+}
+
+.request-temp-close-card .request-action-link {
+    background: #f08a24;
+}
+
+.request-close-card .request-action-link {
+    background: #e64a45;
+}
+
+@media (max-width: 900px) {
+    .request-action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .direct-update-guide {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* 병원관리 화면의 요청 카드 규격을
+   병원정보 수정 요청 페이지 카드 규격과 통일 */
+@media (min-width: 901px) {
+    .hospital-manage-page .request-action-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin: 28px 0 20px;
+    }
+
+    .hospital-manage-page .request-action-card {
+        box-sizing: border-box;
+        height: 212px;
+        min-height: 212px;
+        padding: 24px;
+        border-radius: 18px;
+    }
+
+    .hospital-manage-page .request-action-card .action-button {
+        min-height: 36px;
+        margin-top: 18px;
+        padding: 10px 12px;
+    }
+}
+
+
 
 
