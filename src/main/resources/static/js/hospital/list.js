@@ -66,6 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (activeLat && activeLng) {
                 updateLocationUI();
+                updateSubAnimalUI();
                 loadHospitalList();
                 return;
             }
@@ -153,8 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage.setItem('petcity_loc_data', JSON.stringify(locData));
     }
 
-    function applyLocationAndSearch(lon, lat, addressName, doSearch =
-    false, isCustom = false) {
+    function applyLocationAndSearch(lon, lat, addressName, doSearch = false, isCustom = false) {
         activeAddressName = addressName;
         isCustomLocation = isCustom;
         if (!isCustom) gpsAddressName = addressName;
@@ -165,6 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
         activeLat = lat;
 
         saveLocationToSession();
+        updateSubAnimalUI();
 
         if (doSearch || (sortInput && sortInput.value === 'distance')) {
             loadHospitalList();
@@ -276,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let cleanAddress = address.replace(/\(.*?\)/g, '').split(',')[0].trim();
 
-            geocoder.addressSearch(cleanAddress, function(result, status) {
+            geocoder.addressSearch(cleanAddress, function (result, status) {
                 if (status === kakao.maps.services.Status.OK) {
                     const hLat = parseFloat(result[0].y);
                     const hLng = parseFloat(result[0].x);
@@ -284,17 +285,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     el.innerHTML = `<strong>${dist.toFixed(1)}</strong>km`;
                     el.classList.remove('async-distance');
                 } else {
-                    // 주소로 실패하면 병원명으로 장소 검색 (최후의 수단)
                     const places = new kakao.maps.services.Places();
-                    places.keywordSearch(hName, function(res2, stat2) {
-                        if(stat2 === kakao.maps.services.Status.OK) {
+                    places.keywordSearch(hName, function (res2, stat2) {
+                        if (stat2 === kakao.maps.services.Status.OK) {
                             const hLat = parseFloat(res2[0].y);
                             const hLng = parseFloat(res2[0].x);
                             const dist = getDistance(activeLat, activeLng, hLat, hLng);
                             el.innerHTML = `<strong>${dist.toFixed(1)}</strong>km`;
                             el.classList.remove('async-distance');
                         } else {
-
                             el.innerHTML = '<span class="text-[12px] font-bold text-slate-500">거리 미제공</span>';
                             el.classList.add('!bg-slate-100', '!border-slate-200', '!text-slate-500');
                             el.classList.remove('async-distance');

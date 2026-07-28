@@ -146,9 +146,32 @@
         <if test="districts != null and districts.size() > 0">AND TRIM(H.DISTRICT) IN
             <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach>
         </if>
-        <if test="keyword != null and keyword != ''">AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' ||
-            #{keyword} || '%' OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%')
+
+        <!-- 🌟 응급진료 매핑 제거, 순수 키워드로만 매핑 검색 -->
+        <if test="keyword != null and keyword != ''">
+            AND (
+            H.NAME LIKE '%' || #{keyword} || '%'
+            OR H.ADDRESS LIKE '%' || #{keyword} || '%'
+            OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%'
+
+            OR EXISTS (
+            SELECT 1 FROM HOSPITAL_ANIMAL HA
+            JOIN ANIMAL_TYPE AT3 ON HA.ANIMAL_ID = AT3.ANIMAL_ID
+            WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND AT3.ANIMAL_NAME LIKE '%' || #{keyword} || '%'
+            )
+            OR EXISTS (
+            SELECT 1 FROM HOSPITAL_SERVICE HS4
+            JOIN MEDICAL_SERVICE MS4 ON HS4.SERVICE_ID = MS4.SERVICE_ID
+            WHERE HS4.HOSPITAL_ID = H.HOSPITAL_ID AND MS4.SERVICE_NAME LIKE '%' || #{keyword} || '%'
+            )
+            OR EXISTS (
+            SELECT 1 FROM HOSPITAL_MEDICAL_SUBJECT HMS2
+            JOIN MEDICAL_SUBJECT MSUB ON HMS2.SUBJECT_ID = MSUB.SUBJECT_ID
+            WHERE HMS2.HOSPITAL_ID = H.HOSPITAL_ID AND MSUB.SUBJECT_NAME LIKE '%' || #{keyword} || '%'
+            )
+            )
         </if>
+
         ORDER BY
         <choose>
             <when test="sort == 'recommend'">
@@ -264,9 +287,29 @@
             </foreach>
         </if>
 
+        <!-- 🌟 카운트 부분도 응급진료 매핑 제거, 순수 키워드로만 매핑 검색 -->
         <if test="keyword != null and keyword != ''">
-            AND (H.NAME LIKE '%' || #{keyword} || '%' OR H.ADDRESS LIKE '%' || #{keyword} || '%' OR H.DETAIL_ADDRESS
-            LIKE '%' || #{keyword} || '%')
+            AND (
+            H.NAME LIKE '%' || #{keyword} || '%'
+            OR H.ADDRESS LIKE '%' || #{keyword} || '%'
+            OR H.DETAIL_ADDRESS LIKE '%' || #{keyword} || '%'
+
+            OR EXISTS (
+            SELECT 1 FROM HOSPITAL_ANIMAL HA
+            JOIN ANIMAL_TYPE AT3 ON HA.ANIMAL_ID = AT3.ANIMAL_ID
+            WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID AND AT3.ANIMAL_NAME LIKE '%' || #{keyword} || '%'
+            )
+            OR EXISTS (
+            SELECT 1 FROM HOSPITAL_SERVICE HS4
+            JOIN MEDICAL_SERVICE MS4 ON HS4.SERVICE_ID = MS4.SERVICE_ID
+            WHERE HS4.HOSPITAL_ID = H.HOSPITAL_ID AND MS4.SERVICE_NAME LIKE '%' || #{keyword} || '%'
+            )
+            OR EXISTS (
+            SELECT 1 FROM HOSPITAL_MEDICAL_SUBJECT HMS2
+            JOIN MEDICAL_SUBJECT MSUB ON HMS2.SUBJECT_ID = MSUB.SUBJECT_ID
+            WHERE HMS2.HOSPITAL_ID = H.HOSPITAL_ID AND MSUB.SUBJECT_NAME LIKE '%' || #{keyword} || '%'
+            )
+            )
         </if>
     </select>
 
@@ -287,7 +330,6 @@
         SUBJECT_ID
     </select>
 
-    <!-- 🌟 상세 페이지용 쿼리: 진료과목, 동물, 서비스, 리뷰수, 찜수 등 모두 추가 -->
     <select id="findHospitalById" resultType="HospitalDto">
         SELECT H.HOSPITAL_ID AS hospitalId, H.OWNER_ID AS ownerId, H.NAME AS name, H.ADDRESS AS address,
         H.DETAIL_ADDRESS AS detailAddress,
@@ -302,7 +344,6 @@
 
         (SELECT NICKNAME FROM APP_MEMBER WHERE MEMBER_ID = H.OWNER_ID) AS ownerName,
 
-        <!-- 누락된 조회 컬럼들 병합 -->
         COALESCE(
         (SELECT LISTAGG(MS.SUBJECT_NAME, ', ') WITHIN GROUP (ORDER BY MS.SUBJECT_ID)
         FROM HOSPITAL_MEDICAL_SUBJECT HMS
