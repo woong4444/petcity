@@ -35,11 +35,6 @@ public class HospitalUpdateService {
     @Value("${file.upload}")
     private String uploadPath;
 
-    /*
-        =================================================
-        병원 조회
-        =================================================
-    */
 
     public List<HospitalDto> getHospitalsByOwnerId(int ownerId) {
         return hospitalUpdateDao.findHospitalsByOwnerId(ownerId);
@@ -65,11 +60,6 @@ public class HospitalUpdateService {
         return hospitalUpdateDao.findSubjectIdsByHospitalId(hospitalId);
     }
 
-    /*
-        =================================================
-        병원장이 바로 수정 가능한 정보 저장
-        =================================================
-    */
 
     @Transactional
     public void updateDirectHospitalInfo(
@@ -96,7 +86,6 @@ public class HospitalUpdateService {
             throw new IllegalStateException("병원 정보를 수정할 수 없습니다.");
         }
 
-        // 진료 가능 동물 전체 교체
         hospitalUpdateDao.deleteHospitalAnimals(
                 directUpdateDto.getHospitalId()
         );
@@ -110,7 +99,6 @@ public class HospitalUpdateService {
             );
         }
 
-        // 제공 진료 서비스 전체 교체
         hospitalUpdateDao.deleteHospitalServices(
                 directUpdateDto.getHospitalId()
         );
@@ -124,7 +112,6 @@ public class HospitalUpdateService {
             );
         }
 
-        // 진료 과목 전체 교체
         hospitalUpdateDao.deleteHospitalMedicalSubjects(
                 directUpdateDto.getHospitalId()
         );
@@ -143,13 +130,6 @@ public class HospitalUpdateService {
         );
     }
 
-    /*
-        =================================================
-        파일 없이 요청 등록할 때 사용
-        휴업 / 폐업 요청에서 사용 가능
-        =================================================
-    */
-
     @Transactional
     public int requestUpdate(
             HospitalUpdateRequestDto requestDto
@@ -163,16 +143,6 @@ public class HospitalUpdateService {
             );
         }
     }
-
-    /*
-        =================================================
-        관리자 승인 필요 요청 등록
-
-        UPDATE     : 증빙서류 / 대표이미지 파일 저장
-        TEMP_CLOSE : 휴업 요청
-        CLOSE      : 폐업 요청
-        =================================================
-    */
 
     @Transactional(rollbackFor = Exception.class)
     public int requestUpdate(
@@ -203,11 +173,6 @@ public class HospitalUpdateService {
 
         validateRequestByType(requestDto);
 
-        /*
-    UPDATE / CLOSE는 병원당 PENDING 요청 1개만 허용.
-    TEMP_CLOSE는 여러 건 신청할 수 있지만,
-    기존 PENDING 또는 APPROVED 휴업 기간과 겹치면 신청 불가.
-*/
         if("TEMP_CLOSE".equals(requestType)) {
 
             int overlapCount =
@@ -241,10 +206,7 @@ public class HospitalUpdateService {
         String savedImageUrl = null;
 
         try {
-            /*
-                병원 정보 수정 요청일 때만 파일을 저장한다.
-                휴업 / 폐업 요청에는 파일이 필요 없다.
-            */
+
             if ("UPDATE".equals(requestType)) {
 
                 validateUpdateRequest(
@@ -253,13 +215,11 @@ public class HospitalUpdateService {
                         hospitalImage
                 );
 
-                // 새 증빙서류를 선택했다면 새 파일 저장
                 if (documentFile != null && !documentFile.isEmpty()) {
                     savedDocumentUrl = saveDocumentFile(documentFile);
                     requestDto.setDocumentUrl(savedDocumentUrl);
                 }
 
-                // 새 대표이미지를 선택했다면 새 파일 저장
                 if (hospitalImage != null && !hospitalImage.isEmpty()) {
                     savedImageUrl = saveHospitalImage(hospitalImage);
                     requestDto.setHospitalImageUrl(savedImageUrl);
@@ -274,22 +234,12 @@ public class HospitalUpdateService {
 
         } catch (Exception exception) {
 
-            /*
-                DB 저장 도중 실패하면 방금 저장한 파일만 정리한다.
-                기존에 사용하던 대표이미지 파일은 삭제하지 않는다.
-            */
             deleteSavedFile(savedDocumentUrl);
             deleteSavedFile(savedImageUrl);
 
             throw exception;
         }
     }
-
-    /*
-        =================================================
-        병원장 요청 목록 / 요청 취소
-        =================================================
-    */
 
     public List<HospitalUpdateRequestDto> getRequestListByHospitalId(
             int hospitalId,
@@ -308,9 +258,6 @@ public class HospitalUpdateService {
         return hospitalUpdateDao.findLatestRequestByHospitalId(hospitalId);
     }
 
-    /*
-        관리자가 처리하기 전 PENDING 요청만 삭제한다.
-    */
     @Transactional
     public void deletePendingRequest(
             int requestId,
@@ -330,12 +277,6 @@ public class HospitalUpdateService {
             );
         }
     }
-
-    /*
-        =================================================
-        관리자 요청 목록 / 승인 / 반려
-        =================================================
-    */
 
     public List<HospitalUpdateRequestDto> getPendingRequests() {
         return hospitalUpdateDao.findPendingRequests();
@@ -360,10 +301,6 @@ public class HospitalUpdateService {
             case "UPDATE" -> applyUpdateRequest(requestDto);
 
             case "TEMP_CLOSE" -> {
-                /*
-                    휴업 승인 정보는 요청 테이블에 저장한다.
-                    병원을 CLOSED 상태로 변경하지 않는다.
-                */
             }
 
             case "CLOSE" -> {
@@ -429,14 +366,6 @@ public class HospitalUpdateService {
         }
     }
 
-    /*
-        =================================================
-        수정 요청 승인 시 HOSPITAL 반영
-
-        진료 가능 동물 / 서비스 / 진료 과목은 병원장이 직접 수정하는
-        항목이므로, 관리자 승인 과정에서 변경하지 않는다.
-        =================================================
-    */
 
     private void applyUpdateRequest(
             HospitalUpdateRequestDto requestDto
@@ -451,23 +380,11 @@ public class HospitalUpdateService {
         }
     }
 
-    /*
-        =================================================
-        기존 탈퇴 회원 병원 정리
-        =================================================
-    */
-
     @Transactional
     public void cleanupWithdrawnMemberHospitals() {
         hospitalUpdateDao.markClosedForWithdrawnMembers();
         hospitalUpdateDao.deleteOldClosedHospitals();
     }
-
-    /*
-        =================================================
-        수정 요청 입력값 검증
-        =================================================
-    */
 
     private void validateUpdateRequest(
             HospitalUpdateRequestDto requestDto,
@@ -494,11 +411,6 @@ public class HospitalUpdateService {
                 formatBusinessNumber(businessNumber)
         );
 
-        /*
-            새 수정 요청은 증빙서류를 필수로 받는다.
-            수정 화면에서 기존 URL을 hidden 값으로 넘기도록 만들면
-            기존 파일을 유지하는 방식으로도 바꿀 수 있다.
-        */
         if (documentFile == null || documentFile.isEmpty()) {
             throw new IllegalArgumentException(
                     "증빙서류를 첨부해 주세요."
@@ -557,10 +469,6 @@ public class HospitalUpdateService {
             );
         }
 
-        /*
-            대표이미지는 기존 이미지 URL이 있으면 새 파일 선택 없이 유지한다.
-            기존 이미지도 없고 새 파일도 없을 때만 오류 처리한다.
-        */
         if (hospitalImage == null || hospitalImage.isEmpty()) {
 
             if (isBlank(requestDto.getHospitalImageUrl())) {
@@ -573,12 +481,6 @@ public class HospitalUpdateService {
             validateImageFile(hospitalImage);
         }
     }
-
-    /*
-        =================================================
-        파일 저장 / 파일 검증
-        =================================================
-    */
 
     private String saveDocumentFile(
             MultipartFile documentFile
@@ -660,9 +562,6 @@ public class HospitalUpdateService {
                     .resolve(relativePath)
                     .normalize();
 
-            /*
-                /upload 밖의 파일을 지우는 요청은 막는다.
-            */
             if (filePath.startsWith(uploadRoot)) {
                 Files.deleteIfExists(filePath);
             }
@@ -723,12 +622,6 @@ public class HospitalUpdateService {
             );
         }
     }
-
-    /*
-        =================================================
-        요청 검증 / 공통 처리
-        =================================================
-    */
 
     private HospitalUpdateRequestDto getPendingRequestOrThrow(
             int requestId
@@ -888,10 +781,6 @@ public class HospitalUpdateService {
                 + numberOnly.substring(5);
     }
 
-    /*
-        기존 Controller의 lunchTime / holiday 값을
-        새 DTO의 breakTime / closedDays 값으로 옮긴다.
-    */
     private void normalizeLegacyTimeFields(
             HospitalUpdateRequestDto requestDto
     ) {
@@ -949,10 +838,6 @@ public class HospitalUpdateService {
         return value == null || value.isBlank();
     }
 
-    /**
-     * 요청 DTO에 비어 있는 값은 현재 병원 정보로 채운다.
-     * 사용자가 수정 요청 화면에서 새로 입력한 값은 유지한다.
-     */
     private void fillRequestSnapshot(HospitalUpdateRequestDto requestDto) {
         HospitalUpdateRequestDto current =
                 hospitalUpdateDao.findRequestSnapshotByHospitalId(requestDto.getHospitalId());
@@ -1026,9 +911,6 @@ public class HospitalUpdateService {
         }
     }
 
-    /**
-     * 진료시간 범위 안에서만 휴게시간을 등록하도록 검사한다.
-     */
     private void validateOperatingTime(HospitalDirectUpdateDto directUpdateDto) {
         String openTime = directUpdateDto.getOpenTime();
         String closeTime = directUpdateDto.getCloseTime();
@@ -1046,7 +928,6 @@ public class HospitalUpdateService {
             throw new IllegalArgumentException("진료 종료 시간은 시작 시간보다 늦어야 합니다.");
         }
 
-        // 휴게시간을 입력하지 않은 경우는 허용
         if (breakTime == null || breakTime.isBlank()) {
             return;
         }

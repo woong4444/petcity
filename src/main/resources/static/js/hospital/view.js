@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // 🌟 1. 최근 본 병원 로컬스토리지 저장 로직
     try {
         if (typeof hId !== 'undefined' && typeof hName !== 'undefined' && hId > 0) {
             let recentHospitals = JSON.parse(localStorage.getItem('petcity_recent') || '[]');
@@ -11,18 +10,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 img: (typeof hImg !== 'undefined' && hImg !== '') ? hImg : null
             };
 
-            // 중복 시 기존 기록 삭제
             recentHospitals = recentHospitals.filter(h => String(h.id) !== String(hId));
-
-            // 맨 앞에 새로 추가
             recentHospitals.unshift(currentHospital);
-
-            // 3개까지만 유지
             recentHospitals = recentHospitals.slice(0, 3);
 
             localStorage.setItem('petcity_recent', JSON.stringify(recentHospitals));
 
-            // 🌟 2. 저장 직후 퀵메뉴 즉시 새로고침! (head.js에 있는 함수 호출)
             if (typeof renderGlobalRecentHospitals === 'function') {
                 renderGlobalRecentHospitals();
             }
@@ -31,9 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("최근 본 병원 저장 중 오류 발생:", e);
     }
 
-    // ==============================================
-    // 카카오맵 렌더링 로직 등 (이전 코드 유지)
-    // ==============================================
     if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
         kakao.maps.load(function () {
             const mapContainer = document.getElementById('kakaoMap');
@@ -50,7 +40,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 const marker = new kakao.maps.Marker({position: targetPosition});
                 marker.setMap(map);
 
-                const iwContent = `<div style="padding:5px; text-align:center; font-weight:bold; font-size:13px; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${typeof hName !== 'undefined' ? hName : '병원'}</div>`;
+                const iwContent =
+                    `<div style="padding:5px; 
+                    text-align:center; 
+                    font-weight:bold; 
+                    font-size:13px; 
+                    color:#111827; 
+                    white-space:nowrap; 
+                    overflow:hidden; 
+                    text-overflow:ellipsis;">${typeof hName !== 'undefined' ? hName : '병원'}</div>`;
                 const infowindow = new kakao.maps.InfoWindow({content: iwContent});
                 infowindow.open(map, marker);
 
@@ -66,33 +64,83 @@ document.addEventListener("DOMContentLoaded", function () {
                 }, 100);
             }
 
-            if (lat > 1000 || lng > 1000) {
-                const tmX = (lat < lng) ? lat : lng;
-                const tmY = (lat > lng) ? lat : lng;
-                const geocoder = new kakao.maps.services.Geocoder();
+            function fallbackToAddress() {
+                if (typeof hAddress !== 'undefined' && hAddress.trim() !== '') {
+                    const geocoder = new kakao.maps.services.Geocoder();
+                    const places = new kakao.maps.services.Places();
 
+
+                    let cleanAddress = hAddress.replace(/\(.*?\)/g, '').split(',')[0].trim();
+
+                    geocoder.addressSearch(cleanAddress, function (result, status) {
+                        if (status === kakao.maps.services.Status.OK) {
+                            renderMap(result[0].y, result[0].x);
+                        } else {
+
+                            geocoder.addressSearch(hAddress, function (res2, stat2) {
+                                if (stat2 === kakao.maps.services.Status.OK) {
+                                    renderMap(res2[0].y, res2[0].x);
+                                } else {
+
+                                    let region = hAddress.split(' ').slice(0, 2).join(' ');
+                                    let keyword = region + ' ' + hName;
+                                    places.keywordSearch(keyword, function (res3, stat3) {
+                                        if (stat3 === kakao.maps.services.Status.OK) {
+                                            renderMap(res3[0].y, res3[0].x);
+                                        } else {
+
+                                            places.keywordSearch(hName, function (res4, stat4) {
+                                                if (stat4 === kakao.maps.services.Status.OK) {
+                                                    renderMap(res4[0].y, res4[0].x);
+                                                } else {
+
+                                                    renderMap(37.566826, 126.978656);
+                                                    const mapLink = document.getElementById('kakaoMapLink');
+                                                    if (mapLink) mapLink.style.display = 'none';
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    renderMap(37.566826, 126.978656);
+                }
+            }
+
+            let currentLat = parseFloat(lat) || 0;
+            let currentLng = parseFloat(lng) || 0;
+
+            if (currentLat === 0 || currentLng === 0) {
+                fallbackToAddress();
+            } else if (currentLat > 10000 || currentLng > 10000) {
+                const tmX = Math.min(currentLat, currentLng);
+                const tmY = Math.max(currentLat, currentLng);
+
+                const geocoder = new kakao.maps.services.Geocoder();
                 geocoder.transCoord(tmX, tmY, function (result, status) {
                     if (status === kakao.maps.services.Status.OK) {
                         renderMap(result[0].y, result[0].x);
                     } else {
-                        renderMap(37.566826, 126.978656);
+                        fallbackToAddress();
                     }
                 }, {input_coord: kakao.maps.services.Coords.TM, output_coord: kakao.maps.services.Coords.WGS84});
-            } else if (lat > 30 && lng > 120) {
-                renderMap(lat, lng);
-            } else if (typeof hAddress !== 'undefined' && hAddress.trim() !== '') {
-                const geocoder = new kakao.maps.services.Geocoder();
-                geocoder.addressSearch(hAddress, function (result, status) {
-                    if (status === kakao.maps.services.Status.OK) {
-                        renderMap(result[0].y, result[0].x);
-                    } else {
-                        renderMap(37.566826, 126.978656);
-                        const mapLink = document.getElementById('kakaoMapLink');
-                        if (mapLink) mapLink.style.display = 'none';
-                    }
-                });
             } else {
-                renderMap(37.566826, 126.978656);
+                let properLat = currentLat;
+                let properLng = currentLng;
+
+                if (currentLat > 100 && currentLng < 100) {
+                    properLat = currentLng;
+                    properLng = currentLat;
+                }
+
+                if (properLat > 32 && properLat < 40 && properLng > 124 && properLng < 132) {
+                    renderMap(properLat, properLng);
+                } else {
+                    fallbackToAddress();
+                }
             }
 
             const tabs = document.querySelectorAll('.tab-btn');
@@ -264,7 +312,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const content = reviewContent.value.trim();
             const rating = ratingInput.value;
             const hospitalId = document.getElementById('reviewHospitalId').value;
-            const memberId = document.getElementById('loginMemberId') ? document.getElementById('loginMemberId').value : '';
+            const memberId = document.getElementById('loginMemberId') ?
+                document.getElementById('loginMemberId').value : '';
 
             if (content === '') {
                 alert('리뷰 내용을 입력해주세요!');
@@ -293,8 +342,61 @@ document.addEventListener("DOMContentLoaded", function () {
                         alert(data.message || "리뷰 등록에 실패했습니다.");
                     }
                 })
-                .catch(err => alert("💥 리뷰 등록 실패:\n" + err.message));
+                .catch(err => alert("리뷰 등록 실패:\n" + err.message));
         });
+    }
+
+    const reviewItems = document.querySelectorAll('.review-item');
+    const itemsPerPage = 10;
+    const totalReviews = reviewItems.length;
+    const totalPages = Math.ceil(totalReviews / itemsPerPage);
+    const paginationWrap = document.getElementById('reviewPaginationWrap');
+
+    if (totalPages > 1) {
+        function showReviewPage(pageNum) {
+            const start = (pageNum - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+
+            reviewItems.forEach((item, index) => {
+                if (index >= start && index < end) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            renderPagination(pageNum);
+        }
+
+        function renderPagination(currentPage) {
+            let html = '<ul class="pagination">';
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' :
+                ''}"><a class="page-link" href="#" data-page="1">&lt;&lt;</a></li>`;
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' :
+                ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">&lt;</a></li>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' :
+                    ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+            }
+
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' :
+                ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a></li>`;
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' :
+                ''}"><a class="page-link" href="#" data-page="${totalPages}">&gt;&gt;</a></li>`;
+            html += '</ul>';
+
+            paginationWrap.innerHTML = html;
+            paginationWrap.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetPage = parseInt(this.getAttribute('data-page'));
+                    showReviewPage(targetPage);
+                    document.getElementById('section-review').scrollIntoView({behavior: 'smooth'});
+                });
+            });
+        }
+
+        showReviewPage(1);
     }
 });
 
@@ -308,5 +410,20 @@ function toggleReviewEdit(reviewId) {
     } else {
         contentBox.classList.remove('hidden');
         editBox.classList.add('hidden');
+    }
+}
+
+function toggleNoticeText() {
+    const txtEle = document.getElementById('noticeText');
+    const btnEle = document.getElementById('btnMoreNotice');
+    const fullText = txtEle.getAttribute('data-full');
+    const shortText = txtEle.getAttribute('data-short');
+
+    if (btnEle.innerText.includes('더보기')) {
+        txtEle.innerText = fullText;
+        btnEle.innerText = '접기';
+    } else {
+        txtEle.innerText = shortText;
+        btnEle.innerText = '+ 더보기';
     }
 }

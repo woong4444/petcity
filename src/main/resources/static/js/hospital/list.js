@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let gpsWgsY = null;
     let gpsAddressName = "위치 확인 중...";
 
-    // 🌟 오로지 WGS84(위경도)만 사용합니다. TM 관련 변수 완전 삭제!
     let activeLat = null;
     let activeLng = null;
     let activeAddressName = null;
@@ -60,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
             activeAddressName = savedLoc.activeAddressName;
             isCustomLocation = savedLoc.isCustomLocation;
 
-            // 혹시 예전에 잘못 저장된 TM 값이 남아있으면 날려버립니다.
             if (activeLat > 1000 || activeLng > 1000) {
                 activeLat = null;
                 activeLng = null;
@@ -155,8 +153,8 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage.setItem('petcity_loc_data', JSON.stringify(locData));
     }
 
-    // 🌟 WGS84 좌표 그대로 사용 (TM 변환 없음)
-    function applyLocationAndSearch(lon, lat, addressName, doSearch = false, isCustom = false) {
+    function applyLocationAndSearch(lon, lat, addressName, doSearch =
+    false, isCustom = false) {
         activeAddressName = addressName;
         isCustomLocation = isCustom;
         if (!isCustom) gpsAddressName = addressName;
@@ -170,6 +168,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (doSearch || (sortInput && sortInput.value === 'distance')) {
             loadHospitalList();
+        } else {
+            calculateAsyncDistances();
         }
     }
 
@@ -204,9 +204,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (seoulAll && !seoulAll.checked) {
+            let hasDistrict = false;
             form.querySelectorAll("input[name='districts']:checked").forEach(district => {
-                if (district.value !== "") params.append("districts", district.value);
+                if (district.value !== "") {
+                    params.append("districts", district.value);
+                    hasDistrict = true;
+                }
             });
+
+            const otherAll = document.getElementById("otherAll");
+            if (otherAll && otherAll.checked && !hasDistrict) {
+                params.append("districts", "UNKNOWN_REGION_DUMMY");
+            }
         }
 
         if (keywordInput && keywordInput.value.trim() !== "") {
@@ -247,10 +256,64 @@ document.addEventListener("DOMContentLoaded", function () {
                 rebindMapModalTrigger();
                 rebindDetailLinks();
                 updateLocationUI();
+                calculateAsyncDistances();
             })
             .catch(error => {
                 if (error.name !== "AbortError") console.error(error);
             });
+    }
+
+    function calculateAsyncDistances() {
+        const elements = document.querySelectorAll('.async-distance');
+        if (elements.length === 0) return;
+
+        if (!activeLat || !activeLng || !geocoder) return;
+
+        elements.forEach(el => {
+            const address = el.dataset.address;
+            const hName = el.dataset.name;
+            if (!address) return;
+
+            let cleanAddress = address.replace(/\(.*?\)/g, '').split(',')[0].trim();
+
+            geocoder.addressSearch(cleanAddress, function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    const hLat = parseFloat(result[0].y);
+                    const hLng = parseFloat(result[0].x);
+                    const dist = getDistance(activeLat, activeLng, hLat, hLng);
+                    el.innerHTML = `<strong>${dist.toFixed(1)}</strong>km`;
+                    el.classList.remove('async-distance');
+                } else {
+                    // 주소로 실패하면 병원명으로 장소 검색 (최후의 수단)
+                    const places = new kakao.maps.services.Places();
+                    places.keywordSearch(hName, function(res2, stat2) {
+                        if(stat2 === kakao.maps.services.Status.OK) {
+                            const hLat = parseFloat(res2[0].y);
+                            const hLng = parseFloat(res2[0].x);
+                            const dist = getDistance(activeLat, activeLng, hLat, hLng);
+                            el.innerHTML = `<strong>${dist.toFixed(1)}</strong>km`;
+                            el.classList.remove('async-distance');
+                        } else {
+
+                            el.innerHTML = '<span class="text-[12px] font-bold text-slate-500">거리 미제공</span>';
+                            el.classList.add('!bg-slate-100', '!border-slate-200', '!text-slate-500');
+                            el.classList.remove('async-distance');
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 
     function rebindDetailLinks() {
@@ -612,7 +675,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (otherAllBtn) {
         const checkInitialState = () => {
-            const isAllChecked = Array.from(hiddenOtherDistricts).length > 0 && Array.from(hiddenOtherDistricts).every(chk => chk.checked);
+            const isAllChecked = Array.from(hiddenOtherDistricts).length >
+                0 && Array.from(hiddenOtherDistricts).every(chk => chk.checked);
             otherAllBtn.checked = isAllChecked;
         };
         checkInitialState();
