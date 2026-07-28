@@ -103,7 +103,6 @@ public class HospitalService {
     private void applyCurrentStatus(HospitalDto h) {
         refineMedicalSubjects(h);
 
-        // 폐업 및 휴업 상태 우선 처리
         if ("CLOSED".equals(h.getStatus())) {
             h.setCurrentStatus("폐업");
             return;
@@ -153,9 +152,12 @@ public class HospitalService {
         h.setCurrentStatus("진료중");
     }
 
-    public HospitalListPageDto getHospitalListPage(int page, Integer animalId, Integer subAnimalId, List<String> subjects, List<Integer> serviceIds, List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
+    public HospitalListPageDto
+    getHospitalListPage
+            (int page, Integer animalId, Integer subAnimalId,
+             List<String> subjects, List<Integer> serviceIds,
+             List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
 
-        // 🌟 이 부분을 12로 변경했습니다!
         int limit = 12;
 
         int totalCount = hospitalDao.countHospitalList(openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword);
@@ -171,8 +173,10 @@ public class HospitalService {
 
         int offset = (page - 1) * limit;
 
-        // 🌟 수정 내용과 관련: Mapper에 전달되는 파라미터가 12건 단위가 됩니다.[cite: 1]
-        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(offset, limit, openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword, sort, userLat, userLng);
+        List<HospitalDto> hospitalList =
+                hospitalDao.findHospitalList
+                        (offset, limit, openStatus, animalId, subAnimalId,
+                                subjects, serviceIds, districts, keyword, sort, userLat, userLng);
 
         for (HospitalDto h : hospitalList) {
             applyCurrentStatus(h);

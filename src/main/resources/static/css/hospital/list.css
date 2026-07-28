@@ -191,7 +191,6 @@ body {
     box-shadow: 0 4px 10px rgba(14, 165, 233, 0.25);
 }
 
-/* 🌟 변경점: seoul-all-check, service-all-check 특수 파란색 CSS를 모두 완전히 삭제해서 취소 시 회색으로 정상 복구되게 함! */
 .filter-actions {
     display: flex;
     justify-content: flex-end;
@@ -858,7 +857,6 @@ body {
     pointer-events: none;
 }
 
-/* 인라인 대체 클래스 */
 .sub-animal-box {
     display: none;
     background: #f8fafc;
@@ -986,4 +984,117 @@ body {
     width: 100%;
     height: 350px;
     background: #e2e8f0;
+}
+
+.suspend-modal-content {
+    max-width: 400px;
+    text-align: center;
+    padding: 30px 20px;
+}
+.suspend-icon {
+    font-size: 45px;
+    margin-bottom: 15px;
+}
+.suspend-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 10px;
+}
+.suspend-notice-box {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+}
+.suspend-notice-label {
+    display: block;
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+.suspend-notice-text {
+    font-size: 14px;
+    color: #334155;
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: keep-all;
+}
+.suspend-warning {
+    font-size: 15px;
+    font-weight: 800;
+    color: #ef4444;
+    margin-bottom: 20px;
+}
+.suspend-btn-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.btn-suspend-no, .btn-suspend-yes {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-suspend-no {
+    background: #f1f5f9;
+    color: #475569;
+}
+.btn-suspend-yes {
+    background: #0ea5e9;
+    color: #fff;
+}
+
+
+
+.suspend-notice-box {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.suspend-notice-label {
+    display: block;
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.suspend-notice-text {
+    font-size: 14px;
+    color: #334155;
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+.suspend-notice-box::-webkit-scrollbar {
+    width: 6px;
+}
+.suspend-notice-box::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 8px;
+}
+.suspend-notice-box::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+.suspend-notice-box::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }

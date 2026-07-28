@@ -5,10 +5,6 @@
 
 <mapper namespace="com.jjang051.petcity.hospital.dao.HospitalUpdateDao">
 
-    <!-- =================================================
-         병원 DTO 조회에 공통으로 쓰는 컬럼
-         HospitalDto의 lunchTime / holiday 호환을 위해 별칭 사용
-         ================================================= -->
 
     <sql id="hospitalColumns">
         H.HOSPITAL_ID AS hospitalId,
@@ -41,9 +37,6 @@
         H.UPDATED_AT AS updatedAt
     </sql>
 
-    <!-- =================================================
-         병원 관리 요청 DTO 공통 컬럼
-         ================================================= -->
 
     <sql id="requestColumns">
         R.REQUEST_ID AS requestId,
@@ -89,9 +82,6 @@
         R.REJECT_REASON AS rejectReason
     </sql>
 
-    <!-- =================================================
-         1. 병원 조회
-         ================================================= -->
 
     <select id="findHospitalsByOwnerId"
             resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
@@ -114,7 +104,6 @@
 
     </select>
 
-    <!-- 로그인한 병원장이 실제 소유자인지 확인하는 조회 -->
     <select id="findHospitalByIdAndOwner"
             resultType="com.jjang051.petcity.hospital.dto.HospitalDto">
 
@@ -156,9 +145,6 @@
 
     </select>
 
-    <!-- =================================================
-         2. 병원장이 직접 수정하는 정보
-         ================================================= -->
 
     <update id="updateDirectHospitalInfo"
             parameterType="com.jjang051.petcity.hospital.dto.HospitalDirectUpdateDto">
@@ -182,7 +168,6 @@
 
     </update>
 
-    <!-- 요청 당시의 병원 기본정보 + 최초 병원장 신청 정보 조회 -->
     <select id="findRequestSnapshotByHospitalId"
             resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
 
@@ -236,9 +221,6 @@
         WHERE H.HOSPITAL_ID = #{hospitalId}
     </select>
 
-    <!-- =================================================
-         3. 수정 / 휴업 / 폐업 요청 등록
-         ================================================= -->
 
     <insert id="insertRequest"
             parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto"
@@ -327,7 +309,6 @@
 
     </insert>
 
-    <!-- 관리자: 처리 대기 요청 목록 -->
     <select id="findPendingRequests"
             resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
 
@@ -352,7 +333,6 @@
 
     </select>
 
-    <!-- 병원장 본인의 병원 관리 요청 이력 -->
     <select id="findRequestListByHospitalId"
             resultType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
 
@@ -377,7 +357,6 @@
 
     </select>
 
-    <!-- 같은 병원에서 같은 종류의 PENDING 요청이 있는지 확인 -->
     <select id="countPendingRequestByHospitalAndType"
             resultType="int">
 
@@ -389,7 +368,6 @@
 
     </select>
 
-    <!-- 휴업 기간이 기존 휴업 요청과 겹치는지 확인-->
     <select id="countOverlappingTempCloseRequest"
             resultType="int">
 
@@ -402,7 +380,6 @@
             AND TEMP_CLOSE_END_AT &gt; #{tempCloseStartAt, jdbcType=TIMESTAMP}
     </select>
 
-    <!-- 병원장은 관리자 승인 전 요청만 취소 가능 -->
     <delete id="deletePendingRequest">
 
         DELETE FROM HOSPITAL_UPDATE_REQUEST
@@ -413,7 +390,6 @@
 
     </delete>
 
-    <!-- 관리자 승인 / 반려 처리 -->
     <update id="updateRequestStatus"
             parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
 
@@ -427,12 +403,6 @@
         AND STATUS = 'PENDING'
 
     </update>
-
-    <!-- =================================================
-         4. 요청에 딸린 다중 선택값
-         현재는 직접 수정 항목이라 UPDATE 요청에는 사용하지 않아도 된다.
-         DAO 호환을 위해 Mapper는 유지한다.
-         ================================================= -->
 
     <select id="findRequestAnimalIds"
             resultType="int">
@@ -509,12 +479,6 @@
 
     </insert>
 
-    <!-- =================================================
-         5. 수정 요청 승인 시 실제 병원 정보 반영
-
-         직접 수정 항목인 전화번호 / 운영시간 / 서비스 / 진료과목 /
-         병원소개 / 추가안내사항은 여기서 수정하지 않는다.
-         ================================================= -->
 
     <update id="applyHospitalUpdate"
             parameterType="com.jjang051.petcity.hospital.dto.HospitalUpdateRequestDto">
@@ -541,9 +505,6 @@
 
     </update>
 
-    <!-- =================================================
-         6. 직접 수정: 진료 가능 동물
-         ================================================= -->
 
     <delete id="deleteHospitalAnimals">
 
@@ -567,10 +528,6 @@
 
     </insert>
 
-    <!-- =================================================
-         7. 직접 수정: 제공 진료 서비스
-         ================================================= -->
-
     <delete id="deleteHospitalServices">
 
         DELETE FROM HOSPITAL_SERVICE
@@ -592,10 +549,6 @@
         )
 
     </insert>
-
-    <!-- =================================================
-         8. 직접 수정: 진료 과목
-         ================================================= -->
 
     <delete id="deleteHospitalMedicalSubjects">
 
@@ -619,7 +572,6 @@
 
     </insert>
 
-    <!-- 진료과목 연결 테이블 값을 HOSPITAL.MEDICAL_SUBJECTS에도 저장 -->
     <update id="updateMedicalSubjectText">
 
         UPDATE HOSPITAL
@@ -641,10 +593,6 @@
 
     </update>
 
-    <!-- =================================================
-         9. 관리자 폐업 승인
-         ================================================= -->
-
     <update id="closeHospitalByAdmin">
 
         UPDATE HOSPITAL
@@ -655,10 +603,6 @@
         AND STATUS = 'OPEN'
 
     </update>
-
-    <!-- =================================================
-         10. 기존 탈퇴 회원 병원 정리 기능
-         ================================================= -->
 
     <update id="markClosedForWithdrawnMembers">
 

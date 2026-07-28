@@ -2,9 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderGlobalRecentHospitals();
 });
 
-/* ========================================
-   전역 퀵메뉴 '최근 본 병원' 렌더링 기능
-======================================== */
+
 function renderGlobalRecentHospitals() {
     const recentBox = document.getElementById('quickRecentList');
     if (!recentBox) return;

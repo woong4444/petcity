@@ -47,7 +47,6 @@ body {
     padding: 0 20px;
 }
 
-/* 🌟 상대 위치 속성 추가 (하트버튼 고정용) */
 .info-card.relative {
     position: relative;
 }
@@ -61,7 +60,7 @@ body {
     text-align: center;
 }
 
-/* 🌟 찜하기(하트) 버튼 */
+
 .btn-zzim.top-right {
     position: absolute;
     top: 24px;
@@ -341,7 +340,6 @@ body {
     background: #f4dc00;
 }
 
-/* 🌟 리뷰 락(Lock) UI 및 콘텐츠 CSS */
 .review-lock {
     text-align: center;
     padding: 50px 20px;

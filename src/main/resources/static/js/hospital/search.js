@@ -1,9 +1,4 @@
-/* ========================================================
-   [search.js] 맞춤 검색 화면 - 싹 다 즉시 반응형 AJAX 적용
-======================================================== */
 document.addEventListener("DOMContentLoaded", function () {
-
-    // 1. 그 외 지역 버튼 클릭 이벤트
     const otherAllSearch = document.getElementById('otherAllSearch');
     if (otherAllSearch) {
         otherAllSearch.addEventListener('change', function () {
@@ -15,16 +10,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 2. 폼 내부의 모든 입력 요소(input, select, checkbox 등) 변경 시 즉시 반응
     const form = document.getElementById('customSearchForm');
     if (form) {
         form.addEventListener('change', function (e) {
             fetchDynamicResults();
         });
 
-        // 3. 버튼이나 필터 항목을 클릭했을 때 (동물 분류, 진료 과목 버튼 등 타겟 포함)
         form.addEventListener('click', function (e) {
-            // 버튼이나 칩 형태의 필터 요소를 클릭한 경우 딜레이를 두고 즉시 반영
             const target = e.target.closest('button, a, input, label');
             if (target) {
                 setTimeout(fetchDynamicResults, 50);
@@ -32,7 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 4. 반려동물 폼 선택 이벤트 (step 2로 이동)
     const petSelectBtns = document.querySelectorAll('.btn-select-pet');
     petSelectBtns.forEach(btn => {
         btn.addEventListener('click', function (e) {
@@ -45,7 +36,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (animalInput) animalInput.value = animalId;
             if (subAnimalInput) subAnimalInput.value = subId;
 
-            document.querySelectorAll('#myPetListArea > div').forEach(el => el.classList.remove('border-sky-500', 'bg-sky-50'));
+            document.querySelectorAll('#myPetListArea > div').forEach(el =>
+                el.classList.remove('border-sky-500', 'bg-sky-50'));
             this.closest('div.bg-white').classList.add('border-sky-500', 'bg-sky-50');
 
             if (typeof toggleStep === 'function') toggleStep('step2');
@@ -54,13 +46,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// 비동기 통신 (AJAX) 함수
 function fetchDynamicResults() {
     const form = document.getElementById('customSearchForm');
     if (!form) return;
 
     const formData = new FormData(form);
     const searchParams = new URLSearchParams(formData);
+
+    const otherAllSearch = document.getElementById('otherAllSearch');
+    if (otherAllSearch && otherAllSearch.checked && !searchParams.has('districts')) {
+        searchParams.append('districts', 'UNKNOWN_REGION_DUMMY');
+    }
 
     const resultArea = document.getElementById('ajaxDynamicResult');
     if (!resultArea) return;
@@ -80,4 +76,16 @@ function fetchDynamicResults() {
             console.error(err);
             resultArea.innerHTML = '<div class="text-center py-10 text-red-500 font-bold">오류가 발생했습니다. 다시 시도해주세요.</div>';
         });
+}
+
+function toggleStep(stepId) {
+    const content = document.getElementById('content-' + stepId);
+    const icon = document.getElementById('icon-' + stepId);
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.textContent = '−';
+    } else {
+        content.classList.add('hidden');
+        icon.textContent = '+';
+    }
 }
