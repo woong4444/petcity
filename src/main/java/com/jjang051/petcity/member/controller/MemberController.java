@@ -794,6 +794,13 @@ public class MemberController {
                 member
         );
 
+        model.addAttribute(
+                "petList",
+                petDao.findPetsByMemberId(
+                        member.getMemberId().intValue()
+                )
+        );
+
         /*
          * 07-24 상각: 일반회원 마이페이지 최근 로그인 표시
          *
@@ -847,6 +854,12 @@ public class MemberController {
 
         session.setAttribute("loginMember", member);
         model.addAttribute("member", member);
+        model.addAttribute(
+                "petList",
+                petDao.findPetsByMemberId(
+                        member.getMemberId().intValue()
+                )
+        );
 
         return "member/member-info";
     }

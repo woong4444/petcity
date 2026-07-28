@@ -8,7 +8,7 @@
         GENDER, NEUTERED, BIRTH_DATE, WEIGHT, PHOTO_URL, REGISTRATION_NO
         ) VALUES (
         SEQ_MEMBER_PET.NEXTVAL, #{memberId}, #{animalId}, #{petName}, #{breedName},
-        #{gender}, #{neutered}, TO_DATE(#{birthDate}, 'YYYY-MM-DD'), #{weight},
+        #{dbGender}, #{neutered}, TO_DATE(#{birthDate}, 'YYYY-MM-DD'), #{weight},
         #{photoUrl, jdbcType=VARCHAR}, #{registrationNo, jdbcType=VARCHAR}
         )
     </insert>

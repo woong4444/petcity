@@ -8,6 +8,7 @@ import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberSecurityAuditService;
 import com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto;
 import com.jjang051.petcity.memberfeature.service.MemberFeatureService;
+import com.jjang051.petcity.pet.dao.PetDao;
 import com.jjang051.petcity.visit.service.ActiveLoginRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -37,6 +38,7 @@ public class MemberFeatureController {
     private final RecoveryCodeEmailService recoveryCodeEmailService;
     private final MemberSecurityAuditService auditService;
     private final ActiveLoginRedisService activeLoginRedisService;
+    private final PetDao petDao;
 
 
     // =========================================================
@@ -885,6 +887,13 @@ public class MemberFeatureController {
                 loginMember
         );
 
+        model.addAttribute(
+                "petList",
+                petDao.findPetsByMemberId(
+                        loginMember.getMemberId().intValue()
+                )
+        );
+
         /*
          * 최근 로그인 표시만 기존 MemberFeatureAccountDto를 사용합니다.
          */
@@ -925,6 +934,13 @@ public class MemberFeatureController {
         model.addAttribute(
                 "member",
                 loginMember
+        );
+
+        model.addAttribute(
+                "petList",
+                petDao.findPetsByMemberId(
+                        loginMember.getMemberId().intValue()
+                )
         );
 
         /*

@@ -41,8 +41,17 @@
     <section class="pet-form-card" id="petFormCard">
         <div class="form-title">
             <h2 id="formTitle">반려동물 등록</h2>
-            <button type="button" onclick="resetForm()" class="reset-btn">새로 등록</button>
+            <button type="button"
+                    onclick="resetForm()"
+                    class="reset-btn"
+                    th:disabled="${petList.size() >= 4}">
+                새로 등록
+            </button>
         </div>
+        <p class="pet-limit-guide">
+            반려동물은 최대 4마리까지 등록할 수 있습니다.
+            등록된 반려동물은 제한과 관계없이 수정할 수 있습니다.
+        </p>
         <form id="petForm" enctype="multipart/form-data">
             <input type="hidden" name="petId" id="petId" value="0">
             <div class="form-grid">
@@ -256,6 +265,23 @@
         margin: 14px 0 0
     }
 
+    .pet-limit-guide {
+        margin: 0 0 18px;
+        padding: 12px 14px;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #1e40af;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .reset-btn:disabled,
+    .save-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+
     @media (max-width: 650px) {
         .pet-page-title {
             align-items: flex-start;
@@ -270,6 +296,8 @@
 </style>
 <script th:inline="javascript">
     const subAnimals = /*[[${subAnimalTypeList}]]*/ [];
+    const petCount = /*[[${petList.size()}]]*/ 0;
+    const maxPetCount = 4;
 
     function fillBreeds(selectedBreed) {
         const animalId = document.getElementById('animalId').value;
@@ -294,21 +322,40 @@
         document.getElementById('weight').value = button.dataset.weight;
         document.getElementById('registrationNo').value = button.dataset.reg || '';
         document.getElementById('formTitle').textContent = 'Edit Pet';
+        document.getElementById('saveBtn').disabled = false;
+        document.getElementById('saveMessage').textContent = '';
         document.getElementById('petFormCard').scrollIntoView({behavior: 'smooth'});
     }
 
     function resetForm() {
+        const message = document.getElementById('saveMessage');
+
+        if (petCount >= maxPetCount) {
+            message.textContent = '반려동물은 최대 4마리까지 등록할 수 있습니다.';
+            return;
+        }
+
         document.getElementById('petForm').reset();
         document.getElementById('petId').value = 0;
         document.getElementById('breedName').innerHTML = '<option value="">Select animal first</option>';
         document.getElementById('formTitle').textContent = 'Register Pet';
-        document.getElementById('saveMessage').textContent = '';
+        document.getElementById('saveBtn').disabled = false;
+        message.textContent = '';
     }
 
     document.getElementById('petForm').addEventListener('submit', async event => {
         event.preventDefault();
         const message = document.getElementById('saveMessage');
+        const petId = document.getElementById('petId').value;
+
         message.textContent = '';
+
+        if ((petId === '' || petId === '0')
+                && petCount >= maxPetCount) {
+            message.textContent = '반려동물은 최대 4마리까지 등록할 수 있습니다.';
+            return;
+        }
+
         const response = await fetch('/pet/api/save', {method: 'POST', body: new FormData(event.target)});
         const result = await response.json();
         if (result.isSuccess) {
@@ -317,6 +364,12 @@
         }
         message.textContent = 'Unable to save. Please check the input.';
     });
+
+    if (petCount >= maxPetCount) {
+        document.getElementById('saveBtn').disabled = true;
+        document.getElementById('saveMessage').textContent =
+                '현재 4마리가 등록되어 있습니다. 새로 등록하려면 기존 반려동물을 삭제해 주세요.';
+    }
 </script>
 </body>
 </html>
