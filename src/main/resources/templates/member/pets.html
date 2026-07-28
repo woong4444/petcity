@@ -304,6 +304,7 @@
     const subAnimals = /*[[${subAnimalTypeList}]]*/ [];
     const petCount = /*[[${petList.size()}]]*/ 0;
     const maxPetCount = 4;
+    const editPetId = /*[[${param.editPetId != null ? param.editPetId[0] : ''}]]*/ '';
 
     function fillBreeds(selectedBreed) {
         const animalId = document.getElementById('animalId').value;
@@ -402,6 +403,16 @@
         document.getElementById('saveBtn').disabled = true;
         document.getElementById('saveMessage').textContent =
                 '현재 4마리가 등록되어 있습니다. 새로 등록하려면 기존 반려동물을 삭제해 주세요.';
+    }
+
+    if (editPetId) {
+        const editButton = Array.from(
+                document.querySelectorAll('.edit-btn')
+        ).find(button => button.dataset.id === String(editPetId));
+
+        if (editButton) {
+            loadPet(editButton);
+        }
     }
 </script>
 </body>
