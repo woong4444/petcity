@@ -223,6 +223,16 @@
 
     </update>
 
+    <!-- 07-28 상각: 프로필 사진 변경 -->
+    <update id="updateProfileDetails">
+        UPDATE APP_MEMBER
+        SET PROFILE_IMAGE = #{profileImage},
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+          AND STATUS = 'ACTIVE'
+          AND MEMBER_STATUS = 'ACTIVE'
+    </update>
+
     <!-- 07-16 상각: 즉시 삭제 대신 3일간 DELETE_PENDING 상태로 보관 -->
     <update id="requestWithdrawal">
 

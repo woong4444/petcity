@@ -127,6 +127,17 @@
         AND MEMBER_STATUS = 'ACTIVE'
     </update>
 
+    <!-- 07-28 상각: SNS 프로필 사진 변경 -->
+    <update id="updateSnsProfileDetails">
+        UPDATE APP_MEMBER
+        SET PROFILE_IMAGE = #{profileImage},
+            UPDATED_AT = SYSDATE
+        WHERE MEMBER_ID = #{memberId}
+          AND LOGIN_TYPE &lt;&gt; 'LOCAL'
+          AND STATUS = 'ACTIVE'
+          AND MEMBER_STATUS = 'ACTIVE'
+    </update>
+
     <!--
         상각_07-23:
         로그인 성공 시 APP_MEMBER 테이블의 LAST_LOGIN_AT을 갱신한다.

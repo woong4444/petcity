@@ -22,7 +22,7 @@ public class MemberFeatureAccountDto {
     private String email;
     private String phone;
     private String role;
-
+    private String profileImage;
     // 회원 상태 및 가입 방식
     private String status;
     private String memberStatus;

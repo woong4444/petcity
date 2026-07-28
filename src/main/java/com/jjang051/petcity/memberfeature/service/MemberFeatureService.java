@@ -614,4 +614,27 @@ public class MemberFeatureService {
 
         return digits;
     }
+    // 07-28 상각: SNS 회원 프로필 사진 변경
+    @Transactional
+    public MemberFeatureAccountDto updateSnsProfileDetails(
+            Long memberId,
+            String profileImage
+    ) {
+        MemberFeatureAccountDto current = required(memberId);
+
+        if ("LOCAL".equalsIgnoreCase(current.getLoginType())) {
+            throw new IllegalArgumentException("SNS 회원만 사용할 수 있습니다.");
+        }
+
+        if (profileImage == null || profileImage.isBlank()) {
+            throw new IllegalArgumentException("변경할 프로필 사진을 선택해주세요.");
+        }
+
+        if (mapper.updateSnsProfileDetails(memberId, profileImage) != 1) {
+            throw new IllegalArgumentException("프로필 사진을 수정할 수 없습니다.");
+        }
+
+        return mapper.findByMemberId(memberId);
+    }
+
 }

@@ -64,20 +64,6 @@
                              th:src="${member.profileImage}" alt="프로필 사진">
                         <span th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">🐶</span>
                     </div>
-                    <form id="profileImageForm"
-                          method="post"
-                          enctype="multipart/form-data"
-                          th:action="@{/member/mypage/profile-image}">
-                        <input id="profileImageFile"
-                               name="profileImageFile"
-                               type="file"
-                               accept="image/jpeg,image/png,image/webp"
-                               hidden>
-                        <button id="profileImageSelectButton"
-                                class="camera-button"
-                                type="button"
-                                aria-label="프로필 사진 변경">📷</button>
-                    </form>
                 </div>
 
                 <div class="profile-summary-copy">
@@ -88,7 +74,6 @@
                             일반회원
                         </span>
                     </div>
-                    <p>우리 아이들이 건강하고 행복하길 바라요! 🐶</p>
 
                     <div class="profile-meta-row">
                         <div>

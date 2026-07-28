@@ -8,6 +8,7 @@ import com.jjang051.petcity.member.dto.MemberDto;
 import com.jjang051.petcity.member.service.MemberSecurityAuditService;
 import com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto;
 import com.jjang051.petcity.memberfeature.service.MemberFeatureService;
+import com.jjang051.petcity.visit.service.ActiveLoginRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -30,6 +36,7 @@ public class MemberFeatureController {
     private final EmailVerificationService emailVerificationService;
     private final RecoveryCodeEmailService recoveryCodeEmailService;
     private final MemberSecurityAuditService auditService;
+    private final ActiveLoginRedisService activeLoginRedisService;
 
 
     // =========================================================
@@ -812,6 +819,10 @@ public class MemberFeatureController {
                     recoveryCode
             );
 
+            activeLoginRedisService.removeLoginSession(
+                    session.getId()
+            );
+
             SecurityContextHolder.clearContext();
 
             session.invalidate();
@@ -978,6 +989,64 @@ public class MemberFeatureController {
                     "message",
                     e.getMessage()
             );
+        }
+
+        return "redirect:/member/feature/mypage/info";
+    }
+
+
+
+    // 07-28 상각: SNS 회원 프로필 사진 변경
+    @PostMapping("/member/feature/mypage/info/profile")
+    public String updateSnsProfileDetails(
+            @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        MemberDto loginMember = login(session);
+        if (loginMember == null || loginMember.getMemberId() == null) {
+            return "redirect:/member/login";
+        }
+
+        try {
+            String imageUrl = loginMember.getProfileImage();
+
+            if (profileImageFile != null && !profileImageFile.isEmpty()) {
+                if (profileImageFile.getSize() > 5 * 1024 * 1024) {
+                    throw new IllegalArgumentException("프로필 사진은 5MB 이하만 업로드할 수 있습니다.");
+                }
+
+                String contentType = profileImageFile.getContentType();
+                String extension;
+                if ("image/jpeg".equals(contentType)) extension = ".jpg";
+                else if ("image/png".equals(contentType)) extension = ".png";
+                else if ("image/webp".equals(contentType)) extension = ".webp";
+                else throw new IllegalArgumentException("JPG, PNG, WEBP 이미지만 업로드할 수 있습니다.");
+
+                Path uploadDirectory = Paths.get(
+                        System.getProperty("user.dir"),
+                        "uploads", "member", "profile"
+                );
+                Files.createDirectories(uploadDirectory);
+
+                String savedFileName = loginMember.getMemberId() + "_" + UUID.randomUUID() + extension;
+                profileImageFile.transferTo(uploadDirectory.resolve(savedFileName).toFile());
+                imageUrl = "/images/member/profile/" + savedFileName;
+            }
+
+            MemberFeatureAccountDto updated = service.updateSnsProfileDetails(
+                    loginMember.getMemberId(), imageUrl
+            );
+
+            loginMember.setProfileImage(updated.getProfileImage());
+            loginMember.setUpdatedAt(updated.getUpdatedAt());
+            session.setAttribute("loginMember", loginMember);
+
+            redirectAttributes.addFlashAttribute("successMessage", "프로필 정보가 수정되었습니다.");
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("message", "프로필 사진 저장 중 오류가 발생했습니다.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("message", e.getMessage());
         }
 
         return "redirect:/member/feature/mypage/info";

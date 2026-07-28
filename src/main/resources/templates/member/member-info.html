@@ -58,16 +58,35 @@
 <main class="mypage-shell">
     <aside class="mypage-sidebar">
         <nav class="mypage-nav">
-            <a class="sidebar-item" th:href="@{/member/mypage}"><span class="sidebar-icon">♙</span><span>마이페이지</span></a>
-            <a class="sidebar-item" th:href="@{/member/mypage/pets}"><span class="sidebar-icon">🐾</span><span>내 반려동물</span></a>
-            <a class="sidebar-item" href="#"><span class="sidebar-icon">▣</span><span>예약내역</span></a>
-            <a class="sidebar-item" href="#"><span class="sidebar-icon">♡</span><span>찜한 병원</span></a>
-            <a class="sidebar-item" th:href="@{/owner/status}"><span class="sidebar-icon">☏</span><span>병원장 문의</span></a>
-            <a class="sidebar-item active" th:href="@{/member/mypage/info}"><span class="sidebar-icon">↗</span><span>회원정보 수정</span></a>
+            <a class="sidebar-item"
+               th:href="@{/member/mypage}">
+                <span class="sidebar-icon">♙</span>
+                <span>마이페이지</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/member/mypage/pets}">
+                <span class="sidebar-icon">🐾</span>
+                <span>내 반려동물</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/owner/status}">
+                <span class="sidebar-icon">☏</span>
+                <span>병원장 문의</span>
+            </a>
+
+            <a class="sidebar-item active"
+               th:href="@{/member/mypage/info}">
+                <span class="sidebar-icon">↗</span>
+                <span>회원정보 수정</span>
+            </a>
         </nav>
 
-        <a class="sidebar-logout" th:href="@{/member/logout}">
-            <span>로그아웃</span><span>↪</span>
+        <a class="sidebar-logout"
+           th:href="@{/member/logout}">
+            <span>로그아웃</span>
+            <span>↪</span>
         </a>
 
         <div class="membership-card">
@@ -105,7 +124,6 @@
                             일반회원
                         </span>
                     </div>
-                    <p>우리 아이들이 건강하고 행복하길 바라요! 🐶</p>
                     <div class="hero-meta compact">
                         <div>
                             <span>가입일</span>
@@ -120,6 +138,35 @@
 
                 <div class="hero-illustration" aria-hidden="true">🏥 🐕 🐈</div>
             </div>
+
+
+            <form id="profileDetailsForm"
+                  class="profile-details-form"
+                  method="post"
+                  enctype="multipart/form-data"
+                  th:action="@{/member/mypage/info/profile}">
+                <div class="profile-upload-panel compact">
+                    <div class="profile-preview-wrap">
+                        <div class="profile-preview">
+                            <img id="profilePreviewImage"
+                                 th:if="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
+                                 th:src="${member.profileImage}"
+                                 alt="프로필 사진 미리보기">
+                            <span id="profilePreviewFallback"
+                                  th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">🐶</span>
+                        </div>
+
+                        <div class="profile-upload-actions">
+                            <label class="profile-upload-button" for="profileImageFile">사진 선택</label>
+                            <button class="save-button profile-details-save" type="submit">저장</button>
+                        </div>
+
+                        <input id="profileImageFile" name="profileImageFile" type="file"
+                               accept="image/jpeg,image/png,image/webp" hidden>
+                        <small>JPG, PNG, WEBP / 최대 5MB</small>
+                    </div>
+                </div>
+            </form>
 
             <form id="profileForm" class="profile-form" method="post" th:action="@{/member/mypage/info}">
                 <div class="form-title">
@@ -261,6 +308,19 @@
 
                     <button id="passwordChangeButton" class="save-button" type="submit">비밀번호 변경</button>
                 </form>
+            </section>
+
+            <section class="withdraw-section"
+                     th:if="${member.loginType == null or member.loginType == 'LOCAL'}">
+                <div class="withdraw-copy">
+                    <h2>회원탈퇴</h2>
+                    <p>탈퇴 전용 화면에서 사유와 비밀번호를 확인한 후 진행합니다.</p>
+                </div>
+
+                <a class="withdraw-link"
+                   th:href="@{/member/feature/withdraw}">
+                    회원탈퇴 화면으로 이동
+                </a>
             </section>
         </section>
     </section>

@@ -966,82 +966,55 @@ public class MemberController {
     // 기본정보는 수정하지 않고 PROFILE_IMAGE 컬럼만 갱신합니다.
     // member 전용 이미지 폴더만 사용하며 다른 파트 파일은 건드리지 않습니다.
     // =====================================================
-    @PostMapping("/member/mypage/profile-image")
-    public String updateProfileImage(
-            @RequestParam("profileImageFile") MultipartFile profileImageFile,
+    @PostMapping("/member/mypage/info/profile")
+    public String updateProfileDetails(
+            @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
             HttpSession session,
             RedirectAttributes rttr
     ) {
-
-        MemberDto loginMember =
-                (MemberDto) session.getAttribute("loginMember");
-
-        if (loginMember == null
-                || loginMember.getMemberId() == null) {
-            rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
+        MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
+        if (loginMember == null || loginMember.getMemberId() == null) {
             return "redirect:/member/login";
         }
 
-        if (profileImageFile == null || profileImageFile.isEmpty()) {
-            rttr.addFlashAttribute("message", "업로드할 프로필 사진을 선택해주세요.");
-            return "redirect:/member/mypage";
-        }
-
-        if (profileImageFile.getSize() > 5 * 1024 * 1024) {
-            rttr.addFlashAttribute("message", "프로필 사진은 5MB 이하만 업로드할 수 있습니다.");
-            return "redirect:/member/mypage";
-        }
-
-        String contentType = profileImageFile.getContentType();
-        String extension;
-
-        if ("image/jpeg".equals(contentType)) {
-            extension = ".jpg";
-        } else if ("image/png".equals(contentType)) {
-            extension = ".png";
-        } else if ("image/webp".equals(contentType)) {
-            extension = ".webp";
-        } else {
-            rttr.addFlashAttribute("message", "JPG, PNG, WEBP 이미지 파일만 업로드할 수 있습니다.");
-            return "redirect:/member/mypage";
-        }
-
         try {
-            Path uploadDirectory = Paths.get(
-                    System.getProperty("user.dir"),
-                    "src", "main", "resources", "static",
-                    "images", "member", "profile"
+            String imageUrl = loginMember.getProfileImage();
+
+            if (profileImageFile != null && !profileImageFile.isEmpty()) {
+                if (profileImageFile.getSize() > 5 * 1024 * 1024) {
+                    throw new IllegalArgumentException("프로필 사진은 5MB 이하만 업로드할 수 있습니다.");
+                }
+
+                String contentType = profileImageFile.getContentType();
+                String extension;
+                if ("image/jpeg".equals(contentType)) extension = ".jpg";
+                else if ("image/png".equals(contentType)) extension = ".png";
+                else if ("image/webp".equals(contentType)) extension = ".webp";
+                else throw new IllegalArgumentException("JPG, PNG, WEBP 이미지만 업로드할 수 있습니다.");
+
+                Path uploadDirectory = Paths.get(
+                        System.getProperty("user.dir"),
+                        "uploads", "member", "profile"
+                );
+                Files.createDirectories(uploadDirectory);
+
+                String savedFileName = loginMember.getMemberId() + "_" + UUID.randomUUID() + extension;
+                profileImageFile.transferTo(uploadDirectory.resolve(savedFileName).toFile());
+                imageUrl = "/images/member/profile/" + savedFileName;
+            }
+
+            MemberDto updated = memberService.updateProfileDetails(
+                    loginMember.getMemberId(), imageUrl
             );
-
-            Files.createDirectories(uploadDirectory);
-
-            String savedFileName =
-                    loginMember.getMemberId()
-                            + "_"
-                            + UUID.randomUUID()
-                            + extension;
-
-            Path savedPath = uploadDirectory.resolve(savedFileName);
-            profileImageFile.transferTo(savedPath.toFile());
-
-            String imageUrl = "/images/member/profile/" + savedFileName;
-
-            MemberDto updatedMember =
-                    memberService.updateProfileImage(
-                            loginMember.getMemberId(),
-                            imageUrl
-                    );
-
-            session.setAttribute("loginMember", updatedMember);
-            rttr.addFlashAttribute("successMessage", "프로필 사진이 변경되었습니다.");
-
+            session.setAttribute("loginMember", updated);
+            rttr.addFlashAttribute("successMessage", "프로필 정보가 수정되었습니다.");
         } catch (IOException e) {
             rttr.addFlashAttribute("message", "프로필 사진 저장 중 오류가 발생했습니다.");
         } catch (IllegalArgumentException e) {
             rttr.addFlashAttribute("message", e.getMessage());
         }
 
-        return "redirect:/member/mypage";
+        return "redirect:/member/mypage/info";
     }
 
     // 07-16 상각: 기존 pet API를 재사용하는 회원별 반려동물 관리 화면

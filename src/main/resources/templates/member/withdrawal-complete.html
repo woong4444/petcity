@@ -50,6 +50,13 @@
             font-weight: 700;
         }
 
+        .code-guide {
+            margin: -10px 0 24px;
+            color: #b42318;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
         .links {
             margin-top: 30px;
         }
@@ -89,6 +96,12 @@
              class="code"
              th:text="${recoveryCode}">
         </div>
+
+        <p th:if="${recoveryCode != null}"
+           class="code-guide">
+            위 복구코드는 이 화면에서 한 번만 표시됩니다.<br>
+            지금 복사하거나 안전한 곳에 보관해 주세요.
+        </p>
 
         <p th:if="${recoveryCode == null}"
            class="warn">

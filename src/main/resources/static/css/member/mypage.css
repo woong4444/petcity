@@ -1164,3 +1164,178 @@ body {
 
 
 }
+
+/* 07-28 상각: 회원정보 수정 화면 프로필 사진 - 컴팩트 */
+.profile-details-form {
+    width: calc(50% - 24px);
+    max-width: none;
+    padding: 14px 0 0;
+    margin-left: 24px;
+}
+
+.profile-upload-panel.compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 150px;
+    padding: 16px 20px;
+    border: 1px solid #dbe7f7;
+    border-radius: 12px;
+    background: #f8fbff;
+}
+
+.profile-upload-panel.compact .profile-preview-wrap {
+    display: grid;
+    justify-items: center;
+    gap: 7px;
+    width: 210px;
+}
+
+.profile-upload-panel.compact .profile-preview {
+    display: flex;
+    width: 82px;
+    height: 82px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    background: #eef2f7;
+    box-shadow: 0 5px 14px rgba(15, 23, 42, 0.12);
+    font-size: 38px;
+}
+
+.profile-upload-panel.compact .profile-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-upload-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.profile-upload-panel.compact .profile-upload-button,
+.profile-upload-panel.compact .profile-details-save {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    height: 34px;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 6px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: none;
+    white-space: nowrap;
+}
+
+.profile-upload-panel.compact .profile-upload-button:hover,
+.profile-upload-panel.compact .profile-details-save:hover {
+    background: #1d4ed8;
+}
+
+.profile-upload-panel.compact small {
+    color: #64748b;
+    font-size: 9px;
+    line-height: 1.3;
+}
+
+@media (max-width: 760px) {
+    .profile-details-form {
+        width: auto;
+        max-width: none;
+        margin: 0 16px;
+        padding-top: 14px;
+    }
+
+    .profile-upload-panel.compact {
+        justify-content: center;
+        padding: 15px;
+    }
+}
+
+
+
+/* =========================================================
+   회원탈퇴 영역
+========================================================= */
+
+.withdraw-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 28px 24px 24px;
+    padding: 20px 22px;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    background: #fffafa;
+}
+
+.withdraw-copy h2 {
+    margin: 0;
+    color: #991b1b;
+    font-size: 16px;
+}
+
+.withdraw-copy p {
+    margin: 7px 0 0;
+    color: #7f1d1d;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.withdraw-form {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+}
+
+.withdraw-form .form-field {
+    width: 220px;
+}
+
+.withdraw-button,
+.withdraw-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 16px;
+    border: 1px solid #ef4444;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.withdraw-button:hover,
+.withdraw-link:hover {
+    background: #fef2f2;
+}
+
+@media (max-width: 760px) {
+    .withdraw-section,
+    .withdraw-form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .withdraw-form .form-field {
+        width: 100%;
+    }
+}

@@ -186,3 +186,43 @@ document.addEventListener("DOMContentLoaded", () => {
         passwordButton.textContent = "변경 중...";
     });
 });
+
+
+// 07-28 상각: 회원정보 수정 화면 프로필 사진 미리보기
+document.addEventListener("DOMContentLoaded", () => {
+    const fileInput = document.querySelector("#profileImageFile");
+    const previewImage = document.querySelector("#profilePreviewImage");
+    const previewFallback = document.querySelector("#profilePreviewFallback");
+
+    if (fileInput) {
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files && fileInput.files[0];
+            if (!file) return;
+
+            const allowed = ["image/jpeg", "image/png", "image/webp"];
+            if (!allowed.includes(file.type)) {
+                alert("JPG, PNG, WEBP 이미지만 선택할 수 있습니다.");
+                fileInput.value = "";
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert("프로필 사진은 5MB 이하만 선택할 수 있습니다.");
+                fileInput.value = "";
+                return;
+            }
+
+            const url = URL.createObjectURL(file);
+            if (previewImage) {
+                previewImage.src = url;
+                previewImage.hidden = false;
+            } else {
+                const img = document.createElement("img");
+                img.id = "profilePreviewImage";
+                img.src = url;
+                img.alt = "프로필 사진 미리보기";
+                document.querySelector(".profile-preview")?.prepend(img);
+            }
+            if (previewFallback) previewFallback.hidden = true;
+        });
+    }
+});

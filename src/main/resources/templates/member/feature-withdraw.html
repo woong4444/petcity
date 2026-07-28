@@ -45,6 +45,21 @@
             color: #9a3412;
         }
 
+        .recovery-notice {
+            margin-top: 14px;
+            padding: 16px;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .recovery-notice strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
         .msg {
             background: #fff1f2;
             color: #b42338;
@@ -118,13 +133,20 @@
             삭제 전까지 복구를 신청할 수 있습니다.
         </p>
 
+        <div class="recovery-notice">
+            <strong>복구코드를 반드시 확인해 주세요.</strong>
+            탈퇴가 접수되면 일반회원과 SNS회원 모두 다음 화면에서 12자리 복구코드가 한 번 표시됩니다.
+            3일 이내 계정을 복구할 때 필요하므로 코드를 복사하거나 안전한 곳에 보관해 주세요.
+        </div>
+
         <p th:if="${withdrawMessage}"
            class="msg"
            th:text="${withdrawMessage}">
         </p>
 
         <form method="post"
-              th:action="@{/member/feature/withdraw}">
+              th:action="@{/member/feature/withdraw}"
+              onsubmit="return confirm('탈퇴 후 표시되는 복구코드를 반드시 보관해야 합니다. 회원탈퇴를 요청하시겠습니까?');">
 
             <label for="deleteReason">
                 탈퇴 사유
@@ -153,7 +175,9 @@
             <div class="buttons">
 
                 <a class="cancel"
-                   th:href="@{/member/mypage}">
+                   th:href="${member.loginType == null || member.loginType == 'LOCAL'
+                       ? '/member/mypage/info'
+                       : '/member/feature/mypage/info'}">
                     취소
                 </a>
 

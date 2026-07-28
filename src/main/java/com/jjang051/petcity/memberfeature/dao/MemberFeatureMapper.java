@@ -61,6 +61,11 @@ public interface MemberFeatureMapper {
             @Param("nickname") String nickname
     );
 
+    int updateSnsProfileDetails(
+            @Param("memberId") Long memberId,
+            @Param("profileImage") String profileImage
+    );
+
     /**
      * 상각_07-23:
      * 로그인 성공 시 APP_MEMBER 테이블의 LAST_LOGIN_AT을 갱신한다.

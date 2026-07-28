@@ -76,6 +76,9 @@ public interface MemberMapper {
     int updateProfileImage(@Param("memberId") Long memberId,
                            @Param("profileImage") String profileImage);
 
+    int updateProfileDetails(@Param("memberId") Long memberId,
+                             @Param("profileImage") String profileImage);
+
     void requestWithdrawal(Long memberId);
 
 }
