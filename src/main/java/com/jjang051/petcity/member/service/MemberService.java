@@ -282,12 +282,12 @@ public class MemberService {
     // =====================================================
     // 07-27 상각: LOCAL 회원 비밀번호 변경
     // SNS 회원은 비밀번호 변경 대상이 아니며 서버에서도 차단합니다.
+    // 현재 비밀번호 입력 없이 새 비밀번호와 확인값만 검증합니다.
     // 회원가입과 동일한 비밀번호 정책을 적용합니다.
     // =====================================================
     @Transactional
     public void changeMyPagePassword(
             Long memberId,
-            String currentPassword,
             String newPassword,
             String newPasswordConfirm
     ) {
@@ -300,12 +300,6 @@ public class MemberService {
 
         if (!"LOCAL".equalsIgnoreCase(member.getLoginType())) {
             throw new IllegalArgumentException("SNS 회원은 비밀번호를 변경할 수 없습니다.");
-        }
-
-        if (currentPassword == null
-                || currentPassword.isBlank()
-                || !passwordEncoder.matches(currentPassword, member.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
 
         if (newPassword == null || newPassword.isBlank()) {

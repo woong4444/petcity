@@ -861,8 +861,67 @@ public class MemberFeatureController {
             return "redirect:/member/login";
         }
 
+        /*
+         * SNS 마이페이지의 기본 정보는
+         * 세션에 저장된 MemberDto를 사용합니다.
+         *
+         * MemberFeatureAccountDto에는 화면에서 사용하는
+         * PROFILE_IMAGE, ROLE, CREATED_AT 등의 값이 없거나
+         * 매핑되지 않을 수 있으므로 member 모델에는 넣지 않습니다.
+         */
         model.addAttribute(
                 "member",
+                loginMember
+        );
+
+        /*
+         * 최근 로그인 표시만 기존 MemberFeatureAccountDto를 사용합니다.
+         */
+        MemberFeatureAccountDto featureAccount =
+                service.findByMemberId(
+                        loginMember.getMemberId()
+                );
+
+        model.addAttribute(
+                "lastLoginText",
+                featureAccount == null
+                        ? ""
+                        : featureAccount.getLastLoginText()
+        );
+
+        return "member/feature-sns-mypage";
+    }
+
+
+    // =========================================================
+    // SNS 회원정보 수정 화면
+    // =========================================================
+    @GetMapping("/member/feature/mypage/info")
+    public String featureMypageInfo(HttpSession session,
+                                    Model model) {
+
+        MemberDto loginMember =
+                login(session);
+
+        if (loginMember == null) {
+
+            return "redirect:/member/login";
+        }
+
+        /*
+         * 프로필 이미지, 가입일, 세션 회원정보는 MemberDto를 사용합니다.
+         */
+        model.addAttribute(
+                "member",
+                loginMember
+        );
+
+        /*
+         * 닉네임 수정 후 UPDATED_AT 최신값을 다시 조회합니다.
+         * 최근 정보 수정 시간은 이 객체의 updatedAt을 사용합니다.
+         */
+        model.addAttribute(
+                "featureAccount",
                 service.findByMemberId(
                         loginMember.getMemberId()
                 )
@@ -873,7 +932,7 @@ public class MemberFeatureController {
 
 
     // 상각_07-19: SNS 회원 전화번호 없이 닉네임만 독립 수정
-    @PostMapping("/member/feature/mypage")
+    @PostMapping({"/member/feature/mypage", "/member/feature/mypage/info"})
     public String updateFeatureMypage(
             @RequestParam String nickname,
             HttpSession session,
@@ -921,7 +980,7 @@ public class MemberFeatureController {
             );
         }
 
-        return "redirect:/member/feature/mypage";
+        return "redirect:/member/feature/mypage/info";
     }
 
 

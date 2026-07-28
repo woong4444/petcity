@@ -925,7 +925,6 @@ public class MemberController {
     // =====================================================
     @PostMapping("/member/mypage/info/password")
     public String changeMypagePassword(
-            @RequestParam String currentPassword,
             @RequestParam String newPassword,
             @RequestParam String newPasswordConfirm,
             HttpSession session,
@@ -944,7 +943,6 @@ public class MemberController {
         try {
             memberService.changeMyPagePassword(
                     loginMember.getMemberId(),
-                    currentPassword,
                     newPassword,
                     newPasswordConfirm
             );

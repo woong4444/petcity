@@ -27,9 +27,10 @@ public class MemberFeatureAccountDto {
     private String status;
     private String memberStatus;
     private String loginType;
-    // 탈퇴 처리 및 로그인 시각
+    // 탈퇴 처리 및 로그인/정보수정 시각
     private LocalDateTime hardDeleteAt;
     private LocalDateTime lastLoginAt;
+    private LocalDateTime updatedAt;
     // 탈퇴/복구 관련 부가 정보
     private String deleteReason;
     private String recoveryTokenHash;
@@ -51,4 +52,3 @@ public class MemberFeatureAccountDto {
         );
     }
 }
-

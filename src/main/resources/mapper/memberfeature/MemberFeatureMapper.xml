@@ -136,8 +136,7 @@
     -->
     <update id="updateLastLoginAt">
         UPDATE APP_MEMBER
-        SET LAST_LOGIN_AT = #{lastLoginAt},
-        UPDATED_AT = SYSDATE
+        SET LAST_LOGIN_AT = #{lastLoginAt}
         WHERE MEMBER_ID = #{memberId}
         AND STATUS = 'ACTIVE'
         AND MEMBER_STATUS = 'ACTIVE'
