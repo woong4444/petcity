@@ -164,7 +164,7 @@
         UPDATED_AT = SYSTIMESTAMP
         WHERE HOSPITAL_ID = #{hospitalId}
         AND OWNER_ID = #{memberId}
-        AND STATUS = 'OPEN'
+        AND STATUS IN ('OPEN', 'TEMP_CLOSED')
 
     </update>
 
