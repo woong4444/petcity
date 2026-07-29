@@ -92,9 +92,14 @@ public class PetApiController {
                     petDto.getWeight()
             );
 
-            // 등록·수정 요청 모두 오늘 이후 생년월일을 저장하지 못하도록 검증
+            // 등록·수정 요청 모두 1950년 이전 및 오늘 이후 생년월일을 저장하지 못하도록 검증
             validatePetBirthDate(
                     petDto.getBirthDate()
+            );
+
+            // 등록번호 15자리 검증
+            validateRegistrationNo(
+                    petDto.getRegistrationNo()
             );
 
             petDto.setMemberId(
@@ -256,16 +261,31 @@ public class PetApiController {
                 );
             }
 
+            // 1950년 1월 1일 제한으로 수정
             LocalDate minDate = LocalDate.of(1950, 1, 1);
             if (parsedBirthDate.isBefore(minDate)) {
                 throw new IllegalArgumentException(
                         "반려동물의 생년월일은 1950년 1월 1일 이후로 입력해 주세요."
                 );
             }
+
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException(
                     "생년월일 형식을 확인해 주세요."
             );
+        }
+    }
+
+    /**
+     * 등록번호 15자리 검증
+     */
+    private void validateRegistrationNo(String registrationNo) {
+        if (registrationNo != null && !registrationNo.isBlank()) {
+            if (!registrationNo.matches("^\\d{15}$")) {
+                throw new IllegalArgumentException(
+                        "등록번호는 숫자 15자리만 입력 가능합니다."
+                );
+            }
         }
     }
 

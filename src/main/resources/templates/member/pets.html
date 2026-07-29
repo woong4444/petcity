@@ -285,7 +285,6 @@
                         </select>
                     </label>
 
-                    <!-- 반려동물 생년월일: 오늘 이후 날짜는 화면과 서버에서 모두 차단 -->
                     <label>
                         생년월일
 
@@ -294,7 +293,10 @@
                                id="birthDate"
                                required>
 
-
+                        <!-- 1950년 1월 1일 안내 문구 수정 -->
+                        <span class="input-guide">
+                        1950년 1월 1일 이후부터 오늘까지만 입력할 수 있습니다.
+                    </span>
                     </label>
 
                     <label>
@@ -318,10 +320,15 @@
                     <label>
                         등록번호 (선택)
 
-                        <input name="registrationNo"
+                        <input type="text"
+                               name="registrationNo"
                                id="registrationNo"
                                maxlength="15"
-                               placeholder="최대 15자리">
+                               placeholder="숫자 15자리">
+
+                        <span class="input-guide">
+                        입력 시 숫자 15자리만 입력 가능합니다.
+                    </span>
                     </label>
 
                     <label>
@@ -409,7 +416,9 @@
         grid-template-columns: 68px minmax(0, 1fr);
         gap: 14px;
         align-items: center;
-        box-shadow: 0 8px 24px rgba(31, 53, 82, 0.06);
+        box-shadow:
+                0 8px 24px
+                rgba(31, 53, 82, 0.06);
     }
 
     .pet-card img,
@@ -490,7 +499,9 @@
         border: 1px solid #dce8f7;
         border-radius: 20px;
         padding: 30px;
-        box-shadow: 0 12px 30px rgba(31, 53, 82, 0.08);
+        box-shadow:
+                0 12px 30px
+                rgba(31, 53, 82, 0.08);
     }
 
     .form-title {
@@ -547,7 +558,9 @@
     .form-grid select:focus {
         border-color: #2563eb;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, 0.12);
     }
 
     .form-grid input:invalid:not(:placeholder-shown) {
@@ -648,7 +661,6 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
-
     /* 마이페이지에서 진입했을 때만 사이드바 레이아웃을 적용합니다. */
     .pet-layout-wrapper.pet-standalone-layout {
         display: block;
@@ -722,6 +734,11 @@
     const petPhotoInput =
         document.getElementById(
             'petPhoto'
+        );
+
+    const registrationNoInput =
+        document.getElementById(
+            'registrationNo'
         );
 
     const saveMessage =
@@ -833,9 +850,7 @@
         weightInput.value =
             button.dataset.weight;
 
-        document.getElementById(
-            'registrationNo'
-        ).value =
+        registrationNoInput.value =
             button.dataset.reg || '';
 
         petPhotoInput.value = '';
@@ -933,7 +948,7 @@
             );
     }
 
-    /* 반려동물 생년월일 필수 입력 및 미래 날짜 검증 */
+    /* 반려동물 생년월일 필수 입력 및 1950년 이전 / 미래 날짜 검증 */
     function validatePetBirthDate() {
         const birthDate =
             birthDateInput.value;
@@ -947,11 +962,15 @@
 
             return false;
         }
+
+        // 1950년 제한으로 변경
         if (birthDate < '1950-01-01') {
             showError(
                 '반려동물의 생년월일은 1950년 1월 1일 이후로 입력해 주세요.'
             );
+
             birthDateInput.focus();
+
             return false;
         }
 
@@ -968,12 +987,23 @@
         }
 
         return true;
+    }
 
-        /* 달력에서 오늘 이후 날짜를 선택하지 못하도록 최대 날짜 지정 */
-         birthDateInput.max =
-            getTodayDateString();
+    function validateRegistrationNo() {
+        const regNo =
+            registrationNoInput.value;
 
-        birthDateInput.min = '1950-01-01';
+        if (regNo.length > 0 && regNo.length !== 15) {
+            showError(
+                '등록번호는 숫자 15자리를 입력해 주세요.'
+            );
+
+            registrationNoInput.focus();
+
+            return false;
+        }
+
+        return true;
     }
 
     function validatePetImage() {
@@ -1012,9 +1042,18 @@
         return true;
     }
 
-    /* 달력에서 오늘 이후 날짜를 선택하지 못하도록 최대 날짜 지정 */
-    birthDateInput.max =
-        getTodayDateString();
+    /* 달력에서 1950년 1월 1일 ~ 오늘 이후 날짜를 선택하지 못하도록 지정 */
+    birthDateInput.min = '1950-01-01';
+    birthDateInput.max = getTodayDateString();
+
+    /* 등록번호 숫자 외 실시간 차단 */
+    registrationNoInput.addEventListener(
+        'input',
+        function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            clearMessage();
+        }
+    );
 
     /* 날짜를 직접 변경했을 때 즉시 오류 안내 */
     birthDateInput.addEventListener(
@@ -1105,8 +1144,11 @@
                 return;
             }
 
-            // 등록·수정 제출 직전에 미래 생년월일을 다시 확인
             if (!validatePetBirthDate()) {
+                return;
+            }
+
+            if (!validateRegistrationNo()) {
                 return;
             }
 
