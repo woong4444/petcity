@@ -10,20 +10,20 @@ document.addEventListener("DOMContentLoaded", function () {
     let deleteTargetBanner = null;
 
     const previewSwiper =new Swiper(".main-banner-preview-swiper",{
-        loop : false, rewind:true, speed: 550,
-        autoplay:{
-            delay: 4500,
-            disableOnInteraction: false,
+            loop : false, rewind:true, speed: 550,
+            autoplay:{
+                delay: 4500,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: ".main-banner-preview-swiper .swiper-pagination",
+                clickable: true,
+            },
+            navigation: {
+                nextEl: ".main-banner-preview-swiper .swiper-button-next",
+                prevEl: ".main-banner-preview-swiper .swiper-button-prev",
+            },
         },
-        pagination: {
-            el: ".main-banner-preview-swiper .swiper-pagination",
-            clickable: true,
-        },
-        navigation: {
-            nextEl: ".main-banner-preview-swiper .swiper-button-next",
-            prevEl: ".main-banner-preview-swiper .swiper-button-prev",
-        },
-    },
     );
 
     if (toggleBannerPreview !== null) {
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const isHidden = previewContent.hidden;
             previewContent.hidden = !isHidden;
             toggleBannerPreview.setAttribute("aria-expanded", String(isHidden),);
-        
+
             if (isHidden){
                 toggleBannerPreview.innerHTML = '미리보기 접기 <span class="preview-toggle-arrow">▲</span>';
                 window.setTimeout(function () {

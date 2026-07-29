@@ -20,8 +20,6 @@ body {
     align-items: start;
 }
 
-/* 왼쪽 메뉴 */
-
 .community-sidebar {
     width: 100%;
 }
@@ -86,26 +84,13 @@ body {
     font-size: 22px;
 }
 
-.community-menu a:hover,
-.community-menu a.active {
+.community-menu a:hover, .community-menu a.active {
     color: #159ed7;
     padding-left: 8px;
 }
 
-/* 오른쪽 */
-
 .info-content {
     min-width: 0;
-}
-
-.info-hero {
-    min-height: 170px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 30px;
-    border-bottom: 1px solid #d9dee5;
-    padding-bottom: 18px;
 }
 
 .info-hero h1 {
@@ -147,24 +132,11 @@ body {
     font-size: 44px;
 }
 
-/* 카드 목록 */
-
 .info-card-list {
     margin-top: 28px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 26px 18px;
-}
-
-.info-card {
-    border: 1px solid #e5e7eb;
-    background-color: #ffffff;
-    transition: all 0.18s ease;
-}
-
-.info-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
 }
 
 .info-image-link {
@@ -260,8 +232,6 @@ body {
     background-color: #374151;
 }
 
-/* 반응형 */
-
 @media (max-width: 1024px) {
     .info-layout {
         grid-template-columns: 200px 1fr;
@@ -351,19 +321,6 @@ body {
     }
 }
 
-/* ================================
-   멍냥백서 동물 필터
-================================ */
-
-.info-animal-filter {
-    margin-top: 24px;
-    padding: 22px;
-    border: 1px solid #dbe4ee;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
-}
-
 .animal-filter-head {
     display: flex;
     align-items: flex-start;
@@ -387,88 +344,10 @@ body {
     font-weight: 600;
 }
 
-.animal-reset-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 32px;
-    padding: 0 12px;
-    border: 1px solid #d6e5f0;
-    border-radius: 9px;
-    background: #ffffff;
-    color: #52718e;
-    font-size: 12px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: 0.2s ease;
-}
-
-.animal-reset-link:hover {
-    border-color: #18a8e1;
-    background: #edfaff;
-    color: #078cc5;
-}
-
-.animal-filter-block {
-    display: grid;
-    grid-template-columns: 82px 1fr;
-    gap: 12px;
-    align-items: flex-start;
-}
-
 .animal-filter-block + .animal-filter-block {
     margin-top: 14px;
     padding-top: 14px;
     border-top: 1px dashed #cbd5e1;
-}
-
-.animal-filter-label {
-    height: 34px;
-    display: flex;
-    align-items: center;
-    color: #0f766e;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.animal-chip-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.animal-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 34px;
-    padding: 0 15px;
-    border: 1px solid #d4dde8;
-    border-radius: 999px;
-    background-color: #ffffff;
-    color: #334155;
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: all 0.16s ease;
-}
-
-.animal-chip:hover {
-    border-color: #0f9ca8;
-    color: #0f9ca8;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(15, 156, 168, 0.12);
-}
-
-.animal-chip.active {
-    border-color: #0f9ca8;
-    background-color: #0f9ca8;
-    color: #ffffff;
-    box-shadow: 0 8px 16px rgba(15, 156, 168, 0.2);
-}
-
-.animal-chip.sub {
-    background-color: #f8fafc;
 }
 
 .animal-chip.sub.active {
@@ -509,16 +388,15 @@ body {
     }
 }
 
-
-/* =========================
-   펫도감 상단 배너
-   ========================= */
-
 .info-hero {
-    position: relative;
+    min-height: 220px;
     display: flex;
     align-items: center;
-    min-height: 220px;
+    justify-content: space-between;
+    gap: 30px;
+    border-bottom: 1px solid #d9dee5;
+    padding-bottom: 18px;
+    position: relative;
     overflow: hidden;
     padding: 34px 42px;
     border: 1px solid #d7ebf8;
@@ -581,18 +459,14 @@ body {
     object-position: right center;
 }
 
-
-/* =========================
-   반려동물별 보기
-   ========================= */
-
 .info-animal-filter {
-    margin: 24px 0 18px;
+    margin-top: 24px;
     padding: 22px 24px;
     border: 1px solid #dbe8f3;
     border-radius: 16px;
     background: #ffffff;
     box-shadow: 0 8px 24px rgba(30, 65, 100, 0.05);
+    margin: 24px 0 18px;
 }
 
 .info-animal-filter-header {
@@ -644,8 +518,9 @@ body {
 
 .animal-filter-block {
     display: flex;
-    align-items: flex-start;
+    grid-template-columns: 82px 1fr;
     gap: 18px;
+    align-items: flex-start;
     padding-top: 16px;
     border-top: 1px solid #edf2f7;
 }
@@ -655,70 +530,73 @@ body {
 }
 
 .animal-filter-label {
-    min-width: 58px;
-    padding-top: 11px;
+    height: 34px;
+    display: flex;
+    align-items: center;
     color: #159ed7;
     font-size: 14px;
     font-weight: 800;
+    min-width: 58px;
+    padding-top: 11px;
 }
 
 .animal-chip-list {
     display: flex;
-    flex: 1;
     flex-wrap: wrap;
     gap: 10px;
+    flex: 1;
 }
 
 .animal-chip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 76px;
-    height: 40px;
+    min-height: 34px;
     padding: 0 17px;
     border: 1px solid #d5e2ef;
     border-radius: 999px;
-    background: #ffffff;
+    background-color: #ffffff;
     color: #45637d;
     font-size: 14px;
     font-weight: 700;
     text-decoration: none;
     transition: all 0.18s ease;
+    min-width: 76px;
+    height: 40px;
+    background: #ffffff;
 }
 
 .animal-chip:hover {
     border-color: #16a7df;
-    background: #edfaff;
     color: #078dc7;
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(22, 167, 223, 0.16);
+    background: #edfaff;
 }
 
 .animal-chip.active {
     border-color: #0ca6dc;
-    background: #12a8dd;
+    background-color: #0f9ca8;
     color: #ffffff;
     box-shadow: 0 7px 16px rgba(18, 168, 221, 0.27);
+    background: #12a8dd;
 }
 
 .animal-chip.sub {
+    background-color: #f8fafc;
     min-width: auto;
     height: 36px;
     font-size: 13px;
 }
 
-
-/* =========================
-   카드 디자인 보완
-   ========================= */
-
 .info-card {
-    overflow: hidden;
     border: 1px solid #dce9f2;
+    background-color: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
     border-radius: 16px;
     background: #ffffff;
     box-shadow: 0 8px 20px rgba(30, 65, 100, 0.06);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .info-card:hover {
@@ -726,8 +604,6 @@ body {
     box-shadow: 0 14px 28px rgba(30, 65, 100, 0.13);
 }
 
-
-/* 모바일 */
 @media (max-width: 768px) {
     .info-hero {
         min-height: 300px;
@@ -746,8 +622,7 @@ body {
         font-size: 34px;
     }
 
-    .info-animal-filter-header,
-    .animal-filter-block {
+    .info-animal-filter-header, .animal-filter-block {
         flex-direction: column;
         gap: 10px;
     }
@@ -755,11 +630,7 @@ body {
     .animal-filter-label {
         padding-top: 0;
     }
-
-
 }
-
-/* 펫도감 대분류 동물 아이콘 버튼 */
 
 .animal-parent-chip-list {
     gap: 12px;
@@ -811,7 +682,6 @@ body {
     font-size: 18px;
 }
 
-/* 동물별 은은한 배경색 */
 .chip-dog .animal-chip-icon {
     background: #fff0d7;
 }
@@ -832,7 +702,6 @@ body {
     background: #eee6ff;
 }
 
-/* 선택된 버튼 */
 .animal-chip-parent.active {
     border-color: #17a8dc;
     background: #e7f8ff;
@@ -844,8 +713,6 @@ body {
     color: #ffffff;
 }
 
-
-/* 펫도감 관리자 전용 카드 관리 버튼 */
 .info-admin-actions {
     display: flex;
     gap: 8px;
@@ -854,8 +721,7 @@ body {
     border-top: 1px solid #edf2f7;
 }
 
-.info-admin-edit,
-.info-admin-delete {
+.info-admin-edit, .info-admin-delete {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -891,27 +757,23 @@ body {
     background: #fff1f1;
 }
 
-/* 펫도감 페이지네이션 - 하늘색 테마 */
 .info-content .page-button:hover {
     border-color: #159ed7;
     background: #edfaff;
     color: #087eae;
 }
 
-.info-content .page-button.active,
-.info-content .page-button.active:hover {
+.info-content .page-button.active, .info-content .page-button.active:hover {
     border-color: #159ed7;
     background: #159ed7;
     color: #ffffff;
 }
 
-.info-card-list,
-.board-pagination {
+.info-card-list, .board-pagination {
     transition: opacity 0.18s ease;
 }
 
-.info-filter-loading .info-card-list,
-.info-filter-loading .board-pagination {
+.info-filter-loading .info-card-list, .info-filter-loading .board-pagination {
     opacity: 0.45;
     pointer-events: none;
 }

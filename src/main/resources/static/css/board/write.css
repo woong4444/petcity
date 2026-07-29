@@ -20,8 +20,6 @@ body {
     align-items: start;
 }
 
-/* 왼쪽 메뉴 */
-
 .community-sidebar {
     width: 100%;
 }
@@ -86,13 +84,10 @@ body {
     font-size: 22px;
 }
 
-.community-menu a:hover,
-.community-menu a.active {
+.community-menu a:hover, .community-menu a.active {
     color: #0f9ca8;
     padding-left: 8px;
 }
-
-/* 오른쪽 영역 */
 
 .board-write-content {
     min-width: 0;
@@ -145,8 +140,6 @@ body {
     background-color: #fff3dc;
     font-size: 48px;
 }
-
-/* 글쓰기 폼 */
 
 .write-form {
     margin-top: 26px;
@@ -207,12 +200,9 @@ body {
     font-family: Arial, "Noto Sans KR", sans-serif;
 }
 
-.form-row input:focus,
-.content-row textarea:focus {
+.form-row input:focus, .content-row textarea:focus {
     background-color: #f8fbff;
 }
-
-/* 버튼 */
 
 .write-buttons {
     margin-top: 24px;
@@ -221,8 +211,7 @@ body {
     align-items: center;
 }
 
-.cancel-button,
-.submit-button {
+.cancel-button, .submit-button {
     height: 40px;
     padding: 0 22px;
     border-radius: 4px;
@@ -254,8 +243,6 @@ body {
 .submit-button:hover {
     background-color: #374151;
 }
-
-/* 반응형 */
 
 @media (max-width: 768px) {
     .board-write-layout {
@@ -330,11 +317,11 @@ body {
         gap: 10px;
     }
 
-    .cancel-button,
-    .submit-button {
+    .cancel-button, .submit-button {
         width: 100%;
     }
 }
+
 .file-row {
     min-height: 86px;
 }
@@ -355,10 +342,6 @@ body {
     font-size: 13px;
     font-weight: 600;
 }
-
-/* ================================
-   글쓰기 폼 개선
-================================ */
 
 .pretty-row {
     min-height: 82px;
@@ -463,8 +446,7 @@ body {
         padding: 14px;
     }
 
-    .form-select,
-    .input-box input[type="url"] {
+    .form-select, .input-box input[type="url"] {
         height: 46px;
     }
 
@@ -472,10 +454,6 @@ body {
         padding: 14px;
     }
 }
-
-/* ================================
-   이미지 미리보기
-================================ */
 
 .image-preview-list {
     margin-top: 14px;
@@ -500,10 +478,6 @@ body {
     display: block;
 }
 
-/* ================================
-   Summernote 에디터
-================================ */
-
 .editor-row {
     min-height: 450px;
 }
@@ -525,14 +499,6 @@ body {
     border-bottom: 1px solid #e5e7eb;
 }
 
-.note-editable {
-    min-height: 320px;
-    color: #333333;
-    font-size: 15px;
-    line-height: 0.9;
-    font-family: Arial, "Noto Sans KR", sans-serif;
-}
-
 .note-editable img {
     max-width: 100%;
     border-radius: 6px;
@@ -552,10 +518,6 @@ body {
     }
 }
 
-/* ================================
-   게시글 수정 현재 대표 이미지
-================================ */
-
 .current-info-image {
     width: 180px;
     height: 140px;
@@ -571,14 +533,6 @@ body {
     height: 100%;
     object-fit: cover;
 }
-
-/* ================================
-   제목·본문 글자 수 표시
-================================ */
-
-/* ================================
-   제목 입력창과 글자 수
-================================ */
 
 .title-input-box {
     position: relative;
@@ -597,14 +551,11 @@ body {
     position: absolute;
     right: 18px;
     bottom: 8px;
-
     margin: 0;
     padding: 0;
-
     color: #94a3b8;
     font-size: 12px;
     font-weight: 700;
-
     pointer-events: none;
 }
 
@@ -614,7 +565,6 @@ body {
 }
 
 @media (max-width: 768px) {
-
     .title-input-box input {
         height: 56px;
         min-height: 56px;
@@ -640,11 +590,12 @@ body {
     font-weight: 900;
 }
 
-/* ================================
-   Summernote 본문 시작 위치
-================================ */
-
 .note-editable {
+    min-height: 320px;
+    color: #333333;
+    font-size: 15px;
+    line-height: 0.9;
+    font-family: Arial, "Noto Sans KR", sans-serif;
     padding: 6px 12px !important;
 }
 
@@ -655,10 +606,6 @@ body {
 .note-editable p {
     margin-top: 0;
 }
-
-/* ================================
-   커뮤니티 글쓰기 화면 리디자인
-================================ */
 
 .board-page {
     --board-accent: #ff9e4a;
@@ -696,12 +643,6 @@ body {
     --board-accent: #8c70dc;
     --board-soft: #f5f1ff;
     --board-line: #dfd4ff;
-}
-
-.board-page--write .board-write-content {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 220px;
-    gap: 24px;
 }
 
 .board-page--write .board-write-hero {
@@ -766,24 +707,13 @@ body {
     gap: 10px;
 }
 
-.board-page--write .write-hero-animals span,
-.board-page--write .write-hero-animals span:first-child {
+.board-page--write .write-hero-animals span, .board-page--write .write-hero-animals span:first-child {
     width: 86px;
     height: 86px;
     border: 1px solid rgba(255, 255, 255, 0.9);
     background: rgba(255, 255, 255, 0.72);
     box-shadow: 0 10px 24px rgba(36, 58, 88, 0.08);
     font-size: 47px;
-}
-
-.board-page--write .write-form {
-    grid-column: 1;
-    margin: 0;
-    overflow: hidden;
-    border: 1px solid #dce7f2;
-    border-radius: 18px;
-    background: #ffffff;
-    box-shadow: 0 12px 30px rgba(27, 56, 89, 0.06);
 }
 
 .board-page--write .form-row {
@@ -809,19 +739,16 @@ body {
     box-shadow: inset 0 -2px 0 var(--board-accent);
 }
 
-.board-page--write .input-box,
-.board-page--write .editor-box {
+.board-page--write .input-box, .board-page--write .editor-box {
     padding: 16px 18px;
 }
 
-.board-page--write .form-select,
-.board-page--write .input-box input[type="url"] {
+.board-page--write .form-select, .board-page--write .input-box input[type="url"] {
     border-color: #d7e3ef;
     border-radius: 12px;
 }
 
-.board-page--write .form-select:focus,
-.board-page--write .input-box input[type="url"]:focus {
+.board-page--write .form-select:focus, .board-page--write .input-box input[type="url"]:focus {
     border-color: var(--board-accent);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--board-accent) 15%, transparent);
 }
@@ -847,21 +774,11 @@ body {
     line-height: 1.75;
 }
 
-.board-page--write .note-btn:hover,
-.board-page--write .note-btn:focus {
+.board-page--write .note-btn:hover, .board-page--write .note-btn:focus {
     background: var(--board-soft);
 }
 
-.board-page--write .write-buttons {
-    grid-column: 1;
-    justify-content: flex-end;
-    gap: 10px;
-    margin: 0;
-    padding: 20px 0 0;
-}
-
-.board-page--write .cancel-button,
-.board-page--write .submit-button {
+.board-page--write .cancel-button, .board-page--write .submit-button {
     min-width: 112px;
     height: 46px;
     border-radius: 10px;
@@ -953,8 +870,7 @@ body {
         margin-top: 16px;
     }
 
-    .board-page--write .write-hero-animals span,
-    .board-page--write .write-hero-animals span:first-child {
+    .board-page--write .write-hero-animals span, .board-page--write .write-hero-animals span:first-child {
         width: 62px;
         height: 62px;
         font-size: 34px;
@@ -972,17 +888,13 @@ body {
         display: flex;
     }
 
-    .board-page--write .cancel-button,
-    .board-page--write .submit-button {
+    .board-page--write .cancel-button, .board-page--write .submit-button {
         flex: 1;
         min-width: 0;
     }
 }
 
-/* 실제 커뮤니티 배너 이미지 */
-
-.board-page--write .board-write-hero,
-.board-page--view .board-view-hero {
+.board-page--write .board-write-hero, .board-page--view .board-view-hero {
     position: relative;
     min-height: 205px;
     overflow: hidden;
@@ -991,8 +903,7 @@ body {
     background: #fff9f4;
 }
 
-.board-page--write .board-write-hero::before,
-.board-page--view .board-view-hero::before {
+.board-page--write .board-write-hero::before, .board-page--view .board-view-hero::before {
     content: none;
 }
 
@@ -1008,16 +919,14 @@ body {
     pointer-events: none;
 }
 
-.board-page--write .write-hero-copy,
-.board-page--view .view-hero-copy {
+.board-page--write .write-hero-copy, .board-page--view .view-hero-copy {
     position: relative;
     z-index: 1;
     max-width: 56%;
 }
 
 @media (max-width: 768px) {
-    .board-page--write .board-write-hero,
-    .board-page--view .board-view-hero {
+    .board-page--write .board-write-hero, .board-page--view .board-view-hero {
         min-height: 220px;
     }
 
@@ -1026,26 +935,36 @@ body {
         object-position: 72% center;
     }
 
-    .board-page--write .write-hero-copy,
-    .board-page--view .view-hero-copy {
+    .board-page--write .write-hero-copy, .board-page--view .view-hero-copy {
         max-width: 100%;
     }
 }
 
-/* 작성 팁 유무와 관계없이 작성 폼은 전체 너비 사용 */
-
 .board-page--write .board-write-content {
     display: block;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 24px;
 }
 
 .board-page--write .write-form {
+    grid-column: 1;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid #dce7f2;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(27, 56, 89, 0.06);
     width: 100%;
     margin-top: 22px;
 }
 
 .board-page--write .write-buttons {
-    display: flex;
+    grid-column: 1;
     justify-content: flex-end;
+    gap: 10px;
+    margin: 0;
+    padding: 20px 0 0;
+    display: flex;
 }
 
 .board-page--write .write-tip-card {
