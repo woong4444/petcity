@@ -1,9 +1,6 @@
 package com.jjang051.petcity.admin.controller;
 
-import com.jjang051.petcity.admin.dto.AdminClosedHospitalDto;
-import com.jjang051.petcity.admin.dto.AdminHospitalManagementDto;
-import com.jjang051.petcity.admin.dto.AdminHospitalUpdateRequestDetailDto;
-import com.jjang051.petcity.admin.dto.LoginMemberDto;
+import com.jjang051.petcity.admin.dto.*;
 import com.jjang051.petcity.admin.service.AdminHospitalManagementService;
 import com.jjang051.petcity.member.dto.MemberDto;
 import jakarta.servlet.http.HttpSession;
@@ -29,19 +26,21 @@ public class AdminHospitalManagementController {
             @RequestParam(name = "direction", defaultValue = "asc") String direction,
             @RequestParam(name = "requestType", required = false) String requestType,
             @RequestParam(name = "keyword", defaultValue = "") String keyword,
+            @RequestParam(name="page", defaultValue = "1") int page,
             Model model) {
-        List<AdminHospitalManagementDto> hospitalList = adminHospitalManagementService.findHospitals(keyword, animalType, requestType, sortBy, direction);
+        AdminHospitalManagementPageDto pageList = adminHospitalManagementService.getHospitalPage(page,keyword, animalType, requestType, sortBy, direction);
         List<AdminClosedHospitalDto> closedHospitalList = adminHospitalManagementService.findClosedHospitals();
         int closedHospitalCount = adminHospitalManagementService.countClosedHospitals();
 
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("hospitalList", hospitalList);
+        model.addAttribute("hospitalList", pageList.getHospitals());
+        model.addAttribute("pageList", pageList);
         model.addAttribute("closedHospitalList", closedHospitalList);
         model.addAttribute("closedHospitalCount", closedHospitalCount);
-        model.addAttribute("selectedAnimalType", animalType);
-        model.addAttribute("selectedRequestType", requestType);
-        model.addAttribute("sortBy", sortBy);
-        model.addAttribute("direction", direction);
+        model.addAttribute("keyword", pageList.getKeyword());
+        model.addAttribute("selectedAnimalType", pageList.getAnimalType());
+        model.addAttribute("selectedRequestType", pageList.getRequestType());
+        model.addAttribute("sortBy", pageList.getSortBy());
+        model.addAttribute("direction", pageList.getDirection());
 
         return "admin/hospital-management";
     }
