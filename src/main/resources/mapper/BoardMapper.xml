@@ -486,8 +486,7 @@
             OR B.ANIMAL_ID IN (
             SELECT ANIMAL_ID
             FROM ANIMAL_TYPE
-            WHERE PARE
-            NT_ID = #{parentAnimalId}
+            WHERE PARENT_ID = #{parentAnimalId}
             )
             )
 
@@ -508,7 +507,7 @@
                 <when test="searchType == 'content'">
 
                     AND DBMS_LOB.INSTR(
-                    REGEXP_REPLACE(B.CONTENT, '&lt;[^&gt;]*&gt;', ' ')
+                    REGEXP_REPLACE(B.CONTENT, '&lt;[^&gt;]*&gt;', ' '),
                     #{keyword}
                     ) &gt; 0
 

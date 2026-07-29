@@ -461,6 +461,7 @@ public class BoardService {
 
         boardDto.setTitle(trimmedTitle);
     }
+
     /*
         펫도감 대표 이미지 저장
     */
@@ -780,6 +781,7 @@ public class BoardService {
                 || "NOTICE".equals(boardType)
                 || "FAQ".equals(boardType);
     }
+
     /*
         게시판 종류 검사
     */
@@ -1222,6 +1224,7 @@ public class BoardService {
             return 1;
         }
     }
+
     /*
     한글, 영어, 숫자, 이모지를
     실제 문자 단위로 계산
@@ -1230,13 +1233,14 @@ public class BoardService {
             String text
     ) {
         if (text == null) {
-            return  0;
+            return 0;
         }
-        return  text.codePointCount(
+        return text.codePointCount(
                 0,
                 text.length()
         );
     }
+
     private void validateBoardManagePermission(
             BoardDto boardDto,
             int loginMemberId,
@@ -1246,41 +1250,41 @@ public class BoardService {
             return;
         }
 
-        if(isAdminOnlyBoard(boardDto.getBoardType())) {
+        if (isAdminOnlyBoard(boardDto.getBoardType())) {
 
-            throw  new RuntimeException(
+            throw new RuntimeException(
                     "펫도감, 공지사항, FAQ는 관리자만 수정 또는 삭제할 수 있습니다."
             );
         }
 
-        if(boardDto.getMemberId() != loginMemberId) {
+        if (boardDto.getMemberId() != loginMemberId) {
             throw new RuntimeException(
                     "본인이 작성한 게시글만 수정 또는 삭제할 수 있습니다."
             );
         }
     }
+
     private void validateBoardUpdatePermission(
             BoardDto boardDto,
             int loginMemberId,
             boolean admin
     ) {
-    /*
-        관리자도 본인이 작성한 글만 수정 가능
-    */
-        if (boardDto.getMemberId() != loginMemberId) {
+        // 관리자는 모든 게시글 수정 가능
+        if (admin) {
+            return;
+        }
+
+        // 펫도감·공지사항·FAQ는 관리자만 수정 가능
+        if (isAdminOnlyBoard(boardDto.getBoardType())) {
             throw new RuntimeException(
-                    "본인이 작성한 게시글만 수정할 수 있습니다."
+                    "펫도감, 공지사항, FAQ는 관리자만 수정할 수 있습니다."
             );
         }
 
-    /*
-        펫도감·공지사항·FAQ는 관리자 본인만 수정 가능
-    */
-        if (isAdminOnlyBoard(boardDto.getBoardType())
-                && !admin) {
-
+        // 일반 회원은 본인 글만 수정 가능
+        if (boardDto.getMemberId() != loginMemberId) {
             throw new RuntimeException(
-                    "펫도감, 공지사항, FAQ는 관리자만 수정할 수 있습니다."
+                    "본인이 작성한 게시글만 수정할 수 있습니다."
             );
         }
     }
