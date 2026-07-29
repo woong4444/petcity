@@ -80,67 +80,67 @@
     <main class="pet-page"
           th:classappend="${mypageLayout} ? ' mypage-main pet-page-mypage' : ' pet-page-standalone'">
 
-    <div class="pet-page-title">
+        <div class="pet-page-title">
 
-        <div>
-            <h1>🐾 내 반려동물</h1>
-
-            <p>
-                반려동물 정보를 등록하고 관리하세요.
-            </p>
-        </div>
-
-        <a href="/member/mypage">
-            ← 마이페이지
-        </a>
-
-    </div>
-
-    <section class="pet-list"
-             th:if="${!#lists.isEmpty(petList)}">
-
-        <article class="pet-card"
-                 th:each="pet : ${petList}">
-
-            <img th:if="${pet.photoUrl}"
-                 th:src="${pet.photoUrl}"
-                 alt="반려동물 사진">
-
-            <div class="pet-image"
-                 th:unless="${pet.photoUrl}">
-                🐾
-            </div>
-
-            <div class="pet-info">
-
-                <h2 th:text="${pet.petName}">
-                    반려동물 이름
-                </h2>
+            <div>
+                <h1>🐾 내 반려동물</h1>
 
                 <p>
-                    <b th:text="${pet.animalName}">
-                        종류
-                    </b>
+                    반려동물 정보를 등록하고 관리하세요.
+                </p>
+            </div>
 
-                    <span th:text="${pet.breedName}">
+            <a href="/member/mypage">
+                ← 마이페이지
+            </a>
+
+        </div>
+
+        <section class="pet-list"
+                 th:if="${!#lists.isEmpty(petList)}">
+
+            <article class="pet-card"
+                     th:each="pet : ${petList}">
+
+                <img th:if="${pet.photoUrl}"
+                     th:src="${pet.photoUrl}"
+                     alt="반려동물 사진">
+
+                <div class="pet-image"
+                     th:unless="${pet.photoUrl}">
+                    🐾
+                </div>
+
+                <div class="pet-info">
+
+                    <h2 th:text="${pet.petName}">
+                        반려동물 이름
+                    </h2>
+
+                    <p>
+                        <b th:text="${pet.animalName}">
+                            종류
+                        </b>
+
+                        <span th:text="${pet.breedName}">
                         품종
                     </span>
-                </p>
+                    </p>
 
-                <p th:text="${pet.birthDate}
+                    <p th:text="${pet.birthDate}
                     + ' / '
                     + ${pet.weight}
                     + 'kg'">
-                    반려동물 정보
-                </p>
+                        반려동물 정보
+                    </p>
 
-            </div>
+                </div>
 
-            <div class="pet-action-buttons">
+                <div class="pet-action-buttons">
 
-                <button type="button"
-                        class="edit-btn"
-                        th:attr="
+                    <button type="button"
+                            class="edit-btn"
+                            th:attr="
                             data-id=${pet.petId},
                             data-name=${pet.petName},
                             data-animal=${pet.animalId},
@@ -150,205 +150,215 @@
                             data-weight=${pet.weight},
                             data-reg=${pet.registrationNo}
                         "
-                        onclick="loadPet(this)">
-                    수정
-                </button>
-
-                <form class="pet-delete-form">
-
-                    <input type="hidden"
-                           name="petId"
-                           th:value="${pet.petId}">
-
-                    <button type="submit"
-                            class="delete-btn">
-                        삭제
+                            onclick="loadPet(this)">
+                        수정
                     </button>
 
-                </form>
+                    <form class="pet-delete-form">
 
-            </div>
+                        <input type="hidden"
+                               name="petId"
+                               th:value="${pet.petId}">
 
-        </article>
+                        <button type="submit"
+                                class="delete-btn">
+                            삭제
+                        </button>
 
-    </section>
+                    </form>
 
-    <div class="empty-pet"
-         th:if="${#lists.isEmpty(petList)}">
+                </div>
 
-        등록된 반려동물이 없습니다.
-        아래 입력란에서 반려동물을 등록해 보세요.
+            </article>
 
-    </div>
+        </section>
 
-    <section class="pet-form-card"
-             id="petFormCard">
+        <div class="empty-pet"
+             th:if="${#lists.isEmpty(petList)}">
 
-        <div class="form-title">
-
-            <h2 id="formTitle">
-                반려동물 등록
-            </h2>
-
-            <button type="button"
-                    onclick="resetForm()"
-                    class="reset-btn"
-                    th:disabled="${petList.size() >= 4}">
-                새로 등록
-            </button>
+            등록된 반려동물이 없습니다.
+            아래 입력란에서 반려동물을 등록해 보세요.
 
         </div>
 
-        <p class="pet-limit-guide">
-            반려동물은 최대 4마리까지 등록할 수 있습니다.
-            등록된 반려동물은 등록 제한과 관계없이 수정할 수 있습니다.
-        </p>
+        <section class="pet-form-card"
+                 id="petFormCard">
 
-        <form id="petForm"
-              enctype="multipart/form-data">
+            <div class="form-title">
 
-            <input type="hidden"
-                   name="petId"
-                   id="petId"
-                   value="0">
+                <h2 id="formTitle">
+                    반려동물 등록
+                </h2>
 
-            <div class="form-grid">
-
-                <label>
-                    이름
-
-                    <input name="petName"
-                           id="petName"
-                           required
-                           maxlength="30"
-                           placeholder="반려동물 이름을 입력하세요">
-                </label>
-
-                <label>
-                    종류
-
-                    <select name="animalId"
-                            id="animalId"
-                            required
-                            onchange="fillBreeds()">
-
-                        <option value="">
-                            선택
-                        </option>
-
-                        <option th:each="animal : ${animalTypeList}"
-                                th:value="${animal.animalId}"
-                                th:text="${animal.animalName}">
-                            종류
-                        </option>
-
-                    </select>
-                </label>
-
-                <label>
-                    품종
-
-                    <select name="breedName"
-                            id="breedName"
-                            required>
-
-                        <option value="">
-                            종류를 먼저 선택하세요
-                        </option>
-
-                    </select>
-                </label>
-
-                <label>
-                    성별 / 중성화
-
-                    <select name="gender"
-                            id="gender"
-                            required>
-
-                        <option value="M">
-                            수컷
-                        </option>
-
-                        <option value="F">
-                            암컷
-                        </option>
-
-                        <option value="NM">
-                            중성화 수컷
-                        </option>
-
-                        <option value="NF">
-                            중성화 암컷
-                        </option>
-
-                    </select>
-                </label>
-
-                <label>
-                    생년월일
-
-                    <input type="date"
-                           name="birthDate"
-                           id="birthDate"
-                           required>
-                </label>
-
-                <label>
-                    몸무게(kg)
-
-                    <input type="number"
-                           name="weight"
-                           id="weight"
-                           min="0.1"
-                           max="100"
-                           step="0.1"
-                           required
-                           placeholder="0.1~100">
-
-                    <span class="input-guide">
-                        종류와 관계없이 0.1kg 이상
-                        100kg 이하로 입력해 주세요.
-                    </span>
-                </label>
-
-                <label>
-                    등록번호 (선택)
-
-                    <input name="registrationNo"
-                           id="registrationNo"
-                           maxlength="15"
-                           placeholder="최대 15자리">
-                </label>
-
-                <label>
-                    사진 (선택)
-
-                    <input type="file"
-                           name="file"
-                           id="petPhoto"
-                           accept=".jpg,.jpeg,.png,.webp">
-
-                    <span class="input-guide">
-                        JPG, JPEG, PNG, WEBP 형식만 등록할 수 있으며
-                        최대 용량은 5MB입니다.
-                    </span>
-                </label>
+                <button type="button"
+                        onclick="resetForm()"
+                        class="reset-btn"
+                        th:disabled="${petList.size() >= 4}">
+                    새로 등록
+                </button>
 
             </div>
 
-            <p id="saveMessage"
-               class="save-message"></p>
+            <p class="pet-limit-guide">
+                반려동물은 최대 4마리까지 등록할 수 있습니다.
+                등록된 반려동물은 등록 제한과 관계없이 수정할 수 있습니다.
+            </p>
 
-            <button type="submit"
-                    class="save-btn"
-                    id="saveBtn">
-                반려동물 저장
-            </button>
+            <form id="petForm"
+                  enctype="multipart/form-data">
 
-        </form>
+                <input type="hidden"
+                       name="petId"
+                       id="petId"
+                       value="0">
 
-    </section>
+                <div class="form-grid">
+
+                    <label>
+                        이름
+
+                        <input name="petName"
+                               id="petName"
+                               required
+                               maxlength="30"
+                               placeholder="반려동물 이름을 입력하세요">
+                    </label>
+
+                    <label>
+                        종류
+
+                        <select name="animalId"
+                                id="animalId"
+                                required
+                                onchange="fillBreeds()">
+
+                            <option value="">
+                                선택
+                            </option>
+
+                            <option th:each="animal : ${animalTypeList}"
+                                    th:value="${animal.animalId}"
+                                    th:text="${animal.animalName}">
+                                종류
+                            </option>
+
+                        </select>
+                    </label>
+
+                    <label>
+                        품종
+
+                        <select name="breedName"
+                                id="breedName"
+                                required>
+
+                            <option value="">
+                                종류를 먼저 선택하세요
+                            </option>
+
+                        </select>
+                    </label>
+
+                    <label>
+                        성별 / 중성화
+
+                        <select name="gender"
+                                id="gender"
+                                required>
+
+                            <option value="M">
+                                수컷
+                            </option>
+
+                            <option value="F">
+                                암컷
+                            </option>
+
+                            <option value="NM">
+                                중성화 수컷
+                            </option>
+
+                            <option value="NF">
+                                중성화 암컷
+                            </option>
+
+                        </select>
+                    </label>
+
+                    <label>
+                        생년월일
+
+                        <input type="date"
+                               name="birthDate"
+                               id="birthDate"
+                               required>
+
+                        <!-- 1950년 1월 1일 안내 문구 수정 -->
+                        <span class="input-guide">
+                        1950년 1월 1일 이후부터 오늘까지만 입력할 수 있습니다.
+                    </span>
+                    </label>
+
+                    <label>
+                        몸무게(kg)
+
+                        <input type="number"
+                               name="weight"
+                               id="weight"
+                               min="0.1"
+                               max="100"
+                               step="0.1"
+                               required
+                               placeholder="0.1~100">
+
+                        <span class="input-guide">
+                        종류와 관계없이 0.1kg 이상
+                        100kg 이하로 입력해 주세요.
+                    </span>
+                    </label>
+
+                    <label>
+                        등록번호 (선택)
+
+                        <input type="text"
+                               name="registrationNo"
+                               id="registrationNo"
+                               maxlength="15"
+                               placeholder="숫자 15자리">
+
+                        <span class="input-guide">
+                        입력 시 숫자 15자리만 입력 가능합니다.
+                    </span>
+                    </label>
+
+                    <label>
+                        사진 (선택)
+
+                        <input type="file"
+                               name="file"
+                               id="petPhoto"
+                               accept=".jpg,.jpeg,.png,.webp">
+
+                        <span class="input-guide">
+                        JPG, JPEG, PNG, WEBP 형식만 등록할 수 있으며
+                        최대 용량은 5MB입니다.
+                    </span>
+                    </label>
+
+                </div>
+
+                <p id="saveMessage"
+                   class="save-message"></p>
+
+                <button type="submit"
+                        class="save-btn"
+                        id="saveBtn">
+                    반려동물 저장
+                </button>
+
+            </form>
+
+        </section>
 
     </main>
 
@@ -716,9 +726,19 @@
             'weight'
         );
 
+    const birthDateInput =
+        document.getElementById(
+            'birthDate'
+        );
+
     const petPhotoInput =
         document.getElementById(
             'petPhoto'
+        );
+
+    const registrationNoInput =
+        document.getElementById(
+            'registrationNo'
         );
 
     const saveMessage =
@@ -830,9 +850,7 @@
         weightInput.value =
             button.dataset.weight;
 
-        document.getElementById(
-            'registrationNo'
-        ).value =
+        registrationNoInput.value =
             button.dataset.reg || '';
 
         petPhotoInput.value = '';
@@ -909,6 +927,85 @@
         return true;
     }
 
+    /* 현재 사용자의 로컬 날짜를 YYYY-MM-DD 형식으로 반환 */
+    function getTodayDateString() {
+        const today =
+            new Date();
+
+        const timezoneOffset =
+            today.getTimezoneOffset()
+            * 60
+            * 1000;
+
+        return new Date(
+            today.getTime()
+            - timezoneOffset
+        )
+            .toISOString()
+            .slice(
+                0,
+                10
+            );
+    }
+
+    /* 반려동물 생년월일 필수 입력 및 1950년 이전 / 미래 날짜 검증 */
+    function validatePetBirthDate() {
+        const birthDate =
+            birthDateInput.value;
+
+        if (!birthDate) {
+            showError(
+                '반려동물의 생년월일을 입력해 주세요.'
+            );
+
+            birthDateInput.focus();
+
+            return false;
+        }
+
+        // 1950년 제한으로 변경
+        if (birthDate < '1950-01-01') {
+            showError(
+                '반려동물의 생년월일은 1950년 1월 1일 이후로 입력해 주세요.'
+            );
+
+            birthDateInput.focus();
+
+            return false;
+        }
+
+        if (birthDate
+            > getTodayDateString()) {
+
+            showError(
+                '반려동물의 생년월일은 오늘 이후로 입력할 수 없습니다.'
+            );
+
+            birthDateInput.focus();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateRegistrationNo() {
+        const regNo =
+            registrationNoInput.value;
+
+        if (regNo.length > 0 && regNo.length !== 15) {
+            showError(
+                '등록번호는 숫자 15자리를 입력해 주세요.'
+            );
+
+            registrationNoInput.focus();
+
+            return false;
+        }
+
+        return true;
+    }
+
     function validatePetImage() {
         const file =
             petPhotoInput.files[0];
@@ -944,6 +1041,33 @@
 
         return true;
     }
+
+    /* 달력에서 1950년 1월 1일 ~ 오늘 이후 날짜를 선택하지 못하도록 지정 */
+    birthDateInput.min = '1950-01-01';
+    birthDateInput.max = getTodayDateString();
+
+    /* 등록번호 숫자 외 실시간 차단 */
+    registrationNoInput.addEventListener(
+        'input',
+        function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            clearMessage();
+        }
+    );
+
+    /* 날짜를 직접 변경했을 때 즉시 오류 안내 */
+    birthDateInput.addEventListener(
+        'change',
+        function () {
+            clearMessage();
+
+            if (this.value
+                && !validatePetBirthDate()) {
+
+                return;
+            }
+        }
+    );
 
     weightInput.addEventListener(
         'input',
@@ -1017,6 +1141,14 @@
             }
 
             if (!validatePetWeight()) {
+                return;
+            }
+
+            if (!validatePetBirthDate()) {
+                return;
+            }
+
+            if (!validateRegistrationNo()) {
                 return;
             }
 
