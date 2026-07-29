@@ -507,7 +507,7 @@
                 <when test="searchType == 'content'">
 
                     AND DBMS_LOB.INSTR(
-                    B.CONTENT,
+                    REGEXP_REPLACE(B.CONTENT, '&lt;[^&gt;]*&gt;', ' '),
                     #{keyword}
                     ) &gt; 0
 
@@ -528,7 +528,7 @@
                     LIKE '%' || UPPER(#{keyword}) || '%'
 
                     OR DBMS_LOB.INSTR(
-                    B.CONTENT,
+                    REGEXP_REPLACE(B.CONTENT, '&lt;[^&gt;]*&gt;', ' '),
                     #{keyword}
                     ) &gt; 0
                     )
