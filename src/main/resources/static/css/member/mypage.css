@@ -1745,3 +1745,457 @@ body {
         flex-direction: column;
     }
 }
+
+/* ========================================
+   프로필 사진 선택·저장 버튼 UI 개선
+======================================== */
+.profile-page .profile-upload-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.profile-page .profile-upload-panel.compact .profile-upload-button,
+.profile-page .profile-upload-panel.compact .profile-details-save {
+    display: inline-flex;
+    min-width: 92px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.profile-page .profile-upload-panel.compact .profile-upload-button {
+    border: 1px solid #93b4e8;
+    background: #eff6ff;
+    color: #2563eb;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, .08);
+}
+
+.profile-page .profile-upload-panel.compact .profile-details-save {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    box-shadow: 0 5px 12px rgba(37, 99, 235, .20);
+}
+
+.profile-page .profile-upload-panel.compact .profile-upload-button:hover {
+    border-color: #2563eb;
+    background: #dbeafe;
+    color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.profile-page .profile-upload-panel.compact .profile-details-save:hover {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.profile-page .profile-upload-panel.compact .profile-upload-button:active,
+.profile-page .profile-upload-panel.compact .profile-details-save:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* =========================================================
+   PetCity Member UI - Daisy inspired finishing layer
+   기능과 레이아웃 구조는 유지하고 시각 표현만 정리합니다.
+========================================================= */
+
+:root {
+    --member-primary: #2563eb;
+    --member-primary-dark: #1d4ed8;
+    --member-primary-soft: #eff6ff;
+    --member-accent: #f97316;
+    --member-surface: #ffffff;
+    --member-base: #f5f8fc;
+    --member-line: #dce6f2;
+    --member-text: #172033;
+    --member-muted: #718096;
+    --member-radius-lg: 20px;
+    --member-radius-md: 14px;
+    --member-shadow: 0 14px 34px rgba(43, 62, 91, .09);
+    --member-shadow-hover: 0 18px 42px rgba(37, 99, 235, .14);
+}
+
+body {
+    background:
+        radial-gradient(circle at 82% 10%, rgba(219, 234, 254, .72), transparent 24%),
+        linear-gradient(180deg, #f8fbff 0, var(--member-base) 380px);
+}
+
+.mypage-shell {
+    background: transparent;
+}
+
+.mypage-sidebar {
+    padding: 18px 12px 44px;
+    border-right: 1px solid var(--member-line);
+    background: rgba(255, 255, 255, .9);
+    box-shadow: 10px 0 30px rgba(68, 86, 116, .035);
+    backdrop-filter: blur(10px);
+}
+
+.mypage-nav {
+    gap: 7px;
+}
+
+.sidebar-item,
+.sidebar-logout {
+    min-height: 45px;
+    border-radius: 12px;
+    color: #40506a;
+    transition:
+        color .18s ease,
+        border-color .18s ease,
+        background-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+.sidebar-item:hover {
+    color: var(--member-primary);
+    background: var(--member-primary-soft);
+    box-shadow: inset 0 0 0 1px #dbeafe;
+}
+
+.sidebar-item.active {
+    color: #fff;
+    background: linear-gradient(135deg, #3b82f6, var(--member-primary));
+    box-shadow: 0 9px 20px rgba(37, 99, 235, .22);
+}
+
+.sidebar-item.active > span:first-child {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .12));
+}
+
+.sidebar-logout {
+    border-color: var(--member-line);
+    box-shadow: 0 5px 14px rgba(54, 73, 102, .05);
+}
+
+.membership-card {
+    overflow: hidden;
+    min-height: 132px;
+    border-color: #bfdbfe;
+    border-radius: var(--member-radius-md);
+    background:
+        radial-gradient(circle at 86% 80%, rgba(249, 115, 22, .17), transparent 24%),
+        linear-gradient(145deg, #eff6ff, #ffffff 70%);
+    box-shadow: 0 10px 24px rgba(37, 99, 235, .08);
+}
+
+.membership-card strong {
+    color: var(--member-primary);
+    letter-spacing: -.2px;
+}
+
+.membership-card p {
+    display: inline-flex;
+    margin-top: 10px;
+    padding: 5px 9px;
+    border: 1px solid #fed7aa;
+    border-radius: 999px;
+    color: #c2410c;
+    background: #fff7ed;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.membership-dog {
+    transform: rotate(-3deg);
+}
+
+.mypage-main {
+    padding-top: 25px;
+    padding-bottom: 70px;
+}
+
+.page-heading h1,
+.pet-page-title h1 {
+    color: var(--member-text);
+    letter-spacing: -.8px;
+}
+
+.page-heading p,
+.pet-page-title p {
+    color: var(--member-muted);
+}
+
+.profile-summary-card,
+.profile-edit-card,
+.quick-menu-section,
+.pet-form-card {
+    border: 1px solid var(--member-line);
+    border-radius: var(--member-radius-lg);
+    background: rgba(255, 255, 255, .96);
+    box-shadow: var(--member-shadow);
+}
+
+.profile-summary-card,
+.profile-edit-card {
+    overflow: hidden;
+}
+
+.profile-summary-top,
+.profile-banner {
+    border-bottom: 1px solid #dbe7f5;
+    background:
+        radial-gradient(circle at 89% 28%, rgba(255, 255, 255, .96), transparent 14%),
+        linear-gradient(120deg, #ffffff 0%, #eff6ff 56%, #dbeafe 100%);
+}
+
+.hero-avatar,
+.profile-photo,
+.profile-preview {
+    border: 4px solid rgba(255, 255, 255, .95);
+    box-shadow:
+        0 10px 25px rgba(43, 62, 91, .13),
+        0 0 0 1px #dbe7f5;
+}
+
+.role-badge {
+    border: 1px solid rgba(255, 255, 255, .55);
+    background: linear-gradient(135deg, #3b82f6, var(--member-primary));
+    box-shadow: 0 5px 12px rgba(37, 99, 235, .2);
+}
+
+.hero-meta > div,
+.profile-meta-row > div,
+.summary-item {
+    border-color: var(--member-line);
+    border-radius: 12px;
+    background: #f8fbff;
+}
+
+.summary-item {
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.summary-item:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, .08);
+    transform: translateY(-2px);
+}
+
+.member-pet-photo,
+.pet-preview-photo {
+    border: 3px solid #fff;
+    box-shadow: 0 5px 14px rgba(43, 62, 91, .14);
+}
+
+.pet-preview-panel,
+.profile-upload-panel {
+    border-color: var(--member-line);
+    border-radius: 16px;
+    background: linear-gradient(145deg, #ffffff, #f7faff);
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.pet-preview-panel:hover {
+    border-color: #93c5fd;
+    box-shadow: var(--member-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.profile-form,
+.password-change-section {
+    border-top-color: var(--member-line);
+}
+
+.form-field input,
+.form-field select,
+.form-grid input,
+.form-grid select {
+    min-height: 45px;
+    border: 1px solid #cedbea;
+    border-radius: 11px;
+    color: var(--member-text);
+    background: #fbfdff;
+    outline: none;
+    transition:
+        border-color .18s ease,
+        background-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.form-field input:hover,
+.form-field select:hover,
+.form-grid input:hover,
+.form-grid select:hover {
+    border-color: #93c5fd;
+    background: #fff;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-grid input:focus,
+.form-grid select:focus {
+    border-color: var(--member-primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, .11);
+}
+
+.save-button,
+.duplicate-button,
+.profile-upload-button,
+.profile-details-save,
+.save-btn,
+.edit-btn {
+    border-radius: 11px;
+    font-weight: 800;
+    transition:
+        border-color .18s ease,
+        background-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+.save-button,
+.duplicate-button,
+.profile-details-save,
+.save-btn {
+    border-color: var(--member-primary);
+    background: linear-gradient(135deg, #3b82f6, var(--member-primary));
+    box-shadow: 0 8px 17px rgba(37, 99, 235, .2);
+}
+
+.save-button:hover,
+.duplicate-button:hover,
+.profile-details-save:hover,
+.save-btn:hover {
+    border-color: var(--member-primary-dark);
+    background: linear-gradient(135deg, var(--member-primary), var(--member-primary-dark));
+    box-shadow: 0 11px 22px rgba(37, 99, 235, .27);
+    transform: translateY(-2px);
+}
+
+.quick-card {
+    border-color: var(--member-line);
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(43, 62, 91, .045);
+}
+
+.quick-card:hover {
+    border-color: #93c5fd;
+    background: linear-gradient(145deg, #fff, #eff6ff);
+    box-shadow: var(--member-shadow-hover);
+    transform: translateY(-3px);
+}
+
+.page-alert {
+    border-radius: 13px;
+    box-shadow: 0 7px 18px rgba(43, 62, 91, .06);
+}
+
+.withdraw-section {
+    border-radius: 15px;
+    background: linear-gradient(145deg, #fffafa, #fff);
+}
+
+.withdraw-link,
+.delete-btn {
+    border-radius: 11px;
+    transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.withdraw-link:hover,
+.delete-btn:hover {
+    box-shadow: 0 8px 18px rgba(220, 38, 38, .12);
+    transform: translateY(-2px);
+}
+
+.pet-page {
+    padding-top: 28px;
+}
+
+.pet-page-title {
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.pet-page-title > a {
+    padding: 8px 13px;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    color: var(--member-primary);
+    background: #fff;
+    text-decoration: none;
+    box-shadow: 0 5px 13px rgba(37, 99, 235, .07);
+}
+
+.pet-card {
+    border: 1px solid var(--member-line);
+    border-radius: 17px;
+    background: rgba(255, 255, 255, .97);
+    box-shadow: 0 10px 25px rgba(43, 62, 91, .07);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.pet-card:hover {
+    border-color: #93c5fd;
+    box-shadow: var(--member-shadow-hover);
+    transform: translateY(-4px);
+}
+
+.pet-image {
+    border: 3px solid #fff;
+    box-shadow:
+        0 6px 15px rgba(43, 62, 91, .13),
+        0 0 0 1px #dbe7f5;
+}
+
+.pet-action-buttons {
+    gap: 8px;
+}
+
+.edit-btn {
+    border-color: #bfdbfe;
+    color: var(--member-primary);
+    background: var(--member-primary-soft);
+}
+
+.edit-btn:hover {
+    border-color: #60a5fa;
+    background: #dbeafe;
+    box-shadow: 0 7px 15px rgba(37, 99, 235, .12);
+    transform: translateY(-2px);
+}
+
+.pet-limit-guide,
+.nickname-rules,
+.password-rules,
+.sns-password-notice {
+    border-radius: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-item,
+    .summary-item,
+    .pet-preview-panel,
+    .quick-card,
+    .pet-card,
+    .save-button,
+    .duplicate-button,
+    .profile-upload-button,
+    .profile-details-save,
+    .save-btn,
+    .edit-btn,
+    .delete-btn,
+    .withdraw-link {
+        transition: none;
+    }
+}

@@ -28,7 +28,7 @@
             </a>
 
             <a class="sidebar-item"
-               th:href="@{/owner/status}">
+               th:href="@{/owner/status(mypage=true)}">
                 <span class="sidebar-icon">☏</span>
                 <span>병원장 문의</span>
             </a>
@@ -48,7 +48,7 @@
 
         <div class="membership-card">
             <strong>PetCity<br>멤버십 혜택</strong>
-            <p>더 많은 혜택을<br>만나보세요!</p>
+            <p>향후 서비스 예정</p>
             <span class="membership-dog">🐕</span>
         </div>
     </aside>
@@ -121,7 +121,7 @@
                     <th:block th:if="${petList != null and !#lists.isEmpty(petList)}">
                         <span class="member-pet-photo"
                               th:each="pet, status : ${petList}"
-                              th:if="${status.index < 3}">
+                              th:if="${status.index < 4}">
                             <img th:if="${pet.photoUrl != null and !#strings.isEmpty(pet.photoUrl)}"
                                  th:src="${pet.photoUrl}"
                                  th:alt="${pet.petName + ' 사진'}">
@@ -212,7 +212,7 @@
                 </a>
 
                 <a class="quick-card"
-                   th:href="@{/owner/status}">
+                   th:href="@{/owner/status(mypage=true)}">
                     <span class="quick-icon sky">☏</span>
                     <div>
                         <strong>병원장 문의</strong>

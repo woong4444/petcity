@@ -1,150 +1,418 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>My Pets | PetCity</title>
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/member/mypage.css}">
 </head>
+
 <body>
+
 <header th:replace="~{common/head :: head}"></header>
-<main class="pet-page">
+
+<div class="pet-layout-wrapper"
+     th:classappend="${mypageLayout} ? ' mypage-shell' : ' pet-standalone-layout'">
+
+    <aside class="mypage-sidebar"
+           th:if="${mypageLayout}">
+
+        <nav class="mypage-nav">
+
+            <a class="sidebar-item"
+               th:href="@{/member/mypage}">
+                <span class="sidebar-icon">♙</span>
+                <span>마이페이지</span>
+            </a>
+
+            <a class="sidebar-item active"
+               th:href="@{/member/mypage/pets}">
+                <span class="sidebar-icon">🐾</span>
+                <span>내 반려동물</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:href="@{/owner/status(mypage=true)}">
+                <span class="sidebar-icon">☏</span>
+                <span>병원장 문의</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:if="${session.loginMember.loginType == null or session.loginMember.loginType == 'LOCAL'}"
+               th:href="@{/member/mypage/info}">
+                <span class="sidebar-icon">↗</span>
+                <span>회원정보 수정</span>
+            </a>
+
+            <a class="sidebar-item"
+               th:if="${session.loginMember.loginType != null and session.loginMember.loginType != 'LOCAL'}"
+               th:href="@{/member/feature/mypage/info}">
+                <span class="sidebar-icon">↗</span>
+                <span>회원정보 수정</span>
+            </a>
+
+        </nav>
+
+        <a class="sidebar-logout"
+           th:href="@{/member/logout}">
+            <span>로그아웃</span>
+            <span>↪</span>
+        </a>
+
+        <div class="membership-card">
+            <strong>PetCity<br>멤버십 혜택</strong>
+            <p>향후 서비스 예정</p>
+            <span class="membership-dog">🐕</span>
+        </div>
+
+    </aside>
+
+    <main class="pet-page"
+          th:classappend="${mypageLayout} ? ' mypage-main pet-page-mypage' : ' pet-page-standalone'">
+
     <div class="pet-page-title">
-        <div><h1>🐾 내 반려동물</h1>
-            <p>반려동물 정보를 등록하고 관리하세요.</p></div>
-        <a href="/member/mypage">← 마이페이지</a>
+
+        <div>
+            <h1>🐾 내 반려동물</h1>
+
+            <p>
+                반려동물 정보를 등록하고 관리하세요.
+            </p>
+        </div>
+
+        <a href="/member/mypage">
+            ← 마이페이지
+        </a>
+
     </div>
-    <section class="pet-list" th:if="${!#lists.isEmpty(petList)}">
-        <article class="pet-card" th:each="pet : ${petList}">
-            <img th:if="${pet.photoUrl}" th:src="${pet.photoUrl}" alt="pet photo">
-            <div class="pet-image" th:unless="${pet.photoUrl}">🐾</div>
-            <div class="pet-info">
-                <h2 th:text="${pet.petName}">Pet</h2>
-                <p><b th:text="${pet.animalName}">Animal</b> <span th:text="${pet.breedName}">Breed</span></p>
-                <p th:text="${pet.birthDate} + ' / ' + ${pet.weight} + 'kg'">Info</p>
+
+    <section class="pet-list"
+             th:if="${!#lists.isEmpty(petList)}">
+
+        <article class="pet-card"
+                 th:each="pet : ${petList}">
+
+            <img th:if="${pet.photoUrl}"
+                 th:src="${pet.photoUrl}"
+                 alt="반려동물 사진">
+
+            <div class="pet-image"
+                 th:unless="${pet.photoUrl}">
+                🐾
             </div>
+
+            <div class="pet-info">
+
+                <h2 th:text="${pet.petName}">
+                    반려동물 이름
+                </h2>
+
+                <p>
+                    <b th:text="${pet.animalName}">
+                        종류
+                    </b>
+
+                    <span th:text="${pet.breedName}">
+                        품종
+                    </span>
+                </p>
+
+                <p th:text="${pet.birthDate}
+                    + ' / '
+                    + ${pet.weight}
+                    + 'kg'">
+                    반려동물 정보
+                </p>
+
+            </div>
+
             <div class="pet-action-buttons">
-                <button type="button" class="edit-btn"
-                        th:attr="data-id=${pet.petId},data-name=${pet.petName},data-animal=${pet.animalId},data-breed=${pet.breedName},data-gender=${pet.gender},data-birth=${pet.birthDate},data-weight=${pet.weight},data-reg=${pet.registrationNo}"
-                        onclick="loadPet(this)">수정
+
+                <button type="button"
+                        class="edit-btn"
+                        th:attr="
+                            data-id=${pet.petId},
+                            data-name=${pet.petName},
+                            data-animal=${pet.animalId},
+                            data-breed=${pet.breedName},
+                            data-gender=${pet.gender},
+                            data-birth=${pet.birthDate},
+                            data-weight=${pet.weight},
+                            data-reg=${pet.registrationNo}
+                        "
+                        onclick="loadPet(this)">
+                    수정
                 </button>
-                <form class="pet-delete-form"
-                      style="flex: 1;">
+
+                <form class="pet-delete-form">
+
                     <input type="hidden"
                            name="petId"
                            th:value="${pet.petId}">
+
                     <button type="submit"
-                            class="delete-btn"
-                            style="width: 100%;">
+                            class="delete-btn">
                         삭제
                     </button>
-                </form>
-            </div>
-        </article>
-    </section>
-    <div class="empty-pet" th:if="${#lists.isEmpty(petList)}">등록된 반려동물이 없습니다. 아래 버튼을 눌러 등록해보세요.</div>
 
-    <section class="pet-form-card" id="petFormCard">
+                </form>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <div class="empty-pet"
+         th:if="${#lists.isEmpty(petList)}">
+
+        등록된 반려동물이 없습니다.
+        아래 입력란에서 반려동물을 등록해 보세요.
+
+    </div>
+
+    <section class="pet-form-card"
+             id="petFormCard">
+
         <div class="form-title">
-            <h2 id="formTitle">반려동물 등록</h2>
+
+            <h2 id="formTitle">
+                반려동물 등록
+            </h2>
+
             <button type="button"
                     onclick="resetForm()"
                     class="reset-btn"
                     th:disabled="${petList.size() >= 4}">
                 새로 등록
             </button>
+
         </div>
+
         <p class="pet-limit-guide">
             반려동물은 최대 4마리까지 등록할 수 있습니다.
-            등록된 반려동물은 제한과 관계없이 수정할 수 있습니다.
+            등록된 반려동물은 등록 제한과 관계없이 수정할 수 있습니다.
         </p>
-        <form id="petForm" enctype="multipart/form-data">
-            <input type="hidden" name="petId" id="petId" value="0">
+
+        <form id="petForm"
+              enctype="multipart/form-data">
+
+            <input type="hidden"
+                   name="petId"
+                   id="petId"
+                   value="0">
+
             <div class="form-grid">
-                <label>이름<input name="petName" id="petName" required maxlength="30"></label>
-                <label>종류
-                    <select name="animalId" id="animalId" required onchange="fillBreeds()">
-                        <option value="">선택</option>
-                        <option th:each="animal : ${animalTypeList}" th:value="${animal.animalId}"
-                                th:text="${animal.animalName}">Animal
+
+                <label>
+                    이름
+
+                    <input name="petName"
+                           id="petName"
+                           required
+                           maxlength="30"
+                           placeholder="반려동물 이름을 입력하세요">
+                </label>
+
+                <label>
+                    종류
+
+                    <select name="animalId"
+                            id="animalId"
+                            required
+                            onchange="fillBreeds()">
+
+                        <option value="">
+                            선택
                         </option>
+
+                        <option th:each="animal : ${animalTypeList}"
+                                th:value="${animal.animalId}"
+                                th:text="${animal.animalName}">
+                            종류
+                        </option>
+
                     </select>
                 </label>
-                <label>품종
-                    <select name="breedName" id="breedName" required>
-                        <option value="">종류를 먼저 선택하세요</option>
+
+                <label>
+                    품종
+
+                    <select name="breedName"
+                            id="breedName"
+                            required>
+
+                        <option value="">
+                            종류를 먼저 선택하세요
+                        </option>
+
                     </select>
                 </label>
-                <label>성별 / 중성화
-                    <select name="gender" id="gender" required>
-                        <option value="M">수컷</option>
-                        <option value="F">암컷</option>
-                        <option value="NM">중성화 수컷</option>
-                        <option value="NF">중성화 암컷</option>
+
+                <label>
+                    성별 / 중성화
+
+                    <select name="gender"
+                            id="gender"
+                            required>
+
+                        <option value="M">
+                            수컷
+                        </option>
+
+                        <option value="F">
+                            암컷
+                        </option>
+
+                        <option value="NM">
+                            중성화 수컷
+                        </option>
+
+                        <option value="NF">
+                            중성화 암컷
+                        </option>
+
                     </select>
                 </label>
-                <label>생년월일<input type="date" name="birthDate" id="birthDate" required></label>
-                <label>몸무게(kg)<input type="number" name="weight" id="weight" min="0.1" step="0.1" required></label>
-                <label>등록번호 (선택)<input name="registrationNo" id="registrationNo" maxlength="15"
-                                       placeholder="최대 15자리"></label>
-                <label>사진 (선택)<input type="file" name="file" accept="image/*"></label>
+
+                <label>
+                    생년월일
+
+                    <input type="date"
+                           name="birthDate"
+                           id="birthDate"
+                           required>
+                </label>
+
+                <label>
+                    몸무게(kg)
+
+                    <input type="number"
+                           name="weight"
+                           id="weight"
+                           min="0.1"
+                           max="100"
+                           step="0.1"
+                           required
+                           placeholder="0.1~100">
+
+                    <span class="input-guide">
+                        종류와 관계없이 0.1kg 이상
+                        100kg 이하로 입력해 주세요.
+                    </span>
+                </label>
+
+                <label>
+                    등록번호 (선택)
+
+                    <input name="registrationNo"
+                           id="registrationNo"
+                           maxlength="15"
+                           placeholder="최대 15자리">
+                </label>
+
+                <label>
+                    사진 (선택)
+
+                    <input type="file"
+                           name="file"
+                           id="petPhoto"
+                           accept=".jpg,.jpeg,.png,.webp">
+
+                    <span class="input-guide">
+                        JPG, JPEG, PNG, WEBP 형식만 등록할 수 있으며
+                        최대 용량은 5MB입니다.
+                    </span>
+                </label>
+
             </div>
-            <p id="saveMessage" class="save-message"></p>
-            <button type="submit" class="save-btn" id="saveBtn">반려동물 저장</button>
+
+            <p id="saveMessage"
+               class="save-message"></p>
+
+            <button type="submit"
+                    class="save-btn"
+                    id="saveBtn">
+                반려동물 저장
+            </button>
+
         </form>
+
     </section>
-</main>
+
+    </main>
+
+</div>
+
 <style>
-    /* 너비 1024px로 통일 */
     .pet-page {
         max-width: 1024px;
         margin: 52px auto 90px;
         padding: 0 20px;
-        color: #172033
+        color: #172033;
     }
 
     .pet-page-title {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 24px
+        margin-bottom: 24px;
     }
 
     .pet-page-title h1 {
         margin: 0;
-        font-size: 30px
+        font-size: 30px;
     }
 
     .pet-page-title p {
-        color: #718096
+        margin: 8px 0 0;
+        color: #718096;
     }
 
     .pet-page-title a {
         color: #2563eb;
         text-decoration: none;
-        font-weight: 800
+        font-weight: 800;
     }
 
     .pet-list {
         display: grid;
-        grid-template-columns:repeat(auto-fit, minmax(245px, 1fr));
+        grid-template-columns:
+            repeat(
+                auto-fit,
+                minmax(220px, 1fr)
+            );
         gap: 18px;
-        margin-bottom: 28px
+        margin-bottom: 28px;
     }
 
     .pet-card {
-        background: #fff;
+        min-width: 0;
+        background: #ffffff;
         border: 1px solid #e6ebf2;
         border-radius: 18px;
         padding: 18px;
         display: grid;
-        grid-template-columns:68px 1fr;
+        grid-template-columns: 68px minmax(0, 1fr);
         gap: 14px;
         align-items: center;
-        box-shadow: 0 8px 24px rgba(31, 53, 82, .06)
+        box-shadow:
+                0 8px 24px
+                rgba(31, 53, 82, 0.06);
     }
 
-    .pet-card img, .pet-image {
+    .pet-card img,
+    .pet-image {
         width: 68px;
         height: 68px;
         border-radius: 50%;
@@ -153,18 +421,26 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 30px
+        font-size: 30px;
+    }
+
+    .pet-info {
+        min-width: 0;
     }
 
     .pet-info h2 {
         margin: 0 0 6px;
-        font-size: 19px
+        font-size: 19px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .pet-info p {
         margin: 3px 0;
         color: #62718a;
-        font-size: 14px
+        font-size: 14px;
+        overflow-wrap: anywhere;
     }
 
     .pet-action-buttons {
@@ -173,25 +449,31 @@
         gap: 8px;
     }
 
+    .pet-delete-form {
+        flex: 1;
+        margin: 0;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        width: 100%;
+        border-radius: 9px;
+        padding: 9px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
     .edit-btn {
         flex: 1;
         border: 1px solid #bfdbfe;
         background: #eff6ff;
         color: #2563eb;
-        border-radius: 9px;
-        padding: 9px;
-        font-weight: 800;
-        cursor: pointer
     }
 
     .delete-btn {
         border: 1px solid #fecaca;
         background: #fef2f2;
         color: #dc2626;
-        border-radius: 9px;
-        padding: 9px;
-        font-weight: 800;
-        cursor: pointer
     }
 
     .empty-pet {
@@ -199,15 +481,17 @@
         background: #f8fafc;
         border-radius: 16px;
         color: #64748b;
-        margin-bottom: 25px
+        margin-bottom: 25px;
     }
 
     .pet-form-card {
-        background: #fff;
+        background: #ffffff;
         border: 1px solid #dce8f7;
         border-radius: 20px;
         padding: 30px;
-        box-shadow: 0 12px 30px rgba(31, 53, 82, .08)
+        box-shadow:
+                0 12px 30px
+                rgba(31, 53, 82, 0.08);
     }
 
     .form-title {
@@ -215,11 +499,11 @@
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid #edf0f5;
-        margin-bottom: 20px
+        margin-bottom: 20px;
     }
 
     .form-title h2 {
-        margin: 0 0 16px
+        margin: 0 0 16px;
     }
 
     .reset-btn {
@@ -227,48 +511,81 @@
         background: none;
         color: #2563eb;
         font-weight: 800;
-        cursor: pointer
+        cursor: pointer;
     }
 
     .form-grid {
         display: grid;
-        grid-template-columns:repeat(2, 1fr);
-        gap: 16px
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+        gap: 18px;
     }
 
     .form-grid label {
         display: flex;
         flex-direction: column;
         gap: 8px;
+        min-width: 0;
         font-weight: 800;
-        font-size: 14px
+        font-size: 14px;
     }
 
-    .form-grid input, .form-grid select {
+    .form-grid input,
+    .form-grid select {
+        width: 100%;
+        box-sizing: border-box;
         border: 1px solid #d8e0ec;
         border-radius: 10px;
         padding: 12px;
-        font-size: 15px
+        background: #ffffff;
+        font-size: 15px;
+    }
+
+    .form-grid input:focus,
+    .form-grid select:focus {
+        border-color: #2563eb;
+        outline: none;
+        box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, 0.12);
+    }
+
+    .form-grid input:invalid:not(:placeholder-shown) {
+        border-color: #f87171;
+    }
+
+    .input-guide {
+        color: #718096;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.5;
     }
 
     .save-btn {
         margin-top: 22px;
         width: 100%;
         background: #2563eb;
-        color: #fff;
+        color: #ffffff;
         border: 0;
         border-radius: 10px;
         padding: 14px;
         font-size: 16px;
         font-weight: 800;
-        cursor: pointer
+        cursor: pointer;
     }
 
     .save-message {
         min-height: 20px;
+        margin: 14px 0 0;
         color: #dc3545;
         font-weight: 700;
-        margin: 14px 0 0
+    }
+
+    .save-message.success {
+        color: #2563eb;
     }
 
     .pet-limit-guide {
@@ -288,138 +605,572 @@
         opacity: 0.55;
     }
 
+    @media (max-width: 760px) {
+        .pet-list {
+            grid-template-columns: 1fr;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     @media (max-width: 650px) {
         .pet-page-title {
             align-items: flex-start;
             flex-direction: column;
-            gap: 12px
+            gap: 12px;
         }
 
-        .form-grid {
-            grid-template-columns:1fr
+        .pet-form-card {
+            padding: 22px 18px;
+        }
+    }
+
+    /* 사이드바가 있는 마이페이지 화면에서도 반려동물 4마리를 한 줄로 표시합니다. */
+    .pet-layout-wrapper.mypage-shell .pet-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-card {
+        grid-template-columns: 58px minmax(0, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-card img,
+    .pet-layout-wrapper.mypage-shell .pet-image {
+        width: 58px;
+        height: 58px;
+        font-size: 26px;
+    }
+
+    @media (max-width: 1100px) {
+        .pet-layout-wrapper.mypage-shell .pet-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+    /* 마이페이지에서 진입했을 때만 사이드바 레이아웃을 적용합니다. */
+    .pet-layout-wrapper.pet-standalone-layout {
+        display: block;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-page.pet-page-mypage {
+        width: auto;
+        max-width: none;
+        min-width: 0;
+        margin: 0;
+        padding: 28px 24px 90px;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-page-title {
+        margin-top: 0;
+    }
+
+    @media (max-width: 900px) {
+        .pet-layout-wrapper.mypage-shell .pet-page.pet-page-mypage {
+            padding: 24px 18px 70px;
         }
     }
 </style>
-<script th:inline="javascript">
-    const subAnimals = /*[[${subAnimalTypeList}]]*/ [];
-    const petCount = /*[[${petList.size()}]]*/ 0;
-    const maxPetCount = 4;
-    const editPetId = /*[[${param.editPetId != null ? param.editPetId[0] : ''}]]*/ '';
-    const returnTo = /*[[${param.returnTo != null ? param.returnTo[0] : ''}]]*/ '';
 
-    function fillBreeds(selectedBreed) {
-        const animalId = document.getElementById('animalId').value;
-        const breed = document.getElementById('breedName');
-        breed.innerHTML = '<option value="">Select</option>';
-        subAnimals.filter(item => String(item.parentId) === String(animalId)).forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.animalName;
-            option.textContent = item.animalName;
-            if (item.animalName === selectedBreed) option.selected = true;
-            breed.appendChild(option);
-        });
+<script th:inline="javascript">
+    const subAnimals =
+        /*[[${subAnimalTypeList}]]*/ [];
+
+    const petCount =
+        /*[[${petList.size()}]]*/ 0;
+
+    const maxPetCount = 4;
+
+    const editPetId =
+        /*[[${param.editPetId != null
+            ? param.editPetId[0]
+            : ''}]]*/ '';
+
+    const returnTo =
+        /*[[${param.returnTo != null
+            ? param.returnTo[0]
+            : ''}]]*/ '';
+
+    const MIN_PET_WEIGHT = 0.1;
+    const MAX_PET_WEIGHT = 100;
+
+    const MAX_PET_IMAGE_SIZE =
+        5 * 1024 * 1024;
+
+    const ALLOWED_PET_IMAGE_TYPES = [
+        'image/jpeg',
+        'image/png',
+        'image/webp'
+    ];
+
+    const petForm =
+        document.getElementById(
+            'petForm'
+        );
+
+    const weightInput =
+        document.getElementById(
+            'weight'
+        );
+
+    const petPhotoInput =
+        document.getElementById(
+            'petPhoto'
+        );
+
+    const saveMessage =
+        document.getElementById(
+            'saveMessage'
+        );
+
+    function showError(message) {
+        saveMessage.classList.remove(
+            'success'
+        );
+
+        saveMessage.textContent =
+            message;
+    }
+
+    function showSuccess(message) {
+        saveMessage.classList.add(
+            'success'
+        );
+
+        saveMessage.textContent =
+            message;
+    }
+
+    function clearMessage() {
+        saveMessage.classList.remove(
+            'success'
+        );
+
+        saveMessage.textContent = '';
+    }
+
+    function fillBreeds(
+        selectedBreed
+    ) {
+
+        const animalId =
+            document.getElementById(
+                'animalId'
+            ).value;
+
+        const breedSelect =
+            document.getElementById(
+                'breedName'
+            );
+
+        breedSelect.innerHTML =
+            '<option value="">품종을 선택하세요</option>';
+
+        subAnimals
+            .filter(function (item) {
+                return String(
+                    item.parentId
+                ) === String(
+                    animalId
+                );
+            })
+            .forEach(function (item) {
+                const option =
+                    document.createElement(
+                        'option'
+                    );
+
+                option.value =
+                    item.animalName;
+
+                option.textContent =
+                    item.animalName;
+
+                if (item.animalName
+                    === selectedBreed) {
+
+                    option.selected =
+                        true;
+                }
+
+                breedSelect.appendChild(
+                    option
+                );
+            });
     }
 
     function loadPet(button) {
-        document.getElementById('petId').value = button.dataset.id;
-        document.getElementById('petName').value = button.dataset.name;
-        document.getElementById('animalId').value = button.dataset.animal;
-        fillBreeds(button.dataset.breed);
-        document.getElementById('gender').value = button.dataset.gender;
-        document.getElementById('birthDate').value = button.dataset.birth;
-        document.getElementById('weight').value = button.dataset.weight;
-        document.getElementById('registrationNo').value = button.dataset.reg || '';
-        document.getElementById('formTitle').textContent = '반려동물 수정';
-        document.getElementById('saveBtn').disabled = false;
-        document.getElementById('saveMessage').textContent = '';
-        document.getElementById('petFormCard').scrollIntoView({behavior: 'smooth'});
+        document.getElementById(
+            'petId'
+        ).value = button.dataset.id;
+
+        document.getElementById(
+            'petName'
+        ).value = button.dataset.name;
+
+        document.getElementById(
+            'animalId'
+        ).value = button.dataset.animal;
+
+        fillBreeds(
+            button.dataset.breed
+        );
+
+        document.getElementById(
+            'gender'
+        ).value = button.dataset.gender;
+
+        document.getElementById(
+            'birthDate'
+        ).value = button.dataset.birth;
+
+        weightInput.value =
+            button.dataset.weight;
+
+        document.getElementById(
+            'registrationNo'
+        ).value =
+            button.dataset.reg || '';
+
+        petPhotoInput.value = '';
+
+        document.getElementById(
+            'formTitle'
+        ).textContent =
+            '반려동물 수정';
+
+        document.getElementById(
+            'saveBtn'
+        ).disabled = false;
+
+        clearMessage();
+
+        document.getElementById(
+            'petFormCard'
+        ).scrollIntoView({
+            behavior: 'smooth'
+        });
     }
 
     function resetForm() {
-        const message = document.getElementById('saveMessage');
-
         if (petCount >= maxPetCount) {
-            message.textContent = '반려동물은 최대 4마리까지 등록할 수 있습니다.';
-            return;
-        }
-
-        document.getElementById('petForm').reset();
-        document.getElementById('petId').value = 0;
-        document.getElementById('breedName').innerHTML = '<option value="">Select animal first</option>';
-        document.getElementById('formTitle').textContent = '반려동물 신규 등록';
-        document.getElementById('saveBtn').disabled = false;
-        message.textContent = '';
-    }
-
-    document.getElementById('petForm').addEventListener('submit', async event => {
-        event.preventDefault();
-        const message = document.getElementById('saveMessage');
-        const petId = document.getElementById('petId').value;
-
-        message.textContent = '';
-
-        if ((petId === '' || petId === '0')
-            && petCount >= maxPetCount) {
-            message.textContent = '반려동물은 최대 4마리까지 등록할 수 있습니다.';
-            return;
-        }
-
-        const response = await fetch('/pet/api/save', {method: 'POST', body: new FormData(event.target)});
-        const result = await response.json();
-        if (result.isSuccess) {
-            if (returnTo === 'hospitalSearch') {
-                location.href = '/hospital/search';
-                return;
-            }
-
-            location.reload();
-            return;
-        }
-        message.textContent = 'Unable to save. Please check the input.';
-    });
-
-    document.querySelectorAll('.pet-delete-form').forEach(form => {
-        form.addEventListener('submit', async event => {
-            event.preventDefault();
-
-            if (!confirm('정말 이 반려동물을 삭제하시겠습니까?')) {
-                return;
-            }
-
-            const response = await fetch(
-                '/pet/api/delete',
-                {
-                    method: 'POST',
-                    body: new FormData(form)
-                }
+            showError(
+                '반려동물은 최대 4마리까지 등록할 수 있습니다.'
             );
 
-            const result = await response.json();
+            return;
+        }
 
-            if (result.isSuccess) {
-                location.reload();
+        petForm.reset();
+
+        document.getElementById(
+            'petId'
+        ).value = 0;
+
+        document.getElementById(
+            'breedName'
+        ).innerHTML =
+            '<option value="">종류를 먼저 선택하세요</option>';
+
+        document.getElementById(
+            'formTitle'
+        ).textContent =
+            '반려동물 신규 등록';
+
+        document.getElementById(
+            'saveBtn'
+        ).disabled = false;
+
+        clearMessage();
+    }
+
+    function validatePetWeight() {
+        const weight =
+            Number(
+                weightInput.value
+            );
+
+        if (!Number.isFinite(weight)
+            || weight < MIN_PET_WEIGHT
+            || weight > MAX_PET_WEIGHT) {
+
+            showError(
+                '몸무게는 0.1kg 이상 100kg 이하로 입력해 주세요.'
+            );
+
+            weightInput.focus();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    function validatePetImage() {
+        const file =
+            petPhotoInput.files[0];
+
+        if (!file) {
+            return true;
+        }
+
+        if (!ALLOWED_PET_IMAGE_TYPES.includes(
+            file.type
+        )) {
+
+            showError(
+                '사진은 JPG, JPEG, PNG, WEBP 형식만 등록할 수 있습니다.'
+            );
+
+            petPhotoInput.value = '';
+
+            return false;
+        }
+
+        if (file.size
+            > MAX_PET_IMAGE_SIZE) {
+
+            showError(
+                '사진은 최대 5MB까지만 등록할 수 있습니다.'
+            );
+
+            petPhotoInput.value = '';
+
+            return false;
+        }
+
+        return true;
+    }
+
+    weightInput.addEventListener(
+        'input',
+        function () {
+
+            const weight =
+                Number(
+                    this.value
+                );
+
+            if (this.value === '') {
+                clearMessage();
                 return;
             }
 
-            alert('반려동물을 삭제하지 못했습니다. 다시 시도해 주세요.');
+            if (!Number.isFinite(weight)
+                || weight < MIN_PET_WEIGHT
+                || weight > MAX_PET_WEIGHT) {
+
+                showError(
+                    '몸무게는 0.1kg 이상 100kg 이하로 입력해 주세요.'
+                );
+
+                return;
+            }
+
+            clearMessage();
+        }
+    );
+
+    petPhotoInput.addEventListener(
+        'change',
+        function () {
+
+            clearMessage();
+
+            if (!this.files[0]) {
+                return;
+            }
+
+            if (validatePetImage()) {
+                showSuccess(
+                    '등록 가능한 사진입니다.'
+                );
+            }
+        }
+    );
+
+    petForm.addEventListener(
+        'submit',
+        async function (event) {
+
+            event.preventDefault();
+
+            clearMessage();
+
+            const petId =
+                document.getElementById(
+                    'petId'
+                ).value;
+
+            if ((petId === ''
+                    || petId === '0')
+                && petCount >= maxPetCount) {
+
+                showError(
+                    '반려동물은 최대 4마리까지 등록할 수 있습니다.'
+                );
+
+                return;
+            }
+
+            if (!validatePetWeight()) {
+                return;
+            }
+
+            if (!validatePetImage()) {
+                return;
+            }
+
+            const saveButton =
+                document.getElementById(
+                    'saveBtn'
+                );
+
+            saveButton.disabled = true;
+
+            try {
+                const response =
+                    await fetch(
+                        '/pet/api/save',
+                        {
+                            method: 'POST',
+                            body: new FormData(
+                                event.target
+                            )
+                        }
+                    );
+
+                const result =
+                    await response.json();
+
+                if (!response.ok
+                    || !result.isSuccess) {
+
+                    showError(
+                        result.message
+                        || '저장하지 못했습니다. 입력 내용을 확인해 주세요.'
+                    );
+
+                    saveButton.disabled =
+                        false;
+
+                    return;
+                }
+
+                if (returnTo
+                    === 'hospitalSearch') {
+
+                    location.href =
+                        '/hospital/search';
+
+                    return;
+                }
+
+                location.reload();
+            } catch (error) {
+                console.error(
+                    error
+                );
+
+                showError(
+                    '저장 중 오류가 발생했습니다. 다시 시도해 주세요.'
+                );
+
+                saveButton.disabled =
+                    false;
+            }
+        }
+    );
+
+    document
+        .querySelectorAll(
+            '.pet-delete-form'
+        )
+        .forEach(function (form) {
+
+            form.addEventListener(
+                'submit',
+                async function (event) {
+
+                    event.preventDefault();
+
+                    if (!confirm(
+                        '정말 이 반려동물을 삭제하시겠습니까?'
+                    )) {
+                        return;
+                    }
+
+                    try {
+                        const response =
+                            await fetch(
+                                '/pet/api/delete',
+                                {
+                                    method: 'POST',
+                                    body: new FormData(
+                                        form
+                                    )
+                                }
+                            );
+
+                        const result =
+                            await response.json();
+
+                        if (result.isSuccess) {
+                            location.reload();
+                            return;
+                        }
+
+                        alert(
+                            result.message
+                            || '반려동물을 삭제하지 못했습니다.'
+                        );
+                    } catch (error) {
+                        console.error(
+                            error
+                        );
+
+                        alert(
+                            '삭제 중 오류가 발생했습니다. 다시 시도해 주세요.'
+                        );
+                    }
+                }
+            );
         });
-    });
 
     if (petCount >= maxPetCount) {
-        document.getElementById('saveBtn').disabled = true;
-        document.getElementById('saveMessage').textContent =
-            '현재 4마리가 등록되어 있습니다. 새로 등록하려면 기존 반려동물을 삭제해 주세요.';
+        document.getElementById(
+            'saveBtn'
+        ).disabled = true;
+
+        showError(
+            '현재 4마리가 등록되어 있습니다. '
+            + '새로 등록하려면 기존 반려동물을 삭제해 주세요.'
+        );
     }
 
     if (editPetId) {
-        const editButton = Array.from(
-            document.querySelectorAll('.edit-btn')
-        ).find(button => button.dataset.id === String(editPetId));
+        const editButton =
+            Array.from(
+                document.querySelectorAll(
+                    '.edit-btn'
+                )
+            ).find(function (button) {
+                return button.dataset.id
+                    === String(
+                        editPetId
+                    );
+            });
 
         if (editButton) {
-            loadPet(editButton);
+            loadPet(
+                editButton
+            );
         }
     }
 </script>
+
 </body>
 </html>

@@ -1032,7 +1032,12 @@ public class MemberController {
 
     // 07-16 상각: 기존 pet API를 재사용하는 회원별 반려동물 관리 화면
     @GetMapping({"/member/mypage/pets", "/pet/list"})
-    public String myPets(HttpSession session, Model model, RedirectAttributes rttr) {
+    public String myPets(
+            HttpServletRequest request,
+            HttpSession session,
+            Model model,
+            RedirectAttributes rttr
+    ) {
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
         if (loginMember == null) {
             rttr.addFlashAttribute("message", "로그인 후 이용해주세요.");
@@ -1042,6 +1047,16 @@ public class MemberController {
         model.addAttribute("petList", petDao.findPetsByMemberId(loginMember.getMemberId().intValue()));
         model.addAttribute("animalTypeList", hospitalService.getAnimalTypeList());
         model.addAttribute("subAnimalTypeList", hospitalService.getSubAnimalTypeList());
+
+        boolean mypageLayout =
+                "/member/mypage/pets".equals(
+                        request.getServletPath()
+                );
+
+        model.addAttribute(
+                "mypageLayout",
+                mypageLayout
+        );
         return "member/pets";
     }
 
