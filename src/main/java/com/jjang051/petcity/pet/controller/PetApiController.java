@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -85,8 +87,14 @@ public class PetApiController {
         }
 
         try {
+            // 반려동물 몸무게 범위 검증
             validatePetWeight(
                     petDto.getWeight()
+            );
+
+            // 등록·수정 요청 모두 오늘 이후 생년월일을 저장하지 못하도록 검증
+            validatePetBirthDate(
+                    petDto.getBirthDate()
             );
 
             petDto.setMemberId(
@@ -215,6 +223,50 @@ public class PetApiController {
         }
 
         return resultMap;
+    }
+
+    /**
+     * 반려동물 생년월일 서버 검증
+     * 화면 검증을 우회한 요청도 차단하기 위해 저장 직전에 다시 확인합니다.
+     */
+    private void validatePetBirthDate(
+            String birthDate
+    ) {
+
+        if (birthDate == null
+                || birthDate.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "반려동물의 생년월일을 입력해 주세요."
+            );
+        }
+
+        try {
+            LocalDate parsedBirthDate =
+                    LocalDate.parse(
+                            birthDate
+                    );
+
+            if (parsedBirthDate.isAfter(
+                    LocalDate.now()
+            )) {
+
+                throw new IllegalArgumentException(
+                        "반려동물의 생년월일은 오늘 이후로 입력할 수 없습니다."
+                );
+            }
+
+            LocalDate minDate = LocalDate.of(1950, 1, 1);
+            if (parsedBirthDate.isBefore(minDate)) {
+                throw new IllegalArgumentException(
+                        "반려동물의 생년월일은 1950년 1월 1일 이후로 입력해 주세요."
+                );
+            }
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException(
+                    "생년월일 형식을 확인해 주세요."
+            );
+        }
     }
 
     private void validatePetWeight(
