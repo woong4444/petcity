@@ -36,7 +36,16 @@ public interface AdminHospitalManagementDao {
     List<AdminClosedHospitalDto> findClosedHospitals();
     int countClosedHospitals();
 
-    List<AdminHospitalManagementDto> findHospitals(@Param("keyword") String keyword, @Param("animalType") Integer animalType, @Param("requestType") String requestType, @Param("sortBy") String sortBy, @Param("direction") String direction);
+    int countHospitals(@Param("keyword") String keyword, @Param("animalType") Integer animalType,
+                       @Param("requestType") String requestType);
+
+
+    List<AdminHospitalManagementDto> findHospitals(@Param("keyword") String keyword,
+                                                   @Param("animalType") Integer animalType, @Param("requestType")
+                                                   String requestType, @Param("sortBy") String sortBy,
+                                                   @Param("direction") String direction,
+                                                   @Param("offset") int offset,
+                                                   @Param("pageSize") int pageSize);
 
 
 }

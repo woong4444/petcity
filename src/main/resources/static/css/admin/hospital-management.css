@@ -21,9 +21,6 @@
 
     --hospital-closed: #c23b3b;
     --hospital-closed-background: #fee4e2;
-
-    --hospital-danger: #d64545;
-    --hospital-danger-dark: #bd3535;
 }
 
 
@@ -33,10 +30,6 @@
 
 * {
     box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
 }
 
 body {
@@ -66,7 +59,6 @@ select {
 .hospital-management-main {
     width: 100%;
     min-width: 0;
-    min-height: 100vh;
 
     padding: 48px 40px 56px;
 
@@ -77,31 +69,31 @@ select {
 
 
 /* ========================================
-   처리 메시지
+   알림 메시지
 ======================================== */
 
 .hospital-alert {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     padding: 14px 16px;
 
+    border: 1px solid;
     border-radius: 10px;
 
     font-size: 14px;
     font-weight: 700;
+    line-height: 1.5;
 }
 
 .hospital-alert-success {
-    color: #167455;
-    background-color: #e7f8f1;
-
-    border: 1px solid #bce7d6;
+    color: #15704f;
+    background-color: #e7f8ef;
+    border-color: #b8e5cf;
 }
 
 .hospital-alert-error {
     color: #b42318;
     background-color: #fff0ef;
-
-    border: 1px solid #f3c5c1;
+    border-color: #f0c7c3;
 }
 
 
@@ -152,9 +144,6 @@ select {
     line-height: 1.5;
 }
 
-
-/* 상단 오른쪽 버튼 영역 */
-
 .page-header-actions {
     display: flex;
     flex: 0 0 auto;
@@ -162,63 +151,42 @@ select {
     gap: 10px;
 }
 
-
-/* 조회 병원 개수 */
-
-.hospital-count-box {
-    display: inline-flex;
-    min-height: 44px;
-    align-items: center;
-    gap: 8px;
-
-    padding: 0 15px;
-
-    background-color: #ffffff;
-
-    border: 1px solid var(--hospital-border);
-    border-radius: 10px;
-
-    box-shadow:
-            0 4px 14px rgba(40, 67, 103, 0.05);
-}
-
-.hospital-count-box span {
-    color: #68758a;
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.hospital-count-box strong {
-    color: var(--hospital-primary);
-
-    font-size: 16px;
-    font-weight: 800;
-}
-
-
-/* 폐업 관리 버튼 */
-
+.hospital-count-box,
 .closed-hospital-open-button {
     display: inline-flex;
     min-height: 44px;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 6px;
 
-    padding: 0 16px;
+    padding: 0 15px;
 
-    color: var(--hospital-danger);
-    background-color: #ffffff;
-
-    border: 1px solid #efc7c7;
     border-radius: 10px;
 
-    box-shadow:
-            0 4px 14px rgba(114, 46, 46, 0.05);
-
     font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.hospital-count-box {
+    color: #526077;
+    background-color: #ffffff;
+
+    border: 1px solid #dce4ee;
+}
+
+.hospital-count-box strong {
+    color: var(--hospital-primary);
+
+    font-size: 15px;
     font-weight: 800;
+}
+
+.closed-hospital-open-button {
+    color: #a83232;
+    background-color: #fff2f1;
+
+    border: 1px solid #efc9c6;
 
     text-decoration: none;
 
@@ -230,13 +198,14 @@ select {
 }
 
 .closed-hospital-open-button strong {
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 800;
 }
 
 .closed-hospital-open-button:hover {
-    color: #ffffff;
-    background-color: var(--hospital-danger);
-    border-color: var(--hospital-danger);
+    color: #92251f;
+    background-color: #ffe8e6;
+    border-color: #e8aaa5;
 
     transform: translateY(-1px);
 }
@@ -264,9 +233,6 @@ select {
             0 4px 14px rgba(40, 67, 103, 0.06);
 }
 
-
-/* 검색창 영역 */
-
 .hospital-search-area {
     display: flex;
     flex: 1 1 340px;
@@ -274,9 +240,6 @@ select {
     flex-direction: column;
     gap: 7px;
 }
-
-
-/* 각 필터 영역 */
 
 .hospital-filter-item {
     display: flex;
@@ -286,9 +249,6 @@ select {
     gap: 7px;
 }
 
-
-/* 검색창과 필터 제목 */
-
 .hospital-filter-label {
     color: #526176;
 
@@ -296,16 +256,12 @@ select {
     font-weight: 700;
 }
 
-
-/* 검색 입력창 */
-
-.hospital-search-input {
+.hospital-search-input,
+.hospital-filter-select {
     width: 100%;
     height: 42px;
 
-    padding: 0 14px;
-
-    color: #263449;
+    color: #344258;
     background-color: #f9fbfe;
 
     border: 1px solid #dbe3ee;
@@ -321,53 +277,29 @@ select {
             box-shadow 0.15s ease;
 }
 
-.hospital-search-input::placeholder {
-    color: #9ba7b7;
+.hospital-search-input {
+    padding: 0 14px;
 }
-
-.hospital-search-input:hover {
-    border-color: #c8d3e1;
-}
-
-.hospital-search-input:focus {
-    background-color: #ffffff;
-    border-color: #4b8bea;
-
-    box-shadow:
-            0 0 0 3px rgba(75, 139, 234, 0.12);
-}
-
-
-/* 필터 선택창 */
 
 .hospital-filter-select {
-    width: 100%;
-    height: 42px;
-
     padding: 0 36px 0 12px;
-
-    color: #344258;
-    background-color: #f9fbfe;
-
-    border: 1px solid #dbe3ee;
-    border-radius: 8px;
 
     font-size: 13px;
     font-weight: 600;
 
     cursor: pointer;
-    outline: none;
-
-    transition:
-            background-color 0.15s ease,
-            border-color 0.15s ease,
-            box-shadow 0.15s ease;
 }
 
+.hospital-search-input::placeholder {
+    color: #9ba7b7;
+}
+
+.hospital-search-input:hover,
 .hospital-filter-select:hover {
     border-color: #c8d3e1;
 }
 
+.hospital-search-input:focus,
 .hospital-filter-select:focus {
     background-color: #ffffff;
     border-color: #4b8bea;
@@ -375,9 +307,6 @@ select {
     box-shadow:
             0 0 0 3px rgba(75, 139, 234, 0.12);
 }
-
-
-/* 검색 및 초기화 버튼 영역 */
 
 .hospital-filter-buttons {
     display: flex;
@@ -536,7 +465,7 @@ select {
 
 .hospital-table {
     width: 100%;
-    min-width: 1180px;
+    min-width: 1080px;
 
     table-layout: fixed;
     border-collapse: collapse;
@@ -595,7 +524,7 @@ select {
 
 
 /* ========================================
-   테이블 열 너비
+   열 너비
 ======================================== */
 
 .hospital-no-column {
@@ -603,7 +532,7 @@ select {
 }
 
 .hospital-name-column {
-    width: 20%;
+    width: 21%;
 }
 
 .owner-name-column {
@@ -615,20 +544,20 @@ select {
 }
 
 .hospital-status-column {
-    width: 13%;
+    width: 12%;
 }
 
 .hospital-request-column {
-    width: 15%;
+    width: 17%;
 }
 
 .request-process-column {
-    width: 13%;
+    width: 11%;
 }
 
 
 /* ========================================
-   테이블 정렬
+   정렬
 ======================================== */
 
 .sort-link {
@@ -646,12 +575,9 @@ select {
             color 0.15s ease;
 }
 
-.sort-link:hover {
-    color: #2563c9;
-}
-
+.sort-link:hover,
 .sort-link.active {
-    color: #1f63c8;
+    color: #2563c9;
 }
 
 .sort-arrow {
@@ -673,7 +599,7 @@ select {
 
 
 /* ========================================
-   병원 목록 데이터
+   병원 정보 셀
 ======================================== */
 
 .hospital-no-cell {
@@ -687,42 +613,51 @@ select {
 .owner-name-cell,
 .owner-email-cell {
     overflow: hidden;
+}
+
+.hospital-name-cell strong,
+.owner-name-cell strong {
+    display: block;
+
+    overflow: hidden;
 
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .hospital-name-cell strong {
-    display: block;
-
-    overflow: hidden;
-
     color: #1e293b;
 
     font-size: 15px;
     font-weight: 700;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .owner-name-cell strong {
     color: #253146;
 
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
 }
 
 .owner-email-cell {
     color: #475569;
 
-    font-size: 14px;
+    font-size: 13px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .owner-email-cell a {
+    display: block;
+
+    overflow: hidden;
+
     color: #475569;
 
     text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .owner-email-cell a:hover {
@@ -809,7 +744,8 @@ select {
     overflow: hidden;
 }
 
-.request-type-badge {
+.request-type-badge,
+.request-empty {
     display: inline-flex;
     min-width: 104px;
     height: 30px;
@@ -847,42 +783,29 @@ select {
 }
 
 .request-empty {
-    display: inline-flex;
-    min-width: 104px;
-    height: 30px;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0 12px;
-
     color: #7b8798;
     background-color: #eef1f5;
 
-    border-radius: 999px;
-
-    font-size: 12px;
     font-weight: 700;
-
-    white-space: nowrap;
 }
 
 
 /* ========================================
-   처리 대기 버튼
+   요청 처리 버튼
 ======================================== */
 
 .request-process-cell {
-    text-align: left;
+    text-align: center;
 }
 
 .request-process-button {
     display: inline-flex;
-    min-width: 92px;
+    min-width: 78px;
     height: 34px;
     align-items: center;
     justify-content: center;
 
-    padding: 0 14px;
+    padding: 0 12px;
 
     color: #ffffff;
     background-color: var(--hospital-primary);
@@ -894,6 +817,7 @@ select {
     font-weight: 800;
 
     text-decoration: none;
+    white-space: nowrap;
 
     transition:
             background-color 0.15s ease,
@@ -907,20 +831,18 @@ select {
     border-color: var(--hospital-primary-dark);
 
     box-shadow:
-            0 5px 12px rgba(52, 127, 232, 0.2);
+            0 4px 10px rgba(52, 127, 232, 0.18);
 
     transform: translateY(-1px);
 }
 
 .request-process-empty {
-    color: #a0a9b8;
-
-    font-size: 14px;
+    color: #a2aab5;
 }
 
 
 /* ========================================
-   조회 결과 없음
+   검색 결과 없음
 ======================================== */
 
 .empty-hospital-cell {
@@ -979,402 +901,88 @@ select {
 
 
 /* ========================================
-   폐업 관리 모달
+   페이지네이션
 ======================================== */
 
-.closed-hospital-modal {
-    position: fixed;
-    z-index: 3000;
-    inset: 0;
-
+.hospital-pagination {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 7px;
 
-    padding: 30px;
-
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-
-    transition:
-            opacity 0.2s ease,
-            visibility 0.2s ease;
+    margin-top: 26px;
 }
 
-.closed-hospital-modal:target {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-}
+.hospital-pagination-link {
+    display: inline-flex;
+    min-width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
 
-.closed-modal-backdrop {
-    position: absolute;
-    inset: 0;
+    padding: 0 11px;
 
-    background-color: rgba(16, 24, 40, 0.55);
-    backdrop-filter: blur(3px);
-}
-
-.closed-modal-panel {
-    position: relative;
-    z-index: 1;
-
-    display: flex;
-    width: min(1180px, 100%);
-    max-height: calc(100vh - 60px);
-    flex-direction: column;
-
-    overflow: hidden;
-
+    color: #526077;
     background-color: #ffffff;
 
-    border: 1px solid #e4e9f0;
-    border-radius: 18px;
-
-    box-shadow:
-            0 28px 80px rgba(15, 23, 42, 0.24);
-}
-
-.closed-modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-
-    padding: 24px 26px 20px;
-
-    border-bottom: 1px solid #e8edf3;
-}
-
-.closed-modal-header h2 {
-    margin: 0;
-
-    color: #202939;
-
-    font-size: 25px;
-    font-weight: 800;
-    letter-spacing: -0.6px;
-}
-
-.closed-modal-header p:not(.section-category) {
-    margin: 7px 0 0;
-
-    color: #778398;
-
-    font-size: 13px;
-}
-
-.closed-modal-close-button {
-    display: inline-flex;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-
-    color: #657187;
-    background-color: #f4f6f9;
-
+    border: 1px solid #dbe4ef;
     border-radius: 10px;
 
-    font-size: 26px;
+    font-size: 13px;
+    font-weight: 700;
     line-height: 1;
 
     text-decoration: none;
 
     transition:
             color 0.15s ease,
-            background-color 0.15s ease;
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            transform 0.15s ease;
 }
 
-.closed-modal-close-button:hover {
-    color: #ffffff;
-    background-color: var(--hospital-danger);
-}
+.hospital-pagination-link:hover {
+    color: var(--hospital-primary);
+    background-color: #f3f7ff;
 
-.closed-modal-warning {
-    margin: 18px 24px 0;
-    padding: 14px 16px;
-
-    color: #8d2e2e;
-    background-color: #fff4f3;
-
-    border: 1px solid #f2cfcc;
-    border-radius: 10px;
-}
-
-.closed-modal-warning strong {
-    display: block;
-
-    margin-bottom: 5px;
-
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.closed-modal-warning p {
-    margin: 0;
-
-    font-size: 12px;
-    line-height: 1.6;
-}
-
-.closed-modal-table-wrapper {
-    min-height: 0;
-
-    margin: 18px 24px 0;
-
-    overflow: auto;
-
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-}
-
-.closed-hospital-table {
-    width: 100%;
-    min-width: 1050px;
-
-    border-collapse: collapse;
-    table-layout: fixed;
-}
-
-.closed-hospital-table th {
-    padding: 14px 12px;
-
-    color: #59667a;
-    background-color: #f7f9fc;
-
-    border-bottom: 1px solid #dfe5ed;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    text-align: left;
-}
-
-.closed-hospital-table td {
-    padding: 15px 12px;
-
-    color: #445166;
-    background-color: #ffffff;
-
-    border-bottom: 1px solid #e9edf2;
-
-    font-size: 13px;
-    line-height: 1.5;
-
-    vertical-align: middle;
-}
-
-.closed-hospital-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.closed-hospital-table tbody tr:hover td {
-    background-color: #fbfcfe;
-}
-
-.closed-hospital-table th:nth-child(1) {
-    width: 9%;
-}
-
-.closed-hospital-table th:nth-child(2) {
-    width: 18%;
-}
-
-.closed-hospital-table th:nth-child(3) {
-    width: 12%;
-}
-
-.closed-hospital-table th:nth-child(4) {
-    width: 18%;
-}
-
-.closed-hospital-table th:nth-child(5) {
-    width: 22%;
-}
-
-.closed-hospital-table th:nth-child(6) {
-    width: 13%;
-}
-
-.closed-hospital-table th:nth-child(7) {
-    width: 12%;
-}
-
-.closed-hospital-id {
-    color: var(--hospital-primary) !important;
-
-    font-weight: 800;
-}
-
-.closed-hospital-table td strong {
-    color: #202939;
-
-    font-weight: 800;
-}
-
-.closed-hospital-table td a {
-    color: #416ca8;
-
-    text-decoration: none;
-}
-
-.closed-hospital-table td a:hover {
-    text-decoration: underline;
-}
-
-.closed-reason-cell {
-    color: #68758a !important;
-
-    word-break: keep-all;
-}
-
-.closed-delete-cell {
-    position: relative;
-}
-
-.delete-confirm-box {
-    position: relative;
-}
-
-.delete-confirm-box summary {
-    list-style: none;
-}
-
-.delete-confirm-box summary::-webkit-details-marker {
-    display: none;
-}
-
-.delete-open-button {
-    display: inline-flex;
-    height: 33px;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0 13px;
-
-    color: var(--hospital-danger);
-    background-color: #fff5f5;
-
-    border: 1px solid #efcaca;
-    border-radius: 8px;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    cursor: pointer;
-}
-
-.delete-open-button:hover {
-    color: #ffffff;
-    background-color: var(--hospital-danger);
-    border-color: var(--hospital-danger);
-}
-
-.delete-confirm-content {
-    width: 210px;
-
-    margin-top: 8px;
-    padding: 13px;
-
-    background-color: #ffffff;
-
-    border: 1px solid #e0e6ee;
-    border-radius: 10px;
+    border-color: #9abcf0;
 
     box-shadow:
-            0 12px 32px rgba(15, 23, 42, 0.14);
+            0 4px 10px rgba(52, 127, 232, 0.1);
+
+    transform: translateY(-1px);
 }
 
-.delete-confirm-content p {
-    margin: 0 0 6px;
-
-    color: #667085;
-
-    font-size: 11px;
-}
-
-.delete-confirm-content strong {
-    display: block;
-
-    margin-bottom: 11px;
-
-    color: #202939;
-
-    font-size: 12px;
-}
-
-.hard-delete-button {
-    width: 100%;
-    height: 34px;
-
+.hospital-pagination-link.active {
     color: #ffffff;
-    background-color: var(--hospital-danger);
+    background-color: var(--hospital-primary);
 
-    border: 0;
-    border-radius: 7px;
+    border-color: var(--hospital-primary);
 
-    font-size: 12px;
-    font-weight: 800;
+    box-shadow:
+            0 5px 12px rgba(52, 127, 232, 0.2);
 
-    cursor: pointer;
+    pointer-events: none;
 }
 
-.hard-delete-button:hover {
-    background-color: var(--hospital-danger-dark);
+.hospital-pagination-direction {
+    min-width: 58px;
+
+    padding: 0 14px;
 }
 
-.closed-empty-cell {
-    height: 150px;
-
-    color: #8a95a7 !important;
-
-    text-align: center;
-}
-
-.closed-modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-
-    padding: 18px 24px;
-
-    border-top: 1px solid #e7ebf1;
-}
-
-.closed-modal-footer span {
-    color: #6d798c;
-
-    font-size: 13px;
-}
-
-.closed-modal-footer-button {
-    display: inline-flex;
-    height: 38px;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0 18px;
-
-    color: #4d5a70;
+.hospital-pagination-link.disabled {
+    color: #adb6c3;
     background-color: #f5f7fa;
 
-    border: 1px solid #dde4ed;
-    border-radius: 8px;
+    border-color: #e3e8ef;
 
-    font-size: 13px;
-    font-weight: 800;
+    box-shadow: none;
 
-    text-decoration: none;
-}
-
-.closed-modal-footer-button:hover {
-    color: var(--hospital-primary);
-    background-color: #ffffff;
-    border-color: #b9ceeb;
+    cursor: default;
+    pointer-events: none;
 }
 
 
@@ -1384,7 +992,6 @@ select {
 
 .hospital-table-wrapper::-webkit-scrollbar,
 .closed-modal-table-wrapper::-webkit-scrollbar {
-    width: 9px;
     height: 9px;
 }
 
@@ -1406,6 +1013,446 @@ select {
 .hospital-table-wrapper::-webkit-scrollbar-thumb:hover,
 .closed-modal-table-wrapper::-webkit-scrollbar-thumb:hover {
     background-color: #aebccd;
+}
+
+
+/* ========================================
+   폐업 병원 관리 모달
+======================================== */
+
+.closed-hospital-modal {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 28px;
+}
+
+.closed-hospital-modal:target {
+    display: flex;
+}
+
+.closed-modal-backdrop {
+    position: absolute;
+    inset: 0;
+
+    background-color: rgba(16, 24, 40, 0.56);
+
+    backdrop-filter: blur(2px);
+}
+
+.closed-modal-panel {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    width: min(1280px, 96vw);
+    max-height: 88vh;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 18px;
+
+    box-shadow:
+            0 28px 80px rgba(15, 23, 42, 0.28);
+}
+
+.closed-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 24px 26px 18px;
+
+    border-bottom: 1px solid #e8edf3;
+}
+
+.closed-modal-header h2 {
+    margin: 0;
+
+    color: #202939;
+
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.closed-modal-header p:not(.section-category) {
+    margin: 7px 0 0;
+
+    color: #7a8798;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.closed-modal-close-button {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    color: #697586;
+    background-color: #f5f7fa;
+
+    border: 1px solid #e1e7ef;
+    border-radius: 10px;
+
+    font-size: 24px;
+    line-height: 1;
+
+    text-decoration: none;
+
+    transition:
+            color 0.15s ease,
+            background-color 0.15s ease,
+            border-color 0.15s ease;
+}
+
+.closed-modal-close-button:hover {
+    color: #b42318;
+    background-color: #fff0ef;
+
+    border-color: #efc5c1;
+}
+
+.closed-modal-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+
+    margin: 18px 26px 0;
+    padding: 14px 16px;
+
+    color: #8b3a16;
+    background-color: #fff6e9;
+
+    border: 1px solid #f2d5ad;
+    border-radius: 10px;
+}
+
+.closed-modal-warning strong {
+    flex: 0 0 auto;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.closed-modal-warning p {
+    margin: 0;
+
+    color: #95501f;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.closed-modal-table-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    margin: 18px 26px 0;
+
+    overflow: auto;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.closed-hospital-table {
+    width: 100%;
+    min-width: 1100px;
+
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.closed-hospital-table th {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+
+    padding: 14px 12px;
+
+    color: #536176;
+    background-color: #f7f9fc;
+
+    border-bottom: 1px solid #d8e0ea;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    text-align: left;
+    white-space: nowrap;
+}
+
+.closed-hospital-table td {
+    padding: 14px 12px;
+
+    color: #344054;
+
+    border-bottom: 1px solid #e7ecf2;
+
+    font-size: 13px;
+    line-height: 1.45;
+
+    vertical-align: middle;
+}
+
+.closed-hospital-table tbody tr:hover {
+    background-color: #fafcff;
+}
+
+.closed-hospital-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.closed-hospital-table th:nth-child(1),
+.closed-hospital-table td:nth-child(1) {
+    width: 8%;
+}
+
+.closed-hospital-table th:nth-child(2),
+.closed-hospital-table td:nth-child(2) {
+    width: 18%;
+}
+
+.closed-hospital-table th:nth-child(3),
+.closed-hospital-table td:nth-child(3) {
+    width: 12%;
+}
+
+.closed-hospital-table th:nth-child(4),
+.closed-hospital-table td:nth-child(4) {
+    width: 18%;
+}
+
+.closed-hospital-table th:nth-child(5),
+.closed-hospital-table td:nth-child(5) {
+    width: 20%;
+}
+
+.closed-hospital-table th:nth-child(6),
+.closed-hospital-table td:nth-child(6) {
+    width: 13%;
+}
+
+.closed-hospital-table th:nth-child(7),
+.closed-hospital-table td:nth-child(7) {
+    width: 11%;
+}
+
+.closed-hospital-id {
+    color: #2563c9 !important;
+
+    font-weight: 800;
+}
+
+.closed-hospital-table a {
+    color: #476079;
+
+    text-decoration: none;
+}
+
+.closed-hospital-table a:hover {
+    color: #2563c9;
+
+    text-decoration: underline;
+}
+
+.closed-reason-cell {
+    overflow-wrap: anywhere;
+}
+
+.closed-delete-cell {
+    overflow: visible;
+}
+
+
+/* ========================================
+   영구 삭제 확인
+======================================== */
+
+.delete-confirm-box {
+    position: relative;
+}
+
+.delete-confirm-box > summary {
+    list-style: none;
+}
+
+.delete-confirm-box > summary::-webkit-details-marker {
+    display: none;
+}
+
+.delete-open-button {
+    display: inline-flex;
+    min-width: 76px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 11px;
+
+    color: #b42318;
+    background-color: #fff3f2;
+
+    border: 1px solid #efc8c5;
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    white-space: nowrap;
+    cursor: pointer;
+
+    transition:
+            color 0.15s ease,
+            background-color 0.15s ease,
+            border-color 0.15s ease;
+}
+
+.delete-open-button:hover {
+    color: #961d14;
+    background-color: #ffe9e7;
+
+    border-color: #e8aaa5;
+}
+
+.delete-confirm-content {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 230px;
+    padding: 15px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dce3ec;
+    border-radius: 10px;
+
+    box-shadow:
+            0 12px 32px rgba(15, 23, 42, 0.18);
+}
+
+.delete-confirm-content p {
+    margin: 0 0 5px;
+
+    color: #596579;
+
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.delete-confirm-content > strong {
+    display: block;
+
+    margin-bottom: 12px;
+
+    overflow: hidden;
+
+    color: #202939;
+
+    font-size: 13px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hard-delete-button {
+    width: 100%;
+    height: 34px;
+
+    color: #ffffff;
+    background-color: #d92d20;
+
+    border: 1px solid #d92d20;
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease;
+}
+
+.hard-delete-button:hover {
+    background-color: #b42318;
+    border-color: #b42318;
+}
+
+.closed-empty-cell {
+    height: 130px;
+
+    color: #8792a5 !important;
+
+    text-align: center;
+}
+
+
+/* ========================================
+   폐업 모달 하단
+======================================== */
+
+.closed-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    padding: 18px 26px;
+
+    color: #697586;
+
+    border-top: 1px solid #e8edf3;
+
+    font-size: 13px;
+}
+
+.closed-modal-footer-button {
+    display: inline-flex;
+    min-width: 70px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 14px;
+
+    color: #ffffff;
+    background-color: #475467;
+
+    border: 1px solid #475467;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+.closed-modal-footer-button:hover {
+    color: #ffffff;
+    background-color: #344054;
+
+    border-color: #344054;
+
+    text-decoration: none;
 }
 
 
@@ -1442,6 +1489,7 @@ select {
     .page-header {
         align-items: flex-start;
         flex-direction: column;
+        gap: 18px;
     }
 
     .page-header h1 {
@@ -1454,7 +1502,8 @@ select {
 
     .page-header-actions {
         width: 100%;
-        justify-content: flex-end;
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
 
     .hospital-filter-buttons {
@@ -1473,7 +1522,8 @@ select {
     }
 
     .closed-modal-panel {
-        max-height: calc(100vh - 36px);
+        width: 100%;
+        max-height: 92vh;
     }
 }
 
@@ -1488,10 +1538,6 @@ select {
         margin-bottom: 24px;
     }
 
-    .page-category {
-        font-size: 11px;
-    }
-
     .page-header h1 {
         font-size: 28px;
         letter-spacing: -1px;
@@ -1501,17 +1547,6 @@ select {
         margin-top: 8px;
 
         font-size: 14px;
-    }
-
-    .page-header-actions {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .hospital-count-box,
-    .closed-hospital-open-button {
-        width: 100%;
-        justify-content: center;
     }
 
     .hospital-filter-form {
@@ -1525,58 +1560,89 @@ select {
     }
 
     .hospital-filter-buttons {
-        justify-content: flex-start;
+        justify-content: stretch;
     }
 
     .hospital-search-button,
     .hospital-filter-reset-button {
-        flex: 1 1 0;
+        flex: 1;
     }
 
     .hospital-list-section {
         padding: 20px 16px;
-
         border-radius: 14px;
     }
 
     .list-heading {
         align-items: flex-start;
         flex-direction: column;
-
-        margin-bottom: 18px;
+        gap: 12px;
     }
 
-    .list-heading h2 {
-        font-size: 21px;
+    .hospital-result-count {
+        align-self: flex-end;
+    }
+}
+
+
+@media (max-width: 520px) {
+
+    .hospital-pagination {
+        gap: 5px;
+
+        margin-top: 20px;
+    }
+
+    .hospital-pagination-link {
+        min-width: 34px;
+        height: 34px;
+
+        padding: 0 9px;
+
+        border-radius: 8px;
+
+        font-size: 12px;
+    }
+
+    .hospital-pagination-direction {
+        min-width: 50px;
+    }
+
+    .hospital-count-box,
+    .closed-hospital-open-button {
+        min-height: 40px;
+
+        padding: 0 12px;
     }
 
     .closed-hospital-modal {
         padding: 10px;
     }
 
-    .closed-modal-panel {
-        max-height: calc(100vh - 20px);
-
-        border-radius: 14px;
-    }
-
     .closed-modal-header {
-        padding: 20px 18px 17px;
+        padding: 20px 18px 16px;
     }
 
     .closed-modal-header h2 {
         font-size: 21px;
     }
 
-    .closed-modal-warning,
+    .closed-modal-warning {
+        flex-direction: column;
+        gap: 5px;
+
+        margin: 14px 18px 0;
+    }
+
     .closed-modal-table-wrapper {
-        margin-right: 16px;
-        margin-left: 16px;
+        margin: 14px 18px 0;
     }
 
     .closed-modal-footer {
-        align-items: stretch;
+        align-items: flex-start;
         flex-direction: column;
+
+        padding: 16px 18px;
     }
 
     .closed-modal-footer-button {

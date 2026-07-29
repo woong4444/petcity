@@ -3,6 +3,7 @@ package com.jjang051.petcity.admin.service;
 import com.jjang051.petcity.admin.dao.AdminHospitalManagementDao;
 import com.jjang051.petcity.admin.dto.AdminClosedHospitalDto;
 import com.jjang051.petcity.admin.dto.AdminHospitalManagementDto;
+import com.jjang051.petcity.admin.dto.AdminHospitalManagementPageDto;
 import com.jjang051.petcity.admin.dto.AdminHospitalUpdateRequestDetailDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,46 @@ import java.util.List;
 public class AdminHospitalManagementService {
     private final AdminHospitalManagementDao adminHospitalManagementDao;
 
-    public List<AdminHospitalManagementDto> findHospitals(String keyword,Integer animalType,String requestType, String sortBy, String direction) {
+    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_BLOCK_SIZE = 10;
+
+    public AdminHospitalManagementPageDto  getHospitalPage(int page, String keyword,Integer animalType,String requestType, String sortBy, String direction) {
+        if (page < 1) {
+            throw new IllegalArgumentException("페이지 번호는 1 이상이어야합니다.");
+        }
+
         String checkKeyword = checkKeyword(keyword);
         String checkedSortBy = checkSortBy(sortBy);
         String checkedDirection = checkDirection(direction);
-        String checkedRequestType = checkedRequestType(requestType);
-        return adminHospitalManagementDao.findHospitals(checkKeyword,animalType,checkedRequestType, checkedSortBy, checkedDirection);
+        String checkedRequestType = checkRequestType(requestType);
+        int totalElements = adminHospitalManagementDao.countHospitals(checkKeyword, animalType, checkedRequestType);
+        int totalPages = (int) Math.ceil((double) totalElements / PAGE_SIZE);
+        int currentPage = page;
+        if (totalPages == 0) {
+            currentPage = 1;
+        } else if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        int offset = (currentPage - 1) * PAGE_SIZE;
+        List<AdminHospitalManagementDto> hospitals = adminHospitalManagementDao.findHospitals(checkKeyword, animalType, checkedRequestType, checkedSortBy, checkedDirection, offset, PAGE_SIZE);
+        int startPage = ((currentPage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+        int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
+        return AdminHospitalManagementPageDto.builder()
+                .hospitals(hospitals)
+                .currentPage(currentPage)
+                .pageSize(PAGE_SIZE)
+                .totalPages(totalPages)
+                .totalElements(totalElements)
+                .startPage(startPage)
+                .endPage(endPage)
+                .hasPrevious(currentPage > 1)
+                .hasNext(currentPage < totalPages)
+                .keyword(checkKeyword)
+                .animalType(animalType)
+                .requestType(checkedRequestType)
+                .sortBy(checkedSortBy)
+                .direction(checkedDirection).build();
+
     }
 
     public AdminHospitalUpdateRequestDetailDto findRequestDetail(Long requestId) {
@@ -103,7 +138,7 @@ public class AdminHospitalManagementService {
         }
         return "asc";
     }
-    private String checkedRequestType(String requestType) {
+    private String checkRequestType(String requestType) {
         if ("UPDATE".equalsIgnoreCase(requestType)) {
             return "UPDATE";
         }
@@ -117,7 +152,7 @@ public class AdminHospitalManagementService {
     }
     private String checkKeyword(String keyword) {
         if (keyword == null) {
-            return "";
+            return null;
         }
         String trimmedKeyword = keyword.trim();
         if (trimmedKeyword.isEmpty()) {

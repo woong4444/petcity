@@ -232,6 +232,40 @@
 </select>
 
 
+    <select id="countHospitals" resultType="int">
+        SELECT COUNT(DISTINCT H.HOSPITAL_ID) FROM HOSPITAL H
+        LEFT JOIN APP_MEMBER M ON M.MEMBER_ID = H.OWNER_ID
+        LEFT JOIN HOSPITAL_UPDATE_REQUEST HUR
+        ON HUR.HOSPITAL_ID = H.HOSPITAL_ID
+        AND HUR.STATUS = 'PENDING'
+
+        <where>
+            AND H.STATUS != 'CLOSED'
+
+            <if test="keyword != null and keyword !=''">
+                AND (UPPER(H.NAME) LIKE '%' || UPPER(#{keyword}) || '%'
+                OR UPPER(
+                        NVL(
+                            M.NICKNAME, NVL(H.OWNER_NAME, '')
+                            )
+                        )
+                        LIKE '%' || UPPER(#{keyword}) || '%'
+                )
+            </if>
+
+            <if test="animalType != null">
+                    AND EXISTS ( SELECT 1 FROM HOSPITAL_ANIMAL HA
+                    WHERE HA.HOSPITAL_ID = H.HOSPITAL_ID
+                        AND HA.ANIMAL_ID = #{animalType}
+                    )
+            </if>
+
+            <if test="requestType != null">
+                    AND HUR.REQUEST_TYPE = #{requestType}
+            </if>
+        </where>
+    </select>
+
     <select id="findHospitals" resultType="AdminHospitalManagementDto">
         SELECT H.HOSPITAL_ID AS hospitalId,
         H.NAME AS hospitalName,
@@ -268,6 +302,8 @@
             </if>
         </where>
         ORDER BY
+
+
         <choose>
 
             <when test="sortBy == 'hospitalName'">
@@ -314,8 +350,8 @@
         <if test="sortBy != 'hospitalId'">
             , H.HOSPITAL_ID ASC
         </if>
-
-
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{pageSize} ROWS ONLY
     </select>
 
 </mapper>

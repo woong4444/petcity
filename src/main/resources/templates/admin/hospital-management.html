@@ -25,9 +25,8 @@
 
 <div class="admin-layout">
 
-    <th:block
-            th:replace="~{admin/fragments/sidebar
-                :: sidebar('hospitalManagement')}">
+    <th:block th:replace="~{admin/fragments/sidebar
+        :: sidebar('hospitalManagement')}">
     </th:block>
 
 
@@ -55,7 +54,7 @@
         </div>
 
 
-        <!-- 페이지 제목 -->
+        <!-- 페이지 상단 -->
         <header class="page-header">
 
             <div class="page-title-area">
@@ -83,7 +82,7 @@
                         조회 병원
                     </span>
 
-                    <strong th:text="|${#lists.size(hospitalList)}개|">
+                    <strong th:text="|${pageList.totalElements}개|">
                         0개
                     </strong>
 
@@ -117,6 +116,11 @@
               th:action="@{/admin/hospitals}"
               method="get">
 
+            <!-- 검색 시 1페이지로 이동 -->
+            <input type="hidden"
+                   name="page"
+                   value="1">
+
             <input type="hidden"
                    name="sortBy"
                    th:value="${sortBy}">
@@ -126,11 +130,14 @@
                    th:value="${direction}">
 
 
+            <!-- 병원 검색 -->
             <div class="hospital-search-area">
 
                 <label for="keyword"
                        class="hospital-filter-label">
+
                     병원 검색
+
                 </label>
 
                 <input type="search"
@@ -144,11 +151,14 @@
             </div>
 
 
+            <!-- 치료 동물 필터 -->
             <div class="hospital-filter-item">
 
                 <label for="animalType"
                        class="hospital-filter-label">
+
                     치료 동물
+
                 </label>
 
                 <select id="animalType"
@@ -157,32 +167,44 @@
 
                     <option value=""
                             th:selected="${selectedAnimalType == null}">
+
                         전체 치료 동물
+
                     </option>
 
                     <option value="1"
                             th:selected="${selectedAnimalType == 1}">
+
                         강아지
+
                     </option>
 
                     <option value="2"
                             th:selected="${selectedAnimalType == 2}">
+
                         고양이
+
                     </option>
 
                     <option value="3"
                             th:selected="${selectedAnimalType == 3}">
+
                         파충류
+
                     </option>
 
                     <option value="4"
                             th:selected="${selectedAnimalType == 4}">
+
                         설치류
+
                     </option>
 
                     <option value="5"
                             th:selected="${selectedAnimalType == 5}">
+
                         어류
+
                     </option>
 
                 </select>
@@ -190,11 +212,14 @@
             </div>
 
 
+            <!-- 요청 유형 필터 -->
             <div class="hospital-filter-item">
 
                 <label for="requestType"
                        class="hospital-filter-label">
+
                     처리 대기 신청
+
                 </label>
 
                 <select id="requestType"
@@ -204,22 +229,30 @@
                     <option value=""
                             th:selected="${selectedRequestType == null
                                 or #strings.isEmpty(selectedRequestType)}">
+
                         전체 대기 신청
+
                     </option>
 
                     <option value="UPDATE"
                             th:selected="${selectedRequestType == 'UPDATE'}">
+
                         정보 수정
+
                     </option>
 
                     <option value="TEMP_CLOSE"
                             th:selected="${selectedRequestType == 'TEMP_CLOSE'}">
+
                         휴업
+
                     </option>
 
                     <option value="CLOSE"
                             th:selected="${selectedRequestType == 'CLOSE'}">
+
                         폐업
+
                     </option>
 
                 </select>
@@ -227,19 +260,21 @@
             </div>
 
 
+            <!-- 검색 버튼 -->
             <div class="hospital-filter-buttons">
 
                 <button type="submit"
                         class="hospital-search-button">
+
                     검색
+
                 </button>
 
                 <a class="hospital-filter-reset-button"
-                   th:href="@{/admin/hospitals(
-                        sortBy=${sortBy},
-                        direction=${direction}
-                   )}">
+                   th:href="@{/admin/hospitals}">
+
                     초기화
+
                 </a>
 
             </div>
@@ -274,7 +309,7 @@
 
                     총
 
-                    <strong th:text="${#lists.size(hospitalList)}">
+                    <strong th:text="${pageList.totalElements}">
                         0
                     </strong>
 
@@ -301,6 +336,7 @@
                                     ? ' active'
                                     : ''"
                                th:href="@{/admin/hospitals(
+                                    page=1,
                                     sortBy='hospitalId',
                                     direction=${sortBy == 'hospitalId'
                                         and direction == 'asc'
@@ -319,7 +355,9 @@
                                                 ? '▲'
                                                 : '▼')
                                             : '↕'}">
+
                                     ↕
+
                                 </span>
 
                             </a>
@@ -335,6 +373,7 @@
                                     ? ' active'
                                     : ''"
                                th:href="@{/admin/hospitals(
+                                    page=1,
                                     sortBy='hospitalName',
                                     direction=${sortBy == 'hospitalName'
                                         and direction == 'asc'
@@ -353,7 +392,9 @@
                                                 ? '▲'
                                                 : '▼')
                                             : '↕'}">
+
                                     ↕
+
                                 </span>
 
                             </a>
@@ -361,7 +402,7 @@
                         </th>
 
 
-                        <!-- 병원장 -->
+                        <!-- 병원장 이름 -->
                         <th class="owner-name-column">
 
                             <a class="sort-link"
@@ -369,6 +410,7 @@
                                     ? ' active'
                                     : ''"
                                th:href="@{/admin/hospitals(
+                                    page=1,
                                     sortBy='ownerName',
                                     direction=${sortBy == 'ownerName'
                                         and direction == 'asc'
@@ -387,7 +429,9 @@
                                                 ? '▲'
                                                 : '▼')
                                             : '↕'}">
+
                                     ↕
+
                                 </span>
 
                             </a>
@@ -395,6 +439,7 @@
                         </th>
 
 
+                        <!-- 이메일 -->
                         <th class="owner-email-column">
                             이메일
                         </th>
@@ -408,6 +453,7 @@
                                     ? ' active'
                                     : ''"
                                th:href="@{/admin/hospitals(
+                                    page=1,
                                     sortBy='status',
                                     direction=${sortBy == 'status'
                                         and direction == 'asc'
@@ -426,7 +472,9 @@
                                                 ? '▲'
                                                 : '▼')
                                             : '↕'}">
+
                                     ↕
+
                                 </span>
 
                             </a>
@@ -434,7 +482,7 @@
                         </th>
 
 
-                        <!-- 신청 종류 -->
+                        <!-- 요청 유형 -->
                         <th class="hospital-request-column">
 
                             <a class="sort-link"
@@ -442,6 +490,7 @@
                                     ? ' active'
                                     : ''"
                                th:href="@{/admin/hospitals(
+                                    page=1,
                                     sortBy='requestType',
                                     direction=${sortBy == 'requestType'
                                         and direction == 'asc'
@@ -460,7 +509,9 @@
                                                 ? '▲'
                                                 : '▼')
                                             : '↕'}">
+
                                     ↕
+
                                 </span>
 
                             </a>
@@ -468,6 +519,7 @@
                         </th>
 
 
+                        <!-- 처리 -->
                         <th class="request-process-column">
                             처리
                         </th>
@@ -479,6 +531,7 @@
 
                     <tbody>
 
+                    <!-- 병원 목록 -->
                     <tr th:each="hospital : ${hospitalList}"
                         th:classappend="${hospital.requestId != null
                             ? 'has-pending-request'
@@ -487,7 +540,9 @@
                         <!-- 병원 번호 -->
                         <td class="hospital-no-cell"
                             th:text="${hospital.hospitalId}">
+
                             1
+
                         </td>
 
 
@@ -536,7 +591,9 @@
 
                             <span th:if="${hospital.ownerEmail == null
                                 or #strings.isEmpty(hospital.ownerEmail)}">
+
                                 이메일 없음
+
                             </span>
 
                         </td>
@@ -592,12 +649,14 @@
                         </td>
 
 
-                        <!-- 신청 종류 -->
+                        <!-- 요청 유형 -->
                         <td class="hospital-request-cell">
 
                             <span th:if="${hospital.requestId == null}"
                                   class="request-empty">
+
                                 신청 없음
+
                             </span>
 
 
@@ -606,19 +665,25 @@
 
                                 <span th:case="'UPDATE'"
                                       class="request-type-badge request-update">
+
                                     정보 수정 신청
+
                                 </span>
 
 
                                 <span th:case="'TEMP_CLOSE'"
                                       class="request-type-badge request-temp-close">
+
                                     휴업 신청
+
                                 </span>
 
 
                                 <span th:case="'CLOSE'"
                                       class="request-type-badge request-close">
+
                                     폐업 신청
+
                                 </span>
 
 
@@ -642,8 +707,8 @@
 
                             <a th:if="${hospital.requestId != null}"
                                th:href="@{/admin/hospitals/requests/{requestId}(
-            requestId=${hospital.requestId}
-       )}"
+                                    requestId=${hospital.requestId}
+                               )}"
                                class="request-process-button">
 
                                 처리 대기
@@ -652,10 +717,13 @@
 
                             <span th:if="${hospital.requestId == null}"
                                   class="request-process-empty">
+
                                 -
+
                             </span>
 
                         </td>
+
                     </tr>
 
 
@@ -704,6 +772,91 @@
 
             </div>
 
+
+            <!-- 페이지네이션 -->
+            <nav class="hospital-pagination"
+                 th:if="${pageList.totalPages > 1}"
+                 aria-label="병원 목록 페이지">
+
+                <!-- 이전 -->
+                <a th:if="${pageList.hasPrevious}"
+                   th:href="@{/admin/hospitals(
+                        page=${pageList.currentPage - 1},
+                        keyword=${pageList.keyword},
+                        animalType=${pageList.animalType},
+                        requestType=${pageList.requestType},
+                        sortBy=${pageList.sortBy},
+                        direction=${pageList.direction}
+                   )}"
+                   class="hospital-pagination-link
+                          hospital-pagination-direction">
+
+                    이전
+
+                </a>
+
+                <span th:unless="${pageList.hasPrevious}"
+                      class="hospital-pagination-link
+                             hospital-pagination-direction
+                             disabled">
+
+                    이전
+
+                </span>
+
+
+                <!-- 페이지 번호 -->
+                <a th:each="pageNumber : ${#numbers.sequence(
+                        pageList.startPage,
+                        pageList.endPage
+                   )}"
+                   th:href="@{/admin/hospitals(
+                        page=${pageNumber},
+                        keyword=${pageList.keyword},
+                        animalType=${pageList.animalType},
+                        requestType=${pageList.requestType},
+                        sortBy=${pageList.sortBy},
+                        direction=${pageList.direction}
+                   )}"
+                   th:text="${pageNumber}"
+                   class="hospital-pagination-link"
+                   th:classappend="${pageNumber == pageList.currentPage}
+                        ? ' active'
+                        : ''">
+
+                    1
+
+                </a>
+
+
+                <!-- 다음 -->
+                <a th:if="${pageList.hasNext}"
+                   th:href="@{/admin/hospitals(
+                        page=${pageList.currentPage + 1},
+                        keyword=${pageList.keyword},
+                        animalType=${pageList.animalType},
+                        requestType=${pageList.requestType},
+                        sortBy=${pageList.sortBy},
+                        direction=${pageList.direction}
+                   )}"
+                   class="hospital-pagination-link
+                          hospital-pagination-direction">
+
+                    다음
+
+                </a>
+
+                <span th:unless="${pageList.hasNext}"
+                      class="hospital-pagination-link
+                             hospital-pagination-direction
+                             disabled">
+
+                    다음
+
+                </span>
+
+            </nav>
+
         </section>
 
     </main>
@@ -711,10 +864,7 @@
 </div>
 
 
-<!-- ========================================
-     폐업 병원 관리 모달
-======================================== -->
-
+<!-- 폐업 병원 관리 모달 -->
 <section id="closedHospitalModal"
          class="closed-hospital-modal"
          aria-labelledby="closedHospitalModalTitle">
@@ -749,7 +899,9 @@
             <a href="#hospitalListSection"
                class="closed-modal-close-button"
                aria-label="폐업 관리 모달 닫기">
+
                 ×
+
             </a>
 
         </header>
@@ -777,33 +929,19 @@
 
                 <tr>
 
-                    <th>
-                        병원 NO
-                    </th>
+                    <th>병원 NO</th>
 
-                    <th>
-                        병원명
-                    </th>
+                    <th>병원명</th>
 
-                    <th>
-                        병원장
-                    </th>
+                    <th>병원장</th>
 
-                    <th>
-                        이메일
-                    </th>
+                    <th>이메일</th>
 
-                    <th>
-                        폐업 사유
-                    </th>
+                    <th>폐업 사유</th>
 
-                    <th>
-                        폐업 처리일
-                    </th>
+                    <th>폐업 처리일</th>
 
-                    <th>
-                        관리
-                    </th>
+                    <th>관리</th>
 
                 </tr>
 
@@ -816,7 +954,9 @@
 
                     <td class="closed-hospital-id"
                         th:text="${closedHospital.hospitalId}">
+
                         1
+
                     </td>
 
 
@@ -843,6 +983,7 @@
                         <a th:if="${closedHospital.ownerEmail != null
                             and !#strings.isEmpty(closedHospital.ownerEmail)}"
                            th:href="|mailto:${closedHospital.ownerEmail}|"
+                           th:title="${closedHospital.ownerEmail}"
                            th:text="${closedHospital.ownerEmail}">
 
                             owner@petcity.com
@@ -851,7 +992,9 @@
 
                         <span th:if="${closedHospital.ownerEmail == null
                             or #strings.isEmpty(closedHospital.ownerEmail)}">
+
                             이메일 없음
+
                         </span>
 
                     </td>
@@ -869,10 +1012,13 @@
 
 
                     <td th:text="${closedHospital.closedAt != null
-                        ? closedHospital.closedAt
+                        ? #temporals.format(
+                            closedHospital.closedAt,
+                            'yyyy-MM-dd HH:mm'
+                          )
                         : '-'}">
 
-                        2026-07-27
+                        2026-07-27 17:00
 
                     </td>
 
@@ -913,7 +1059,9 @@
 
                                     <button type="submit"
                                             class="hard-delete-button">
+
                                         삭제 실행
+
                                     </button>
 
                                 </form>
@@ -948,12 +1096,16 @@
         <footer class="closed-modal-footer">
 
             <span th:text="|총 ${closedHospitalCount}개의 폐업 병원이 있습니다.|">
+
                 총 0개의 폐업 병원이 있습니다.
+
             </span>
 
             <a href="#hospitalListSection"
                class="closed-modal-footer-button">
+
                 닫기
+
             </a>
 
         </footer>
@@ -963,4 +1115,5 @@
 </section>
 
 </body>
+
 </html>

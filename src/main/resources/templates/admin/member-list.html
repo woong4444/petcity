@@ -612,7 +612,14 @@
                         </td>
 
                         <td class="login-id-cell"
-                            th:text="${member.loginId}">
+                            th:title="${member.loginId}"
+                            th:text="${member.loginId != null
+                            and member.loginId.contains('@')
+                            ? member.loginId.substring(
+                                0,
+                                member.loginId.indexOf('@')
+                              )
+                            : member.loginId}">
                             user01
                         </td>
 
