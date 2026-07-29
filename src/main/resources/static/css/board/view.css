@@ -24,10 +24,6 @@ body {
     align-items: start;
 }
 
-/* ================================
-   왼쪽 커뮤니티 메뉴
-================================ */
-
 .community-sidebar {
     width: 100%;
 }
@@ -94,23 +90,14 @@ body {
     line-height: 1;
 }
 
-.community-menu a:hover,
-.community-menu a.active {
+.community-menu a:hover, .community-menu a.active {
     color: #0f9ca8;
     padding-left: 8px;
 }
 
-/* ================================
-   오른쪽 상세 영역
-================================ */
-
 .board-view-content {
     min-width: 0;
 }
-
-/* ================================
-   상단 타이틀
-================================ */
 
 .board-view-hero {
     min-height: 150px;
@@ -160,10 +147,6 @@ body {
     background-color: #fff3dc;
     font-size: 48px;
 }
-
-/* ================================
-   상세 카드
-================================ */
 
 .board-view-card {
     margin-top: 26px;
@@ -229,27 +212,6 @@ body {
     font-weight: 800;
 }
 
-/* ================================
-   본문
-================================ */
-
-.board-view-body {
-    padding: 34px 22px 24px;
-}
-
-
-.content-text {
-    color: #333333;
-    font-size: 16px;
-    line-height: 1.9;
-    white-space: pre-line;
-    word-break: break-word;
-}
-
-/* ================================
-   하단 버튼
-================================ */
-
 .board-view-buttons {
     margin-top: 24px;
     display: flex;
@@ -283,12 +245,11 @@ body {
     gap: 8px;
 }
 
-.right-buttons form{
+.right-buttons form {
     margin: 0;
 }
 
-.sub-button,
-.delete-button {
+.sub-button, .delete-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -321,10 +282,6 @@ body {
     background-color: #dc2626;
 }
 
-/* ================================
-   댓글 미리보기
-================================ */
-
 .comment-preview {
     margin-top: 36px;
     border-top: 2px solid #222222;
@@ -338,19 +295,6 @@ body {
     color: #111827;
     border-bottom: 1px solid #e5e7eb;
 }
-
-.comment-empty {
-    padding: 36px 20px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #64748b;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-/* ================================
-   반응형
-================================ */
 
 @media (max-width: 1024px) {
     .board-view-layout {
@@ -452,9 +396,7 @@ body {
         width: 100%;
     }
 
-    .list-button,
-    .sub-button,
-    .delete-button {
+    .list-button, .sub-button, .delete-button {
         flex: 1;
     }
 }
@@ -491,14 +433,6 @@ body {
     .right-buttons {
         flex-direction: column;
     }
-}
-
-/* ================================
-   본문 + 본문 이미지
-================================ */
-
-.board-view-body {
-    padding: 34px 22px 42px;
 }
 
 .content-text {
@@ -549,10 +483,6 @@ body {
     }
 }
 
-/* ================================
-   Summernote HTML 본문
-================================ */
-
 .board-view-body {
     padding: 34px 22px 42px;
 }
@@ -577,8 +507,7 @@ body {
     border-radius: 6px;
 }
 
-.content-html ul,
-.content-html ol {
+.content-html ul, .content-html ol {
     margin: 12px 0 16px 24px;
     padding: 0;
 }
@@ -597,10 +526,6 @@ body {
         max-width: 100%;
     }
 }
-
-/* ================================
-   댓글
-================================ */
 
 .comment-section {
     margin-top: 36px;
@@ -691,22 +616,6 @@ body {
     line-height: 1.7;
     white-space: pre-wrap;
     word-break: break-word;
-}
-
-.comment-delete-form {
-    position: absolute;
-    right: 20px;
-    bottom: 18px;
-    margin: 0;
-}
-
-.comment-delete-form button {
-    border: none;
-    background: none;
-    color: #ef4444;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
 }
 
 .comment-write-form {
@@ -808,8 +717,6 @@ body {
     }
 }
 
-/* 댓글 글자 수 표시 */
-
 .comment-character-count {
     margin-top: 7px;
     color: #94a3b8;
@@ -823,10 +730,6 @@ body {
     font-weight: 900;
 }
 
-/* ================================
-   댓글 수정
-================================ */
-
 .comment-action-buttons {
     margin-top: 12px;
     display: flex;
@@ -839,8 +742,7 @@ body {
     margin: 0;
 }
 
-.comment-edit-button,
-.comment-delete-form button {
+.comment-edit-button, .comment-delete-form button {
     border: none;
     background: none;
     font-size: 12px;
@@ -858,10 +760,18 @@ body {
 
 .comment-delete-form {
     position: static;
+    right: 20px;
+    bottom: 18px;
+    margin: 0;
 }
 
 .comment-delete-form button {
+    border: none;
+    background: none;
     color: #ef4444;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
 }
 
 .comment-delete-form button:hover {
@@ -899,8 +809,7 @@ body {
     gap: 8px;
 }
 
-.comment-edit-cancel,
-.comment-edit-submit {
+.comment-edit-cancel, .comment-edit-submit {
     height: 36px;
     padding: 0 15px;
     border-radius: 6px;
@@ -924,10 +833,6 @@ body {
 .comment-edit-submit:hover {
     background-color: #374151;
 }
-
-/* ================================
-   게시글 상세 화면 리디자인
-================================ */
 
 .board-page--view .board-view-hero {
     position: relative;
@@ -977,8 +882,7 @@ body {
     gap: 10px;
 }
 
-.board-page--view .view-hero-animals span,
-.board-page--view .view-hero-animals span:first-child {
+.board-page--view .view-hero-animals span, .board-page--view .view-hero-animals span:first-child {
     width: 86px;
     height: 86px;
     border: 1px solid rgba(255, 255, 255, 0.9);
@@ -1063,9 +967,7 @@ body {
     margin-top: 20px;
 }
 
-.board-page--view .list-button,
-.board-page--view .sub-button,
-.board-page--view .delete-button {
+.board-page--view .list-button, .board-page--view .sub-button, .board-page--view .delete-button {
     height: 44px;
     border-radius: 10px;
 }
@@ -1124,20 +1026,17 @@ body {
     background: #f8fbfe;
 }
 
-.board-page--view .comment-write-form textarea:focus,
-.board-page--view .comment-edit-form textarea:focus {
+.board-page--view .comment-write-form textarea:focus, .board-page--view .comment-edit-form textarea:focus {
     border-color: var(--board-accent);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--board-accent) 15%, transparent);
 }
 
-.board-page--view .comment-write-bottom button,
-.board-page--view .comment-edit-submit {
+.board-page--view .comment-write-bottom button, .board-page--view .comment-edit-submit {
     border-radius: 8px;
     background: var(--board-accent);
 }
 
-.board-page--view .comment-guide,
-.board-page--view .comment-empty {
+.board-page--view .comment-guide, .board-page--view .comment-empty {
     border: 0;
     background: #f8fbfe;
 }
@@ -1156,15 +1055,13 @@ body {
         margin-top: 16px;
     }
 
-    .board-page--view .view-hero-animals span,
-    .board-page--view .view-hero-animals span:first-child {
+    .board-page--view .view-hero-animals span, .board-page--view .view-hero-animals span:first-child {
         width: 62px;
         height: 62px;
         font-size: 34px;
     }
 
-    .board-page--view .board-view-header,
-    .board-page--view .board-view-body {
+    .board-page--view .board-view-header, .board-page--view .board-view-body {
         padding-right: 20px;
         padding-left: 20px;
     }
@@ -1178,10 +1075,7 @@ body {
     }
 }
 
-/* 실제 커뮤니티 배너 이미지 */
-
-.board-page--write .board-write-hero,
-.board-page--view .board-view-hero {
+.board-page--write .board-write-hero, .board-page--view .board-view-hero {
     position: relative;
     min-height: 205px;
     overflow: hidden;
@@ -1190,8 +1084,7 @@ body {
     background: #fff9f4;
 }
 
-.board-page--write .board-write-hero::before,
-.board-page--view .board-view-hero::before {
+.board-page--write .board-write-hero::before, .board-page--view .board-view-hero::before {
     content: none;
 }
 
@@ -1207,16 +1100,14 @@ body {
     pointer-events: none;
 }
 
-.board-page--write .write-hero-copy,
-.board-page--view .view-hero-copy {
+.board-page--write .write-hero-copy, .board-page--view .view-hero-copy {
     position: relative;
     z-index: 1;
     max-width: 56%;
 }
 
 @media (max-width: 768px) {
-    .board-page--write .board-write-hero,
-    .board-page--view .board-view-hero {
+    .board-page--write .board-write-hero, .board-page--view .board-view-hero {
         min-height: 220px;
     }
 
@@ -1225,13 +1116,10 @@ body {
         object-position: 72% center;
     }
 
-    .board-page--write .write-hero-copy,
-    .board-page--view .view-hero-copy {
+    .board-page--write .write-hero-copy, .board-page--view .view-hero-copy {
         max-width: 100%;
     }
 }
-
-/* 상세 화면 게시판별 색상 변수 */
 
 .board-page {
     --board-accent: #ff9e4a;
@@ -1269,8 +1157,6 @@ body {
     --board-soft: #f5f1ff;
     --board-line: #dfd4ff;
 }
-
-/* 답글/댓글 등록 버튼이 항상 보이도록 */
 
 .board-page--view .comment-write-bottom {
     display: flex;
