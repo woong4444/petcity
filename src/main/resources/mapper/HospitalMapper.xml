@@ -147,7 +147,6 @@
             <foreach collection="districts" item="district" open="(" separator="," close=")">#{district}</foreach>
         </if>
 
-        <!-- 🌟 응급진료 매핑 제거, 순수 키워드로만 매핑 검색 -->
         <if test="keyword != null and keyword != ''">
             AND (
             H.NAME LIKE '%' || #{keyword} || '%'
@@ -172,22 +171,40 @@
             )
         </if>
 
+        <!-- 🌟 수정된 ORDER BY (정렬 로직 완벽 교체) -->
         ORDER BY
         <choose>
+            <!-- 1. 추천순 (기본) -->
             <when test="sort == 'recommend'">
                 <if test="serviceIds != null and serviceIds.size() > 0">matchCount DESC,</if>
-                likeCount DESC, H.HOSPITAL_ID DESC
+                likeCount DESC, zzimCount DESC, H.HOSPITAL_ID DESC
             </when>
-            <when test="sort == 'distance' and userLat != null">distance ASC, H.HOSPITAL_ID DESC</when>
-            <when test="sort == 'name'">CASE WHEN REGEXP_LIKE(TRIM(H.NAME), '^[가-힣]') THEN 1 WHEN
-                REGEXP_LIKE(TRIM(H.NAME), '^[a-zA-Z]') THEN 2 WHEN REGEXP_LIKE(TRIM(H.NAME), '^[0-9]') THEN 3 ELSE 4 END
-                ASC, H.NAME ASC, H.HOSPITAL_ID DESC
+
+            <!-- 2. 가까운순 (거리 0인 애들은 NULL로 바꿔서 무조건 맨 뒤로 쫓아냄!) -->
+            <when test="sort == 'distance'">
+                NULLIF(distance, 0) ASC NULLS LAST, H.HOSPITAL_ID DESC
             </when>
-            <when test="sort == 'review'">reviewCount DESC, H.HOSPITAL_ID DESC</when>
-            <when test="sort == 'rating'">((SELECT COUNT(*) FROM HOSPITAL_LIKE HL WHERE HL.HOSPITAL_ID = H.HOSPITAL_ID)
-                + (SELECT COUNT(*) FROM FAVORITE_HOSPITAL FH WHERE FH.HOSPITAL_ID = H.HOSPITAL_ID)) DESC, H.HOSPITAL_ID
-                DESC
+
+            <!-- 3. 가나다 이름순 -->
+            <when test="sort == 'name'">
+                CASE WHEN REGEXP_LIKE(TRIM(H.NAME), '^[가-힣]') THEN 1
+                WHEN REGEXP_LIKE(TRIM(H.NAME), '^[a-zA-Z]') THEN 2
+                WHEN REGEXP_LIKE(TRIM(H.NAME), '^[0-9]') THEN 3
+                ELSE 4 END ASC,
+                H.NAME ASC, H.HOSPITAL_ID DESC
             </when>
+
+            <!-- 4. 리뷰 많은순 (리뷰가 같으면 별점순) -->
+            <when test="sort == 'review'">
+                reviewCount DESC, avgRating DESC, H.HOSPITAL_ID DESC
+            </when>
+
+            <!-- 5. 별점 높은순 (정상적인 avgRating 사용, 별점 같으면 리뷰많은순) -->
+            <when test="sort == 'rating'">
+                avgRating DESC, reviewCount DESC, H.HOSPITAL_ID DESC
+            </when>
+
+            <!-- 그 외 -->
             <otherwise>
                 <if test="serviceIds != null and serviceIds.size() > 0">matchCount DESC,</if>
                 H.HOSPITAL_ID DESC
@@ -195,6 +212,8 @@
         </choose>
         OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
     </select>
+
+    <!-- (이 아래는 기존 코드와 동일합니다. 파일 전체 덮어쓰기를 위해 전부 포함해 드립니다!) -->
 
     <select id="countHospitalList" resultType="int">
         SELECT COUNT(DISTINCT H.HOSPITAL_ID)
@@ -287,7 +306,6 @@
             </foreach>
         </if>
 
-        <!-- 🌟 카운트 부분도 응급진료 매핑 제거, 순수 키워드로만 매핑 검색 -->
         <if test="keyword != null and keyword != ''">
             AND (
             H.NAME LIKE '%' || #{keyword} || '%'
