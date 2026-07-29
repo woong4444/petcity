@@ -482,7 +482,7 @@ public class BoardController {
       boolean admin = isCurrentAdmin(authentication);
       boolean writer = boardDto.getMemberId() == loginMemberId;
 
-      if(!writer) {
+      if(!writer && !admin) {
           throw new RuntimeException("본인이 작성한 게시글만 수정할 수 있습니다.");
       }
 
