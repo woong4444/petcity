@@ -19,6 +19,13 @@
     <!-- 일반회원 가입 화면 전용 보완 CSS -->
     <link rel="stylesheet"
           th:href="@{/css/member/signup-form.css}">
+
+    <!-- 메인 화면과 동일한 공통 하단 푸터 -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
 </head>
 
 <body>
@@ -396,6 +403,9 @@
 </section>
 
 <!-- 이메일 인증 여부를 외부 자바스크립트에 전달 -->
+<!-- ================= 공통 하단 푸터 ================= -->
+<div th:replace="~{common/footer :: footer}"></div>
+
 <script th:inline="javascript">
     const serverEmailVerified =
         /*[[${emailVerified}]]*/ false;
