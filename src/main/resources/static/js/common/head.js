@@ -1,7 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // 병원장 신청 알림
     initOwnerRequestNotification();
 });
 
+/* ========================================
+   병원장 신청 승인·반려 알림
+======================================== */
 function initOwnerRequestNotification() {
     const notificationBadge = document.getElementById("ownerStatusUnreadBadge");
 
