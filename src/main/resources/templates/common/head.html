@@ -4,13 +4,12 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
-    <!-- 🌟 버전을 명시해서 변경된 CSS/JS가 무조건 즉시 적용되게 강제함 -->
     <link rel="stylesheet" th:href="@{/css/common/head.css?v=3}">
-    <link rel="stylesheet" th:href="@{/css/common/quick.css}"> <!-- 퀵메뉴 CSS 추가 -->
+    <link rel="stylesheet" th:href="@{/css/common/quick.css}">
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
     <script defer th:src="@{/js/common/footer.js}"></script>
     <script defer th:src="@{/js/common/head.js?v=3}"></script>
-    <script defer th:src="@{/js/common/quick.js}"></script> <!-- 퀵메뉴 JS 추가 -->
+    <script defer th:src="@{/js/common/quick.js}"></script>
 </head>
 
 <body>
@@ -110,7 +109,6 @@
 
     <div th:replace="~{common/chatbot :: chatbot}"></div>
 
-    <!-- 🌟 전역 공통 퀵 메뉴 (분리된 프래그먼트 호출) -->
     <div th:replace="~{common/quick :: quick}"></div>
 </header>
 

@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // 🌟 추가됨: URL 파라미터(sort, openStatus) 비정상 값 방지 및 자동 복구 로직
     const urlParams = new URLSearchParams(window.location.search);
     let urlChanged = false;
 
@@ -17,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (urlChanged) {
-        // 뒤로가기 기록을 남기지 않고 주소창만 깔끔하게 올바른 값으로 즉시 교체
         window.history.replaceState(null, '', window.location.pathname + '?' + urlParams.toString());
     }
 
@@ -397,13 +395,25 @@ document.addEventListener("DOMContentLoaded", function () {
                             if (data.isZzim) {
                                 btnElement.classList.add('text-rose-500', 'active');
                                 btnElement.classList.remove('text-slate-300', 'hover:text-rose-400');
-                                if (emptyHeart) { emptyHeart.classList.remove('block'); emptyHeart.classList.add('hidden'); }
-                                if (filledHeart) { filledHeart.classList.remove('hidden'); filledHeart.classList.add('block'); }
+                                if (emptyHeart) {
+                                    emptyHeart.classList.remove('block');
+                                    emptyHeart.classList.add('hidden');
+                                }
+                                if (filledHeart) {
+                                    filledHeart.classList.remove('hidden');
+                                    filledHeart.classList.add('block');
+                                }
                             } else {
                                 btnElement.classList.remove('text-rose-500', 'active');
                                 btnElement.classList.add('text-slate-300', 'hover:text-rose-400');
-                                if (emptyHeart) { emptyHeart.classList.remove('hidden'); emptyHeart.classList.add('block'); }
-                                if (filledHeart) { filledHeart.classList.remove('block'); filledHeart.classList.add('hidden'); }
+                                if (emptyHeart) {
+                                    emptyHeart.classList.remove('hidden');
+                                    emptyHeart.classList.add('block');
+                                }
+                                if (filledHeart) {
+                                    filledHeart.classList.remove('block');
+                                    filledHeart.classList.add('hidden');
+                                }
                             }
 
                             const countSpan = btnElement.querySelector('.count');

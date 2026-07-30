@@ -6,6 +6,8 @@
 <aside th:fragment="quick"
        class="quick-menu">
 
+    <input type="hidden" id="globalLoginMemberId" th:value="${session.loginMember != null ? session.loginMember.memberId : 'guest'}">
+
     <div class="quick-title">
         Quick Menu
     </div>

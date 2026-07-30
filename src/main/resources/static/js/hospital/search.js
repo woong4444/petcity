@@ -1,7 +1,3 @@
-/**
- * search.js
- * 동물병원 맞춤 검색 (정렬, 휴업 모달, 위치 모달, 전체선택 완벽 호환 최종본)
- */
 
 let activeLat = null;
 let activeLng = null;
@@ -50,7 +46,6 @@ function getCsrfHeaders() {
     return headers;
 }
 
-// 전체 선택 자동 바인딩
 function bindCheckAll(allId, itemClass) {
     const allChk = document.getElementById(allId);
     const items = document.querySelectorAll(itemClass);
@@ -115,7 +110,6 @@ function initStaticEvents() {
         });
     });
 
-    // 지도 모달 창 닫기/확인 버튼
     document.getElementById('btnCloseModal')?.addEventListener('click', () => {
         document.getElementById('locationModal').style.display = 'none';
     });
@@ -159,7 +153,6 @@ function initStaticEvents() {
         }
     });
 
-    // 휴업 확인 모달 관련
     document.getElementById('btnSuspendYes')?.addEventListener('click', () => {
         if (pendingDetailUrl) window.location.href = pendingDetailUrl;
     });
@@ -201,7 +194,6 @@ function fetchDynamicResults() {
         .then(html => {
             resultArea.innerHTML = html;
 
-            // 🌟 수정: form 안의 상태값을 읽어서 탭 활성화 유지
             let searchOpenStatus = form.querySelector('input[name="openStatus"]');
             const currentStatus = searchOpenStatus ? searchOpenStatus.value : 'ALL';
 
@@ -228,7 +220,6 @@ function rebindAjaxResults() {
     const resultArea = document.getElementById('ajaxDynamicResult');
     if (!resultArea) return;
 
-    // 1. 상세 페이지 이동 및 휴업 모달 띄우기
     resultArea.querySelectorAll('.go-detail-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -259,7 +250,6 @@ function rebindAjaxResults() {
         });
     });
 
-    // 2. 위치 변경 모달 띄우기
     const btnLocationSelect = resultArea.querySelector('.btn-location-select, #btnLocationSelect');
     if (btnLocationSelect) {
         btnLocationSelect.addEventListener('click', function(e) {
@@ -279,7 +269,6 @@ function rebindAjaxResults() {
         });
     }
 
-    // 3. 진료 상태 탭
     resultArea.querySelectorAll('.status-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -288,7 +277,6 @@ function rebindAjaxResults() {
             const form = document.getElementById('customSearchForm');
             if (!form) return;
 
-            // 🌟 수정: 태그의 ID 대신 Name 속성으로 완벽하게 찾아서 중복 생성 방지
             let searchOpenStatus = form.querySelector('input[name="openStatus"]');
             if (!searchOpenStatus) {
                 searchOpenStatus = document.createElement('input');
@@ -311,7 +299,6 @@ function rebindAjaxResults() {
         });
     });
 
-    // 4. 하단 페이징
     resultArea.querySelectorAll('.page-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -333,13 +320,11 @@ function rebindAjaxResults() {
         });
     });
 
-    // 🌟 5. 정렬 Select Box (중복 현상 완벽 해결)
     const sortSelect = resultArea.querySelector('#sortSelect');
     if (sortSelect) {
         sortSelect.addEventListener('change', function(e) {
             e.stopPropagation();
 
-            // "내 주변 가까운순" 선택 시 위치 없으면 튕겨내기
             if (this.value === 'distance' && (!activeLat || !activeLng)) {
                 alert("가까운순 정렬을 이용하시려면 기준 위치를 먼저 설정해주세요.");
                 const form = document.getElementById('customSearchForm');
@@ -350,7 +335,6 @@ function rebindAjaxResults() {
 
             const form = document.getElementById('customSearchForm');
 
-            // name="sort"를 찾아서 값만 업데이트 (중복 <input> 생성 방지)
             let searchSort = form.querySelector('input[name="sort"]');
             if (!searchSort && form) {
                 searchSort = document.createElement('input');
@@ -373,7 +357,6 @@ function rebindAjaxResults() {
         });
     }
 
-    // 6. 찜 버튼
     resultArea.querySelectorAll('.btn-zzim-toggle').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();

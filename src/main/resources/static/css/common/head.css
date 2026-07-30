@@ -391,6 +391,8 @@ html, body {
         font-size: 14px;
     }
 
+    /* ================================
+   노트북 / 태블릿 / 모바일 반응형 보강
     @media (max-width: 1366px) {
         .header-inner {
             max-width: 1180px;
@@ -689,6 +691,7 @@ html, body {
     display: none;
 }
 
+/* 하단 메뉴: 가운데 메뉴는 화면 중앙, 병원장 신청은 우측 고정 */
 .bottom-nav-inner {
     height: 56px;
     display: grid !important;
@@ -1007,6 +1010,15 @@ html, body {
     line-height: 16px !important;
 }
 
+
+.site-header .logo-link {
+    height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    line-height: normal !important;
+}
+
 .site-header .logo-icon {
     width: 40px !important;
     height: 40px !important;
@@ -1037,6 +1049,7 @@ html, body {
     line-height: 12px !important;
 }
 
+
 @media (min-width: 1025px) {
     .site-header .main-menu {
         gap: 0 !important;
@@ -1050,6 +1063,7 @@ html, body {
         text-align: center !important;
     }
 }
+
 
 @media (min-width: 1025px) {
     .site-header .right-menu {
@@ -1066,6 +1080,7 @@ html, body {
         color: #0ea5e9 !important;
     }
 }
+
 
 .site-header .logo-area {
     width: 270px !important;
@@ -1093,6 +1108,7 @@ html, body {
     position: absolute !important;
     top: -39px !important;
     left: -33px !important;
+
     display: block !important;
     width: 290px !important;
     max-width: none !important;

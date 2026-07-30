@@ -8,9 +8,9 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@Builder          // 🌟 빌더 패턴 사용을 위해 반드시 필요합니다!
-@NoArgsConstructor // 🌟 빌더 사용 시 기본 생성자 필수
-@AllArgsConstructor // 🌟 빌더 사용 시 모든 매개변수 생성자 필수
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class HospitalListPageDto {
     private int page;
     private int size;
@@ -21,8 +21,8 @@ public class HospitalListPageDto {
 
     private Integer animalId;
     private Integer subAnimalId;
-    private List<String> subjects;     // 진료 과목
-    private List<Integer> serviceIds;  // 진료 옵션
+    private List<String> subjects;
+    private List<Integer> serviceIds;
     private List<String> districts;
     private String keyword;
     private String openStatus;
