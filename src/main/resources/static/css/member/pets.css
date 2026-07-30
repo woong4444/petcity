@@ -322,3 +322,80 @@
             padding: 24px 18px 70px;
         }
     }
+/* =========================================================
+   2026-07-29 반려동물 등록 화면 시각 개선
+   - 둥근 카드, 부드러운 그림자, 현대적인 파일 선택 UI
+   ========================================================= */
+
+.pet-form-section {
+    border: 1px solid #dce9ff;
+    border-radius: 26px;
+    background:
+        radial-gradient(circle at 92% 8%, rgba(255, 213, 115, 0.20), transparent 24%),
+        linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 18px 44px rgba(42, 91, 157, 0.11);
+}
+
+.pet-form-section::before {
+    content: "🐾";
+    position: absolute;
+    top: 22px;
+    right: 28px;
+    color: #ff9e3d;
+    font-size: 24px;
+    filter: drop-shadow(0 5px 8px rgba(255, 158, 61, 0.18));
+}
+
+/* 파일 입력 자체는 접근 가능한 상태로 유지하고 시각적으로만 숨깁니다. */
+.pet-file-picker {
+    position: relative;
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 7px 12px 7px 7px;
+    overflow: hidden;
+    border: 1px dashed #9dbff8;
+    border-radius: 14px;
+    background: #f7faff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pet-file-picker:hover,
+.pet-file-picker:focus-within {
+    border-color: #2f6df6;
+    box-shadow: 0 0 0 4px rgba(47, 109, 246, 0.10);
+    transform: translateY(-1px);
+}
+
+.pet-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.pet-file-button {
+    flex: 0 0 auto;
+    padding: 10px 17px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2f6df6 0%, #39a8f4 100%);
+    box-shadow: 0 8px 18px rgba(47, 109, 246, 0.20);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.pet-file-name {
+    min-width: 0;
+    overflow: hidden;
+    color: #64748b;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

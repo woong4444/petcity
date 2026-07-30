@@ -14,11 +14,17 @@
           th:href="@{/css/common/head.css}">
 
     <link rel="stylesheet"
-          th:href="@{/css/member/mypage.css}">
+          th:href="@{/css/member/mypage.css(v='20260729-4')}">
 
     <!-- 회원 반려동물 관리 화면 전용 CSS -->
     <link rel="stylesheet"
-          th:href="@{/css/member/pets.css}">
+          th:href="@{/css/member/pets.css(v='20260729-4')}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260729-4')}">
+
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260729-4')}"></script>
 </head>
 
 <body>
@@ -84,7 +90,11 @@
 
             <p>향후 서비스 예정</p>
 
-            <span class="membership-dog">🐕</span>
+            <!-- 회원 파트 기본 멤버십 이미지 -->
+            <img class="membership-dog"
+                 th:src="@{/images/member/membership-benefit-dog.png}"
+                 alt=""
+                 aria-hidden="true">
         </div>
 
     </aside>
@@ -401,6 +411,9 @@
 </script>
 
 <!-- 반려동물 등록·수정·삭제 및 입력 검증 기능 -->
+<!-- 모든 일반 사용자 화면에서 사용하는 공통 하단 푸터 -->
+<div th:replace="~{common/footer :: footer}"></div>
+
 <script th:src="@{/js/member/pets.js}"></script>
 
 </body>

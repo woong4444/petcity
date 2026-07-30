@@ -14,7 +14,14 @@
           th:href="@{/css/common/head.css}">
 
     <link rel="stylesheet"
-          th:href="@{/css/member/mypage.css}">
+          th:href="@{/css/member/mypage.css(v='20260729-3')}">
+
+    <!-- 회원 마이페이지에서도 공통 하단 푸터 스타일을 확실하게 로드 -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260729-3')}">
+
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260729-3')}"></script>
 </head>
 
 <body>
@@ -114,9 +121,11 @@
 
             <p>향후 서비스 예정</p>
 
-            <span class="membership-dog">
-                🐕
-            </span>
+            <!-- 회원 파트 기본 멤버십 이미지 -->
+            <img class="membership-dog"
+                 th:src="@{/images/member/membership-benefit-dog.png}"
+                 alt=""
+                 aria-hidden="true">
 
         </div>
 
@@ -162,10 +171,12 @@
                              th:src="${member.profileImage}"
                              alt="프로필 사진">
 
-                        <span th:unless="${member.profileImage != null
-                                         and !#strings.isEmpty(member.profileImage)}">
-                            🐶
-                        </span>
+                        <!-- 프로필 사진이 없을 때 사용하는 회원 파트 기본 이미지 -->
+                        <img class="default-profile-photo"
+                             th:unless="${member.profileImage != null
+                                         and !#strings.isEmpty(member.profileImage)}"
+                             th:src="@{/images/member/default-profile-dog.png}"
+                             alt="기본 프로필 이미지">
 
                     </div>
 
@@ -484,6 +495,9 @@
     </section>
 
 </main>
+
+<!-- 모든 일반 사용자 화면에서 사용하는 공통 하단 푸터 -->
+<div th:replace="~{common/footer :: footer}"></div>
 
 <script th:src="@{/js/common/head.js}"></script>
 

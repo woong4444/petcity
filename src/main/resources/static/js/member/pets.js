@@ -35,6 +35,23 @@ const MIN_PET_WEIGHT = 0.1;
             'petPhoto'
         );
 
+    // 사용자가 선택한 반려동물 사진의 파일명을 화면에 표시합니다.
+    const petPhotoName =
+        document.getElementById(
+            'petPhotoName'
+        );
+
+    function updatePetPhotoName(file) {
+        if (!petPhotoName) {
+            return;
+        }
+
+        petPhotoName.textContent =
+            file
+                ? file.name
+                : '선택된 사진이 없습니다.';
+    }
+
     const saveMessage =
         document.getElementById(
             'saveMessage'
@@ -150,6 +167,7 @@ const MIN_PET_WEIGHT = 0.1;
             button.dataset.reg || '';
 
         petPhotoInput.value = '';
+        updatePetPhotoName(null);
 
         document.getElementById(
             'formTitle'
@@ -291,6 +309,7 @@ const MIN_PET_WEIGHT = 0.1;
             );
 
             petPhotoInput.value = '';
+            updatePetPhotoName(null);
 
             return false;
         }
@@ -303,6 +322,7 @@ const MIN_PET_WEIGHT = 0.1;
             );
 
             petPhotoInput.value = '';
+            updatePetPhotoName(null);
 
             return false;
         }
@@ -362,6 +382,10 @@ const MIN_PET_WEIGHT = 0.1;
         function () {
 
             clearMessage();
+
+            updatePetPhotoName(
+                this.files[0]
+            );
 
             if (!this.files[0]) {
                 return;
