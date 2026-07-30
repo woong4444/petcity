@@ -12,6 +12,10 @@
           th:href="@{/css/common/head.css}">
     <!-- feature-withdraw.html 페이지 전용 스타일 -->
     <link rel="stylesheet" th:href="@{/css/member/pages/feature-withdraw.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
 </head>
 
 <body>
@@ -51,11 +55,16 @@
                 탈퇴 사유
             </label>
 
-            <textarea id="deleteReason"
-                      name="deleteReason"
-                      minlength="5"
-                      maxlength="500"
-                      required></textarea>
+        <textarea id="deleteReason"
+                  name="deleteReason"
+                  minlength="5"
+                  maxlength="500"
+                  placeholder="한글·영문 관계없이 공백 제외 5~500자로 입력해 주세요."
+                  required></textarea>
+        <div class="withdraw-reason-meta">
+            <span>한글·영문 관계없이 공백 제외 5~500자로 입력해 주세요.</span>
+            <span class="withdraw-reason-count">0 / 500자</span>
+        </div>
 
             <!-- 07-22 상각 : 일반회원만 현재 비밀번호 입력 -->
             <div th:if="${member.loginType == null || member.loginType == 'LOCAL'}">
@@ -94,5 +103,6 @@
 </div>
 
 <script th:src="@{/js/member/withdraw-confirm.js}"></script>
+<div th:replace="~{common/footer :: footer}"></div>
 </body>
 </html>

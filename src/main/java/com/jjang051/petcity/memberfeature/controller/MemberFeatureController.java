@@ -774,7 +774,7 @@ public class MemberFeatureController {
     @PostMapping("/member/feature/withdraw")
     public String withdraw(
             @RequestParam(defaultValue = "") String password,
-            @RequestParam String deleteReason,
+            @RequestParam(defaultValue = "") String deleteReason,
             HttpSession session,
             HttpServletRequest request,
             RedirectAttributes redirectAttributes) {

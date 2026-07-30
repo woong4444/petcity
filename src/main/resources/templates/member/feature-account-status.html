@@ -12,6 +12,10 @@
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <!-- feature-account-status.html 페이지 전용 스타일 -->
     <link rel="stylesheet" th:href="@{/css/member/pages/feature-account-status.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
 </head>
 <body>
 <!-- 상각_07-19: 탈퇴 대기 SNS 로그인 차단 후 3초 안내 -->
@@ -34,5 +38,6 @@
         <a class="home" href="/">메인으로</a>
     </div>
 </main>
+<div th:replace="~{common/footer :: footer}"></div>
 </body>
 </html>

@@ -15,6 +15,10 @@
           th:href="@{/css/common/head.css}">
     <!-- recovery-request-complete.html 페이지 전용 스타일 -->
     <link rel="stylesheet" th:href="@{/css/member/pages/recovery-request-complete.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
 </head>
 
 <body>
@@ -45,5 +49,6 @@
 
 </div>
 
+<div th:replace="~{common/footer :: footer}"></div>
 </body>
 </html>

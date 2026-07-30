@@ -7,7 +7,31 @@
         border: 1px solid #fee2e2;
         border-radius: 20px;
         box-shadow: 0 12px 35px #1f35521a
+}
+
+/* 07-30 상각: 탈퇴 사유 입력 안내와 문자 수 표시 */
+.withdraw-reason-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.withdraw-reason-count {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+@media (max-width: 640px) {
+    .withdraw-reason-meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
     }
+}
 
     .warn {
         padding: 16px;
