@@ -1,0 +1,57 @@
+/* feature-account-status.html 페이지 전용 스타일 */
+
+body {
+            font-family: sans-serif;
+            background: #f6f8fb;
+            color: #172033
+        }
+
+        .card {
+            max-width: 620px;
+            margin: 90px auto;
+            padding: 40px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px #1f35521a
+        }
+
+        .notice {
+            padding: 18px;
+            background: #fff1f2;
+            color: #b42338;
+            border-radius: 12px;
+            line-height: 1.7
+        }
+
+        .reason {
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-top: 18px
+        }
+
+        .guide {
+            color: #667085;
+            line-height: 1.7
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px
+        }
+
+        .buttons a {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #fff
+        }
+
+        .buttons .home {
+            background: #eef2f6;
+            color: #344054
+        }

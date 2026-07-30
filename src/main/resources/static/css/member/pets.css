@@ -1,0 +1,401 @@
+@charset "UTF-8";
+
+/*
+ * ?뚯썝 諛섎젮?숇Ъ 愿由??붾㈃ ?꾩슜 ?ㅽ??? * 湲곗〈 pets.html???몃씪??CSS瑜??좎?蹂댁닔?섍린 ?쎈룄濡?遺꾨━?덉뒿?덈떎.
+ */
+
+.pet-page {
+        max-width: 1024px;
+        margin: 52px auto 90px;
+        padding: 0 20px;
+        color: #172033;
+    }
+
+    .pet-page-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .pet-page-title h1 {
+        margin: 0;
+        font-size: 30px;
+    }
+
+    .pet-page-title p {
+        margin: 8px 0 0;
+        color: #718096;
+    }
+
+    .pet-page-title a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .pet-list {
+        display: grid;
+        grid-template-columns:
+            repeat(
+                auto-fit,
+                minmax(220px, 1fr)
+            );
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .pet-card {
+        min-width: 0;
+        background: #ffffff;
+        border: 1px solid #e6ebf2;
+        border-radius: 18px;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+        box-shadow:
+                0 8px 24px
+                rgba(31, 53, 82, 0.06);
+    }
+
+    .pet-card img,
+    .pet-image {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #eef7ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30px;
+    }
+
+    .pet-info {
+        min-width: 0;
+    }
+
+    .pet-info h2 {
+        margin: 0 0 6px;
+        font-size: 19px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .pet-info p {
+        margin: 3px 0;
+        color: #62718a;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .pet-action-buttons {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 8px;
+    }
+
+    .pet-delete-form {
+        flex: 1;
+        margin: 0;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        width: 100%;
+        border-radius: 9px;
+        padding: 9px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .edit-btn {
+        flex: 1;
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .delete-btn {
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .empty-pet {
+        padding: 25px;
+        background: #f8fafc;
+        border-radius: 16px;
+        color: #64748b;
+        margin-bottom: 25px;
+    }
+
+    .pet-form-card {
+        background: #ffffff;
+        border: 1px solid #dce8f7;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow:
+                0 12px 30px
+                rgba(31, 53, 82, 0.08);
+    }
+
+    .form-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #edf0f5;
+        margin-bottom: 20px;
+    }
+
+    .form-title h2 {
+        margin: 0 0 16px;
+    }
+
+    .reset-btn {
+        border: 0;
+        background: none;
+        color: #2563eb;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+        gap: 18px;
+    }
+
+    .form-grid label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .form-grid input,
+    .form-grid select {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #d8e0ec;
+        border-radius: 10px;
+        padding: 12px;
+        background: #ffffff;
+        font-size: 15px;
+    }
+
+    .form-grid input:focus,
+    .form-grid select:focus {
+        border-color: #2563eb;
+        outline: none;
+        box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, 0.12);
+    }
+
+    .form-grid input:invalid:not(:placeholder-shown) {
+        border-color: #f87171;
+    }
+
+    .input-guide {
+        color: #718096;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .save-btn {
+        margin-top: 22px;
+        width: 100%;
+        background: #2563eb;
+        color: #ffffff;
+        border: 0;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .save-message {
+        min-height: 20px;
+        margin: 14px 0 0;
+        color: #dc3545;
+        font-weight: 700;
+    }
+
+    .save-message.success {
+        color: #2563eb;
+    }
+
+    .pet-limit-guide {
+        margin: 0 0 18px;
+        padding: 12px 14px;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #1e40af;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .reset-btn:disabled,
+    .save-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+
+    @media (max-width: 760px) {
+        .pet-list {
+            grid-template-columns: 1fr;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .pet-page-title {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pet-form-card {
+            padding: 22px 18px;
+        }
+    }
+
+    /* 사이드바가 있는 마이페이지 화면에서도 반려동물 4마리를 한 줄로 표시합니다. */
+    .pet-layout-wrapper.mypage-shell .pet-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-card {
+        grid-template-columns: 58px minmax(0, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-card img,
+    .pet-layout-wrapper.mypage-shell .pet-image {
+        width: 58px;
+        height: 58px;
+        font-size: 26px;
+    }
+
+    @media (max-width: 1100px) {
+        .pet-layout-wrapper.mypage-shell .pet-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+    /* 마이페이지에서 진입했을 때만 사이드바 레이아웃을 적용합니다. */
+    .pet-layout-wrapper.pet-standalone-layout {
+        display: block;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-page.pet-page-mypage {
+        width: auto;
+        max-width: none;
+        min-width: 0;
+        margin: 0;
+        padding: 28px 24px 90px;
+    }
+
+    .pet-layout-wrapper.mypage-shell .pet-page-title {
+        margin-top: 0;
+    }
+
+    @media (max-width: 900px) {
+        .pet-layout-wrapper.mypage-shell .pet-page.pet-page-mypage {
+            padding: 24px 18px 70px;
+        }
+    }
+/* =========================================================
+   2026-07-29 반려동물 등록 화면 시각 개선
+   - 둥근 카드, 부드러운 그림자, 현대적인 파일 선택 UI
+   ========================================================= */
+
+.pet-form-section {
+    border: 1px solid #dce9ff;
+    border-radius: 26px;
+    background:
+        radial-gradient(circle at 92% 8%, rgba(255, 213, 115, 0.20), transparent 24%),
+        linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 18px 44px rgba(42, 91, 157, 0.11);
+}
+
+.pet-form-section::before {
+    content: "🐾";
+    position: absolute;
+    top: 22px;
+    right: 28px;
+    color: #ff9e3d;
+    font-size: 24px;
+    filter: drop-shadow(0 5px 8px rgba(255, 158, 61, 0.18));
+}
+
+/* 파일 입력 자체는 접근 가능한 상태로 유지하고 시각적으로만 숨깁니다. */
+.pet-file-picker {
+    position: relative;
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 7px 12px 7px 7px;
+    overflow: hidden;
+    border: 1px dashed #9dbff8;
+    border-radius: 14px;
+    background: #f7faff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pet-file-picker:hover,
+.pet-file-picker:focus-within {
+    border-color: #2f6df6;
+    box-shadow: 0 0 0 4px rgba(47, 109, 246, 0.10);
+    transform: translateY(-1px);
+}
+
+.pet-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.pet-file-button {
+    flex: 0 0 auto;
+    padding: 10px 17px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2f6df6 0%, #39a8f4 100%);
+    box-shadow: 0 8px 18px rgba(47, 109, 246, 0.20);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.pet-file-name {
+    min-width: 0;
+    overflow: hidden;
+    color: #64748b;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

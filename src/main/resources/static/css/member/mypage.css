@@ -1904,6 +1904,9 @@ body {
 
 .membership-card p {
     display: inline-flex;
+    position: relative;
+    z-index: 2;
+    max-width: calc(100% - 54px);
     margin-top: 10px;
     padding: 5px 9px;
     border: 1px solid #fed7aa;
@@ -2198,4 +2201,155 @@ body {
     .withdraw-link {
         transition: none;
     }
+}
+/* =========================================================
+   2026-07-29 회원 화면 시각 개선
+   - 다른 파트의 공통 CSS를 수정하지 않는 member 전용 덮어쓰기
+   ========================================================= */
+
+/*
+ * 전역 Quick Menu는 left 20px, width 130px로 고정되어 있습니다.
+ * 마이페이지는 왼쪽 170px을 전용 공간으로 비워 두어
+ * Quick Menu와 마이페이지 사이드바가 겹치지 않게 배치합니다.
+ */
+.mypage-shell {
+    /*
+     * 자유게시판의 본문 최대 폭 1300px에
+     * 마이페이지 전용 사이드바 180px을 더한 크기입니다.
+     */
+    width: min(calc(100% - 170px), 1480px) !important;
+    max-width: 1480px !important;
+    min-height: auto !important;
+    margin-right: 0 !important;
+    margin-left: 170px !important;
+    grid-template-columns: 180px minmax(0, 1fr) !important;
+    align-items: start !important;
+}
+
+.mypage-main {
+    width: 100% !important;
+    max-width: 1300px !important;
+    padding: 28px 24px 72px !important;
+    font-size: 15px;
+}
+
+/* 넓어진 마이페이지 본문 폭을 주요 카드가 모두 사용 */
+.mypage-main > .profile-summary-card,
+.mypage-main > .profile-edit-card,
+.mypage-main > .quick-menu-section {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* 사진이 없는 일반회원·SNS 회원에게 동일하게 표시되는 기본 프로필 */
+.default-profile-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* 멤버십 카드의 기존 이모지 대신 실제 사진 자산 사용 */
+.membership-dog {
+    position: absolute;
+    z-index: 1;
+    right: 10px;
+    bottom: 10px;
+    width: 52px;
+    height: 52px;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    border-radius: 17px;
+    box-shadow: 0 8px 20px rgba(20, 55, 105, 0.16);
+    object-fit: cover;
+    object-position: center;
+}
+
+@media (max-width: 1280px) {
+    .mypage-shell {
+        width: calc(100% - 170px) !important;
+        margin-left: 170px !important;
+    }
+}
+
+/* Quick Menu가 숨겨지는 모바일에서는 왼쪽 예약 공간도 함께 제거 */
+@media (max-width: 768px) {
+    .mypage-shell {
+        width: 100% !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* 화면 높이 강제로 생기던 빈 공간을 제거하고 푸터를 콘텐츠 바로 아래에 배치 */
+.mypage-shell + .site-footer {
+    margin-top: 0;
+}
+
+/* =========================================================
+   자유게시판 가독성 기준에 맞춘 회원 화면 글자 크기
+   ========================================================= */
+
+.mypage-sidebar .sidebar-item,
+.mypage-sidebar .sidebar-logout {
+    font-size: 14px;
+}
+
+.mypage-main .page-title,
+.mypage-main .pet-page-title h1 {
+    font-size: 30px;
+    line-height: 1.25;
+}
+
+.mypage-main .page-subtitle,
+.mypage-main .pet-page-title p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.mypage-main .hero-name {
+    font-size: 28px;
+}
+
+.mypage-main .section-title,
+.mypage-main .quick-menu-section h2,
+.mypage-main .pet-form-card h2 {
+    font-size: 20px;
+}
+
+.mypage-main .summary-label,
+.mypage-main .hero-meta-label,
+.mypage-main .field-label {
+    font-size: 12px;
+}
+
+.mypage-main .summary-value,
+.mypage-main .hero-meta-value,
+.mypage-main input,
+.mypage-main select,
+.mypage-main button {
+    font-size: 14px;
+}
+
+/*
+ * 멤버십 안내 문구는 한 줄로 작게 표시하고,
+ * 사진보다 위 레이어에 두어 글자가 가려지지 않게 합니다.
+ */
+.membership-card p {
+    z-index: 2;
+    max-width: none;
+    padding: 5px 7px;
+    font-size: 9px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.membership-dog {
+    z-index: 1;
+    right: 8px;
+    bottom: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
 }

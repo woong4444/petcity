@@ -1,0 +1,71 @@
+/* withdraw.html 페이지 전용 스타일 */
+
+.box {
+        max-width: 650px;
+        margin: 60px auto;
+        padding: 36px;
+        border: 1px solid #fee2e2;
+        border-radius: 20px;
+        box-shadow: 0 12px 35px #1f35521a
+    }
+
+    .warn {
+        padding: 16px;
+        background: #fff7ed;
+        color: #9a3412;
+        border-radius: 12px;
+        line-height: 1.7;
+        margin: 15px 0
+    }
+
+    .box label {
+        display: block;
+        font-weight: 800;
+        margin: 20px 0 8px
+    }
+
+    .box textarea, .box input {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #d4dce8;
+        border-radius: 10px
+    }
+
+    .box textarea {
+        min-height: 130px;
+        resize: vertical
+    }
+
+    .buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px
+    }
+
+    .buttons * {
+        flex: 1;
+        text-align: center;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 800;
+        text-decoration: none
+    }
+
+    .cancel {
+        background: #eef2f6;
+        color: #344054
+    }
+
+    .submit {
+        border: 0;
+        background: #dc2626;
+        color: #fff
+    }
+
+    .msg {
+        padding: 14px;
+        background: #fff1f2;
+        color: #b42338;
+        border-radius: 10px
+    }

@@ -5,52 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원정보 수정 | PetCity</title>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
-    <link rel="stylesheet" th:href="@{/css/member/mypage.css}">
-
-    <style>
-        /*
-         * 일반회원 회원정보 수정 화면 전용
-         * 최근 정보 수정 박스를 아래 입력 폼의 오른쪽 열 시작선에 맞춥니다.
-         */
-        .profile-form .form-title {
-            position: relative;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            column-gap: 16px;
-            align-items: start;
-        }
-
-        .profile-form .form-title > div:first-child {
-            grid-column: 1;
-        }
-
-        .profile-form .form-title .profile-meta-row {
-            grid-column: 2;
-            justify-self: start;
-            margin: 0;
-        }
-
-        .profile-form .form-title > small {
-            position: absolute;
-            top: 0;
-            right: 0;
-        }
-
-        @media (max-width: 760px) {
-            .profile-form .form-title {
-                grid-template-columns: 1fr;
-                row-gap: 12px;
-            }
-
-            .profile-form .form-title .profile-meta-row {
-                grid-column: 1;
-            }
-
-            .profile-form .form-title > small {
-                position: static;
-            }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/member/mypage.css(v='20260729-4')}">
+    <link rel="stylesheet" th:href="@{/css/common/footer.css(v='20260729-4')}">
+    <script defer th:src="@{/js/common/footer.js(v='20260729-4')}"></script>
+    <!-- member-info.html 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/member/pages/member-info.css}">
 </head>
 <body>
 <header th:replace="~{common/head :: head}"></header>
@@ -92,7 +51,11 @@
         <div class="membership-card">
             <strong>PetCity<br>멤버십 혜택</strong>
             <p>향후 서비스 예정</p>
-            <span class="membership-dog">🐕</span>
+            <!-- 회원 파트 기본 멤버십 이미지 -->
+            <img class="membership-dog"
+                 th:src="@{/images/member/membership-benefit-dog.png}"
+                 alt=""
+                 aria-hidden="true">
         </div>
     </aside>
 
@@ -113,7 +76,10 @@
                 <div class="hero-avatar profile-avatar-readonly">
                     <img th:if="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
                          th:src="${member.profileImage}" alt="프로필 사진">
-                    <span th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">🐶</span>
+                    <img class="default-profile-photo"
+                         th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
+                         th:src="@{/images/member/default-profile-dog.png}"
+                         alt="기본 프로필 이미지">
                 </div>
 
                 <div class="hero-copy">
@@ -172,10 +138,11 @@
                                      th:if="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
                                      th:src="${member.profileImage}"
                                      alt="프로필 사진 미리보기">
-                                <span id="profilePreviewFallback"
-                                      th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}">
-                                    🐶
-                                </span>
+                                <img id="profilePreviewFallback"
+                                     class="default-profile-photo"
+                                     th:unless="${member.profileImage != null and !#strings.isEmpty(member.profileImage)}"
+                                     th:src="@{/images/member/default-profile-dog.png}"
+                                     alt="기본 프로필 이미지">
                             </div>
 
                             <div class="profile-upload-actions">
@@ -391,6 +358,9 @@
         </section>
     </section>
 </main>
+
+<!-- 모든 일반 사용자 화면에서 사용하는 공통 하단 푸터 -->
+<div th:replace="~{common/footer :: footer}"></div>
 
 <script th:src="@{/js/common/head.js}"></script>
 <script th:src="@{/js/member/mypage.js}"></script>

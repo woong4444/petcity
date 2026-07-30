@@ -1,0 +1,101 @@
+/* recovery-code-email-complete.html 페이지 전용 스타일 */
+
+* {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f8fb;
+            color: #111827;
+        }
+
+        .page {
+            padding: 60px 20px 80px;
+        }
+
+        .card {
+
+            width: 100%;
+            max-width: 620px;
+
+            margin: 0 auto;
+
+            padding: 42px 38px;
+
+            background: #ffffff;
+
+            border-radius: 20px;
+
+            box-shadow: 0 12px 35px rgba(31, 53, 82, .10);
+
+            text-align: center;
+
+        }
+
+        .icon {
+
+            width: 58px;
+            height: 58px;
+
+            margin: 0 auto 22px;
+
+            border-radius: 50%;
+
+            background: #ecfdf3;
+
+            color: #039855;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 34px;
+            font-weight: bold;
+
+        }
+
+        h1 {
+
+            margin: 0 0 24px;
+
+            font-size: 30px;
+
+        }
+
+        .msg {
+
+            padding: 18px;
+
+            border-radius: 12px;
+
+            background: #ecfdf3;
+
+            color: #027a48;
+
+            font-weight: 700;
+
+            line-height: 1.8;
+
+        }
+
+        .button {
+
+            display: inline-block;
+
+            margin-top: 30px;
+
+            padding: 14px 28px;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+        }

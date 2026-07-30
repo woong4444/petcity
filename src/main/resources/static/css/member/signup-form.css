@@ -1,0 +1,52 @@
+@charset "UTF-8";
+
+/*
+ * ?쇰컲?뚯썝 媛?????꾩슜 蹂댁셿 ?ㅽ??? * 怨듯넻 signup.css??蹂寃쏀븯吏 ?딄퀬 ?섏씠吏 ?꾩슜 ?ㅽ??쇰쭔 遺꾨━?덉뒿?덈떎.
+ */
+
+.password-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-input-wrap .input {
+            width: 100%;
+            padding-right: 72px;
+            box-sizing: border-box;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .password-toggle-btn:hover {
+            text-decoration: underline;
+        }
+
+        .email-action-wrap {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .email-action-wrap .input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .resend-email-btn {
+            display: none;
+            margin-top: 10px;
+        }
+.email-check-btn {
+    margin-top: 10px;
+}

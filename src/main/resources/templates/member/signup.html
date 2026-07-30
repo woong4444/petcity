@@ -11,6 +11,13 @@
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
     <link rel="stylesheet" th:href="@{/css/member/signup.css}">
 
+    <!-- 메인 화면과 동일한 공통 하단 푸터 -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
+
 </head>
 
 <body>
@@ -125,6 +132,8 @@
 
 </section>
 
+<!-- ================= 공통 하단 푸터 ================= -->
+<div th:replace="~{common/footer :: footer}"></div>
 
 </body>
 </html>

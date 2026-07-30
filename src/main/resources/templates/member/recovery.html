@@ -6,74 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>탈퇴 취소 및 계정 복구 | PetCity</title>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
-    <style>
-        body {
-            background: #f6f8fb
-        }
-
-        .box {
-            max-width: 540px;
-            margin: 65px auto;
-            padding: 34px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 12px 35px #1f35521a
-        }
-
-        .box p {
-            color: #667085;
-            line-height: 1.7
-        }
-
-        .box label {
-            display: block;
-            font-weight: 700;
-            margin: 17px 0 7px
-        }
-
-        .box input {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 13px;
-            border: 1px solid #d4dce8;
-            border-radius: 10px
-        }
-
-        .box button {
-            width: 100%;
-            margin-top: 24px;
-            padding: 14px;
-            border: 0;
-            border-radius: 10px;
-            background: #0f766e;
-            color: #fff;
-            font-weight: 800
-        }
-
-        .msg {
-            padding: 14px;
-            background: #fff1f2;
-            color: #b42338;
-            border-radius: 10px
-        }
-
-        .note {
-            padding: 14px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            border-radius: 10px
-        }
-
-        .help {
-            margin: 7px 0 0;
-            font-size: 14px
-        }
-
-        .email-link {
-            text-align: center;
-            margin-top: 18px
-        }
-    </style>
+    <!-- recovery.html 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/member/pages/recovery.css}">
 </head>
 <body>
 <header th:replace="~{common/head :: head}"></header>
@@ -108,37 +42,12 @@
         모르시나요? 이메일로 새 코드 받기</a></p>
 </main>
 <script th:inline="javascript">
-    const initialSns = /*[[${snsRecovery}]]*/ false;
-    const verifiedEmailRecovery = /*[[${verifiedEmailRecovery}]]*/ false;
-    const idInput = document.getElementById('loginId');
-    const snsNote = document.getElementById('snsNote');
-    const localNote = document.getElementById('localNote');
-    const snsHelp = document.getElementById('snsHelp');
-    const label = document.getElementById('loginIdLabel');
-    const accountType = document.getElementById('accountType');
-    const recoveryEmailLink = document.getElementById('recoveryEmailLink');
-
-    function syncType() {
-        if (verifiedEmailRecovery) {
-            label.hidden = true;
-            idInput.hidden = true;
-            snsHelp.hidden = true;
-            return;
-        }
-        // 상각_07-19: 일반회원도 이메일을 입력하므로 '@' 문자로 SNS를 추정하지 않음
-        const sns = initialSns;
-        accountType.value = sns ? 'sns' : 'local';
-        recoveryEmailLink.href = sns ? '/member/recovery-code-email?type=sns' : '/member/recovery-code-email?type=local';
-        snsNote.hidden = !sns;
-        localNote.hidden = sns;
-        snsHelp.hidden = !sns;
-        label.textContent = sns ? 'SNS 등록 이메일' : '등록 이메일';
-        idInput.placeholder = sns ? 'SNS 가입에 사용한 이메일 주소' : '가입 시 등록한 이메일 주소';
-    }
-
-    idInput.addEventListener('input', syncType);
-    idInput.addEventListener('change', syncType);
-    syncType();
+    // Thymeleaf 서버 상태만 외부 자바스크립트에 전달합니다.
+    window.petcityRecovery = {
+        initialSns: /*[[${snsRecovery}]]*/ false,
+        verifiedEmailRecovery: /*[[${verifiedEmailRecovery}]]*/ false
+    };
 </script>
+<script th:src="@{/js/member/recovery.js}"></script>
 </body>
 </html>

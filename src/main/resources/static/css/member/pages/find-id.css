@@ -1,0 +1,71 @@
+/* find-id.html 페이지 전용 스타일 */
+
+body {
+        background: #f6f8fb
+    }
+
+    .box {
+        max-width: 520px;
+        margin: 70px auto;
+        padding: 34px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 12px 35px #1f35521a
+    }
+
+    .box h1 {
+        margin-top: 0
+    }
+
+    .box p {
+        color: #667085;
+        line-height: 1.6
+    }
+
+    .box label {
+        display: block;
+        font-weight: 700;
+        margin: 18px 0 7px
+    }
+
+    .box input {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #d4dce8;
+        border-radius: 10px
+    }
+
+    .box button {
+        width: 100%;
+        margin-top: 24px;
+        padding: 14px;
+        border: 0;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        font-weight: 800
+    }
+
+    .msg {
+        padding: 14px;
+        margin: 18px 0;
+        border-radius: 10px;
+        background: #fff1f2;
+        color: #b42338
+    }
+
+    .result {
+        background: #ecfdf3;
+        color: #067647
+    }
+
+    .links {
+        margin-top: 22px;
+        text-align: center
+    }
+
+    .links a {
+        color: #2563eb;
+        text-decoration: none
+    }
