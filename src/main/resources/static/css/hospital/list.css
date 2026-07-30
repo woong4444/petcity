@@ -11,7 +11,6 @@ body {
     box-sizing: border-box;
 }
 
-/* 🌟 핵심 수정: 기존 우측 패딩 180px을 40px로 수정하여 우측 쏠림 해결 및 '병원장 신청' 라인에 정렬 */
 .hospital-list-wrap {
     max-width: 1440px;
     margin: 0 auto;
@@ -379,7 +378,7 @@ body {
     border-radius: 18px;
     overflow: hidden;
     position: relative;
-    background: linear-gradient(135deg, #e0f2fe, #f0fdfa);
+    background-color: #f8fafc;
     border: 1px solid #e5e7eb;
 }
 
@@ -630,17 +629,6 @@ body {
     border-color: #e5e7eb;
 }
 
-.page-item .page-link.single-arrow, .page-item .page-link.double-arrow {
-    font-family: Consolas, monospace;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.page-item .page-link.double-arrow {
-    letter-spacing: -2px;
-    padding-right: 2px;
-}
-
 .location-modal {
     position: fixed;
     top: 0;
@@ -773,7 +761,7 @@ body {
 
 @media (max-width: 1400px) {
     .hospital-list-wrap {
-        padding: 40px 40px 70px 40px; /* 기존의 작은 해상도 미디어 쿼리도 균일하게 조정 */
+        padding: 40px 40px 70px 40px;
     }
 }
 
@@ -1012,6 +1000,8 @@ body {
     margin-bottom: 24px;
     text-align: left;
     border: 1px solid #e2e8f0;
+    max-height: 160px;
+    overflow-y: auto;
 }
 
 .suspend-notice-label {
@@ -1027,7 +1017,26 @@ body {
     margin: 0;
     line-height: 1.6;
     white-space: pre-wrap;
-    word-break: keep-all;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+.suspend-notice-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.suspend-notice-box::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.suspend-notice-box::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+
+.suspend-notice-box::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .suspend-warning {
@@ -1062,51 +1071,4 @@ body {
 .btn-suspend-yes {
     background: #0ea5e9;
     color: #fff;
-}
-
-.suspend-notice-box {
-    background: #f8fafc;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 24px;
-    text-align: left;
-    border: 1px solid #e2e8f0;
-    max-height: 160px;
-    overflow-y: auto;
-}
-
-.suspend-notice-label {
-    display: block;
-    font-size: 13px;
-    color: #64748b;
-    margin-bottom: 8px;
-}
-
-.suspend-notice-text {
-    font-size: 14px;
-    color: #334155;
-    margin: 0;
-    line-height: 1.6;
-    white-space: pre-wrap;
-
-    word-break: break-all;
-    overflow-wrap: break-word;
-}
-
-.suspend-notice-box::-webkit-scrollbar {
-    width: 6px;
-}
-
-.suspend-notice-box::-webkit-scrollbar-track {
-    background: #f8fafc;
-    border-radius: 8px;
-}
-
-.suspend-notice-box::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 8px;
-}
-
-.suspend-notice-box::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
 }

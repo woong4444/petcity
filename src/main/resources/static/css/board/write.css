@@ -616,9 +616,9 @@ body {
 }
 
 .board-type-QNA {
-    --board-accent: #19a7b8;
-    --board-soft: #edfafd;
-    --board-line: #bdebf1;
+    --board-accent: #22a879;
+    --board-soft: #f0fbf4;
+    --board-line: #c7edd6;
 }
 
 .board-type-FREE {
@@ -971,4 +971,85 @@ body {
     width: 100%;
     margin-top: 18px;
     box-sizing: border-box;
+}
+
+/* 글쓰기 하단 버튼: 게시판별 테마 색상 적용 */
+.board-page--write .write-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin: 0;
+    padding: 20px 24px 24px;
+    border-top: 1px solid var(--board-line);
+    background: linear-gradient(
+            180deg,
+            #ffffff 0%,
+            var(--board-soft) 100%
+    );
+}
+
+.board-page--write .cancel-button,
+.board-page--write .submit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    height: 46px;
+    padding: 0 22px;
+    border-radius: 11px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease,
+    background 0.18s ease, border-color 0.18s ease;
+}
+
+/* 취소 버튼 */
+.board-page--write .cancel-button {
+    border: 1px solid var(--board-line);
+    color: var(--board-accent);
+    background: #ffffff;
+}
+
+.board-page--write .cancel-button:hover {
+    border-color: var(--board-accent);
+    background: var(--board-soft);
+    transform: translateY(-1px);
+}
+
+/* 등록 버튼 */
+.board-page--write .submit-button {
+    border: 1px solid var(--board-accent);
+    color: #ffffff;
+    background: var(--board-accent);
+    box-shadow: 0 8px 16px
+    color-mix(in srgb, var(--board-accent) 28%, transparent);
+}
+
+.board-page--write .submit-button:hover {
+    background: var(--board-accent);
+    filter: brightness(0.92);
+    box-shadow: 0 11px 20px
+    color-mix(in srgb, var(--board-accent) 35%, transparent);
+    transform: translateY(-1px);
+}
+
+.board-page--write .cancel-button:focus-visible,
+.board-page--write .submit-button:focus-visible {
+    outline: 3px solid
+    color-mix(in srgb, var(--board-accent) 28%, transparent);
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .board-page--write .write-buttons {
+        padding: 16px;
+    }
+
+    .board-page--write .cancel-button,
+    .board-page--write .submit-button {
+        flex: 1;
+        min-width: 0;
+    }
 }

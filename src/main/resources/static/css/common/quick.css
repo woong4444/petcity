@@ -1,16 +1,8 @@
 @charset "UTF-8";
 
-/* ========================================
-   전역 퀵메뉴
-======================================== */
-
 .quick-menu {
     position: fixed;
 
-    /*
-     * 자바스크립트 실행 전 기본 위치입니다.
-     * 데스크톱 공통 헤더 높이 216px + 여백 16px
-     */
     top: 232px;
     left: 20px;
 
@@ -22,9 +14,7 @@
 
     background: #ffffff;
 
-    box-shadow:
-            0 10px 25px
-            rgba(0, 0, 0, 0.06);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
 
     text-align: center;
 
@@ -32,14 +22,9 @@
 
     box-sizing: border-box;
 
-    transition:
-            top 0.12s ease;
+    transition: top 0.12s ease;
 }
 
-
-/* ========================================
-   퀵메뉴 제목
-======================================== */
 
 .quick-title {
     margin-bottom: 12px;
@@ -53,10 +38,6 @@
     font-weight: 900;
 }
 
-
-/* ========================================
-   기본 메뉴 목록
-======================================== */
 
 .quick-list {
     margin: 0 0 12px;
@@ -87,20 +68,14 @@
 
     text-decoration: none;
 
-    transition:
-            color 0.2s ease,
-            background-color 0.2s ease;
+    transition: color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .quick-list a:hover {
     background: #f1f5f9;
     color: #0ea5e9;
 }
-
-
-/* ========================================
-   최근 본 병원
-======================================== */
 
 .quick-recent-box {
     margin-top: 15px;
@@ -180,10 +155,6 @@
 }
 
 
-/* ========================================
-   맨 위로 이동
-======================================== */
-
 .btn-top {
     width: 100%;
     height: 32px;
@@ -201,18 +172,13 @@
 
     cursor: pointer;
 
-    transition:
-            background-color 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .btn-top:hover {
     background: #0f172a;
 }
 
-
-/* ========================================
-   작은 화면에서는 퀵메뉴 숨김
-======================================== */
 
 @media (max-width: 768px) {
     .quick-menu {

@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>동물병원 찾기 - PetCity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- 🌟 수정된 부분: AJAX POST 요청(찜 기능)을 위한 CSRF 토큰 추가 -->
     <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
 
@@ -21,7 +19,6 @@
         <p class="page-badge">PetCity Hospital Finder</p>
         <h1>어떤 동물병원을 찾으시나요?</h1>
         <div class="hospital-search-form">
-            <!-- 🌟 수정: '등 검색어' 글자 제거 -->
             <input type="text" form="hospitalFilterForm" name="keyword" id="mainKeywordInput" th:value="${keyword}"
                    placeholder="병원명, 지역, 동물 종류 입력">
             <button type="submit" form="hospitalFilterForm">검색</button>
@@ -311,7 +308,6 @@
             </article>
         </section>
 
-        <!-- 페이징 래퍼 -->
         <div class="pagination-wrap" th:if="${pageDto != null and pageDto.totalPages > 1}">
             <ul class="pagination">
                 <li th:class="${pageDto.page == 1} ? 'page-item disabled' : 'page-item'"><a class="page-link" href="#"
@@ -333,19 +329,15 @@
         </div>
     </div>
 
-    <!-- 🚨 휴업 병원 전용 안내 모달 -->
     <div id="suspendModal" class="location-modal">
         <div class="location-modal-content suspend-modal-content">
             <div class="suspend-icon">🚨</div>
             <h3 class="suspend-title">해당 병원은 휴업입니다.</h3>
-
             <div class="suspend-notice-box">
                 <strong class="suspend-notice-label">[휴업 사유]</strong>
                 <p id="suspendNoticeText" class="suspend-notice-text"></p>
             </div>
-
             <p class="suspend-warning">그래도 병원 정보를 열람하시겠습니까?</p>
-
             <div class="suspend-btn-group">
                 <button type="button" id="btnSuspendNo" class="btn-suspend-no">아니오</button>
                 <button type="button" id="btnSuspendYes" class="btn-suspend-yes">예, 열람합니다</button>
@@ -377,6 +369,42 @@
 <script type="text/javascript"
         src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
 <script th:src="@{/js/hospital/list.js?v=37}"></script>
+
+<script>
+    function forceSortCardsOnScreen() {
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect && sortSelect.value !== 'distance') return; // 거리순일 때만 발동
+
+        const listContainer = document.querySelector('.hospital-card-list');
+        if (!listContainer) return;
+
+        const cards = Array.from(listContainer.querySelectorAll('.hospital-card'));
+
+        cards.sort((a, b) => {
+            const textA = a.querySelector('.h-distance strong')?.textContent || '99999';
+            const textB = b.querySelector('.h-distance strong')?.textContent || '99999';
+            const distA = parseFloat(textA.replace(/[^0-9.]/g, '')) || 99999;
+            const distB = parseFloat(textB.replace(/[^0-9.]/g, '')) || 99999;
+            return distA - distB;
+        });
+
+        // 화면에서 0.1초만에 재배열
+        cards.forEach(card => listContainer.appendChild(card));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const listContainer = document.querySelector('.hospital-card-list');
+        if (listContainer) {
+            // 카카오맵이 주소를 추적해 글씨를 바꾸면 그 즉시 순서를 맞춥니다
+            const observer = new MutationObserver(() => {
+                clearTimeout(window.magicSortTimer);
+                window.magicSortTimer = setTimeout(forceSortCardsOnScreen, 150);
+            });
+            observer.observe(listContainer, {childList: true, subtree: true, characterData: true});
+        }
+        setTimeout(forceSortCardsOnScreen, 500);
+    });
+</script>
 
 <div th:replace="~{common/footer :: footer}"></div>
 </body>

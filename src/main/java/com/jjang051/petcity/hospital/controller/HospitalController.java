@@ -38,7 +38,7 @@ public class HospitalController {
     public String hospitalList(@RequestParam(name = "page", defaultValue = "1") String pageParam,
                                @RequestParam(required = false) Integer animalId,
                                @RequestParam(required = false) Integer subAnimalId,
-                               @RequestParam(required = false) List<String> subjects, // 🌟 진료과목 추가
+                               @RequestParam(required = false) List<String> subjects,
                                @RequestParam(required = false) List<Integer> serviceIds,
                                @RequestParam(required = false) List<String> districts,
                                @RequestParam(required = false) String keyword,
@@ -56,10 +56,10 @@ public class HospitalController {
         model.addAttribute("animalTypeList", pageDto.getAnimalTypeList());
         model.addAttribute("subAnimalTypeList", pageDto.getSubAnimalTypeList());
         model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList());
-        model.addAttribute("medicalSubjectList", pageDto.getMedicalSubjectList()); // 🌟 추가
+        model.addAttribute("medicalSubjectList", pageDto.getMedicalSubjectList());
         model.addAttribute("animalId", pageDto.getAnimalId());
         model.addAttribute("subAnimalId", pageDto.getSubAnimalId());
-        model.addAttribute("subjects", pageDto.getSubjects()); // 🌟 추가
+        model.addAttribute("subjects", pageDto.getSubjects());
         model.addAttribute("serviceIds", pageDto.getServiceIds());
         model.addAttribute("districts", pageDto.getDistricts());
         model.addAttribute("keyword", pageDto.getKeyword());
@@ -68,7 +68,7 @@ public class HospitalController {
         model.addAttribute("pageDto", pageDto);
 
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if(loginMember != null) {
+        if (loginMember != null) {
             model.addAttribute("myZzimList", hospitalService.getMyZzimList(loginMember.getMemberId().intValue()));
             model.addAttribute("myLikeList", hospitalService.getMyLikeList(loginMember.getMemberId().intValue()));
         }
@@ -79,7 +79,7 @@ public class HospitalController {
     public String hospitalListAjax(@RequestParam(name = "page", defaultValue = "1") String pageParam,
                                    @RequestParam(required = false) Integer animalId,
                                    @RequestParam(required = false) Integer subAnimalId,
-                                   @RequestParam(required = false) List<String> subjects, // 🌟 진료과목 추가
+                                   @RequestParam(required = false) List<String> subjects,
                                    @RequestParam(required = false) List<Integer> serviceIds,
                                    @RequestParam(required = false) List<String> districts,
                                    @RequestParam(required = false) String keyword,
@@ -97,13 +97,13 @@ public class HospitalController {
         model.addAttribute("animalTypeList", pageDto.getAnimalTypeList());
         model.addAttribute("subAnimalTypeList", pageDto.getSubAnimalTypeList());
         model.addAttribute("medicalServiceList", pageDto.getMedicalServiceList());
-        model.addAttribute("medicalSubjectList", pageDto.getMedicalSubjectList()); // 🌟 추가
+        model.addAttribute("medicalSubjectList", pageDto.getMedicalSubjectList());
         model.addAttribute("pageDto", pageDto);
         model.addAttribute("sort", sort);
         model.addAttribute("openStatus", openStatus);
 
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if(loginMember != null) {
+        if (loginMember != null) {
             model.addAttribute("myZzimList", hospitalService.getMyZzimList(loginMember.getMemberId().intValue()));
             model.addAttribute("myLikeList", hospitalService.getMyLikeList(loginMember.getMemberId().intValue()));
         }
@@ -116,7 +116,7 @@ public class HospitalController {
         List<HospitalReviewDto> reviewList = hospitalService.getReviewList(hospitalId);
         boolean isZzim = false;
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if(loginMember != null) isZzim = hospitalService.isZzim(hospitalId, loginMember.getMemberId().intValue());
+        if (loginMember != null) isZzim = hospitalService.isZzim(hospitalId, loginMember.getMemberId().intValue());
 
         model.addAttribute("hospital", hospital);
         model.addAttribute("reviewList", reviewList);
@@ -129,10 +129,15 @@ public class HospitalController {
     public Map<String, Object> toggleZzim(@RequestParam("hospitalId") int hospitalId, HttpSession session) {
         Map<String, Object> resultMap = new HashMap<>();
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if(loginMember == null) { resultMap.put("isSuccess", false); return resultMap; }
+        if (loginMember == null) {
+            resultMap.put("isSuccess", false);
+            return resultMap;
+        }
         boolean currentZzimStatus = hospitalService.toggleZzim(hospitalId, loginMember.getMemberId().intValue());
         HospitalDto h = hospitalService.getHospitalById(hospitalId, null, null);
-        resultMap.put("isSuccess", true); resultMap.put("isZzim", currentZzimStatus); resultMap.put("zzimCount", h.getZzimCount());
+        resultMap.put("isSuccess", true);
+        resultMap.put("isZzim", currentZzimStatus);
+        resultMap.put("zzimCount", h.getZzimCount());
         return resultMap;
     }
 
@@ -141,19 +146,27 @@ public class HospitalController {
     public Map<String, Object> toggleLike(@RequestParam("hospitalId") int hospitalId, HttpSession session) {
         Map<String, Object> resultMap = new HashMap<>();
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if(loginMember == null) { resultMap.put("isSuccess", false); return resultMap; }
+        if (loginMember == null) {
+            resultMap.put("isSuccess", false);
+            return resultMap;
+        }
         boolean isLike = hospitalService.toggleLike(hospitalId, loginMember.getMemberId().intValue());
         HospitalDto h = hospitalService.getHospitalById(hospitalId, null, null);
-        resultMap.put("isSuccess", true); resultMap.put("isLike", isLike); resultMap.put("likeCount", h.getLikeCount());
+        resultMap.put("isSuccess", true);
+        resultMap.put("isLike", isLike);
+        resultMap.put("likeCount", h.getLikeCount());
         return resultMap;
     }
 
     @PostMapping("/api/review")
     @ResponseBody
-    public Map<String, Object> addReview(@RequestParam("hospitalId") int hospitalId, @RequestParam("rating") int rating, @RequestParam("content") String content, @RequestParam(value="petId", required=false) Integer petId, HttpSession session) {
+    public Map<String, Object> addReview(@RequestParam("hospitalId") int hospitalId, @RequestParam("rating") int rating, @RequestParam("content") String content, @RequestParam(value = "petId", required = false) Integer petId, HttpSession session) {
         Map<String, Object> resultMap = new HashMap<>();
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-        if(loginMember == null) { resultMap.put("isSuccess", false); return resultMap; }
+        if (loginMember == null) {
+            resultMap.put("isSuccess", false);
+            return resultMap;
+        }
         HospitalReviewDto review = HospitalReviewDto.builder().hospitalId(hospitalId).memberId(loginMember.getMemberId().intValue()).rating(rating).content(content).petId(petId).build();
         hospitalService.insertReview(review);
         resultMap.put("isSuccess", true);
@@ -166,7 +179,7 @@ public class HospitalController {
         Map<String, Object> resultMap = new HashMap<>();
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
 
-        if(loginMember == null) {
+        if (loginMember == null) {
             resultMap.put("isSuccess", false);
             return resultMap;
         }
@@ -193,9 +206,7 @@ public class HospitalController {
     }
 
     @PostMapping("/review/delete")
-    public String deleteReview(@RequestParam("reviewId") int reviewId,
-                               @RequestParam("hospitalId") int hospitalId,
-                               HttpSession session) {
+    public String deleteReview(@RequestParam("reviewId") int reviewId, @RequestParam("hospitalId") int hospitalId, HttpSession session) {
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
         if (loginMember != null) {
             hospitalService.deleteReview(reviewId);
@@ -206,10 +217,7 @@ public class HospitalController {
     @GetMapping("/search")
     public String customSearch(HttpSession session, Model model) {
         MemberDto loginMember = (MemberDto) session.getAttribute("loginMember");
-
-        if (loginMember == null) {
-            return "redirect:/member/login";
-        }
+        if (loginMember == null) return "redirect:/member/login";
 
         model.addAttribute("districtList", hospitalService.getDistrictList());
         model.addAttribute("animalTypeList", hospitalService.getAnimalTypeList());

@@ -127,20 +127,13 @@
     font-size: 12px;
 }
 
-.site-footer__hours {
-    align-self: end;
-    padding-left: 28px;
-    border-left: 1px solid #e1e8f0;
-}
-
 .site-footer__hours h3 {
     margin: 0 0 14px;
     color: #26364e;
     font-size: 15px;
 }
 
-.site-footer__hours dl,
-.site-footer__hours dd {
+.site-footer__hours dl, .site-footer__hours dd {
     margin: 0;
 }
 
@@ -171,8 +164,7 @@
         padding: 0 20px;
     }
 
-    .site-footer__top,
-    .site-footer__body {
+    .site-footer__top, .site-footer__body {
         display: block;
     }
 
@@ -187,14 +179,16 @@
     }
 
     .site-footer__hours {
-        align-self: start; /* end → start로 변경 */
+        align-self: start;
         padding-left: 28px;
         border-left: 1px solid #e1e8f0;
     }
 }
 
-/* 이용 안내는 현재 가로 위치를 유지하고 위로만 이동 */
 .site-footer__hours {
+    align-self: end;
+    padding-left: 28px;
+    border-left: 1px solid #e1e8f0;
     transform: translateY(-110px);
 }
 
