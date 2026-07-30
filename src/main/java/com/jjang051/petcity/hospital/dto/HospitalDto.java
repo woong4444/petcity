@@ -28,9 +28,8 @@ public class HospitalDto {
     private Object createdAt;
     private Object updatedAt;
 
-    private String tempCloseReason; // 🌟 추가된 휴업 사유 필드
+    private String tempCloseReason;
 
-    // 조인 및 계산용 추가 필드
     private String ownerName;
     private String medicalSubjects;
     private String animalNames;

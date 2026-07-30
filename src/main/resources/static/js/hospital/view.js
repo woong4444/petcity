@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
         if (typeof hId !== 'undefined' && typeof hName !== 'undefined' && hId > 0) {
-            // 🌟 수정됨: 로그인 아이디를 가져와서 스토리지 키 생성
             const memberIdElem = document.getElementById('globalLoginMemberId');
             const memberId = memberIdElem ? memberIdElem.value : 'guest';
             const storageKey = 'petcity_recent_' + memberId;
@@ -19,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
             recentHospitals.unshift(currentHospital);
             recentHospitals = recentHospitals.slice(0, 3);
 
-            // 🌟 수정됨: 아이디가 포함된 키로 저장
             localStorage.setItem(storageKey, JSON.stringify(recentHospitals));
 
             if (typeof renderGlobalRecentHospitals === 'function') {

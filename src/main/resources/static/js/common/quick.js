@@ -7,13 +7,6 @@ document.addEventListener(
 );
 
 
-/* ========================================
-   퀵메뉴 위치 설정
-
-   페이지 상단에서는 헤더 바로 아래에 표시하고,
-   스크롤로 헤더가 사라지면 화면 위쪽에 고정합니다.
-======================================== */
-
 function initQuickMenuPosition() {
     const quickMenu = document.querySelector(
         ".quick-menu"
@@ -76,10 +69,6 @@ function initQuickMenuPosition() {
 }
 
 
-/* ========================================
-   최근 본 병원 렌더링
-======================================== */
-
 function renderGlobalRecentHospitals() {
     const recentBox = document.getElementById(
         "quickRecentList"
@@ -89,7 +78,6 @@ function renderGlobalRecentHospitals() {
         return;
     }
 
-    // 🌟 수정됨: 로그인 아이디를 가져와서 스토리지 키 연결
     const memberIdElem = document.getElementById('globalLoginMemberId');
     const memberId = memberIdElem ? memberIdElem.value : 'guest';
     const storageKey = 'petcity_recent_' + memberId;

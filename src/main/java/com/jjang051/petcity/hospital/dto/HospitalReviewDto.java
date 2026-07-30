@@ -17,8 +17,6 @@ public class HospitalReviewDto {
     private int rating;
     private String content;
     private Date createdAt;
-
-    // 🌟 오라클 DB에서 직접 'YYYY-MM-DD HH24:MI:SS' 로 포맷팅해서 넘겨주는 한국 시간을 받을 변수
     private String formattedCreatedAt;
 
     private String nickname;

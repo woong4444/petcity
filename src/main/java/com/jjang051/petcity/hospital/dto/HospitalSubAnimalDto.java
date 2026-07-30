@@ -13,5 +13,5 @@ public class HospitalSubAnimalDto {
     private int animalId;
     private String animalName;
     private String category;
-    private Integer parentId; // 병원 페이지에서만 사용할 부모 아이디 필드
+    private Integer parentId;
 }

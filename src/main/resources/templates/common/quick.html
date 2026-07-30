@@ -6,7 +6,6 @@
 <aside th:fragment="quick"
        class="quick-menu">
 
-    <!-- 🌟 신규 추가됨: 현재 로그인한 회원 아이디 (JS에서 사용) -->
     <input type="hidden" id="globalLoginMemberId" th:value="${session.loginMember != null ? session.loginMember.memberId : 'guest'}">
 
     <div class="quick-title">

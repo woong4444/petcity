@@ -184,7 +184,6 @@
     </form>
 </main>
 
-<!-- 🚨 휴업 병원 전용 안내 모달 추가 -->
 <div id="suspendModal" class="location-modal" style="display: none;">
     <div class="location-modal-content suspend-modal-content">
         <div class="suspend-icon">🚨</div>
@@ -204,7 +203,6 @@
     </div>
 </div>
 
-<!-- 🗺️ 지도 및 위치 변경 모달 추가 -->
 <div id="locationModal" class="location-modal" style="display: none;">
     <div class="location-modal-content">
         <div class="location-modal-header">
@@ -238,7 +236,8 @@
         }
     }
 </script>
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
+<script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
 <script th:src="@{/js/hospital/search.js?v=7}"></script>
 
 <div th:replace="~{common/footer :: footer}"></div>

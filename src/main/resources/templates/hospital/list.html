@@ -230,7 +230,6 @@
                             </h2>
 
                             <div class="rating-wrap">
-                                <!-- 🌟 카카오맵으로 주소를 추적하도록 다시 복원했습니다. -->
                                 <p class="h-distance rating-dist-margin"
                                    th:if="${hospital.distance != null and hospital.distance > 0 and hospital.distance < 500}">
                                     <strong th:text="${#numbers.formatDecimal(hospital.distance, 1, 1)}"></strong>km
@@ -330,7 +329,6 @@
         </div>
     </div>
 
-    <!-- 휴업 병원 모달 -->
     <div id="suspendModal" class="location-modal">
         <div class="location-modal-content suspend-modal-content">
             <div class="suspend-icon">🚨</div>
@@ -372,7 +370,6 @@
         src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ea637ceb58090d7af6bec0dd39b0cddd&libraries=services"></script>
 <script th:src="@{/js/hospital/list.js?v=37}"></script>
 
-<!-- 🔥 발표 무사통과를 위한 매직 스크립트: 화면에 뜨는 즉시 순서를 정렬해줍니다 -->
 <script>
     function forceSortCardsOnScreen() {
         const sortSelect = document.getElementById('sortSelect');
@@ -403,7 +400,7 @@
                 clearTimeout(window.magicSortTimer);
                 window.magicSortTimer = setTimeout(forceSortCardsOnScreen, 150);
             });
-            observer.observe(listContainer, { childList: true, subtree: true, characterData: true });
+            observer.observe(listContainer, {childList: true, subtree: true, characterData: true});
         }
         setTimeout(forceSortCardsOnScreen, 500);
     });

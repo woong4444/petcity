@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +33,6 @@ public class HospitalUpdateService {
 
     @Value("${file.upload}")
     private String uploadPath;
-
 
     public List<HospitalDto> getHospitalsByOwnerId(int ownerId) {
         return hospitalUpdateDao.findHospitalsByOwnerId(ownerId);
@@ -60,200 +58,89 @@ public class HospitalUpdateService {
         return hospitalUpdateDao.findSubjectIdsByHospitalId(hospitalId);
     }
 
-
     @Transactional
-    public void updateDirectHospitalInfo(
-            HospitalDirectUpdateDto directUpdateDto
-    ) {
-
-        if (directUpdateDto == null) {
-            throw new IllegalArgumentException("수정할 병원 정보가 없습니다.");
-        }
-
-        validateHospitalOwner(
-                directUpdateDto.getHospitalId(),
-                directUpdateDto.getMemberId()
-        );
-
+    public void updateDirectHospitalInfo(HospitalDirectUpdateDto directUpdateDto) {
+        if (directUpdateDto == null) throw new IllegalArgumentException("수정할 병원 정보가 없습니다.");
+        validateHospitalOwner(directUpdateDto.getHospitalId(), directUpdateDto.getMemberId());
         validateDirectTextFields(directUpdateDto);
         validateOperatingTime(directUpdateDto);
 
-        int updated = hospitalUpdateDao.updateDirectHospitalInfo(
-                directUpdateDto
-        );
+        int updated = hospitalUpdateDao.updateDirectHospitalInfo(directUpdateDto);
+        if (updated != 1) throw new IllegalStateException("병원 정보를 수정할 수 없습니다.");
 
-        if (updated != 1) {
-            throw new IllegalStateException("병원 정보를 수정할 수 없습니다.");
-        }
+        hospitalUpdateDao.deleteHospitalAnimals(directUpdateDto.getHospitalId());
+        for (Integer animalId : normalizeIds(directUpdateDto.getAnimalIds()))
+            hospitalUpdateDao.insertHospitalAnimal(directUpdateDto.getHospitalId(), animalId);
 
-        hospitalUpdateDao.deleteHospitalAnimals(
-                directUpdateDto.getHospitalId()
-        );
+        hospitalUpdateDao.deleteHospitalServices(directUpdateDto.getHospitalId());
+        for (Integer serviceId : normalizeIds(directUpdateDto.getServiceIds()))
+            hospitalUpdateDao.insertHospitalService(directUpdateDto.getHospitalId(), serviceId);
 
-        for (Integer animalId : normalizeIds(
-                directUpdateDto.getAnimalIds()
-        )) {
-            hospitalUpdateDao.insertHospitalAnimal(
-                    directUpdateDto.getHospitalId(),
-                    animalId
-            );
-        }
+        hospitalUpdateDao.deleteHospitalMedicalSubjects(directUpdateDto.getHospitalId());
+        for (Integer subjectId : normalizeIds(directUpdateDto.getSubjectIds()))
+            hospitalUpdateDao.insertHospitalMedicalSubject(directUpdateDto.getHospitalId(), subjectId);
 
-        hospitalUpdateDao.deleteHospitalServices(
-                directUpdateDto.getHospitalId()
-        );
-
-        for (Integer serviceId : normalizeIds(
-                directUpdateDto.getServiceIds()
-        )) {
-            hospitalUpdateDao.insertHospitalService(
-                    directUpdateDto.getHospitalId(),
-                    serviceId
-            );
-        }
-
-        hospitalUpdateDao.deleteHospitalMedicalSubjects(
-                directUpdateDto.getHospitalId()
-        );
-
-        for (Integer subjectId : normalizeIds(
-                directUpdateDto.getSubjectIds()
-        )) {
-            hospitalUpdateDao.insertHospitalMedicalSubject(
-                    directUpdateDto.getHospitalId(),
-                    subjectId
-            );
-        }
-
-        hospitalUpdateDao.updateMedicalSubjectText(
-                directUpdateDto.getHospitalId()
-        );
+        hospitalUpdateDao.updateMedicalSubjectText(directUpdateDto.getHospitalId());
     }
 
     @Transactional
-    public int requestUpdate(
-            HospitalUpdateRequestDto requestDto
-    ) {
-
+    public int requestUpdate(HospitalUpdateRequestDto requestDto) {
         try {
             return requestUpdate(requestDto, null, null);
         } catch (IOException exception) {
-            throw new IllegalStateException(
-                    "파일 저장 중 오류가 발생했습니다."
-            );
+            throw new IllegalStateException("파일 저장 중 오류가 발생했습니다.");
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public int requestUpdate(
-            HospitalUpdateRequestDto requestDto,
-            MultipartFile documentFile,
-            MultipartFile hospitalImage
-    ) throws IOException {
-
-        if (requestDto == null) {
-            throw new IllegalArgumentException("요청 정보가 없습니다.");
-        }
-
-        validateHospitalOwner(
-                requestDto.getHospitalId(),
-                requestDto.getMemberId()
-        );
-
+    public int requestUpdate(HospitalUpdateRequestDto requestDto, MultipartFile documentFile, MultipartFile hospitalImage) throws IOException {
+        if (requestDto == null) throw new IllegalArgumentException("요청 정보가 없습니다.");
+        validateHospitalOwner(requestDto.getHospitalId(), requestDto.getMemberId());
         normalizeLegacyTimeFields(requestDto);
 
         String requestType = requestDto.getRequestType();
-
-        if (isBlank(requestType)) {
-            requestType = "UPDATE";
-        }
-
+        if (isBlank(requestType)) requestType = "UPDATE";
         requestType = requestType.trim().toUpperCase();
         requestDto.setRequestType(requestType);
 
         validateRequestByType(requestDto);
 
-        if("TEMP_CLOSE".equals(requestType)) {
-
-            int overlapCount =
-                    hospitalUpdateDao.countOverlappingTempCloseRequest(
-                            requestDto.getHospitalId(),
-                            requestDto.getTempCloseStartAt(),
-                            requestDto.getTempCloseEndAt()
-                    );
-
-            if(overlapCount > 0) {
-                throw new IllegalStateException(
-                        "이미 신청되었거나 승인된 휴업 기간과 겹칩니다."
-                );
-            }
+        if ("TEMP_CLOSE".equals(requestType)) {
+            int overlapCount = hospitalUpdateDao.countOverlappingTempCloseRequest(requestDto.getHospitalId(), requestDto.getTempCloseStartAt(), requestDto.getTempCloseEndAt());
+            if (overlapCount > 0) throw new IllegalStateException("이미 신청되었거나 승인된 휴업 기간과 겹칩니다.");
         } else {
-
-            int pendingCount =
-                    hospitalUpdateDao.countPendingRequestByHospitalAndType(
-                            requestDto.getHospitalId(),
-                            requestType
-                    );
-
-            if( pendingCount > 0) {
-                throw  new IllegalStateException(
-                        "같은 종류의 처리 대기 요청이 이미 있습니다."
-                );
-            }
+            int pendingCount = hospitalUpdateDao.countPendingRequestByHospitalAndType(requestDto.getHospitalId(), requestType);
+            if (pendingCount > 0) throw new IllegalStateException("같은 종류의 처리 대기 요청이 이미 있습니다.");
         }
 
         String savedDocumentUrl = null;
         String savedImageUrl = null;
 
         try {
-
             if ("UPDATE".equals(requestType)) {
-
-                validateUpdateRequest(
-                        requestDto,
-                        documentFile,
-                        hospitalImage
-                );
-
+                validateUpdateRequest(requestDto, documentFile, hospitalImage);
                 if (documentFile != null && !documentFile.isEmpty()) {
                     savedDocumentUrl = saveDocumentFile(documentFile);
                     requestDto.setDocumentUrl(savedDocumentUrl);
                 }
-
                 if (hospitalImage != null && !hospitalImage.isEmpty()) {
                     savedImageUrl = saveHospitalImage(hospitalImage);
                     requestDto.setHospitalImageUrl(savedImageUrl);
                 }
+                fillRequestSnapshot(requestDto);
             }
-
-        if("UPDATE".equals(requestType)) {
-            fillRequestSnapshot(requestDto);
-        }
-
             hospitalUpdateDao.insertRequest(requestDto);
-
             return requestDto.getRequestId();
-
         } catch (Exception exception) {
-
             deleteSavedFile(savedDocumentUrl);
             deleteSavedFile(savedImageUrl);
-
             throw exception;
         }
     }
 
-    public List<HospitalUpdateRequestDto> getRequestListByHospitalId(
-            int hospitalId,
-            int memberId
-    ) {
-
+    public List<HospitalUpdateRequestDto> getRequestListByHospitalId(int hospitalId, int memberId) {
         validateHospitalOwner(hospitalId, memberId);
-
-        return hospitalUpdateDao.findRequestListByHospitalId(
-                hospitalId,
-                memberId
-        );
+        return hospitalUpdateDao.findRequestListByHospitalId(hospitalId, memberId);
     }
 
     public HospitalUpdateRequestDto getLatestRequest(int hospitalId) {
@@ -261,23 +148,9 @@ public class HospitalUpdateService {
     }
 
     @Transactional
-    public void deletePendingRequest(
-            int requestId,
-            int hospitalId,
-            int memberId
-    ) {
-
-        int deleted = hospitalUpdateDao.deletePendingRequest(
-                requestId,
-                hospitalId,
-                memberId
-        );
-
-        if (deleted != 1) {
-            throw new IllegalStateException(
-                    "취소할 수 없거나 존재하지 않는 요청입니다."
-            );
-        }
+    public void deletePendingRequest(int requestId, int hospitalId, int memberId) {
+        int deleted = hospitalUpdateDao.deletePendingRequest(requestId, hospitalId, memberId);
+        if (deleted != 1) throw new IllegalStateException("취소할 수 없거나 존재하지 않는 요청입니다.");
     }
 
     public List<HospitalUpdateRequestDto> getPendingRequests() {
@@ -290,96 +163,44 @@ public class HospitalUpdateService {
     }
 
     @Transactional
-    public void approveRequest(
-            int requestId,
-            Integer processedBy
-    ) {
-
-        HospitalUpdateRequestDto requestDto =
-                getPendingRequestOrThrow(requestId);
-
+    public void approveRequest(int requestId, Integer processedBy) {
+        HospitalUpdateRequestDto requestDto = getPendingRequestOrThrow(requestId);
         switch (requestDto.getRequestType()) {
-
             case "UPDATE" -> applyUpdateRequest(requestDto);
-
             case "TEMP_CLOSE" -> {
             }
-
             case "CLOSE" -> {
-                int updated = hospitalUpdateDao.closeHospitalByAdmin(
-                        requestDto.getHospitalId()
-                );
-
-                if (updated != 1) {
-                    throw new IllegalStateException(
-                            "폐업 처리할 병원을 찾을 수 없습니다."
-                    );
-                }
+                int updated = hospitalUpdateDao.closeHospitalByAdmin(requestDto.getHospitalId());
+                if (updated != 1) throw new IllegalStateException("폐업 처리할 병원을 찾을 수 없습니다.");
             }
-
-            default -> throw new IllegalArgumentException(
-                    "처리할 수 없는 요청 종류입니다."
-            );
+            default -> throw new IllegalArgumentException("처리할 수 없는 요청 종류입니다.");
         }
-
         requestDto.setStatus("APPROVED");
         requestDto.setProcessedBy(processedBy);
         requestDto.setRejectReason(null);
-
         int updated = hospitalUpdateDao.updateRequestStatus(requestDto);
-
-        if (updated != 1) {
-            throw new IllegalStateException("이미 처리된 요청입니다.");
-        }
+        if (updated != 1) throw new IllegalStateException("이미 처리된 요청입니다.");
     }
 
     @Transactional
-    public void rejectRequest(
-            int requestId,
-            String rejectReason
-    ) {
+    public void rejectRequest(int requestId, String rejectReason) {
         rejectRequest(requestId, rejectReason, null);
     }
 
     @Transactional
-    public void rejectRequest(
-            int requestId,
-            String rejectReason,
-            Integer processedBy
-    ) {
-
-        HospitalUpdateRequestDto requestDto =
-                getPendingRequestOrThrow(requestId);
-
-        if (isBlank(rejectReason)) {
-            throw new IllegalArgumentException(
-                    "반려 사유를 입력해 주세요."
-            );
-        }
-
+    public void rejectRequest(int requestId, String rejectReason, Integer processedBy) {
+        HospitalUpdateRequestDto requestDto = getPendingRequestOrThrow(requestId);
+        if (isBlank(rejectReason)) throw new IllegalArgumentException("반려 사유를 입력해 주세요.");
         requestDto.setStatus("REJECTED");
         requestDto.setRejectReason(rejectReason.trim());
         requestDto.setProcessedBy(processedBy);
-
         int updated = hospitalUpdateDao.updateRequestStatus(requestDto);
-
-        if (updated != 1) {
-            throw new IllegalStateException("이미 처리된 요청입니다.");
-        }
+        if (updated != 1) throw new IllegalStateException("이미 처리된 요청입니다.");
     }
 
-
-    private void applyUpdateRequest(
-            HospitalUpdateRequestDto requestDto
-    ) {
-
+    private void applyUpdateRequest(HospitalUpdateRequestDto requestDto) {
         int updated = hospitalUpdateDao.applyHospitalUpdate(requestDto);
-
-        if (updated != 1) {
-            throw new IllegalStateException(
-                    "수정할 병원을 찾을 수 없습니다."
-            );
-        }
+        if (updated != 1) throw new IllegalStateException("수정할 병원을 찾을 수 없습니다.");
     }
 
     @Transactional
@@ -388,451 +209,152 @@ public class HospitalUpdateService {
         hospitalUpdateDao.deleteOldClosedHospitals();
     }
 
-    private void validateUpdateRequest(
-            HospitalUpdateRequestDto requestDto,
-            MultipartFile documentFile,
-            MultipartFile hospitalImage
-    ) {
-
-        validateRequiredText(
-                requestDto.getApplicantName(),
-                "병원장 실명",
-                2,
-                50
-        );
-
+    private void validateUpdateRequest(HospitalUpdateRequestDto requestDto, MultipartFile documentFile, MultipartFile hospitalImage) {
+        validateRequiredText(requestDto.getApplicantName(), "병원장 실명", 2, 50);
         String businessNumber = requestDto.getBusinessNumber();
+        if (isBlank(businessNumber)) throw new IllegalArgumentException("사업자등록번호를 입력해 주세요.");
+        requestDto.setBusinessNumber(formatBusinessNumber(businessNumber));
 
-        if (isBlank(businessNumber)) {
-            throw new IllegalArgumentException(
-                    "사업자등록번호를 입력해 주세요."
-            );
-        }
-
-        requestDto.setBusinessNumber(
-                formatBusinessNumber(businessNumber)
-        );
-
-        if (documentFile == null || documentFile.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "증빙서류를 첨부해 주세요."
-            );
-        }
-
+        if (documentFile == null || documentFile.isEmpty()) throw new IllegalArgumentException("증빙서류를 첨부해 주세요.");
         validateDocumentFile(documentFile);
 
-        validateRequiredText(
-                requestDto.getHospitalName(),
-                "병원명",
-                2,
-                100
-        );
+        validateRequiredText(requestDto.getHospitalName(), "병원명", 2, 100);
+        validateRequiredText(requestDto.getHospitalAddress(), "병원 주소", 1, 300);
+        validateRequiredText(requestDto.getHospitalDistrict(), "지역", 1, 50);
+        validateOptionalText(requestDto.getHospitalDetailAddress(), "상세 주소", 200);
+        validateOptionalText(requestDto.getHospitalWebsiteUrl(), "병원 홈페이지 주소", 500);
 
-        validateRequiredText(
-                requestDto.getHospitalAddress(),
-                "병원 주소",
-                1,
-                300
-        );
-
-        validateRequiredText(
-                requestDto.getHospitalDistrict(),
-                "지역",
-                1,
-                50
-        );
-
-        validateOptionalText(
-                requestDto.getHospitalDetailAddress(),
-                "상세 주소",
-                200
-        );
-
-        validateOptionalText(
-                requestDto.getHospitalWebsiteUrl(),
-                "병원 홈페이지 주소",
-                500
-        );
-
-        if (!isBlank(requestDto.getHospitalWebsiteUrl())
-                && !requestDto.getHospitalWebsiteUrl()
-                .matches("^https?://.+")) {
-
-            throw new IllegalArgumentException(
-                    "홈페이지 주소는 http:// 또는 https://로 시작해야 합니다."
-            );
+        if (!isBlank(requestDto.getHospitalWebsiteUrl()) && !requestDto.getHospitalWebsiteUrl().matches("^https?://.+")) {
+            throw new IllegalArgumentException("홈페이지 주소는 http:// 또는 https://로 시작해야 합니다.");
         }
 
-        if (requestDto.getHospitalLatitude() == null
-                || requestDto.getHospitalLongitude() == null) {
-
-            throw new IllegalArgumentException(
-                    "주소 검색을 통해 병원 위치를 설정해 주세요."
-            );
+        if (requestDto.getHospitalLatitude() == null || requestDto.getHospitalLongitude() == null) {
+            throw new IllegalArgumentException("주소 검색을 통해 병원 위치를 설정해 주세요.");
         }
 
         if (hospitalImage == null || hospitalImage.isEmpty()) {
-
-            if (isBlank(requestDto.getHospitalImageUrl())) {
-                throw new IllegalArgumentException(
-                        "병원 대표이미지를 첨부해 주세요."
-                );
-            }
-
+            if (isBlank(requestDto.getHospitalImageUrl())) throw new IllegalArgumentException("병원 대표이미지를 첨부해 주세요.");
         } else {
             validateImageFile(hospitalImage);
         }
     }
 
-    private String saveDocumentFile(
-            MultipartFile documentFile
-    ) throws IOException {
-
-        return saveFile(
-                documentFile,
-                "hospital/update/document",
-                false
-        );
+    private String saveDocumentFile(MultipartFile documentFile) throws IOException {
+        return saveFile(documentFile, "hospital/update/document", false);
     }
 
-    private String saveHospitalImage(
-            MultipartFile hospitalImage
-    ) throws IOException {
-
-        return saveFile(
-                hospitalImage,
-                "hospital/update/image",
-                true
-        );
+    private String saveHospitalImage(MultipartFile hospitalImage) throws IOException {
+        return saveFile(hospitalImage, "hospital/update/image", true);
     }
 
-    private String saveFile(
-            MultipartFile file,
-            String folder,
-            boolean imageFile
-    ) throws IOException {
+    private String saveFile(MultipartFile file, String folder, boolean imageFile) throws IOException {
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("저장할 파일이 없습니다.");
+        if (imageFile) validateImageFile(file);
+        else validateDocumentFile(file);
 
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "저장할 파일이 없습니다."
-            );
-        }
-
-        if (imageFile) {
-            validateImageFile(file);
-        } else {
-            validateDocumentFile(file);
-        }
-
-        String extension = getFileExtension(
-                file.getOriginalFilename()
-        );
-
+        String extension = getFileExtension(file.getOriginalFilename());
         String savedName = UUID.randomUUID() + extension;
-
         Path directory = Paths.get(uploadPath, folder);
         Files.createDirectories(directory);
-
         Path savedPath = directory.resolve(savedName);
-
-        Files.copy(
-                file.getInputStream(),
-                savedPath,
-                StandardCopyOption.REPLACE_EXISTING
-        );
-
+        Files.copy(file.getInputStream(), savedPath, StandardCopyOption.REPLACE_EXISTING);
         return "/upload/" + folder + "/" + savedName;
     }
 
     private void deleteSavedFile(String fileUrl) {
-
-        if (isBlank(fileUrl)) {
-            return;
-        }
-
+        if (isBlank(fileUrl)) return;
         try {
-            String relativePath = fileUrl.replaceFirst(
-                    "^/upload/",
-                    ""
-            );
-
-            Path uploadRoot = Paths.get(uploadPath)
-                    .toAbsolutePath()
-                    .normalize();
-
-            Path filePath = uploadRoot
-                    .resolve(relativePath)
-                    .normalize();
-
-            if (filePath.startsWith(uploadRoot)) {
-                Files.deleteIfExists(filePath);
-            }
-
+            String relativePath = fileUrl.replaceFirst("^/upload/", "");
+            Path uploadRoot = Paths.get(uploadPath).toAbsolutePath().normalize();
+            Path filePath = uploadRoot.resolve(relativePath).normalize();
+            if (filePath.startsWith(uploadRoot)) Files.deleteIfExists(filePath);
         } catch (IOException exception) {
-            System.out.println(
-                    "업로드 파일 삭제 실패: " + fileUrl
-            );
+            System.out.println("업로드 파일 삭제 실패: " + fileUrl);
         }
     }
 
     private void validateDocumentFile(MultipartFile file) {
-
-        String extension = getFileExtension(
-                file.getOriginalFilename()
-        ).toLowerCase(Locale.ROOT);
-
-        Set<String> allowedExtensions = Set.of(
-                ".pdf",
-                ".jpg",
-                ".jpeg",
-                ".png"
-        );
-
-        if (!allowedExtensions.contains(extension)) {
-            throw new IllegalArgumentException(
-                    "증빙서류는 PDF, JPG, JPEG, PNG 파일만 업로드할 수 있습니다."
-            );
-        }
+        String extension = getFileExtension(file.getOriginalFilename()).toLowerCase(Locale.ROOT);
+        Set<String> allowedExtensions = Set.of(".pdf", ".jpg", ".jpeg", ".png");
+        if (!allowedExtensions.contains(extension))
+            throw new IllegalArgumentException("증빙서류는 PDF, JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
     }
 
     private void validateImageFile(MultipartFile file) {
-
-        String extension = getFileExtension(
-                file.getOriginalFilename()
-        ).toLowerCase(Locale.ROOT);
-
-        Set<String> allowedExtensions = Set.of(
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".webp"
-        );
-
-        if (!allowedExtensions.contains(extension)) {
-            throw new IllegalArgumentException(
-                    "대표이미지는 JPG, JPEG, PNG, WEBP 파일만 업로드할 수 있습니다."
-            );
-        }
-
+        String extension = getFileExtension(file.getOriginalFilename()).toLowerCase(Locale.ROOT);
+        Set<String> allowedExtensions = Set.of(".jpg", ".jpeg", ".png", ".webp");
+        if (!allowedExtensions.contains(extension))
+            throw new IllegalArgumentException("대표이미지는 JPG, JPEG, PNG, WEBP 파일만 업로드할 수 있습니다.");
         String contentType = file.getContentType();
-
-        if (contentType == null
-                || !contentType.startsWith("image/")) {
-
-            throw new IllegalArgumentException(
-                    "올바른 이미지 파일을 업로드해 주세요."
-            );
-        }
+        if (contentType == null || !contentType.startsWith("image/"))
+            throw new IllegalArgumentException("올바른 이미지 파일을 업로드해 주세요.");
     }
 
-    private HospitalUpdateRequestDto getPendingRequestOrThrow(
-            int requestId
-    ) {
-
-        HospitalUpdateRequestDto requestDto =
-                hospitalUpdateDao.findRequestById(requestId);
-
-        if (requestDto == null) {
-            throw new IllegalArgumentException(
-                    "요청 정보를 찾을 수 없습니다."
-            );
-        }
-
-        if (!"PENDING".equals(requestDto.getStatus())) {
-            throw new IllegalStateException(
-                    "이미 처리된 요청입니다."
-            );
-        }
-
+    private HospitalUpdateRequestDto getPendingRequestOrThrow(int requestId) {
+        HospitalUpdateRequestDto requestDto = hospitalUpdateDao.findRequestById(requestId);
+        if (requestDto == null) throw new IllegalArgumentException("요청 정보를 찾을 수 없습니다.");
+        if (!"PENDING".equals(requestDto.getStatus())) throw new IllegalStateException("이미 처리된 요청입니다.");
         return requestDto;
     }
 
-    private void validateHospitalOwner(
-            int hospitalId,
-            int memberId
-    ) {
-
-        if (hospitalId <= 0 || memberId <= 0) {
-            throw new IllegalArgumentException(
-                    "병원 또는 회원 정보가 올바르지 않습니다."
-            );
-        }
-
-        HospitalDto hospital =
-                hospitalUpdateDao.findHospitalByIdAndOwner(
-                        hospitalId,
-                        memberId
-                );
-
-        if (hospital == null) {
-            throw new IllegalStateException(
-                    "본인 소유 병원만 요청하거나 수정할 수 있습니다."
-            );
-        }
+    private void validateHospitalOwner(int hospitalId, int memberId) {
+        if (hospitalId <= 0 || memberId <= 0) throw new IllegalArgumentException("병원 또는 회원 정보가 올바르지 않습니다.");
+        HospitalDto hospital = hospitalUpdateDao.findHospitalByIdAndOwner(hospitalId, memberId);
+        if (hospital == null) throw new IllegalStateException("본인 소유 병원만 요청하거나 수정할 수 있습니다.");
     }
 
-    private void validateRequestByType(
-            HospitalUpdateRequestDto requestDto
-    ) {
-
+    private void validateRequestByType(HospitalUpdateRequestDto requestDto) {
         String requestType = requestDto.getRequestType();
-
-        if (!List.of("UPDATE", "TEMP_CLOSE", "CLOSE")
-                .contains(requestType)) {
-
-            throw new IllegalArgumentException(
-                    "요청 종류가 올바르지 않습니다."
-            );
-        }
-
+        if (!List.of("UPDATE", "TEMP_CLOSE", "CLOSE").contains(requestType))
+            throw new IllegalArgumentException("요청 종류가 올바르지 않습니다.");
         if ("TEMP_CLOSE".equals(requestType)) {
-
-            LocalDateTime startAt =
-                    requestDto.getTempCloseStartAt();
-
-            LocalDateTime endAt =
-                    requestDto.getTempCloseEndAt();
-
-            if (startAt == null || endAt == null) {
-                throw new IllegalArgumentException(
-                        "휴업 시작일과 종료일을 입력해 주세요."
-                );
-            }
-
-            if (!endAt.isAfter(startAt)) {
-                throw new IllegalArgumentException(
-                        "휴업 종료일은 시작일보다 뒤여야 합니다."
-                );
-            }
-
-            if (isBlank(requestDto.getRequestReason())) {
-                throw new IllegalArgumentException(
-                        "휴업 사유를 입력해 주세요."
-                );
-            }
+            LocalDateTime startAt = requestDto.getTempCloseStartAt();
+            LocalDateTime endAt = requestDto.getTempCloseEndAt();
+            if (startAt == null || endAt == null) throw new IllegalArgumentException("휴업 시작일과 종료일을 입력해 주세요.");
+            if (!endAt.isAfter(startAt)) throw new IllegalArgumentException("휴업 종료일은 시작일보다 뒤여야 합니다.");
+            if (isBlank(requestDto.getRequestReason())) throw new IllegalArgumentException("휴업 사유를 입력해 주세요.");
         }
-
-        if ("CLOSE".equals(requestType)
-                && isBlank(requestDto.getRequestReason())) {
-
-            throw new IllegalArgumentException(
-                    "폐업 사유를 입력해 주세요."
-            );
-        }
+        if ("CLOSE".equals(requestType) && isBlank(requestDto.getRequestReason()))
+            throw new IllegalArgumentException("폐업 사유를 입력해 주세요.");
     }
 
-    private void validateRequiredText(
-            String value,
-            String fieldName,
-            int minLength,
-            int maxLength
-    ) {
-
-        if (isBlank(value)) {
-            throw new IllegalArgumentException(
-                    fieldName + "을(를) 입력해 주세요."
-            );
-        }
-
+    private void validateRequiredText(String value, String fieldName, int minLength, int maxLength) {
+        if (isBlank(value)) throw new IllegalArgumentException(fieldName + "을(를) 입력해 주세요.");
         int length = value.trim().length();
-
-        if (length < minLength || length > maxLength) {
-            throw new IllegalArgumentException(
-                    fieldName + "은(는) "
-                            + minLength + "~" + maxLength
-                            + "자로 입력해 주세요."
-            );
-        }
+        if (length < minLength || length > maxLength)
+            throw new IllegalArgumentException(fieldName + "은(는) " + minLength + "~" + maxLength + "자로 입력해 주세요.");
     }
 
-    private void validateOptionalText(
-            String value,
-            String fieldName,
-            int maxLength
-    ) {
-
-        if (isBlank(value)) {
-            return;
-        }
-
-        if (value.trim().length() > maxLength) {
-            throw new IllegalArgumentException(
-                    fieldName + "은(는) "
-                            + maxLength + "자 이하로 입력해 주세요."
-            );
-        }
+    private void validateOptionalText(String value, String fieldName, int maxLength) {
+        if (isBlank(value)) return;
+        if (value.trim().length() > maxLength)
+            throw new IllegalArgumentException(fieldName + "은(는) " + maxLength + "자 이하로 입력해 주세요.");
     }
 
     private String formatBusinessNumber(String businessNumber) {
-
-        String numberOnly = businessNumber.replaceAll(
-                "[^0-9]",
-                ""
-        );
-
-        if (numberOnly.length() != 10) {
-            throw new IllegalArgumentException(
-                    "사업자등록번호는 숫자 10자리로 입력해 주세요."
-            );
-        }
-
-        return numberOnly.substring(0, 3)
-                + "-"
-                + numberOnly.substring(3, 5)
-                + "-"
-                + numberOnly.substring(5);
+        String numberOnly = businessNumber.replaceAll("[^0-9]", "");
+        if (numberOnly.length() != 10) throw new IllegalArgumentException("사업자등록번호는 숫자 10자리로 입력해 주세요.");
+        return numberOnly.substring(0, 3) + "-" + numberOnly.substring(3, 5) + "-" + numberOnly.substring(5);
     }
 
-    private void normalizeLegacyTimeFields(
-            HospitalUpdateRequestDto requestDto
-    ) {
-
-        if (isBlank(requestDto.getBreakTime())
-                && !isBlank(requestDto.getLunchTime())) {
-
-            requestDto.setBreakTime(
-                    requestDto.getLunchTime()
-            );
-        }
-
-        if (isBlank(requestDto.getClosedDays())
-                && !isBlank(requestDto.getHoliday())) {
-
-            requestDto.setClosedDays(
-                    requestDto.getHoliday()
-            );
-        }
+    private void normalizeLegacyTimeFields(HospitalUpdateRequestDto requestDto) {
+        if (isBlank(requestDto.getBreakTime()) && !isBlank(requestDto.getLunchTime()))
+            requestDto.setBreakTime(requestDto.getLunchTime());
+        if (isBlank(requestDto.getClosedDays()) && !isBlank(requestDto.getHoliday()))
+            requestDto.setClosedDays(requestDto.getHoliday());
     }
 
     private List<Integer> normalizeIds(List<Integer> ids) {
-
-        if (ids == null || ids.isEmpty()) {
-            return List.of();
-        }
-
+        if (ids == null || ids.isEmpty()) return List.of();
         LinkedHashSet<Integer> uniqueIds = new LinkedHashSet<>();
-
-        for (Integer id : ids) {
-            if (id != null && id > 0) {
-                uniqueIds.add(id);
-            }
-        }
-
+        for (Integer id : ids) if (id != null && id > 0) uniqueIds.add(id);
         return new ArrayList<>(uniqueIds);
     }
 
     private String getFileExtension(String filename) {
-
-        if (isBlank(filename)) {
-            return "";
-        }
-
+        if (isBlank(filename)) return "";
         int dotIndex = filename.lastIndexOf(".");
-
-        if (dotIndex < 0) {
-            return "";
-        }
-
+        if (dotIndex < 0) return "";
         return filename.substring(dotIndex);
     }
 
@@ -841,147 +363,63 @@ public class HospitalUpdateService {
     }
 
     private void fillRequestSnapshot(HospitalUpdateRequestDto requestDto) {
-        HospitalUpdateRequestDto current =
-                hospitalUpdateDao.findRequestSnapshotByHospitalId(requestDto.getHospitalId());
-
-        if (current == null) {
-            throw new IllegalArgumentException("병원 정보를 찾을 수 없습니다.");
-        }
-
-        if (requestDto.getApplicantName() == null) {
-            requestDto.setApplicantName(current.getApplicantName());
-        }
-        if (requestDto.getBusinessNumber() == null) {
-            requestDto.setBusinessNumber(current.getBusinessNumber());
-        }
-        if (requestDto.getDocumentUrl() == null) {
-            requestDto.setDocumentUrl(current.getDocumentUrl());
-        }
-
-        if (requestDto.getHospitalName() == null) {
-            requestDto.setHospitalName(current.getHospitalName());
-        }
-        if (requestDto.getHospitalPhone() == null) {
-            requestDto.setHospitalPhone(current.getHospitalPhone());
-        }
-        if (requestDto.getHospitalAddress() == null) {
-            requestDto.setHospitalAddress(current.getHospitalAddress());
-        }
-        if (requestDto.getHospitalDetailAddress() == null) {
+        HospitalUpdateRequestDto current = hospitalUpdateDao.findRequestSnapshotByHospitalId(requestDto.getHospitalId());
+        if (current == null) throw new IllegalArgumentException("병원 정보를 찾을 수 없습니다.");
+        if (requestDto.getApplicantName() == null) requestDto.setApplicantName(current.getApplicantName());
+        if (requestDto.getBusinessNumber() == null) requestDto.setBusinessNumber(current.getBusinessNumber());
+        if (requestDto.getDocumentUrl() == null) requestDto.setDocumentUrl(current.getDocumentUrl());
+        if (requestDto.getHospitalName() == null) requestDto.setHospitalName(current.getHospitalName());
+        if (requestDto.getHospitalPhone() == null) requestDto.setHospitalPhone(current.getHospitalPhone());
+        if (requestDto.getHospitalAddress() == null) requestDto.setHospitalAddress(current.getHospitalAddress());
+        if (requestDto.getHospitalDetailAddress() == null)
             requestDto.setHospitalDetailAddress(current.getHospitalDetailAddress());
-        }
-        if (requestDto.getHospitalDistrict() == null) {
-            requestDto.setHospitalDistrict(current.getHospitalDistrict());
-        }
-        if (requestDto.getHospitalWebsiteUrl() == null) {
+        if (requestDto.getHospitalDistrict() == null) requestDto.setHospitalDistrict(current.getHospitalDistrict());
+        if (requestDto.getHospitalWebsiteUrl() == null)
             requestDto.setHospitalWebsiteUrl(current.getHospitalWebsiteUrl());
-        }
-        if (requestDto.getHospitalLatitude() == null) {
-            requestDto.setHospitalLatitude(current.getHospitalLatitude());
-        }
-        if (requestDto.getHospitalLongitude() == null) {
-            requestDto.setHospitalLongitude(current.getHospitalLongitude());
-        }
-        if (requestDto.getMedicalSubjects() == null) {
-            requestDto.setMedicalSubjects(current.getMedicalSubjects());
-        }
-
-        if (requestDto.getOpenTime() == null) {
-            requestDto.setOpenTime(current.getOpenTime());
-        }
-        if (requestDto.getCloseTime() == null) {
-            requestDto.setCloseTime(current.getCloseTime());
-        }
-        if (requestDto.getBreakTime() == null) {
-            requestDto.setBreakTime(current.getBreakTime());
-        }
-        if (requestDto.getClosedDays() == null) {
-            requestDto.setClosedDays(current.getClosedDays());
-        }
-
-        if (requestDto.getHospitalDoctorInfo() == null) {
+        if (requestDto.getHospitalLatitude() == null) requestDto.setHospitalLatitude(current.getHospitalLatitude());
+        if (requestDto.getHospitalLongitude() == null) requestDto.setHospitalLongitude(current.getHospitalLongitude());
+        if (requestDto.getMedicalSubjects() == null) requestDto.setMedicalSubjects(current.getMedicalSubjects());
+        if (requestDto.getOpenTime() == null) requestDto.setOpenTime(current.getOpenTime());
+        if (requestDto.getCloseTime() == null) requestDto.setCloseTime(current.getCloseTime());
+        if (requestDto.getBreakTime() == null) requestDto.setBreakTime(current.getBreakTime());
+        if (requestDto.getClosedDays() == null) requestDto.setClosedDays(current.getClosedDays());
+        if (requestDto.getHospitalDoctorInfo() == null)
             requestDto.setHospitalDoctorInfo(current.getHospitalDoctorInfo());
-        }
-        if (requestDto.getHospitalDescription() == null) {
+        if (requestDto.getHospitalDescription() == null)
             requestDto.setHospitalDescription(current.getHospitalDescription());
-        }
-        if (requestDto.getHospitalImageUrl() == null) {
-            requestDto.setHospitalImageUrl(current.getHospitalImageUrl());
-        }
-        if (requestDto.getHospitalNote() == null) {
-            requestDto.setHospitalNote(current.getHospitalNote());
-        }
+        if (requestDto.getHospitalImageUrl() == null) requestDto.setHospitalImageUrl(current.getHospitalImageUrl());
+        if (requestDto.getHospitalNote() == null) requestDto.setHospitalNote(current.getHospitalNote());
     }
 
     private void validateOperatingTime(HospitalDirectUpdateDto directUpdateDto) {
         String openTime = directUpdateDto.getOpenTime();
         String closeTime = directUpdateDto.getCloseTime();
         String breakTime = directUpdateDto.getBreakTime();
-
-        if (openTime == null || closeTime == null
-                || openTime.isBlank() || closeTime.isBlank()) {
+        if (openTime == null || closeTime == null || openTime.isBlank() || closeTime.isBlank())
             throw new IllegalArgumentException("진료 시작 시간과 종료 시간을 입력해 주세요.");
-        }
 
         LocalTime open = parseHospitalTime(openTime);
         LocalTime close = parseHospitalTime(closeTime);
+        if (!open.isBefore(close)) throw new IllegalArgumentException("진료 종료 시간은 시작 시간보다 늦어야 합니다.");
 
-        if (!open.isBefore(close)) {
-            throw new IllegalArgumentException("진료 종료 시간은 시작 시간보다 늦어야 합니다.");
-        }
-
-        if (breakTime == null || breakTime.isBlank()) {
-            return;
-        }
-
+        if (breakTime == null || breakTime.isBlank()) return;
         String[] breakTimes = breakTime.split("~");
-
-        if (breakTimes.length != 2) {
-            throw new IllegalArgumentException("휴게시간 형식이 올바르지 않습니다.");
-        }
+        if (breakTimes.length != 2) throw new IllegalArgumentException("휴게시간 형식이 올바르지 않습니다.");
 
         LocalTime breakStart = parseHospitalTime(breakTimes[0]);
         LocalTime breakEnd = parseHospitalTime(breakTimes[1]);
-
-        if (!breakStart.isBefore(breakEnd)) {
-            throw new IllegalArgumentException("휴게 종료 시간은 휴게 시작 시간보다 늦어야 합니다.");
-        }
-
-        if (breakStart.isBefore(open) || breakEnd.isAfter(close)) {
-            throw new IllegalArgumentException(
-                    "휴게시간은 진료 시작 시간과 종료 시간 사이로 설정해 주세요."
-            );
-        }
+        if (!breakStart.isBefore(breakEnd)) throw new IllegalArgumentException("휴게 종료 시간은 휴게 시작 시간보다 늦어야 합니다.");
+        if (breakStart.isBefore(open) || breakEnd.isAfter(close))
+            throw new IllegalArgumentException("휴게시간은 진료 시작 시간과 종료 시간 사이로 설정해 주세요.");
     }
-
 
     private LocalTime parseHospitalTime(String time) {
-        return LocalTime.parse(
-                time.trim(),
-                DateTimeFormatter.ofPattern("H:mm")
-        );
+        return LocalTime.parse(time.trim(), java.time.format.DateTimeFormatter.ofPattern("H:mm"));
     }
 
-    private  void validateDirectTextFields(
-            HospitalDirectUpdateDto directUpdateDto
-    ) {
-        validateOptionalText(
-                directUpdateDto.getHospitalDoctorInfo(),
-                "진료 상세 정보",
-                1000
-        );
-
-        validateRequiredText(
-                directUpdateDto.getHospitalDescription(),
-                "병원 소개",
-                10,
-                1000
-        );
-
-        validateOptionalText(
-                directUpdateDto.getHospitalNote(),
-                "추가 안내사항",
-                1000
-        );
+    private void validateDirectTextFields(HospitalDirectUpdateDto directUpdateDto) {
+        validateOptionalText(directUpdateDto.getHospitalDoctorInfo(), "진료 상세 정보", 1000);
+        validateRequiredText(directUpdateDto.getHospitalDescription(), "병원 소개", 10, 1000);
+        validateOptionalText(directUpdateDto.getHospitalNote(), "추가 안내사항", 1000);
     }
 }

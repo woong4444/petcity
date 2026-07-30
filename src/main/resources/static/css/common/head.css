@@ -227,6 +227,7 @@ body {
     transform: rotate(45deg);
     border-radius: 2px;
 }
+
 .popular-keywords {
     margin-top: 8px;
     font-size: 14px;
@@ -424,10 +425,10 @@ body {
         padding: 0 16px;
         font-size: 14px;
     }
+
     /* ================================
    노트북 / 태블릿 / 모바일 반응형 보강
 ================================ */
-
     /* 노트북 화면: 1200px ~ 1366px 정도 */
     @media (max-width: 1366px) {
         .header-inner {
@@ -739,6 +740,7 @@ body {
 .owner-status-notification-badge[hidden] {
     display: none;
 }
+
 /* 하단 메뉴: 가운데 메뉴는 화면 중앙, 병원장 신청은 우측 고정 */
 .bottom-nav-inner {
     height: 56px;
@@ -1099,7 +1101,7 @@ body {
     line-height: 16px !important;
 }
 
-/* 로고 아이콘·PetCity 텍스트 세로 위치 고정 */
+
 .site-header .logo-link {
     height: 54px !important;
     display: flex !important;
@@ -1138,7 +1140,7 @@ body {
     line-height: 12px !important;
 }
 
-/* 데스크톱 메인 메뉴 버튼 너비 통일 */
+
 @media (min-width: 1025px) {
     .site-header .main-menu {
         gap: 0 !important;
@@ -1153,7 +1155,7 @@ body {
     }
 }
 
-/* 병원장 신청 메뉴 균형 조정 */
+
 @media (min-width: 1025px) {
     .site-header .right-menu {
         width: 160px !important;
@@ -1170,9 +1172,6 @@ body {
     }
 }
 
-/* =========================================================
-   PetCity 공통 로고 크기·위치 고정
-   ========================================================= */
 
 .site-header .logo-area {
     width: 270px !important;
@@ -1193,17 +1192,13 @@ body {
     overflow: hidden !important;
 }
 
-/*
-    로고 원본 PNG 안의 흰 여백을 잘라내고
-    실제 로고가 항상 같은 크기로 보이게 설정
-*/
 .site-header .logo-image {
     position: absolute !important;
-    top: -39px !important;    /* -46px → -39px */
-    left: -33px !important;   /* -40px → -33px */
+    top: -39px !important;
+    left: -33px !important;
 
     display: block !important;
-    width: 290px !important;  /* 340px → 290px */
+    width: 290px !important;
     max-width: none !important;
     height: auto !important;
 
@@ -1230,7 +1225,6 @@ body {
     }
 }
 
-/* 가까운 동물병원 찾기: 마우스 호버 시 버튼 안내 표시 */
 .site-header .hospital-map-banner {
     position: relative;
     cursor: pointer;
