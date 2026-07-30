@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +19,15 @@ import java.util.Locale;
 public class HospitalService {
 
     private final HospitalDao hospitalDao;
+
+    // 🌟 다른 팀(VisitRedisService)과 완벽하게 동일한 타임존(KOREA_ZONE) 상수 선언!
+    private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // 🌟 자바단에서 완벽한 한국 시간 문자열을 뽑아내는 메서드
+    private String getKstTime() {
+        return LocalDateTime.now(KOREA_ZONE).format(TIME_FORMATTER);
+    }
 
     private void refineMedicalSubjects(HospitalDto h) {
         if (h.getMedicalSubjects() == null) return;
@@ -31,63 +41,25 @@ public class HospitalService {
                 try {
                     int id = Integer.parseInt(idStr.trim());
                     switch (id) {
-                        case 1:
-                            subjectNames.add("내과");
-                            break;
-                        case 2:
-                            subjectNames.add("외과");
-                            break;
-                        case 3:
-                            subjectNames.add("정형외과");
-                            break;
-                        case 4:
-                            subjectNames.add("피부과");
-                            break;
-                        case 5:
-                            subjectNames.add("안과");
-                            break;
-                        case 6:
-                            subjectNames.add("치과");
-                            break;
-                        case 7:
-                            subjectNames.add("영상의학과");
-                            break;
-                        case 8:
-                            subjectNames.add("이비인후과");
-                            break;
-                        case 9:
-                            subjectNames.add("비뇨기과");
-                            break;
-                        case 10:
-                            subjectNames.add("신경외과");
-                            break;
-                        case 11:
-                            subjectNames.add("산과");
-                            break;
-                        case 12:
-                            subjectNames.add("심장내과");
-                            break;
-                        case 13:
-                            subjectNames.add("마취통증의학과");
-                            break;
-                        case 14:
-                            subjectNames.add("예방의학과");
-                            break;
-                        case 15:
-                            subjectNames.add("재활의학과");
-                            break;
-                        case 16:
-                            subjectNames.add("중성화");
-                            break;
-                        case 17:
-                            subjectNames.add("영양상담");
-                            break;
-                        case 18:
-                            subjectNames.add("헌혈");
-                            break;
-                        case 19:
-                            subjectNames.add("미용");
-                            break;
+                        case 1: subjectNames.add("내과"); break;
+                        case 2: subjectNames.add("외과"); break;
+                        case 3: subjectNames.add("정형외과"); break;
+                        case 4: subjectNames.add("피부과"); break;
+                        case 5: subjectNames.add("안과"); break;
+                        case 6: subjectNames.add("치과"); break;
+                        case 7: subjectNames.add("영상의학과"); break;
+                        case 8: subjectNames.add("이비인후과"); break;
+                        case 9: subjectNames.add("비뇨기과"); break;
+                        case 10: subjectNames.add("신경외과"); break;
+                        case 11: subjectNames.add("산과"); break;
+                        case 12: subjectNames.add("심장내과"); break;
+                        case 13: subjectNames.add("마취통증의학과"); break;
+                        case 14: subjectNames.add("예방의학과"); break;
+                        case 15: subjectNames.add("재활의학과"); break;
+                        case 16: subjectNames.add("중성화"); break;
+                        case 17: subjectNames.add("영양상담"); break;
+                        case 18: subjectNames.add("헌혈"); break;
+                        case 19: subjectNames.add("미용"); break;
                     }
                 } catch (NumberFormatException e) {
                 }
@@ -117,7 +89,7 @@ public class HospitalService {
             return;
         }
 
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime now = ZonedDateTime.now(KOREA_ZONE);
         String currentTime = now.format(DateTimeFormatter.ofPattern("HH:mm"));
         String currentDay = now.format(DateTimeFormatter.ofPattern("E", Locale.KOREAN));
 
@@ -127,9 +99,18 @@ public class HospitalService {
         }
 
         boolean isOpen = false;
-        if (h.getOpenTime().contains("24") || h.getOpenTime().equals("00:00")) isOpen = true;
-        else if (currentTime.compareTo(h.getOpenTime()) >= 0 && currentTime.compareTo(h.getCloseTime()) <= 0)
+
+        if (h.getOpenTime().contains("24") || h.getOpenTime().equals("00:00")) {
             isOpen = true;
+        } else if (h.getOpenTime().compareTo(h.getCloseTime()) <= 0) {
+            if (currentTime.compareTo(h.getOpenTime()) >= 0 && currentTime.compareTo(h.getCloseTime()) <= 0) {
+                isOpen = true;
+            }
+        } else {
+            if (currentTime.compareTo(h.getOpenTime()) >= 0 || currentTime.compareTo(h.getCloseTime()) <= 0) {
+                isOpen = true;
+            }
+        }
 
         if (!isOpen) {
             h.setCurrentStatus("진료종료");
@@ -152,14 +133,12 @@ public class HospitalService {
         h.setCurrentStatus("진료중");
     }
 
-    public HospitalListPageDto
-    getHospitalListPage
-            (int page, Integer animalId, Integer subAnimalId,
-             List<String> subjects, List<Integer> serviceIds,
-             List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
+    public HospitalListPageDto getHospitalListPage(
+            int page, Integer animalId, Integer subAnimalId,
+            List<String> subjects, List<Integer> serviceIds,
+            List<String> districts, String keyword, String openStatus, String sort, Double userLat, Double userLng) {
 
         int limit = 12;
-
         int totalCount = hospitalDao.countHospitalList(openStatus, animalId, subAnimalId, subjects, serviceIds, districts, keyword);
 
         int totalPages = (int) Math.ceil((double) totalCount / limit);
@@ -173,10 +152,9 @@ public class HospitalService {
 
         int offset = (page - 1) * limit;
 
-        List<HospitalDto> hospitalList =
-                hospitalDao.findHospitalList
-                        (offset, limit, openStatus, animalId, subAnimalId,
-                                subjects, serviceIds, districts, keyword, sort, userLat, userLng);
+        List<HospitalDto> hospitalList = hospitalDao.findHospitalList(
+                offset, limit, openStatus, animalId, subAnimalId,
+                subjects, serviceIds, districts, keyword, sort, userLat, userLng);
 
         for (HospitalDto h : hospitalList) {
             applyCurrentStatus(h);
@@ -233,7 +211,8 @@ public class HospitalService {
             hospitalDao.deleteZzim((long) hospitalId, (long) memberId);
             return false;
         } else {
-            hospitalDao.insertZzim((long) hospitalId, (long) memberId);
+            // 🌟 자바에서 생성한 한국 시간 던져줌!
+            hospitalDao.insertZzim((long) hospitalId, (long) memberId, getKstTime());
             return true;
         }
     }
@@ -243,27 +222,32 @@ public class HospitalService {
             hospitalDao.deleteLike((long) hospitalId, (long) memberId);
             return false;
         } else {
-            hospitalDao.insertLike((long) hospitalId, (long) memberId);
+            // 🌟 자바에서 생성한 한국 시간 던져줌!
+            hospitalDao.insertLike((long) hospitalId, (long) memberId, getKstTime());
             return true;
         }
     }
 
     public void insertReview(HospitalReviewDto reviewDto) {
+        // 🌟 자바에서 생성한 한국 시간 던져줌!
         hospitalDao.insertReview(
                 (long) reviewDto.getHospitalId(),
                 (long) reviewDto.getMemberId(),
                 reviewDto.getRating(),
                 reviewDto.getContent(),
-                reviewDto.getPetId()
+                reviewDto.getPetId(),
+                getKstTime()
         );
     }
 
+    // 🌟 이미 DB에 한국 시간으로 정확히 박혔기 때문에 꼼수 빼고 그대로 리턴만 합니다!
     public List<HospitalReviewDto> getReviewList(int hospitalId) {
         return hospitalDao.findReviewListByHospitalId((long) hospitalId);
     }
 
     public void addReviewReply(int reviewId, String replyContent, String replyRole) {
-        hospitalDao.updateReviewReply((long) reviewId, replyContent, replyRole);
+        // 🌟 자바에서 생성한 한국 시간 던져줌!
+        hospitalDao.updateReviewReply((long) reviewId, replyContent, replyRole, getKstTime());
     }
 
     public List<String> getDistrictList() {
@@ -287,6 +271,8 @@ public class HospitalService {
     }
 
     public void updateReview(HospitalReviewDto reviewDto) {
+        // 🌟 자바에서 업데이트 시간 생성해서 세팅
+        reviewDto.setFormattedCreatedAt(getKstTime());
         hospitalDao.updateReview(reviewDto);
     }
 
@@ -297,5 +283,4 @@ public class HospitalService {
     public List<HospitalDto> getTopPopularHospitals() {
         return hospitalDao.findTopPopularHospitals();
     }
-
 }

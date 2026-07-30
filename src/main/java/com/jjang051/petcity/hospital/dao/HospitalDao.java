@@ -45,7 +45,7 @@ public interface HospitalDao {
     List<HospitalSubAnimalDto> findSubAnimalTypeList();
     List<MedicalServiceDto> findMedicalServiceList();
 
-    // 🌟 추가된 진료과목 리스트 조회
+    // 진료과목 리스트 조회
     List<String> findMedicalSubjectList();
 
     // 병원 상세 조회
@@ -60,27 +60,35 @@ public interface HospitalDao {
     List<Integer> findMyLikeList(@Param("memberId") Long memberId);
 
     int checkZzim(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId);
-    void insertZzim(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId);
+
+    // 🌟 수정됨: 자바에서 만든 정확한 한국 시간(currentTime)을 받도록 파라미터 추가
+    void insertZzim(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId, @Param("currentTime") String currentTime);
     void deleteZzim(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId);
 
     int checkLike(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId);
-    void insertLike(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId);
+
+    // 🌟 수정됨: 자바에서 만든 정확한 한국 시간(currentTime)을 받도록 파라미터 추가
+    void insertLike(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId, @Param("currentTime") String currentTime);
     void deleteLike(@Param("hospitalId") Long hospitalId, @Param("memberId") Long memberId);
 
+    // 🌟 수정됨: 자바에서 만든 정확한 한국 시간(currentTime)을 받도록 파라미터 추가
     void insertReview(
             @Param("hospitalId") Long hospitalId,
             @Param("memberId") Long memberId,
             @Param("rating") int rating,
             @Param("content") String content,
-            @Param("petId") Integer petId
+            @Param("petId") Integer petId,
+            @Param("currentTime") String currentTime
     );
 
     List<HospitalReviewDto> findReviewListByHospitalId(@Param("hospitalId") Long hospitalId);
 
+    // 🌟 수정됨: 자바에서 만든 정확한 한국 시간(currentTime)을 받도록 파라미터 추가
     void updateReviewReply(
             @Param("reviewId") Long reviewId,
             @Param("replyContent") String replyContent,
-            @Param("replyRole") String replyRole
+            @Param("replyRole") String replyRole,
+            @Param("currentTime") String currentTime
     );
 
     void updateReview(HospitalReviewDto dto);

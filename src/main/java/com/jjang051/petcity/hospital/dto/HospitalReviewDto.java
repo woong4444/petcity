@@ -18,16 +18,15 @@ public class HospitalReviewDto {
     private String content;
     private Date createdAt;
 
-    // DB JOIN 닉네임
-    private String nickname;
+    // 🌟 오라클 DB에서 직접 'YYYY-MM-DD HH24:MI:SS' 로 포맷팅해서 넘겨주는 한국 시간을 받을 변수
+    private String formattedCreatedAt;
 
-    // 🌟 신규 추가: 펫 연동 및 답글 시스템
+    private String nickname;
     private Integer petId;
     private String replyContent;
     private Date replyCreatedAt;
-    private String replyRole; // 'OWNER' 또는 'ADMIN'
+    private String replyRole;
 
-    // 추후 PET 테이블 조인 시 담을 정보 (현재는 껍데기만 세팅)
     private String petName;
     private String petBreed;
     private Integer petAge;

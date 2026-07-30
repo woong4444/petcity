@@ -2,7 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
         if (typeof hId !== 'undefined' && typeof hName !== 'undefined' && hId > 0) {
-            let recentHospitals = JSON.parse(localStorage.getItem('petcity_recent') || '[]');
+            // 🌟 수정됨: 로그인 아이디를 가져와서 스토리지 키 생성
+            const memberIdElem = document.getElementById('globalLoginMemberId');
+            const memberId = memberIdElem ? memberIdElem.value : 'guest';
+            const storageKey = 'petcity_recent_' + memberId;
+
+            let recentHospitals = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
             const currentHospital = {
                 id: hId,
@@ -14,7 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
             recentHospitals.unshift(currentHospital);
             recentHospitals = recentHospitals.slice(0, 3);
 
-            localStorage.setItem('petcity_recent', JSON.stringify(recentHospitals));
+            // 🌟 수정됨: 아이디가 포함된 키로 저장
+            localStorage.setItem(storageKey, JSON.stringify(recentHospitals));
 
             if (typeof renderGlobalRecentHospitals === 'function') {
                 renderGlobalRecentHospitals();
@@ -69,31 +75,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     const geocoder = new kakao.maps.services.Geocoder();
                     const places = new kakao.maps.services.Places();
 
-
                     let cleanAddress = hAddress.replace(/\(.*?\)/g, '').split(',')[0].trim();
 
                     geocoder.addressSearch(cleanAddress, function (result, status) {
                         if (status === kakao.maps.services.Status.OK) {
                             renderMap(result[0].y, result[0].x);
                         } else {
-
                             geocoder.addressSearch(hAddress, function (res2, stat2) {
                                 if (stat2 === kakao.maps.services.Status.OK) {
                                     renderMap(res2[0].y, res2[0].x);
                                 } else {
-
                                     let region = hAddress.split(' ').slice(0, 2).join(' ');
                                     let keyword = region + ' ' + hName;
                                     places.keywordSearch(keyword, function (res3, stat3) {
                                         if (stat3 === kakao.maps.services.Status.OK) {
                                             renderMap(res3[0].y, res3[0].x);
                                         } else {
-
                                             places.keywordSearch(hName, function (res4, stat4) {
                                                 if (stat4 === kakao.maps.services.Status.OK) {
                                                     renderMap(res4[0].y, res4[0].x);
                                                 } else {
-
                                                     renderMap(37.566826, 126.978656);
                                                     const mapLink = document.getElementById('kakaoMapLink');
                                                     if (mapLink) mapLink.style.display = 'none';

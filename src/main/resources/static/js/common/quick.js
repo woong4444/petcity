@@ -89,13 +89,16 @@ function renderGlobalRecentHospitals() {
         return;
     }
 
+    // 🌟 수정됨: 로그인 아이디를 가져와서 스토리지 키 연결
+    const memberIdElem = document.getElementById('globalLoginMemberId');
+    const memberId = memberIdElem ? memberIdElem.value : 'guest';
+    const storageKey = 'petcity_recent_' + memberId;
+
     let recents = [];
 
     try {
         recents = JSON.parse(
-            localStorage.getItem(
-                "petcity_recent"
-            ) || "[]"
+            localStorage.getItem(storageKey) || "[]"
         );
     } catch (error) {
         console.error(
@@ -103,9 +106,7 @@ function renderGlobalRecentHospitals() {
             error
         );
 
-        localStorage.removeItem(
-            "petcity_recent"
-        );
+        localStorage.removeItem(storageKey);
     }
 
     if (!Array.isArray(recents)
