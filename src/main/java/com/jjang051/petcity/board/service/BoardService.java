@@ -96,11 +96,13 @@ public class BoardService {
                         keyword
                 );
 
+        int pageSize ="INFO".equals(boardType) ? 9 : PAGE_SIZE;
+
         int totalPage =
                 Math.max(
                         1,
                         (int) Math.ceil(
-                                (double) totalCount / PAGE_SIZE
+                                (double) totalCount / pageSize
                         )
                 );
 
@@ -109,7 +111,7 @@ public class BoardService {
         }
 
         int offset =
-                (currentPage - 1) * PAGE_SIZE;
+                (currentPage - 1) * pageSize;
 
         List<BoardDto> boardList =
                 boardDao.findBoardList(
@@ -119,7 +121,7 @@ public class BoardService {
                         searchType,
                         keyword,
                         offset,
-                        PAGE_SIZE
+                        pageSize
                 );
 
         int startPage =
