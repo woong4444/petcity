@@ -1,0 +1,103 @@
+/* feature-withdraw.html 페이지 전용 스타일 */
+
+body {
+            margin: 0;
+            font-family: sans-serif;
+            background: #f6f8fb;
+        }
+
+        /* 07-22 상각 : 공통 헤더 아래에 탈퇴 화면 배치 */
+        .withdraw-page {
+            padding: 55px 20px 70px;
+        }
+
+        .box {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 36px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px #1f35521a;
+        }
+
+        .warn,
+        .msg {
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .warn {
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .recovery-notice {
+            margin-top: 14px;
+            padding: 16px;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .recovery-notice strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .msg {
+            background: #fff1f2;
+            color: #b42338;
+        }
+
+        label {
+            display: block;
+            margin: 20px 0 8px;
+            font-weight: 700;
+        }
+
+        textarea,
+        input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccd5e1;
+            border-radius: 10px;
+            font: inherit;
+        }
+
+        textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .buttons > * {
+            flex: 1;
+            box-sizing: border-box;
+            padding: 14px;
+            border: 0;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .cancel {
+            background: #eef2f6;
+            color: #344054;
+        }
+
+        .submit {
+            background: #dc2626;
+            color: white;
+        }

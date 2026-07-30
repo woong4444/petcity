@@ -12,73 +12,8 @@
     <!-- 07-22 상각 : 공통 헤더 CSS 적용 -->
     <link rel="stylesheet"
           th:href="@{/css/common/head.css}">
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f6f8fb;
-            color: #111827;
-        }
-
-        .recovery-complete-page {
-            min-height: calc(100vh - 80px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 60px 20px;
-        }
-
-        .recovery-complete-box {
-            width: 100%;
-            max-width: 600px;
-            padding: 42px 38px;
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 12px 35px rgba(31, 53, 82, 0.1);
-            text-align: center;
-        }
-
-        .success-icon {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 58px;
-            height: 58px;
-            margin: 0 auto 22px;
-            border-radius: 50%;
-            background: #ecfdf3;
-            color: #039855;
-            font-size: 34px;
-            font-weight: 700;
-        }
-
-        .recovery-complete-box h1 {
-            margin: 0 0 22px;
-            font-size: 28px;
-        }
-
-        .success-message {
-            margin: 0;
-            padding: 17px 20px;
-            border-radius: 12px;
-            background: #ecfdf3;
-            color: #027a48;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .guide-message {
-            margin: 22px 0 0;
-            color: #667085;
-            font-size: 14px;
-            line-height: 1.7;
-        }
-    </style>
+    <!-- recovery-complete.html 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/member/pages/recovery-complete.css}">
 </head>
 
 <body>

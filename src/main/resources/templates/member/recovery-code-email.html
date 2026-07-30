@@ -6,79 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>복구코드 이메일 재발급 | PetCity</title>
     <link rel="stylesheet" th:href="@{/css/common/head.css}">
-    <style>
-        body {
-            background: #f6f8fb
-        }
-
-        .box {
-            max-width: 540px;
-            margin: 65px auto;
-            padding: 34px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 12px 35px #1f35521a
-        }
-
-        .box label {
-            display: block;
-            font-weight: 700;
-            margin: 17px 0 7px
-        }
-
-        .box input {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 13px;
-            border: 1px solid #d4dce8;
-            border-radius: 10px
-        }
-
-        .box button {
-            width: 100%;
-            margin-top: 20px;
-            padding: 14px;
-            border: 0;
-            border-radius: 10px;
-            background: #2563eb;
-            color: #fff;
-            font-weight: 800
-        }
-
-        .note, .msg, .ok {
-            padding: 14px;
-            border-radius: 10px;
-            line-height: 1.6
-        }
-
-        .note {
-            background: #eff6ff;
-            color: #1d4ed8
-        }
-
-        .msg {
-            background: #fff1f2;
-            color: #b42338
-        }
-
-        .ok {
-            background: #ecfdf3;
-            color: #067647
-        }
-
-        .help {
-            margin: 8px 0 0;
-            color: #667085;
-            font-size: 14px;
-            line-height: 1.6
-        }
-
-        .back {
-            display: block;
-            margin-top: 18px;
-            text-align: center
-        }
-    </style>
+    <!-- recovery-code-email.html 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/member/pages/recovery-code-email.css}">
 </head>
 <body>
 <header th:replace="~{common/head :: head}"></header>

@@ -175,8 +175,7 @@
                                 data-birth=${pet.birthDate},
                                 data-weight=${pet.weight},
                                 data-reg=${pet.registrationNo}
-                            "
-                            onclick="loadPet(this)">
+                            ">
                         수정
                     </button>
 
@@ -219,7 +218,6 @@
                 </h2>
 
                 <button type="button"
-                        onclick="resetForm()"
                         class="reset-btn"
                         th:disabled="${petList.size() >= 4}">
                     새로 등록
@@ -257,8 +255,7 @@
 
                         <select name="animalId"
                                 id="animalId"
-                                required
-                                onchange="fillBreeds()">
+                                required>
 
                             <option value="">
                                 선택

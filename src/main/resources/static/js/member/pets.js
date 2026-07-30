@@ -219,6 +219,46 @@ const MIN_PET_WEIGHT = 0.1;
         clearMessage();
     }
 
+    /* 반려동물 카드의 수정 버튼을 수정 폼과 연결 */
+    document.querySelectorAll(
+        '.edit-btn'
+    ).forEach(function (button) {
+        button.addEventListener(
+            'click',
+            function () {
+                loadPet(button);
+            }
+        );
+    });
+
+    /* 새 등록 버튼을 초기화 기능과 연결 */
+    const resetButton =
+        document.querySelector(
+            '.reset-btn'
+        );
+
+    if (resetButton) {
+        resetButton.addEventListener(
+            'click',
+            resetForm
+        );
+    }
+
+    /* 동물 종류 변경 시 해당 품종 목록을 다시 조회 */
+    const animalSelect =
+        document.getElementById(
+            'animalId'
+        );
+
+    if (animalSelect) {
+        animalSelect.addEventListener(
+            'change',
+            function () {
+                fillBreeds();
+            }
+        );
+    }
+
     function validatePetWeight() {
         const weight =
             Number(

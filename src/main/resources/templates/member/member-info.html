@@ -8,51 +8,8 @@
     <link rel="stylesheet" th:href="@{/css/member/mypage.css(v='20260729-4')}">
     <link rel="stylesheet" th:href="@{/css/common/footer.css(v='20260729-4')}">
     <script defer th:src="@{/js/common/footer.js(v='20260729-4')}"></script>
-
-    <style>
-        /*
-         * 일반회원 회원정보 수정 화면 전용
-         * 최근 정보 수정 박스를 아래 입력 폼의 오른쪽 열 시작선에 맞춥니다.
-         */
-        .profile-form .form-title {
-            position: relative;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            column-gap: 16px;
-            align-items: start;
-        }
-
-        .profile-form .form-title > div:first-child {
-            grid-column: 1;
-        }
-
-        .profile-form .form-title .profile-meta-row {
-            grid-column: 2;
-            justify-self: start;
-            margin: 0;
-        }
-
-        .profile-form .form-title > small {
-            position: absolute;
-            top: 0;
-            right: 0;
-        }
-
-        @media (max-width: 760px) {
-            .profile-form .form-title {
-                grid-template-columns: 1fr;
-                row-gap: 12px;
-            }
-
-            .profile-form .form-title .profile-meta-row {
-                grid-column: 1;
-            }
-
-            .profile-form .form-title > small {
-                position: static;
-            }
-        }
-    </style>
+    <!-- member-info.html 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/member/pages/member-info.css}">
 </head>
 <body>
 <header th:replace="~{common/head :: head}"></header>

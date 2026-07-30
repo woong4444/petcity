@@ -24,6 +24,7 @@
 
     <script defer
             th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
+    <script defer th:src="@{/js/member/login.js}"></script>
 
 </head>
 
@@ -184,47 +185,6 @@
 
 <!-- ================= 공통 하단 푸터 ================= -->
 <div th:replace="~{common/footer :: footer}"></div>
-
-<script>
-
-    const loginForm = document.querySelector("#loginForm");
-    const loginBtn = document.querySelector("#loginBtn");
-
-    const passwordInput =
-        document.querySelector("#password");
-
-    const togglePasswordBtn =
-        document.querySelector("#togglePasswordBtn");
-
-    // ============================
-    // 비밀번호 보기/숨기기
-    // ============================
-
-    togglePasswordBtn.addEventListener("click", () => {
-
-        const hidden =
-            passwordInput.type === "password";
-
-        passwordInput.type =
-            hidden ? "text" : "password";
-
-        togglePasswordBtn.textContent =
-            hidden ? "숨기기" : "보기";
-
-    });
-
-    // ============================
-    // 로그인 중 중복 클릭 방지
-    // ============================
-
-    loginForm.addEventListener("submit", () => {
-
-        loginBtn.disabled = true;
-        loginBtn.textContent = "로그인 중...";
-
-    });
-
-</script>
 
 </body>
 
