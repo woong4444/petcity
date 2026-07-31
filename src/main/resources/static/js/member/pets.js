@@ -35,12 +35,6 @@ const MIN_PET_WEIGHT = 0.1;
             'registrationNo'
         );
 
-    const MAX_REGISTRATION_NO_LENGTH = 15;
-
-    const registrationNoMessage =
-        document.getElementById(
-            'registrationNoMessage'
-        );
 
     const petPhotoInput =
         document.getElementById(
@@ -93,143 +87,6 @@ const MIN_PET_WEIGHT = 0.1;
         );
 
         saveMessage.textContent = '';
-    }
-
-    /**
-     * 반려동물 등록번호에서 숫자가 아닌 문자를 제거합니다.
-     * 등록번호는 계산용 숫자가 아니므로 type=number 대신 문자열로 관리합니다.
-     */
-    function normalizeRegistrationNo(value) {
-        return String(value || '')
-            .replace(/[^0-9]/g, '')
-            .slice(0, MAX_REGISTRATION_NO_LENGTH);
-    }
-
-    function sanitizeRegistrationNo() {
-        if (!registrationNoInput) {
-            return;
-        }
-
-        registrationNoInput.value =
-            normalizeRegistrationNo(
-                registrationNoInput.value
-            );
-    }
-
-    function setRegistrationNoMessage(message, type) {
-        if (!registrationNoMessage) {
-            return;
-        }
-
-        registrationNoMessage.textContent = message;
-        registrationNoMessage.classList.remove(
-            'is-error',
-            'is-valid'
-        );
-
-        if (type) {
-            registrationNoMessage.classList.add(type);
-        }
-    }
-
-    function clearRegistrationNoState() {
-        if (registrationNoInput) {
-            registrationNoInput.classList.remove(
-                'input-error',
-                'input-valid'
-            );
-        }
-
-        setRegistrationNoMessage('', '');
-    }
-
-    /* 현재 화면에 표시된 내 반려동물 등록번호와의 중복을 즉시 확인합니다. */
-    function isDuplicateRegistrationNo(registrationNo) {
-        if (!registrationNo) {
-            return false;
-        }
-
-        const currentPetId =
-            document.getElementById('petId').value;
-
-        return Array.from(
-            document.querySelectorAll('.edit-btn')
-        ).some(function (button) {
-            const savedRegistrationNo =
-                normalizeRegistrationNo(
-                    button.dataset.reg || ''
-                );
-
-            const savedPetId =
-                String(button.dataset.id || '');
-
-            return savedRegistrationNo === registrationNo
-                && savedPetId !== String(currentPetId || '0');
-        });
-    }
-
-    function validateRegistrationNo() {
-        if (!registrationNoInput) {
-            return true;
-        }
-
-        sanitizeRegistrationNo();
-        clearRegistrationNoState();
-
-        const registrationNo =
-            registrationNoInput.value;
-
-        if (registrationNo === '') {
-            return true;
-        }
-
-        if (!/^[0-9]{1,15}$/.test(registrationNo)) {
-            registrationNoInput.classList.add('input-error');
-            setRegistrationNoMessage(
-                '등록번호는 숫자만 최대 15자리까지 입력해 주세요.',
-                'is-error'
-            );
-            showError(
-                '반려동물 등록번호는 숫자만 최대 15자리까지 입력해 주세요.'
-            );
-            registrationNoInput.focus();
-            return false;
-        }
-
-        if (isDuplicateRegistrationNo(registrationNo)) {
-            registrationNoInput.classList.add('input-error');
-            setRegistrationNoMessage(
-                '이미 등록된 반려동물 등록번호입니다.',
-                'is-error'
-            );
-            showError(
-                '이미 등록된 반려동물 등록번호입니다.'
-            );
-            registrationNoInput.focus();
-            return false;
-        }
-
-        registrationNoInput.classList.add('input-valid');
-        setRegistrationNoMessage(
-            '현재 등록된 내 반려동물과 중복되지 않습니다.',
-            'is-valid'
-        );
-
-        return true;
-    }
-
-    function isDuplicateRegistrationNoResponse(result) {
-        const message = String(
-            result && result.message
-                ? result.message
-                : ''
-        ).toLowerCase();
-
-        return message.includes('registration_no')
-            || message.includes('uk_pet_registration_no')
-            || message.includes('unique constraint')
-            || message.includes('중복')
-            || message.includes('이미 등록');
     }
 
     function fillBreeds(
@@ -311,11 +168,7 @@ const MIN_PET_WEIGHT = 0.1;
             button.dataset.weight;
 
         registrationNoInput.value =
-            normalizeRegistrationNo(
-                button.dataset.reg || ''
-            );
-
-        clearRegistrationNoState();
+            button.dataset.reg || '';
 
         petPhotoInput.value = '';
         updatePetPhotoName(null);
@@ -367,7 +220,6 @@ const MIN_PET_WEIGHT = 0.1;
             'saveBtn'
         ).disabled = false;
 
-        clearRegistrationNoState();
         clearMessage();
     }
 
@@ -569,66 +421,6 @@ const MIN_PET_WEIGHT = 0.1;
         }
     );
 
-    if (registrationNoInput) {
-        registrationNoInput.addEventListener(
-            'input',
-            function () {
-                const sanitizedValue =
-                    normalizeRegistrationNo(
-                        this.value
-                    );
-
-                if (this.value !== sanitizedValue) {
-                    this.value = sanitizedValue;
-                }
-
-                clearMessage();
-                clearRegistrationNoState();
-
-                if (this.value === '') {
-                    return;
-                }
-
-                if (isDuplicateRegistrationNo(this.value)) {
-                    this.classList.add('input-error');
-                    setRegistrationNoMessage(
-                        '이미 등록된 반려동물 등록번호입니다.',
-                        'is-error'
-                    );
-                    return;
-                }
-
-                this.classList.add('input-valid');
-                setRegistrationNoMessage(
-                    '현재 등록된 내 반려동물과 중복되지 않습니다.',
-                    'is-valid'
-                );
-            }
-        );
-
-        registrationNoInput.addEventListener(
-            'paste',
-            function (event) {
-                event.preventDefault();
-
-                const pastedText =
-                    event.clipboardData
-                        .getData('text');
-
-                this.value =
-                    normalizeRegistrationNo(
-                        pastedText
-                    );
-
-                this.dispatchEvent(
-                    new Event('input', {
-                        bubbles: true
-                    })
-                );
-            }
-        );
-    }
-
     petPhotoInput.addEventListener(
         'change',
         function () {
@@ -684,9 +476,6 @@ const MIN_PET_WEIGHT = 0.1;
                 return;
             }
 
-            if (!validateRegistrationNo()) {
-                return;
-            }
 
             if (!validatePetImage()) {
                 return;
@@ -717,22 +506,10 @@ const MIN_PET_WEIGHT = 0.1;
                 if (!response.ok
                     || !result.isSuccess) {
 
-                    if (isDuplicateRegistrationNoResponse(result)) {
-                        registrationNoInput.classList.add('input-error');
-                        setRegistrationNoMessage(
-                            '이미 다른 반려동물에 등록된 등록번호입니다.',
-                            'is-error'
-                        );
-                        showError(
-                            '이미 등록된 반려동물 등록번호입니다. 다른 번호를 입력해 주세요.'
-                        );
-                        registrationNoInput.focus();
-                    } else {
-                        showError(
-                            result.message
-                            || '저장하지 못했습니다. 입력 내용을 확인해 주세요.'
-                        );
-                    }
+                    showError(
+                        result.message
+                        || '저장하지 못했습니다. 입력 내용을 확인해 주세요.'
+                    );
 
                     saveButton.disabled =
                         false;

@@ -346,25 +346,10 @@
                     <label>
                         등록번호 (선택)
 
-                        <input type="text"
-                               name="registrationNo"
+                        <input name="registrationNo"
                                id="registrationNo"
                                maxlength="15"
-                               inputmode="numeric"
-                               pattern="[0-9]{0,15}"
-                               autocomplete="off"
-                               aria-describedby="registrationNoGuide"
-                               placeholder="숫자만 최대 15자리">
-
-                        <span class="input-guide"
-                              id="registrationNoGuide">
-                            숫자만 최대 15자리까지 입력할 수 있으며,
-                            다른 반려동물과 중복 등록할 수 없습니다.
-                        </span>
-
-                        <span class="registration-no-message"
-                              id="registrationNoMessage"
-                              aria-live="polite"></span>
+                               placeholder="최대 15자리">
                     </label>
 
                     <!-- 이미지 형식과 크기는 자바스크립트와 서버에서 검증 -->
