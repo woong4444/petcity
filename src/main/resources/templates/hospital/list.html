@@ -114,14 +114,17 @@
                         <input type="checkbox" id="seoulAll" value="">
                         <span>서울 전체</span>
                     </label>
+
+                    <!-- ★ HTML 레벨에서 '1'이나 'http' 주소, 너무 긴 글자 등의 쓰레기 값을 완벽 차단하는 안전 조건 ★ -->
                     <th:block th:each="item : ${districtList}">
                         <label class="pill-check seoul-district"
-                               th:if="${!item.contains('시 ') and !item.endsWith('군') and !item.endsWith('시')}">
+                               th:if="${item != null and !item.startsWith('http') and !item.contains('http') and item != '1' and #strings.length(item) >= 2 and #strings.length(item) &lt;= 10 and (!item.contains('시 ') or item.contains('일산'))}">
                             <input type="checkbox" name="districts" th:value="${item}"
                                    th:checked="${districts != null and districts.contains(item)}">
                             <span th:text="${item}">구이름</span>
                         </label>
                     </th:block>
+
                     <label class="pill-check">
                         <input type="checkbox" id="otherAll" value="OTHER" th:checked="${otherAllChecked}">
                         <span>그 외 지역 전체</span>
@@ -129,7 +132,7 @@
                     <div class="hidden-element">
                         <th:block th:each="item : ${districtList}">
                             <input type="checkbox" name="districts" class="hidden-other-district" th:value="${item}"
-                                   th:if="${item.contains('시 ') or item.endsWith('군') or item.endsWith('시')}"
+                                   th:if="${item != null and !item.startsWith('http') and item != '1' and (item.contains('시 ') or item.endsWith('군') or item.endsWith('시'))}"
                                    th:checked="${districts != null and districts.contains(item)}">
                         </th:block>
                     </div>
@@ -222,11 +225,22 @@
                                       class="district-badge badge-status-susp">휴업</span>
                             </div>
 
-                            <h2 class="hospital-name hospital-name-text go-detail-link"
+                            <h2 class="hospital-name go-detail-link"
                                 th:data-url="@{/hospital/view(hospitalId=${hospital.hospitalId})}"
                                 th:data-status="${hospital.currentStatus}"
                                 th:data-notice="${hospital.tempCloseReason != null and hospital.tempCloseReason != '' ? hospital.tempCloseReason : '등록된 휴업 사유가 없습니다.'}">
-                                <span th:text="${hospital.name}">병원 이름</span>
+                                <span class="name-text" th:text="${hospital.name}">병원 이름</span>
+                                <a th:if="${hospital.websiteUrl != null and hospital.websiteUrl != ''}"
+                                   th:href="${#strings.startsWith(hospital.websiteUrl, 'http') ? hospital.websiteUrl : 'http://' + hospital.websiteUrl}"
+                                   target="_blank"
+                                   onclick="event.stopPropagation();"
+                                   title="웹사이트 방문"
+                                   class="website-link-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z" />
+                                        <path d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z" />
+                                    </svg>
+                                </a>
                             </h2>
 
                             <div class="rating-wrap">
