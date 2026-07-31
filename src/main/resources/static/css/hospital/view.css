@@ -51,11 +51,16 @@ body {
     position: relative;
 }
 
+/* 🌟 상세페이지 상단 메인 카드도 유리 질감으로 고급화 */
 .info-card {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    border-radius: 32px;
     padding: 32px;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     margin-bottom: 24px;
     text-align: center;
 }
@@ -532,4 +537,44 @@ body {
     color: #cbd5e1;
     pointer-events: none;
     border-color: #f1f5f9;
+}
+
+/* 🌟 카카오맵 버튼 전용 쌈뽕한 효과 */
+.btn-kakao-map {
+    /* 카카오 고유 옐로우 컬러를 그라데이션으로 입체감 있게 표현 */
+    background: linear-gradient(135deg, #FDE500 0%, #E6C800 100%);
+    color: #372929 !important;
+    border: 1px solid rgba(254, 229, 0, 0.8);
+
+    /* 은은하게 퍼지는 노란색 네온 글로우 그림자 */
+    box-shadow: 0 10px 25px -5px rgba(253, 229, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    position: relative;
+}
+
+.btn-kakao-map:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px -5px rgba(253, 229, 0, 0.6),
+    0 0 15px rgba(253, 229, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+.btn-kakao-map:active {
+    transform: translateY(0px);
+    box-shadow: 0 5px 15px -5px rgba(253, 229, 0, 0.4);
+}
+
+/* 🌟 버튼 내부 빛반사 애니메이션 (스르륵 지나가는 효과) */
+.kakao-shimmer {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.5), transparent);
+}
+.btn-kakao-map:hover .kakao-shimmer {
+    animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
 }
