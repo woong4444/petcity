@@ -7,13 +7,17 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
-    <<title>계정 복구 완료 | PetCity</title>
+    <title>계정 복구 완료 | PetCity</title>
 
     <!-- 07-22 상각 : 공통 헤더 CSS 적용 -->
     <link rel="stylesheet"
           th:href="@{/css/common/head.css}">
     <!-- recovery-complete.html 페이지 전용 스타일 -->
     <link rel="stylesheet" th:href="@{/css/member/pages/recovery-complete.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
 </head>
 
 <body>
@@ -43,5 +47,6 @@
 
 </div>
 
+<div th:replace="~{common/footer :: footer}"></div>
 </body>
 </html>

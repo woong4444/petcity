@@ -30,6 +30,12 @@ const MIN_PET_WEIGHT = 0.1;
             'birthDate'
         );
 
+    const registrationNoInput =
+        document.getElementById(
+            'registrationNo'
+        );
+
+
     const petPhotoInput =
         document.getElementById(
             'petPhoto'
@@ -161,9 +167,7 @@ const MIN_PET_WEIGHT = 0.1;
         weightInput.value =
             button.dataset.weight;
 
-        document.getElementById(
-            'registrationNo'
-        ).value =
+        registrationNoInput.value =
             button.dataset.reg || '';
 
         petPhotoInput.value = '';
@@ -471,6 +475,7 @@ const MIN_PET_WEIGHT = 0.1;
             if (!validatePetBirthDate()) {
                 return;
             }
+
 
             if (!validatePetImage()) {
                 return;

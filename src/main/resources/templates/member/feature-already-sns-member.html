@@ -1,19 +1,40 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
     <title>이미 가입된 계정 | PetCity</title>
+
+    <!-- 공통 헤더 CSS -->
     <link rel="stylesheet"
           th:href="@{/css/common/head.css}">
+
     <!-- feature-already-sns-member.html 페이지 전용 스타일 -->
-    <link rel="stylesheet" th:href="@{/css/member/pages/feature-already-sns-member.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/member/pages/feature-already-sns-member.css}">
+
+    <!-- 공통 후터 CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+
+    <!-- 공통 후터 JS -->
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
 </head>
+
 <body>
+
 <header th:replace="~{common/head :: head}"></header>
 
 <div class="already-sns-page">
+
     <main class="card">
+
         <!-- 상각_07-19: 기존 SNS 회원의 중복 회원가입 방지 안내 -->
         <h1>이미 가입된 SNS 계정입니다</h1>
 
@@ -22,16 +43,24 @@
         </div>
 
         <p>
-            새로 가입할 필요 없이 로그인 페이지에서 같은 SNS 계정으로 로그인해 주세요.
+            새로 가입할 필요 없이 로그인 페이지에서 같은 SNS 계정으로
+            로그인해 주세요.
         </p>
 
         <div class="actions">
+
             <a class="login"
                th:href="@{/member/login}">
                 로그인 페이지로
             </a>
+
         </div>
+
     </main>
+
 </div>
+
+<div th:replace="~{common/footer :: footer}"></div>
+
 </body>
 </html>

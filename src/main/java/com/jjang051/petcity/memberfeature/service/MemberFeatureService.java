@@ -4,6 +4,7 @@ package com.jjang051.petcity.memberfeature.service;
 import com.jjang051.petcity.memberfeature.dao.MemberFeatureMapper;
 import com.jjang051.petcity.memberfeature.dto.MemberFeatureAccountDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,11 +67,16 @@ public class MemberFeatureService {
         String normalizedReason =
                 reason == null ? "" : reason.trim();
 
-        if (normalizedReason.length() < 5
-                || normalizedReason.length() > 500) {
+        // 한글·이모지 등도 화면 안내와 동일하게 "문자 수" 기준으로 검사한다.
+        int reasonLength = normalizedReason.codePointCount(
+                0,
+                normalizedReason.length()
+        );
+
+        if (reasonLength < 5 || reasonLength > 120) {
 
             throw new IllegalArgumentException(
-                    "탈퇴 사유를 5~500자로 입력해주세요."
+                    "탈퇴 사유를 5~120자로 입력해주세요."
             );
         }
 
@@ -78,11 +84,25 @@ public class MemberFeatureService {
         String code = createRecoveryCode();
 
         // 기존 DB 복구코드 암호화 저장
-        int result = mapper.requestWithdrawal(
-                id,
-                normalizedReason,
-                passwordEncoder.encode(code)
-        );
+        int result;
+
+        try {
+            result = mapper.requestWithdrawal(
+                    id,
+                    normalizedReason,
+                    passwordEncoder.encode(code)
+            );
+        } catch (DataIntegrityViolationException exception) {
+            /*
+             * 기존 DB가 DELETE_REASON VARCHAR2(500 BYTE)인 경우
+             * 한글 입력이 500바이트를 넘어 ORA-12899가 발생할 수 있다.
+             * 일반 500 페이지로 보내지 않고 사용자가 이해할 수 있는 메시지로 변환한다.
+             */
+            throw new IllegalArgumentException(
+                    "탈퇴 사유 저장 용량을 초과했습니다. 내용을 조금 줄여 다시 입력해주세요.",
+                    exception
+            );
+        }
 
         if (result != 1) {
             throw new IllegalArgumentException(
