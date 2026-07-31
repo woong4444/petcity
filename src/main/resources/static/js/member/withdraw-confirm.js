@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const length = countCharacters(reasonInput.value);
 
             if (counter) {
-                counter.textContent = `${length} / 500자`;
+                counter.textContent = `${length} / 120자`;
             }
 
             reasonInput.setCustomValidity("");
@@ -31,10 +31,10 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener("submit", function (event) {
             const length = countCharacters(reasonInput.value);
 
-            if (length < 5 || length > 500) {
+            if (length < 5 || length > 120) {
                 event.preventDefault();
                 reasonInput.setCustomValidity(
-                    "탈퇴 사유는 한글·영문 관계없이 공백 제외 5자 이상 500자 이하로 입력해 주세요."
+                    "탈퇴 사유는 한글·영문 관계없이 공백 제외 5자 이상 120자 이하로 입력해 주세요."
                 );
                 reasonInput.reportValidity();
                 reasonInput.focus();

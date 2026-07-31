@@ -1,24 +1,93 @@
 <!-- 상각_07-19: 8080 기능 추가 및 수정 -->
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
     <title>아이디 찾기 | PetCity</title>
-    <link rel="stylesheet" th:href="@{/css/common/head.css}">
+
+    <!-- 공통 헤더 CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/head.css}">
+
     <!-- find-id.html 페이지 전용 스타일 -->
-    <link rel="stylesheet" th:href="@{/css/member/pages/find-id.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/member/pages/find-id.css}">
+
+    <!-- 공통 후터 CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/common/footer.css(v='20260730-1')}">
+
+    <!-- 공통 후터 JS -->
+    <script defer
+            th:src="@{/js/common/footer.js(v='20260730-1')}"></script>
 </head>
+
 <body>
+
 <header th:replace="~{common/head :: head}"></header>
-<main class="box"><h1>아이디 찾기</h1>
-    <p>일반 회원가입 때 등록한 이메일을 입력해주세요.<br>SNS 회원의 아이디는 해당 SNS 이메일 계정입니다.</p>
-    <div th:if="${message}" class="msg" th:text="${message}"></div>
-    <div th:if="${foundLoginId}" class="msg result">회원님의 아이디는 <strong th:text="${foundLoginId}"></strong> 입니다.</div>
-    <form method="post" action="/member/find-id"><label>가입 이메일</label><input type="email" name="email" required>
-        <button>아이디 찾기</button>
+
+<main class="box">
+
+    <h1>아이디 찾기</h1>
+
+    <p>
+        일반 회원가입 때 등록한 이메일을 입력해주세요.
+        <br>
+        SNS 회원의 아이디는 해당 SNS 이메일 계정입니다.
+    </p>
+
+    <div th:if="${message}"
+         class="msg"
+         th:text="${message}">
+    </div>
+
+    <div th:if="${foundLoginId}"
+         class="msg result">
+
+        회원님의 아이디는
+
+        <strong th:text="${foundLoginId}"></strong>
+
+        입니다.
+
+    </div>
+
+    <form method="post"
+          action="/member/find-id">
+
+        <label for="email">
+            가입 이메일
+        </label>
+
+        <input id="email"
+               type="email"
+               name="email"
+               autocomplete="email"
+               required>
+
+        <button type="submit">
+            아이디 찾기
+        </button>
+
     </form>
-    <div class="links"><a href="/member/login">로그인으로 돌아가기</a></div>
+
+    <div class="links">
+
+        <a href="/member/login">
+            로그인으로 돌아가기
+        </a>
+
+    </div>
+
 </main>
+
+<div th:replace="~{common/footer :: footer}"></div>
+
 </body>
 </html>

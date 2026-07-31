@@ -73,10 +73,10 @@ public class MemberFeatureService {
                 normalizedReason.length()
         );
 
-        if (reasonLength < 5 || reasonLength > 500) {
+        if (reasonLength < 5 || reasonLength > 120) {
 
             throw new IllegalArgumentException(
-                    "탈퇴 사유를 5~500자로 입력해주세요."
+                    "탈퇴 사유를 5~120자로 입력해주세요."
             );
         }
 
