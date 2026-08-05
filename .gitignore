@@ -36,6 +36,5 @@ out/
 ### oauth ###
 src/main/resources/application-oauth.yml
 src/main/resources/application.yml
-src/main/resources/static/audio/*
 ### VS Code ###
 .vscode/
