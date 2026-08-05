@@ -87,10 +87,18 @@ public class AdminHospitalManagementService {
         if (pendingRequestCount > 0) {
             throw new IllegalStateException("처리 대기 중인 요청이 있어 벼우언을 삭제할 수 없습니다.");
         }
+
+        Long ownerId = adminHospitalManagementDao.findOwnerIdByHospitalId(hospitalId);
+
+        if (ownerId == null) {
+            throw new IllegalStateException("병원장 정보를 찾을 수 없습니다.");
+        }
         int insertedHistoryCount = adminHospitalManagementDao.insertHospitalDeleteHistory(hospitalId, deletedBy);
         if (insertedHistoryCount != 1) {
             throw new IllegalStateException("폐업 처리된 병원만 영구 삭제할 수 있습니다.");
         }
+
+
         adminHospitalManagementDao.deleteHospitalUpdateRequestAnimals(hospitalId);
         adminHospitalManagementDao.deleteHospitalUpdateRequestServices(hospitalId);
         adminHospitalManagementDao.deleteHospitalUpdateRequestSubjects(hospitalId);
@@ -100,7 +108,6 @@ public class AdminHospitalManagementService {
         adminHospitalManagementDao.deleteHospitalSubjects(hospitalId);
         adminHospitalManagementDao.deleteHospitalReviews(hospitalId);
         adminHospitalManagementDao.deleteHospitalLikes(hospitalId);
-
         adminHospitalManagementDao.disconnectHospitalOwnerRequests(hospitalId);
 
         int deletedHospitalCount = adminHospitalManagementDao.hardDeleteClosedHospital(hospitalId);
@@ -108,11 +115,7 @@ public class AdminHospitalManagementService {
         if (deletedHospitalCount != 1) {
             throw new IllegalStateException("병원 삭제에 실패했습니다.");
         }
-
-
-
-
-
+        adminHospitalManagementDao.updateMemberRoleToUserIfNoHospital(ownerId);
     }
 
 

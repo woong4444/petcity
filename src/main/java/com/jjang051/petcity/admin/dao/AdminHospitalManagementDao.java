@@ -40,7 +40,11 @@ public interface AdminHospitalManagementDao {
                        @Param("requestType") String requestType);
 
 
-    List<AdminHospitalManagementDto> findHospitals(@Param("keyword") String keyword,
+    Long findOwnerIdByHospitalId(@Param("hospitalId") Long hospitalId);
+    int updateMemberRoleToUserIfNoHospital(@Param("ownerId") Long ownerId);
+
+
+            List<AdminHospitalManagementDto> findHospitals(@Param("keyword") String keyword,
                                                    @Param("animalType") Integer animalType, @Param("requestType")
                                                    String requestType, @Param("sortBy") String sortBy,
                                                    @Param("direction") String direction,
