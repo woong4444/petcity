@@ -354,4 +354,21 @@
         FETCH NEXT #{pageSize} ROWS ONLY
     </select>
 
+
+    <select id="findOwnerIdByHospitalId" resultType="long">
+        SELECT OWNER_ID FROM HOSPITAL WHERE HOSPITAL_ID = #{hospitalId}
+    </select>
+
+    <update id="updateMemberRoleToUserIfNoHospital">
+        UPDATE APP_MEMBER
+        SET ROLE = 'USER',
+        UPDATED_AT = SYSTIMESTAMP
+        WHERE MEMBER_ID = #{ownerId}
+        AND ROLE = 'OWNER'
+        AND NOT EXISTS (
+        SELECT 1
+        FROM HOSPITAL
+        WHERE OWNER_ID = #{ownerId} )
+    </update>
+
 </mapper>
