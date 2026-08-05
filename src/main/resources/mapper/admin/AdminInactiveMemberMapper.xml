@@ -34,7 +34,11 @@
         AND ROLE != 'ADMIN'
         AND HARD_DELETE_AT IS NOT NULL
         AND HARD_DELETE_AT <![CDATA[ <= ]]> LOCALTIMESTAMP
-        AND ( MEMBER_STATUS = 'DELETE_PENDING'
+        AND (
+        (
+        STATUS = 'BLOCKED'
+        AND MEMBER_STATUS = 'DELETE_PENDING'
+        )
                 OR( STATUS = 'DELETED' AND MEMBER_STATUS = 'DELETED')
             )
     </delete>
